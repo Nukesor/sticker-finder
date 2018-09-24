@@ -3,15 +3,16 @@ import time
 import telegram
 import traceback
 from functools import wraps
-from random import randrange
-from raven import breadcrumbs
 
 from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat
 
 
-tag_format = """tag1, tag2, tag3, tag4
+tag_format = """If you don't want to edit a sticker, just send /next
+Your messages should be formatted like this:
+
+tag1, tag2, tag3, tag4
 Some random text maybe what's inside the sticker.
 
 or if you don't want to add text simply write:
@@ -22,17 +23,33 @@ tag1, tag2, tag3, tag4
 
 help_text = """A tag message should be formatted like this:
 
-""" + tag_format
+{tag_format}
+"""
 
-tag_text = """Now please send tags and text for each sticker I'll send you.
-Your messages should be formatted like this:
+tag_text = f"""Now please send tags and text for each sticker I'll send you.
 
-""" + tag_format
+{tag_format}
+"""
 
-single_tag_text = """Please send tags and text for this sticker.
-Your messages should be formatted like this:
+single_tag_text = f"""Please send tags and text for this sticker.
 
-""" + tag_format
+{tag_format}
+"""
+
+
+def current_sticker_tags_message(sticker):
+    """Create a message displaying the current text and tags."""
+    tags = [tag.name for tag in sticker.tags]
+    tags_text = ', '.join(tags)
+
+    if len(tags) == 0 and sticker.text is None:
+        return None
+    elif len(tags) > 0 and sticker.text is None:
+        return f"""Current tags: \n {tags_text}"""
+    elif len(tags) == 0 and sticker.text is not None:
+        return f"""Current text: \n {sticker.text}"""
+    else:
+        return f"""Current tags and text: \n {tags_text} \n {sticker.text}"""
 
 
 def session_wrapper(send_message=True):

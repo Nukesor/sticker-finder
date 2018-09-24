@@ -1,6 +1,7 @@
 """A bot which checks if there is a new record in the server section of hetzner."""
 import re
 from uuid import uuid4
+from sqlalchemy import func, or_
 from telegram import (
     InlineQueryResultCachedSticker,
 )
@@ -15,6 +16,7 @@ from telegram.ext import (
 
 from stickerfinder.config import config
 from stickerfinder.helper import (
+    current_sticker_tags_message,
     help_text,
     tag_text,
     single_tag_text,
@@ -23,6 +25,7 @@ from stickerfinder.helper import (
 from stickerfinder.models import (
     Sticker,
     StickerSet,
+    sticker_tag,
     Tag,
 )
 
@@ -69,6 +72,41 @@ def tag_single(bot, update, session, chat):
     return 'Please send me the sticker.'
 
 
+@session_wrapper()
+def next(bot, update, session, chat):
+    """Initialize tagging of a whole set."""
+    if chat.type != 'private':
+        return 'Please tag in direct conversation with me.'
+
+    # We are currently tagging a single sticker. Cancel that command.
+    if chat.expecting_single_sticker:
+        chat.cancel()
+
+    # We are tagging a whole sticker set. Skip the current sticker
+    elif chat.full_sticker_set:
+        # Check there is a next sticker
+        found_next = get_next(chat, update)
+        if found_next:
+            return found_next
+
+        # If there are no more stickers, reset the chat and send success message.
+        chat.cancel()
+        return 'The full sticker set is now tagged.'
+
+
+def get_next(chat, update):
+    """Get the next sticker for tagging in the set."""
+    stickers = chat.current_sticker_set.stickers
+    for index, sticker in enumerate(stickers):
+        if sticker == chat.current_sticker and index+1 < len(stickers):
+            chat.current_sticker = stickers[index+1]
+
+            # Send next sticker and the tags of this sticker
+            update.message.chat.send_sticker(chat.current_sticker.file_id)
+
+            return current_sticker_tags_message(chat.current_sticker)
+
+
 def initialize_set_tagging(bot, update, session, name, chat):
     """Initialize the set tag functionality of a chat."""
     try:
@@ -85,6 +123,10 @@ def initialize_set_tagging(bot, update, session, name, chat):
     update.message.chat.send_message(tag_text)
     update.message.chat.send_sticker(chat.current_sticker.file_id)
 
+    current = current_sticker_tags_message(chat.current_sticker)
+    if current is not None:
+        update.message.chat.send_message(current)
+
 
 def tag_sticker(session, text, sticker):
     """Tag a single sticker."""
@@ -95,22 +137,25 @@ def tag_sticker(session, text, sticker):
         incoming_tags = splitted[0]
         text = None
 
-    # Split tags and strip them
-    incoming_tags = incoming_tags.lower()
-    incoming_tags = re.findall(r"[\w']+", incoming_tags)
+    # Only tag if we have some text
+    if incoming_tags != '':
+        # Split tags and strip them
+        incoming_tags = incoming_tags.lower()
+        incoming_tags = re.findall(r"[\w']+", incoming_tags)
 
-    tags = []
-    for incoming_tag in incoming_tags:
-        if incoming_tag == '':
-            continue
-        tag = Tag.get_or_create(session, incoming_tag)
-        tags.append(tag)
-        session.add(tag)
+        tags = []
+        for incoming_tag in incoming_tags:
+            if incoming_tag == '':
+                continue
+            tag = Tag.get_or_create(session, incoming_tag)
+            tags.append(tag)
+            session.add(tag)
 
-    # Remove old tags and add new tags
-    sticker.tags = tags
+        # Remove old tags and add new tags
+        sticker.tags = tags
 
-    sticker.text = text
+    if text is not None and text != '':
+        sticker.text = text
 
     return True
 
@@ -140,13 +185,11 @@ def handle_text(bot, update, session, chat):
         if not success:
             return
 
-        stickers = chat.current_sticker_set.stickers
-        for index, sticker in enumerate(stickers):
-            if sticker == chat.current_sticker and index+1 < len(stickers):
-                chat.current_sticker = stickers[index+1]
-
-                update.message.chat.send_sticker(chat.current_sticker.file_id)
-                return
+        # Send the next sticker
+        # If there are no more stickers, reset the chat and send success message.
+        found_next = get_next(chat, update)
+        if found_next:
+            return found_next
 
         chat.cancel()
         return 'The full sticker set is now tagged.'
@@ -176,7 +219,8 @@ def handle_private_sticker(bot, update, session, chat):
 
         chat.current_sticker = sticker
 
-        return single_tag_text
+        update.message.chat.send_message(single_tag_text)
+        return current_sticker_tags_message(chat.current_sticker)
 
     return
 
@@ -204,36 +248,80 @@ def handle_group_sticker(bot, update, session, chat):
 def find_stickers(bot, update, session):
     """Handle inline queries for sticker search."""
     query = update.inline_query.query.strip().lower()
+    tags = query.split(' ')
+    tags = [tag.strip() for tag in tags]
 
     # Don't accept very short queries
     if len(query) < 3:
         return
 
-    # Search for matching text_stickers
+    # At first we check for results, where one tag ilke matches the name of the set
+    # and where at least one tag matches the sticker tag.
+    conditions = []
+    for tag in tags:
+        conditions.append(StickerSet.name.ilike(f'%{tag}%'))
+
+    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
+    name_tag_stickers = session.query(Sticker, tag_count) \
+        .join(Sticker.tags) \
+        .join(Sticker.sticker_set) \
+        .filter(Tag.name.in_(tags)) \
+        .filter(or_(*conditions)) \
+        .group_by(Sticker) \
+        .having(tag_count > 0) \
+        .order_by(tag_count.desc()) \
+        .all()
+
+    name_tag_stickers = [result[0] for result in name_tag_stickers]
+
+    # Search for matching stickers by text
     text_stickers = session.query(Sticker) \
         .filter(Sticker.text.ilike(f'%{query}%')) \
-        .limit(5) \
         .all()
 
-    tags = re.findall(r"[\w']+", query)
-
-    tag_stickers = session.query(Sticker) \
+    # Search for matching stickers by tags
+    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
+    tag_stickers = session.query(Sticker, tag_count) \
+        .join(Sticker.tags) \
         .filter(Sticker.text.ilike(f'%{query}%')) \
-        .limit(20) \
+        .filter(Tag.name.in_(tags)) \
+        .group_by(Sticker) \
+        .having(tag_count > 0) \
+        .order_by(tag_count.desc()) \
         .all()
 
-    matching_stickers = text_stickers
+    # Search for matching stickers with a matching set name
+    set_name_stickers = session.query(Sticker) \
+        .join(Sticker.sticker_set) \
+        .filter(or_(*conditions)) \
+        .all()
+
+    tag_stickers = [result[0] for result in tag_stickers]
+
+    # Now add all found sticker together and deduplicate without killing the order.
+    matching_stickers = name_tag_stickers
+
+    for sticker in text_stickers:
+        if sticker not in matching_stickers:
+            matching_stickers.append(sticker)
 
     for sticker in tag_stickers:
         if sticker not in matching_stickers:
             matching_stickers.append(sticker)
 
+    for sticker in set_name_stickers:
+        if sticker not in matching_stickers:
+            matching_stickers.append(sticker)
+
+    # Create a result list with the cached sticker objects
     results = []
     for sticker in matching_stickers:
+        if len(results) == 50:
+            break
         results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=sticker.file_id))
 
-    update.inline_query.answer(results, cache_time=0, is_personal=True,
-                               switch_pm_text="Tag a sticker", switch_pm_parameter="inline")
+    update.inline_query.answer(results, cache_time=1, is_personal=True,
+                               switch_pm_text='Maybe tag some stickers :)?', switch_pm_parameter="inline")
 
 
 # Initialize telegram updater and dispatcher

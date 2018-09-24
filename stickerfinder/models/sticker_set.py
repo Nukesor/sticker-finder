@@ -75,6 +75,7 @@ class StickerSet(base):
                 stickers.append(sticker)
 
             sticker_set.stickers = stickers
+            sticker_set.complete = True
             session.commit()
             update.message.chat.send_message(f'Set {name} has been added.')
 
