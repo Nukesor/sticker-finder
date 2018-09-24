@@ -35,8 +35,8 @@ class Sticker(base):
     __tablename__ = 'sticker'
 
     file_id = Column(String, primary_key=True)
-    text = Column(String)
-    name = Column(String)
+    text = Column(String, index=True)
+    name = Column(String, index=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
