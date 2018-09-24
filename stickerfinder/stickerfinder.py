@@ -1,4 +1,5 @@
 """A bot which checks if there is a new record in the server section of hetzner."""
+import re
 from uuid import uuid4
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -95,8 +96,8 @@ def tag_sticker(session, text, sticker):
         text = None
 
     # Split tags and strip them
-    incoming_tags = incoming_tags.split(',')
-    incoming_tags = [tag.strip().lower() for tag in incoming_tags]
+    incoming_tags = incoming_tags.lower()
+    incoming_tags = re.findall(r"[\w']+", incoming_tags)
 
     tags = []
     for incoming_tag in incoming_tags:
@@ -144,11 +145,8 @@ def handle_text(bot, update, session, chat):
 
         stickers = chat.current_sticker_set.stickers
         for index, sticker in enumerate(stickers):
-            print(sticker)
             if sticker == chat.current_sticker and index+1 < len(stickers):
                 chat.current_sticker = stickers[index+1]
-                print(index)
-                print(chat.current_sticker)
 
                 update.message.chat.send_sticker(chat.current_sticker.file_id)
                 return
@@ -168,6 +166,7 @@ def handle_private_sticker(bot, update, session, chat):
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
     StickerSet.get_or_create(session, set_name, bot, update)
+
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
         initialize_set_tagging(bot, update, session, set_name, chat)
@@ -207,7 +206,30 @@ def handle_group_sticker(bot, update, session, chat):
 @session_wrapper(send_message=False)
 def find_stickers(bot, update, session):
     """Handle inline queries for sticker search."""
-    matching_stickers = session.query(Sticker).limit(10).all()
+    query = update.inline_query.query.strip().lower()
+
+    # Don't accept very short queries
+    if len(query) < 3:
+        return
+
+    # Search for matching text_stickers
+    text_stickers = session.query(Sticker) \
+        .filter(Sticker.text.ilike(f'%{query}%')) \
+        .limit(5) \
+        .all()
+
+    tags = re.findall(r"[\w']+", query)
+
+    tag_stickers = session.query(Sticker) \
+        .filter(Sticker.text.ilike(f'%{query}%')) \
+        .limit(20) \
+        .all()
+
+    matching_stickers = text_stickers
+
+    for sticker in tag_stickers:
+        if sticker not in matching_stickers:
+            matching_stickers.append(sticker)
 
     results = []
     for sticker in matching_stickers:
@@ -218,7 +240,7 @@ def find_stickers(bot, update, session):
 
 
 # Initialize telegram updater and dispatcher
-updater = Updater(token=config.TELEGRAM_API_KEY)
+updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
 
 # Create handler
 help_handler = CommandHandler('help', send_help_text)

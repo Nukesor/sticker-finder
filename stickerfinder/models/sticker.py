@@ -53,8 +53,11 @@ class Sticker(base):
         self.file_id = file_id
 
     @staticmethod
-    def get(session, file_id):
+    def get_or_create(session, file_id, name):
         """Get or create a new sticker."""
         sticker = session.query(Sticker).get(file_id)
+        if not sticker:
+            sticker = Sticker(file_id, name)
 
+        session.add(sticker)
         return sticker
