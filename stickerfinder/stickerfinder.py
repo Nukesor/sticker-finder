@@ -159,7 +159,8 @@ def tag_sticker(session, text, sticker, user):
             if incoming_tag == '':
                 continue
             tag = Tag.get_or_create(session, incoming_tag)
-            tags.append(tag)
+            if tag not in tags:
+                tags.append(tag)
             session.add(tag)
 
         # Remove old tags and add new tags
