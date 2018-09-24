@@ -6,4 +6,4 @@ sqlalchemy-utils~=0.33
 psycopg2-binary
 pytesseract
 pillow
-python-opencv
+opencv-python
