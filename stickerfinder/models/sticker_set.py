@@ -30,7 +30,7 @@ class StickerSet(base):
     def __init__(self, name, stickers):
         """Create a new StickerSet instance."""
         self.name = name
-        self.stickers = stickers
+        self.stickers = []
 
     @staticmethod
     def get_or_create(session, name, bot, update):

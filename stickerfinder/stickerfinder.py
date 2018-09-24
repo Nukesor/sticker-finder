@@ -108,10 +108,7 @@ def tag_sticker(session, text, sticker):
         session.add(tag)
 
     # Remove old tags and add new tags
-    for tag in sticker.tags:
-        sticker.tags.remove(tag)
-    for tag in tags:
-        sticker.tags.append(tag)
+    sticker.tags = tags
 
     sticker.text = text
 
