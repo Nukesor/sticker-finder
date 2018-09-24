@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 from stickerfinder.db import base
 from stickerfinder.models import chat_sticker_set, Sticker
 from stickerfinder.tg_helper import call_tg_func
+from stickerfinder.image_helper import preprocess_image
 
 
 class StickerSet(base):
@@ -58,12 +59,17 @@ class StickerSet(base):
                 # If the retry failes 5 times, we ignore the image
                 text = None
                 try:
+                    # Get Image and preprocess it
                     tg_file = call_tg_func(tg_sticker, 'get_file', kwargs={'timeout': 15})
                     image_bytes = call_tg_func(tg_file, 'download_as_bytearray')
                     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
+                    image = preprocess_image(image)
+
+                    # Extract text
                     text = image_to_string(image).strip().lower()
                     if text == '':
                         text = None
+
                 except telegram.error.TimedOut:
                     print(f'Finally failed on file {tg_sticker.file_id}')
                     pass

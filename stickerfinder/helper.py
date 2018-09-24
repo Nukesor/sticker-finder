@@ -1,7 +1,6 @@
 """Some static stuff or helper functions for sticker finder bot."""
-import time
-import telegram
 import traceback
+from PIL import Image
 from functools import wraps
 
 from stickerfinder.db import get_session
