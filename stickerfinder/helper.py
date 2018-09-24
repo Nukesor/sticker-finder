@@ -38,17 +38,14 @@ single_tag_text = f"""Please send tags and text for this sticker.
 
 def current_sticker_tags_message(sticker):
     """Create a message displaying the current text and tags."""
-    tags = [tag.name for tag in sticker.tags]
-    tags_text = ', '.join(tags)
-
-    if len(tags) == 0 and sticker.text is None:
+    if len(sticker.tags) == 0 and sticker.text is None:
         return None
-    elif len(tags) > 0 and sticker.text is None:
-        return f"""Current tags: \n {tags_text}"""
-    elif len(tags) == 0 and sticker.text is not None:
+    elif len(sticker.tags) > 0 and sticker.text is None:
+        return f"""Current tags: \n {sticker.tags_as_text()}"""
+    elif len(sticker.tags) == 0 and sticker.text is not None:
         return f"""Current text: \n {sticker.text}"""
     else:
-        return f"""Current tags and text: \n {tags_text} \n {sticker.text}"""
+        return f"""Current tags and text: \n {sticker.tags_as_text()} \n {sticker.text}"""
 
 
 def session_wrapper(send_message=True):

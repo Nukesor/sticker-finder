@@ -43,6 +43,7 @@ class Sticker(base):
     sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
     sticker_set = relationship("StickerSet", back_populates="stickers")
 
+    changes = relationship("Change")
     tags = relationship(
         "Tag",
         secondary=sticker_tag,
@@ -61,3 +62,8 @@ class Sticker(base):
 
         session.add(sticker)
         return sticker
+
+    def tags_as_text(self):
+        """Return tag names as single string."""
+        tags = [tag.name for tag in self.tags]
+        return ', '.join(tags)

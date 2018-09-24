@@ -23,6 +23,8 @@ from stickerfinder.helper import (
     session_wrapper,
 )
 from stickerfinder.models import (
+    Change,
+    User,
     Sticker,
     StickerSet,
     sticker_tag,
@@ -128,7 +130,7 @@ def initialize_set_tagging(bot, update, session, name, chat):
         update.message.chat.send_message(current)
 
 
-def tag_sticker(session, text, sticker):
+def tag_sticker(session, text, sticker, user):
     """Tag a single sticker."""
     splitted = text.split('\n')
     if len(splitted) > 1:
@@ -136,6 +138,9 @@ def tag_sticker(session, text, sticker):
     else:
         incoming_tags = splitted[0]
         text = None
+
+    old_text = sticker.text
+    old_tags = sticker.tags_as_text()
 
     # Only tag if we have some text
     if incoming_tags != '':
@@ -157,6 +162,9 @@ def tag_sticker(session, text, sticker):
     if text is not None and text != '':
         sticker.text = text
 
+    change = Change(user, sticker, old_text, old_tags)
+    session.add(change)
+
     return True
 
 
@@ -164,6 +172,7 @@ def tag_sticker(session, text, sticker):
 @session_wrapper()
 def handle_text(bot, update, session, chat):
     """Read all messages and handle the tagging of stickers."""
+    user = User.get_or_create(session, update.message.from_user.id)
     # Handle the initial naming of a sticker set
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
@@ -172,7 +181,8 @@ def handle_text(bot, update, session, chat):
         return
 
     elif chat.expecting_single_sticker and chat.current_sticker:
-        success = tag_sticker(session, update.message.text, chat.current_sticker)
+        success = tag_sticker(session, update.message.text,
+                              chat.current_sticker, user)
         if success:
             chat.cancel()
             return 'Sticker tags are updated'
@@ -181,7 +191,8 @@ def handle_text(bot, update, session, chat):
 
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
-        success = tag_sticker(session, update.message.text, chat.current_sticker)
+        success = tag_sticker(session, update.message.text,
+                              chat.current_sticker, user)
         if not success:
             return
 
