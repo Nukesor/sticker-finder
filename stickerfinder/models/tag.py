@@ -1,5 +1,5 @@
 """The sqlite model for a tag."""
-from sqlalchemy import Column, String
+from sqlalchemy import Column, String, DateTime, func
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
@@ -12,6 +12,7 @@ class Tag(base):
     __tablename__ = 'tag'
 
     name = Column(String(), primary_key=True)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     stickers = relationship(
         "Sticker",

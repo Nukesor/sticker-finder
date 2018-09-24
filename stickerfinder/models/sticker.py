@@ -1,6 +1,8 @@
 """The sqlite model for a sticker."""
 from sqlalchemy import (
     Column,
+    DateTime,
+    func,
     String,
     Table,
     ForeignKey,
@@ -32,28 +34,27 @@ class Sticker(base):
 
     __tablename__ = 'sticker'
 
-    file_id = Column(String(), primary_key=True)
-    text = Column(String())
+    file_id = Column(String, primary_key=True)
+    text = Column(String)
+    name = Column(String)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    sticker_set_name = Column(String, ForeignKey('sticker_set.name'))
-    set = relationship("StickerSet", back_populates="sticker")
+    sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
+    sticker_set = relationship("StickerSet", back_populates="stickers")
 
     tags = relationship(
         "Tag",
         secondary=sticker_tag,
         back_populates="stickers")
 
-    def __init__(self, file_id):
+    def __init__(self, file_id, name):
         """Create a new sticker."""
         self.file_id = file_id
 
     @staticmethod
-    def get_or_create(session, file_id):
+    def get(session, file_id):
         """Get or create a new sticker."""
         sticker = session.query(Sticker).get(file_id)
-        if not sticker:
-            sticker = Sticker(file_id)
-            session.add(sticker)
-            session.commit()
 
         return sticker

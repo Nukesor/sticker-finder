@@ -1,8 +1,8 @@
 raven
 
-requests~=2.18
-beautifulsoup4~=4.6
 python-telegram-bot~=10.1
 SQLAlchemy~=1.2
 sqlalchemy-utils~=0.33
-dateparser~=0.7.0
+psycopg2-binary
+pytesseract
+pillow
