@@ -20,7 +20,24 @@ tag1, tag2, tag3, tag4
 """
 
 
-help_text = """A tag message should be formatted like this:
+help_text = """A telegram bot which allows you to find stickers via text.
+A basic text recognition is executed on all known stickers, to allow a nice sticker search.
+
+Additionally there is a convenient way of tagging stickers or to modify a sticker search text (In case the text recognition failed.)
+
+If you encounter any bugs, please create an issue over here:
+https://github.com/Nukesor/stickerfinder
+
+Available commands:
+/start Start the bot
+/stop Stop the bot
+/next Skip the current tag
+/tag_set Start to tag a whole set
+/tag_single Tag a single tag
+/cancel Cancel all current tag actions
+
+
+A tag message should be formatted like this:
 
 {tag_format}
 """

@@ -75,7 +75,7 @@ def tag_single(bot, update, session, chat):
 
 
 @session_wrapper()
-def next(bot, update, session, chat):
+def tag_next(bot, update, session, chat):
     """Initialize tagging of a whole set."""
     if chat.type != 'private':
         return 'Please tag in direct conversation with me.'
@@ -89,7 +89,7 @@ def next(bot, update, session, chat):
         # Check there is a next sticker
         found_next = get_next(chat, update)
         if found_next:
-            return found_next
+            return
 
         # If there are no more stickers, reset the chat and send success message.
         chat.cancel()
@@ -106,7 +106,13 @@ def get_next(chat, update):
             # Send next sticker and the tags of this sticker
             update.message.chat.send_sticker(chat.current_sticker.file_id)
 
-            return current_sticker_tags_message(chat.current_sticker)
+            message = current_sticker_tags_message(chat.current_sticker)
+            if message:
+                update.message.chat.send_message(message)
+
+            return True
+
+    return False
 
 
 def initialize_set_tagging(bot, update, session, name, chat):
@@ -200,7 +206,7 @@ def handle_text(bot, update, session, chat):
         # If there are no more stickers, reset the chat and send success message.
         found_next = get_next(chat, update)
         if found_next:
-            return found_next
+            return
 
         chat.cancel()
         return 'The full sticker set is now tagged.'
@@ -342,6 +348,7 @@ updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
 help_handler = CommandHandler('help', send_help_text)
 info_handler = CommandHandler('info', info)
 cancel_handler = CommandHandler('cancel', cancel)
+next_handler = CommandHandler('next', tag_next)
 tag_single_handler = CommandHandler('tag_single', tag_single)
 tag_set_handler = CommandHandler('tag_set', tag_set)
 
@@ -354,6 +361,7 @@ dispatcher = updater.dispatcher
 dispatcher.add_handler(help_handler)
 dispatcher.add_handler(info_handler)
 dispatcher.add_handler(cancel_handler)
+dispatcher.add_handler(next_handler)
 dispatcher.add_handler(tag_single_handler)
 dispatcher.add_handler(tag_set_handler)
 
