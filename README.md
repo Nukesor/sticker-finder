@@ -11,11 +11,11 @@ Additionally there is a convenient way of tagging stickers or to modify a sticke
 
 Available commands:
 
-        /start Start the bot
-        /stop Stop the bot
-        /tag_set Start to tag a whole set
-        /tag_single Tag a single tag
-        /cancel Cancel all current tag actions
+        /start      Start the bot
+        /stop       Stop the bot
+        /tag [tags] Tag the last sticker posted in this chat
+        /tag_set    Start to tag a whole set
+        /cancel     Cancel all current tag actions
 
 Feel free to host your own or to use mine: @std_bot
 
@@ -41,5 +41,5 @@ Finally execute following commands to install all dependencies and to start the 
     stop - Stop the bot
     next - Skip the current tag
     tag_set - Start to tag a whole set
-    tag_single - Tag a single tag
+    tag - Tag the last sticker posted in this chat
     cancel - Cancel all current tag actions

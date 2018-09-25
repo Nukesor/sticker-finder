@@ -8,7 +8,7 @@ from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat
 
 
-tag_format = """If you don't want to edit a sticker, just send /next
+tag_format = """If you don't want to edit a sticker, just send /next.
 Your messages should be formatted like this:
 
 tag1, tag2, tag3, tag4
@@ -29,15 +29,16 @@ If you encounter any bugs, please create an issue over here:
 https://github.com/Nukesor/stickerfinder
 
 Available commands:
-/start Start the bot
-/stop Stop the bot
-/next Skip the current tag
-/tag_set Start to tag a whole set
-/tag_single Tag a single tag
-/cancel Cancel all current tag actions
+/start      Start the bot
+/stop       Stop the bot
+/tag [tags] Tag the last sticker posted in this chat
+/tag_set    Start to tag a whole set
+/cancel     Cancel all current tag actions
 
+The /tag command allows to tag the last sticker posted in this channel.
+This is, for instance, great for group channels
 
-A tag message should be formatted like this:
+If you use the '/tag_set' command there is no need for the '/tag' prefix during tagging.
 
 {tag_format}
 """

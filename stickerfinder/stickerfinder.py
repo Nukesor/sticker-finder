@@ -45,12 +45,6 @@ def cancel(bot, update, session, chat):
 
 
 @session_wrapper()
-def info(bot, update, session, chat):
-    """Get info about the bot."""
-    return 'rofl'
-
-
-@session_wrapper()
 def tag_set(bot, update, session, chat):
     """Initialize tagging of a whole set."""
     if chat.type != 'private':
@@ -64,14 +58,16 @@ def tag_set(bot, update, session, chat):
 
 @session_wrapper()
 def tag_single(bot, update, session, chat):
-    """Initialize tagging of a whole set."""
-    if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
+    """Tag the last sticker send to this chat."""
+    if chat.current_sticker:
+        # Get user
+        user = User.get_or_create(session, update.message.from_user.id)
 
-    chat.cancel()
-    chat.expecting_single_sticker = True
+        # Remove the /tag command
+        text = update.message.text
+        text = text.split(' ', 1)[1]
 
-    return 'Please send me the sticker.'
+        tag_sticker(session, text, chat.current_sticker, user, update)
 
 
 @session_wrapper()
@@ -136,26 +132,33 @@ def initialize_set_tagging(bot, update, session, name, chat):
         update.message.chat.send_message(current)
 
 
-def tag_sticker(session, text, sticker, user):
+def tag_sticker(session, text, sticker, user, update):
     """Tag a single sticker."""
-    splitted = text.split('\n')
+    text = text.lower()
+    # Remove the /tag command
+    if text.startswith('/tag'):
+        text = text.split(' ')[1:]
+        update.message.chat.send_message("You don't need to add the /tag command ;)")
+
+    # Split the tags and the text
+    splitted = text.split('\n', 1)
     if len(splitted) > 1:
-        incoming_tags, text, *_ = splitted
+        incoming_tags, text = splitted
     else:
         incoming_tags = splitted[0]
         text = None
 
+    # Get the old tags/text for tracking
     old_text = sticker.text
     old_tags = sticker.tags_as_text()
 
-    # Only tag if we have some text
+    # Only extract and update tags if we have some text
     if incoming_tags != '':
         # Split tags and strip them
-        incoming_tags = incoming_tags.lower()
-        incoming_tags = re.findall(r"[\w']+", incoming_tags)
-
+        incoming_tags = incoming_tags.split(',')
         tags = []
         for incoming_tag in incoming_tags:
+            incoming_tag = incoming_tag.strip()
             if incoming_tag == '':
                 continue
             tag = Tag.get_or_create(session, incoming_tag)
@@ -187,19 +190,10 @@ def handle_text(bot, update, session, chat):
 
         return
 
-    elif chat.expecting_single_sticker and chat.current_sticker:
-        success = tag_sticker(session, update.message.text,
-                              chat.current_sticker, user)
-        if success:
-            chat.cancel()
-            return 'Sticker tags are updated'
-        else:
-            return 'Updating tags failed. Please check your input.'
-
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
         success = tag_sticker(session, update.message.text,
-                              chat.current_sticker, user)
+                              chat.current_sticker, user, update)
         if not success:
             return
 
@@ -240,6 +234,10 @@ def handle_private_sticker(bot, update, session, chat):
         update.message.chat.send_message(single_tag_text)
         return current_sticker_tags_message(chat.current_sticker)
 
+    else:
+        sticker = session.query(Sticker).get(incoming_sticker.file_id)
+        chat.current_sticker = sticker
+
     return
 
 
@@ -251,12 +249,17 @@ def handle_group_sticker(bot, update, session, chat):
     - Handle initial sticker addition.
     - Detect whether a sticker pack is used in a chat or not.
     """
+    # Check if we know this sticker set. Early return if we don't
     set_name = update.message.sticker.set_name
-    # Check if we know this sticker set.
     sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
+    if not sticker_set:
+        return
 
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
+
+    sticker = session.query(Sticker).get(update.message.sticker.file_id)
+    chat.current_sticker = sticker
 
     return
 
@@ -297,11 +300,21 @@ def find_stickers(bot, update, session):
         .filter(Sticker.text.ilike(f'%{query}%')) \
         .all()
 
+    # Search for matching stickers by tags and text
+    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
+    text_tag_stickers = session.query(Sticker, tag_count) \
+        .join(Sticker.tags) \
+        .filter(Sticker.text.ilike(f'%{query}%')) \
+        .filter(Tag.name.in_(tags)) \
+        .group_by(Sticker) \
+        .having(tag_count > 0) \
+        .order_by(tag_count.desc()) \
+        .all()
+
     # Search for matching stickers by tags
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
-        .filter(Sticker.text.ilike(f'%{query}%')) \
         .filter(Tag.name.in_(tags)) \
         .group_by(Sticker) \
         .having(tag_count > 0) \
@@ -320,6 +333,10 @@ def find_stickers(bot, update, session):
     matching_stickers = name_tag_stickers
 
     for sticker in text_stickers:
+        if sticker not in matching_stickers:
+            matching_stickers.append(sticker)
+
+    for sticker in text_tag_stickers:
         if sticker not in matching_stickers:
             matching_stickers.append(sticker)
 
@@ -347,10 +364,9 @@ updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
 
 # Create handler
 help_handler = CommandHandler('help', send_help_text)
-info_handler = CommandHandler('info', info)
 cancel_handler = CommandHandler('cancel', cancel)
 next_handler = CommandHandler('next', tag_next)
-tag_single_handler = CommandHandler('tag_single', tag_single)
+tag_single_handler = CommandHandler('tag', tag_single)
 tag_set_handler = CommandHandler('tag_set', tag_set)
 
 private_sticker_handler = MessageHandler(Filters.sticker & Filters.private, handle_private_sticker)
@@ -360,7 +376,6 @@ text_handler = MessageHandler(Filters.text & Filters.private, handle_text)
 # Add handler
 dispatcher = updater.dispatcher
 dispatcher.add_handler(help_handler)
-dispatcher.add_handler(info_handler)
 dispatcher.add_handler(cancel_handler)
 dispatcher.add_handler(next_handler)
 dispatcher.add_handler(tag_single_handler)

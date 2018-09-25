@@ -69,6 +69,9 @@ class StickerSet(base):
                     text = image_to_string(image).strip().lower()
                     if text == '':
                         text = None
+                    else:
+                        # Remove multiple lines
+                        text = text.replace('\n', ' ')
 
                 except telegram.error.TimedOut:
                     print(f'Finally failed on file {tg_sticker.file_id}')
