@@ -10,8 +10,8 @@ from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
 from stickerfinder.models import chat_sticker_set, Sticker
-from stickerfinder.tg_helper import call_tg_func
-from stickerfinder.image_helper import preprocess_image
+from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.image import preprocess_image
 
 
 class StickerSet(base):

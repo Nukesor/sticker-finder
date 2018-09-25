@@ -1,6 +1,5 @@
 """Some static stuff or helper functions for sticker finder bot."""
 import traceback
-from PIL import Image
 from functools import wraps
 
 from stickerfinder.db import get_session
@@ -52,18 +51,6 @@ single_tag_text = f"""Please send tags and text for this sticker.
 
 {tag_format}
 """
-
-
-def current_sticker_tags_message(sticker):
-    """Create a message displaying the current text and tags."""
-    if len(sticker.tags) == 0 and sticker.text is None:
-        return None
-    elif len(sticker.tags) > 0 and sticker.text is None:
-        return f"""Current tags: \n {sticker.tags_as_text()}"""
-    elif len(sticker.tags) == 0 and sticker.text is not None:
-        return f"""Current text: \n {sticker.text}"""
-    else:
-        return f"""Current tags and text: \n {sticker.tags_as_text()} \n {sticker.text}"""
 
 
 def session_wrapper(send_message=True):
