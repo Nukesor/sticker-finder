@@ -269,7 +269,10 @@ def handle_group_sticker(bot, update, session, chat):
 def find_stickers(bot, update, session):
     """Handle inline queries for sticker search."""
     query = update.inline_query.query.strip().lower()
-    tags = query.split(' ')
+    if ',' in query:
+        tags = query.split(',')
+    else:
+        tags = query.split(' ')
     tags = [tag.strip() for tag in tags]
 
     # Don't accept very short queries
