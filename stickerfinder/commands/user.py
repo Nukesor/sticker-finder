@@ -21,6 +21,11 @@ def ban_user(bot, update, session, chat):
         .filter(User.username == name_to_ban) \
         .one_or_none()
 
+    if user_to_ban is None:
+        user_to_ban = session.query(User) \
+            .filter(User.id == name_to_ban) \
+            .one_or_none()
+
     if user_to_ban:
         user_to_ban.banned = True
         return f'User {name_to_ban} banned'
@@ -39,12 +44,17 @@ def unban_user(bot, update, session, chat):
 
     name_to_unban = update.message.text.split(' ', 1)[1].lower()
 
-    user_to_ban = session.query(User) \
+    user_to_unban = session.query(User) \
         .filter(User.username == name_to_unban) \
         .one_or_none()
 
-    if user_to_ban:
-        user_to_ban.banned = False
+    if user_to_unban is None:
+        user_to_unban = session.query(User) \
+            .filter(User.id == name_to_unban) \
+            .one_or_none()
+
+    if user_to_unban:
+        user_to_unban.banned = False
         return f'User {name_to_unban} unbanned'
     else:
         return 'Unknown username'

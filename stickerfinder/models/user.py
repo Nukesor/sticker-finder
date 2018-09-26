@@ -28,7 +28,8 @@ class User(base):
     def __init__(self, user_id, username):
         """Create a new user."""
         self.id = user_id
-        self.username = username.lower()
+        if username is not None:
+            self.username = username.lower()
 
     @staticmethod
     def get_or_create(session, tg_user):
@@ -40,7 +41,7 @@ class User(base):
             session.commit()
 
         # TODO: Remove if db is updated
-        if not user.username:
+        if not user.username and tg_user.username is not None:
             user.username = tg_user.username.lower()
 
         return user
