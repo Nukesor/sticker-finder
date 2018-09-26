@@ -23,14 +23,22 @@ from stickerfinder.models import (
 )
 from stickerfinder.helper import (
     help_text,
-    single_tag_text,
     session_wrapper,
 )
 from stickerfinder.helper.tag import (
-    current_sticker_tags_message,
     get_next,
     initialize_set_tagging,
     tag_sticker,
+)
+from stickerfinder.commands import (
+    ban_user,
+    unban_user,
+    tag_next,
+    tag_single,
+    tag_set,
+    cancel,
+    stats,
+    refresh_sticker_sets,
 )
 
 
@@ -39,66 +47,11 @@ def send_help_text(bot, update):
     update.message.chat.send_message(help_text)
 
 
-@session_wrapper()
-def cancel(bot, update, session, chat):
-    """Send a help text."""
-    chat.cancel()
-    return 'All running commands are canceled'
-
-
-@session_wrapper()
-def tag_set(bot, update, session, chat):
-    """Initialize tagging of a whole set."""
-    if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
-
-    chat.cancel()
-    chat.expecting_sticker_set = True
-
-    return 'Please send me the name of the set or a sticker from the set.'
-
-
-@session_wrapper()
-def tag_single(bot, update, session, chat):
-    """Tag the last sticker send to this chat."""
-    if chat.current_sticker:
-        # Get user
-        user = User.get_or_create(session, update.message.from_user.id)
-
-        # Remove the /tag command
-        text = update.message.text
-        text = text.split(' ', 1)[1]
-
-        tag_sticker(session, text, chat.current_sticker, user, update)
-
-
-@session_wrapper()
-def tag_next(bot, update, session, chat):
-    """Initialize tagging of a whole set."""
-    if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
-
-    # We are currently tagging a single sticker. Cancel that command.
-    if chat.expecting_single_sticker:
-        chat.cancel()
-
-    # We are tagging a whole sticker set. Skip the current sticker
-    elif chat.full_sticker_set:
-        # Check there is a next sticker
-        found_next = get_next(chat, update)
-        if found_next:
-            return
-
-        # If there are no more stickers, reset the chat and send success message.
-        chat.cancel()
-        return 'The full sticker set is now tagged.'
-
-
 @run_async
 @session_wrapper()
 def handle_text(bot, update, session, chat):
     """Read all messages and handle the tagging of stickers."""
-    user = User.get_or_create(session, update.message.from_user.id)
+    user = User.get_or_create(session, update.message.from_user)
     # Handle the initial naming of a sticker set
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
@@ -129,7 +82,7 @@ def handle_private_sticker(bot, update, session, chat):
     """Read all stickers.
 
     - Handle initial sticker addition.
-    - Detect whether a sticker pack is used in a chat or not.
+    - Handle sticker tagging
     """
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
@@ -140,15 +93,6 @@ def handle_private_sticker(bot, update, session, chat):
         initialize_set_tagging(bot, update, session, set_name, chat)
 
         return
-
-    # Handle the initial sticker for a single sticker tagging
-    elif chat.expecting_single_sticker:
-        sticker = session.query(Sticker).get(incoming_sticker.file_id)
-
-        chat.current_sticker = sticker
-
-        update.message.chat.send_message(single_tag_text)
-        return current_sticker_tags_message(chat.current_sticker)
 
     else:
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
@@ -189,24 +133,32 @@ def find_stickers(bot, update, session):
         tags = query.split(',')
     else:
         tags = query.split(' ')
-    tags = [tag.strip() for tag in tags]
+    tags = [tag.strip() for tag in tags if tag.strip() != '']
 
-    # Don't accept very short queries
-    if len(query) < 3:
-        return
+    user = User.get_or_create(session, update.inline_query.from_user)
+
+    # We don't want banned users
+    if user.banned:
+        results = [InlineQueryResultCachedSticker(
+            uuid4(),
+            sticker_file_id='CAADAQADOQIAAjnUfAmQSUibakhEFgI')]
+        update.inline_query.answer(results, cache_time=300, is_personal=True,
+                                   switch_pm_text="Maybe don't be a dick :)?",
+                                   switch_pm_parameter="inline")
 
     # At first we check for results, where one tag ilke matches the name of the set
     # and where at least one tag matches the sticker tag.
-    conditions = []
+    set_conditions = []
     for tag in tags:
-        conditions.append(StickerSet.name.ilike(f'%{tag}%'))
+        set_conditions.append(StickerSet.name.ilike(f'%{tag}%'))
+        set_conditions.append(StickerSet.title.ilike(f'%{tag}%'))
 
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     name_tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
         .filter(Tag.name.in_(tags)) \
-        .filter(or_(*conditions)) \
+        .filter(or_(*set_conditions)) \
         .group_by(Sticker) \
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
@@ -245,7 +197,7 @@ def find_stickers(bot, update, session):
     # Search for matching stickers with a matching set name
     set_name_stickers = session.query(Sticker) \
         .join(Sticker.sticker_set) \
-        .filter(or_(*conditions)) \
+        .filter(or_(*set_conditions)) \
         .all()
 
     # Now add all found sticker together and deduplicate without killing the order.
@@ -275,33 +227,32 @@ def find_stickers(bot, update, session):
         results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=sticker.file_id))
 
     update.inline_query.answer(results, cache_time=1, is_personal=True,
-                               switch_pm_text='Maybe tag some stickers :)?', switch_pm_parameter="inline")
+                               switch_pm_text='Maybe tag some stickers :)?',
+                               switch_pm_parameter="inline")
 
 
 # Initialize telegram updater and dispatcher
 updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
 
-# Create handler
-help_handler = CommandHandler('help', send_help_text)
-cancel_handler = CommandHandler('cancel', cancel)
-next_handler = CommandHandler('next', tag_next)
-tag_single_handler = CommandHandler('tag', tag_single)
-tag_set_handler = CommandHandler('tag_set', tag_set)
-
-private_sticker_handler = MessageHandler(Filters.sticker & Filters.private, handle_private_sticker)
-group_sticker_handler = MessageHandler(Filters.sticker & Filters.group, handle_group_sticker)
-text_handler = MessageHandler(Filters.text & Filters.private, handle_text)
-
-# Add handler
+# Add command handler
 dispatcher = updater.dispatcher
-dispatcher.add_handler(help_handler)
-dispatcher.add_handler(cancel_handler)
-dispatcher.add_handler(next_handler)
-dispatcher.add_handler(tag_single_handler)
-dispatcher.add_handler(tag_set_handler)
+dispatcher.add_handler(CommandHandler('help', send_help_text))
+dispatcher.add_handler(CommandHandler('cancel', cancel))
+dispatcher.add_handler(CommandHandler('next', tag_next))
+dispatcher.add_handler(CommandHandler('tag', tag_single))
+dispatcher.add_handler(CommandHandler('tag_set', tag_set))
+dispatcher.add_handler(CommandHandler('ban', ban_user))
+dispatcher.add_handler(CommandHandler('unban', unban_user))
+dispatcher.add_handler(CommandHandler('stats', stats))
+dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
 
-dispatcher.add_handler(group_sticker_handler)
-dispatcher.add_handler(private_sticker_handler)
-dispatcher.add_handler(text_handler)
+# Create message handler
+dispatcher.add_handler(
+    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))
+dispatcher.add_handler(
+    MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
+dispatcher.add_handler(
+    MessageHandler(Filters.text & Filters.private, handle_text))
 
+# Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))

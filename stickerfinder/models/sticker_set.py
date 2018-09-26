@@ -20,6 +20,7 @@ class StickerSet(base):
     __tablename__ = 'sticker_set'
 
     name = Column(String, primary_key=True)
+    title = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
 
@@ -34,26 +35,16 @@ class StickerSet(base):
         self.name = name
         self.stickers = []
 
-    @staticmethod
-    def get_or_create(session, name, bot, update):
-        """Get or create a new sticker set."""
-        sticker_set = session.query(StickerSet).get(name)
-        if not sticker_set or not sticker_set.complete:
-            # Instantly set sticker
-            if not sticker_set:
-                sticker_set = StickerSet(name, None)
-                session.add(sticker_set)
-                session.commit()
-
-            # Random sleep a little, in case we have many concurrent packs.
-            # This otherwise results in multiple file requests at the exact same time.
-            # This is something the telegram API doesn't seem to like, thereby it responds with a Timeout.
-            time.sleep(randrange(1, 5))
-
-            # Get sticker set from telegram and create new a Sticker for each sticker
-            stickers = []
-            tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[name])
-            for tg_sticker in tg_sticker_set.stickers:
+    def refresh_stickers(self, session, bot, refresh_ocr=False):
+        """Refresh stickers and set data from telegram."""
+        # Get sticker set from telegram and create new a Sticker for each sticker
+        stickers = []
+        tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
+        for tg_sticker in tg_sticker_set.stickers:
+            # Ignore already existing stickers if we don't need to rescan images
+            sticker = session.query(Sticker).get(tg_sticker.file_id)
+            if sticker is None or refresh_ocr:
+                text = None
                 # Download the image for text recognition
                 # This sometimes fail. Thereby we implement a retry
                 # If the retry failes 5 times, we ignore the image
@@ -76,16 +67,38 @@ class StickerSet(base):
                 except telegram.error.TimedOut:
                     print(f'Finally failed on file {tg_sticker.file_id}')
                     pass
-
-                # Create new Sticker or get existing one.
-                sticker = Sticker.get_or_create(session, tg_sticker.file_id, name)
                 sticker.text = text
 
-                stickers.append(sticker)
+            # Create new Sticker.
+            if sticker is None:
+                sticker = Sticker(session, tg_sticker)
+            sticker.add_emojis(session, tg_sticker.emoji)
+            stickers.append(sticker)
 
-            sticker_set.stickers = stickers
-            sticker_set.complete = True
-            session.commit()
+        # TODO: DELETE when database refresh is done
+        self.title = tg_sticker_set.title
+        self.stickers = stickers
+        self.complete = True
+        session.commit()
+
+    @staticmethod
+    def get_or_create(session, name, bot, update):
+        """Get or create a new sticker set."""
+        sticker_set = session.query(StickerSet).get(name)
+        if not sticker_set or not sticker_set.complete:
+            # Instantly set sticker
+            if not sticker_set:
+                sticker_set = StickerSet(name, None)
+                session.add(sticker_set)
+                session.commit()
+
+            sticker_set.refresh_stickers(session, bot)
+
+            # Random sleep a little, in case we have many concurrent packs.
+            # This otherwise results in multiple file requests at the exact same time.
+            # This is something the telegram API doesn't seem to like, thereby it responds with a Timeout.
+            time.sleep(randrange(1, 5))
+
             update.message.chat.send_message(f'Set {name} has been added.')
 
         return sticker_set

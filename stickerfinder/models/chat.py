@@ -44,7 +44,6 @@ class Chat(base):
     current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
 
     full_sticker_set = Column(Boolean, nullable=False, default=False)
-    expecting_single_sticker = Column(Boolean, nullable=False, default=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
 
     current_sticker = relationship("Sticker")
@@ -73,7 +72,6 @@ class Chat(base):
     def cancel(self):
         """Cancel all interactions."""
         self.full_sticker_set = False
-        self.expecting_single_sticker = False
         self.expecting_sticker_set = False
 
         self.current_sticker_set = None

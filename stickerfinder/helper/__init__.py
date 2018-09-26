@@ -47,11 +47,6 @@ tag_text = f"""Now please send tags and text for each sticker I'll send you.
 {tag_format}
 """
 
-single_tag_text = f"""Please send tags and text for this sticker.
-
-{tag_format}
-"""
-
 
 def session_wrapper(send_message=True):
     """Allow specification whether a debug message should be sent to the user."""

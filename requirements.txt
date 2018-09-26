@@ -1,5 +1,6 @@
 raven
 
+alembic
 python-telegram-bot~=10.1
 SQLAlchemy~=1.2
 sqlalchemy-utils~=0.33

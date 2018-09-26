@@ -35,8 +35,7 @@ class Sticker(base):
     __tablename__ = 'sticker'
 
     file_id = Column(String, primary_key=True)
-    text = Column(String, index=True)
-    name = Column(String, index=True)
+    text = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -49,21 +48,19 @@ class Sticker(base):
         secondary=sticker_tag,
         back_populates="stickers")
 
-    def __init__(self, file_id, name):
+    def __init__(self, file_id):
         """Create a new sticker."""
         self.file_id = file_id
-
-    @staticmethod
-    def get_or_create(session, file_id, name):
-        """Get or create a new sticker."""
-        sticker = session.query(Sticker).get(file_id)
-        if not sticker:
-            sticker = Sticker(file_id, name)
-
-        session.add(sticker)
-        return sticker
 
     def tags_as_text(self):
         """Return tag names as single string."""
         tags = [tag.name for tag in self.tags]
         return ', '.join(tags)
+
+    def add_emojis(self, session, emojis):
+        """Add tags for every emoji in the incoming string."""
+        from stickerfinder.models import Tag
+        for emoji in emojis:
+            tag = Tag.get_or_create(session, emoji)
+            if tag not in self.tags:
+                self.tags.append(tag)
