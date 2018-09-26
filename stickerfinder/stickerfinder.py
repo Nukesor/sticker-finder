@@ -229,6 +229,7 @@ def find_stickers(bot, update, session):
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
         .all()
+    text_tag_stickers = [result[0] for result in text_tag_stickers]
 
     # Search for matching stickers by tags
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
@@ -239,14 +240,13 @@ def find_stickers(bot, update, session):
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
         .all()
+    tag_stickers = [result[0] for result in tag_stickers]
 
     # Search for matching stickers with a matching set name
     set_name_stickers = session.query(Sticker) \
         .join(Sticker.sticker_set) \
         .filter(or_(*conditions)) \
         .all()
-
-    tag_stickers = [result[0] for result in tag_stickers]
 
     # Now add all found sticker together and deduplicate without killing the order.
     matching_stickers = name_tag_stickers
