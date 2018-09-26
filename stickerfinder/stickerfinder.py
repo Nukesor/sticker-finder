@@ -25,6 +25,7 @@ from stickerfinder.helper import (
     help_text,
     session_wrapper,
 )
+from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.tag import (
     get_next,
     initialize_set_tagging,
@@ -44,7 +45,7 @@ from stickerfinder.commands import (
 
 def send_help_text(bot, update):
     """Send a help text."""
-    update.message.chat.send_message(help_text)
+    call_tg_func(update.message.chat, 'send_message', args=[help_text])
 
 
 @run_async
@@ -146,7 +147,7 @@ def find_stickers(bot, update, session):
             sticker_file_id='CAADAQADOQIAAjnUfAmQSUibakhEFgI')]
         update.inline_query.answer(results, cache_time=300, is_personal=True,
                                    switch_pm_text="Maybe don't be a dick :)?",
-                                   switch_pm_parameter="inline")
+                                   switch_pm_parameter='inline')
 
     # At first we check for results, where one tag ilke matches the name of the set
     # and where at least one tag matches the sticker tag.
@@ -231,9 +232,13 @@ def find_stickers(bot, update, session):
             break
         results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=sticker.file_id))
 
-    update.inline_query.answer(results, cache_time=1, is_personal=True,
-                               switch_pm_text='Maybe tag some stickers :)?',
-                               switch_pm_parameter="inline")
+    call_tg_func(update.inline_query, 'answer', args=[results],
+                 kwargs={
+                     'cache_time': 1,
+                     'is_personal': True,
+                     'switch_pm_text': 'Maybe tag some stickers :)?',
+                     'switch_pm_parameter': 'inline',
+                 })
 
 
 # Initialize telegram updater and dispatcher

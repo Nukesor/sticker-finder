@@ -99,6 +99,6 @@ class StickerSet(base):
             # This is something the telegram API doesn't seem to like, thereby it responds with a Timeout.
             time.sleep(randrange(1, 5))
 
-            update.message.chat.send_message(f'Set {name} has been added.')
+            call_tg_func(update.message.chat, 'send_message', args=[f'Set {name} has been added.'])
 
         return sticker_set

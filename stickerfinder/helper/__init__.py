@@ -5,6 +5,7 @@ from functools import wraps
 from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat
+from .telegram import call_tg_func
 
 
 tag_format = """If you don't want to edit a sticker, just send /next.
@@ -67,12 +68,13 @@ def session_wrapper(send_message=True):
                 else:
                     func(bot, update, session)
                 if response is not None:
-                    update.message.chat.send_message(response)
+                    call_tg_func(update.message.chat, 'send_message', args=[response])
 
                 session.commit()
             except BaseException:
                 if send_message:
-                    update.message.chat.send_message('An unknown error occurred.')
+                    call_tg_func(update.message.chat, 'send_message',
+                                 args=['An unknown error occurred.'])
                 traceback.print_exc()
                 sentry.captureException()
             finally:

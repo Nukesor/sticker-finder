@@ -11,8 +11,6 @@ Additionally there is a convenient way of tagging stickers or to modify a sticke
 
 Available commands:
 
-        /start      Start the bot
-        /stop       Stop the bot
         /tag [tags] Tag the last sticker posted in this chat
         /tag_set    Start to tag a whole set
         /cancel     Cancel all current tag actions
@@ -37,8 +35,6 @@ Finally execute following commands to install all dependencies and to start the 
 
 ## Botfather commands
 
-    start - Start the bot
-    stop - Stop the bot
     next - Skip the current tag
     tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat

@@ -5,9 +5,8 @@ from stickerfinder.models import (
     StickerSet,
 )
 
-from stickerfinder.helper import (
-    tag_text,
-)
+from stickerfinder.helper import tag_text
+from stickerfinder.helper.telegram import call_tg_func
 
 
 def current_sticker_tags_message(sticker):
@@ -30,11 +29,11 @@ def get_next(chat, update):
             chat.current_sticker = stickers[index+1]
 
             # Send next sticker and the tags of this sticker
-            update.message.chat.send_sticker(chat.current_sticker.file_id)
+            call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
             message = current_sticker_tags_message(chat.current_sticker)
             if message:
-                update.message.chat.send_message(message)
+                call_tg_func(update.message.chat, 'send_message', args=[message])
 
             return True
 
@@ -54,12 +53,12 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker_set = sticker_set
     chat.current_sticker = sticker_set.stickers[0]
 
-    update.message.chat.send_message(tag_text)
-    update.message.chat.send_sticker(chat.current_sticker.file_id)
+    call_tg_func(update.message.chat, 'send_message', args=[tag_text])
+    call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     current = current_sticker_tags_message(chat.current_sticker)
     if current is not None:
-        update.message.chat.send_message(current)
+        call_tg_func(update.message.chat, 'send_message', args=[current])
 
 
 def tag_sticker(session, text, sticker, user, update):
@@ -68,7 +67,8 @@ def tag_sticker(session, text, sticker, user, update):
     # Remove the /tag command
     if text.startswith('/tag'):
         text = text.split(' ')[1:]
-        update.message.chat.send_message("You don't need to add the /tag command ;)")
+        call_tg_func(update.message.chat, 'send_message',
+                     args=["You don't need to add the /tag command ;)"])
 
     # Split the tags and the text
     splitted = text.split('\n', 1)

@@ -2,6 +2,7 @@
 from sqlalchemy import func
 
 from stickerfinder.helper import session_wrapper
+from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.config import config
 from stickerfinder.models import (
     StickerSet,
@@ -63,6 +64,6 @@ def refresh_sticker_sets(bot, update, session, chat):
         count += 1
         if count % 50 == 0:
             progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
-            update.message.chat.send_message(progress)
+            call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     return 'All sticker sets are refreshed.'
