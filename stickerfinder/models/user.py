@@ -39,6 +39,7 @@ class User(base):
             session.add(user)
             session.commit()
 
+        # TODO: Remove if db is updated
         if not user.username:
             user.username = tg_user.username.lower()
 

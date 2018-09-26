@@ -42,7 +42,7 @@ Tags: {tag_count}
 Sticker sets: {sticker_set_count}
 Stickers: {sticker_count}
 Stickers with Text: {text_sticker_count}
-Stickers with Text: {tagged_sticker_count}
+Stickers with Tags: {tagged_sticker_count}
     """
 
 

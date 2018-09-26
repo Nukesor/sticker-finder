@@ -84,6 +84,8 @@ def handle_private_sticker(bot, update, session, chat):
     - Handle initial sticker addition.
     - Handle sticker tagging
     """
+    User.get_or_create(session, update.message .from_user)
+
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
     StickerSet.get_or_create(session, set_name, bot, update)
@@ -166,22 +168,25 @@ def find_stickers(bot, update, session):
 
     name_tag_stickers = [result[0] for result in name_tag_stickers]
 
-    # Search for matching stickers by text
-    text_stickers = session.query(Sticker) \
-        .filter(Sticker.text.ilike(f'%{query}%')) \
-        .all()
-
+    text_conditions = []
+    for tag in tags:
+        text_conditions.append(Sticker.text.ilike(f'%{tag}%'))
     # Search for matching stickers by tags and text
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     text_tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
-        .filter(Sticker.text.ilike(f'%{query}%')) \
+        .filter(or_(*text_conditions)) \
         .filter(Tag.name.in_(tags)) \
         .group_by(Sticker) \
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
         .all()
     text_tag_stickers = [result[0] for result in text_tag_stickers]
+
+    # Search for matching stickers by text
+    text_stickers = session.query(Sticker) \
+        .filter(Sticker.text.ilike(f'%{query}%')) \
+        .all()
 
     # Search for matching stickers by tags
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
@@ -203,11 +208,11 @@ def find_stickers(bot, update, session):
     # Now add all found sticker together and deduplicate without killing the order.
     matching_stickers = name_tag_stickers
 
-    for sticker in text_stickers:
+    for sticker in text_tag_stickers:
         if sticker not in matching_stickers:
             matching_stickers.append(sticker)
 
-    for sticker in text_tag_stickers:
+    for sticker in text_stickers:
         if sticker not in matching_stickers:
             matching_stickers.append(sticker)
 
