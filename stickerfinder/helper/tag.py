@@ -84,8 +84,9 @@ def tag_sticker(session, text, sticker, user, update):
 
     # Only extract and update tags if we have some text
     if incoming_tags != '':
-        # Split tags and strip them
-        incoming_tags = incoming_tags.split(',')
+        # Split tags and strip them.
+        # Only use the first 10 tags. This should prevent abuse from tag spammers.
+        incoming_tags = incoming_tags.split(',')[:10]
         tags = []
         for incoming_tag in incoming_tags:
             incoming_tag = incoming_tag.strip()
@@ -100,7 +101,8 @@ def tag_sticker(session, text, sticker, user, update):
         sticker.tags = tags
 
     if text is not None and text != '':
-        sticker.text = text
+        # Only use the first 300 chars. This should prevent abuse from text spammers.
+        sticker.text = text[:200]
 
     change = Change(user, sticker, old_text, old_tags)
     session.add(change)
