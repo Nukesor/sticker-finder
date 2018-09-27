@@ -49,6 +49,7 @@ def tag_next(bot, update, session, chat):
             return
 
         # If there are no more stickers, reset the chat and send success message.
+        chat.current_sticker_set.completely_tagged = True
         chat.cancel()
         return 'The full sticker set is now tagged.'
 

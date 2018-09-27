@@ -8,8 +8,7 @@ from stickerfinder.models import Chat
 from .telegram import call_tg_func
 
 
-tag_format = """If you don't want to edit a sticker, just send /next.
-Your messages should be formatted like this:
+tag_format = """Your tag messages should be formatted like this:
 
 tag1, tag2, tag3, tag4
 Some random text maybe what's inside the sticker.
@@ -19,32 +18,30 @@ or if you don't want to add text simply write:
 tag1, tag2, tag3, tag4
 """
 
+help_text = """To search for stickers just start typing '@std_bot' and you can now search for stickers by key words or emojis.
+Stickerfinder tries to give you the best match depending on your key words.
 
-help_text = """A telegram bot which allows you to find stickers via text.
-A basic text recognition is executed on all known stickers, to allow a nice sticker search.
+You can add sticker sets by simply sending any sticker of the set to me in a direct conversation.
 
-Additionally there is a convenient way of tagging stickers or to modify a sticker search text (In case the text recognition failed.)
+If you already added a set, but can't find any sticker from it, you probably need to tag them first.
+To tag a whole set send me the /tag_set command and a sticker from the set you want to tag.
+If you want to skip a sticker during the tagging process send me the /next command.
 
-If you encounter any bugs, please create an issue over here:
-https://github.com/Nukesor/stickerfinder
+The /tag command allows to tag the last sticker posted in a channel.
+This is great ad hoc tagging of single stickers in group channels, but I need to be added to this chat for this functionality to work.
 
-Available commands:
-/start      Start the bot
-/stop       Stop the bot
-/tag [tags] Tag the last sticker posted in this chat
-/tag_set    Start to tag a whole set
-/cancel     Cancel all current tag actions
-
-The /tag command allows to tag the last sticker posted in this channel.
-This is, for instance, great for group channels
-
-If you use the '/tag_set' command there is no need for the '/tag' prefix during tagging.
+Stickerbot tries to detect text in stickers, but this turns out to be more difficult than expected.
+Thereby don't expect this functionality to work reliably.
 
 {tag_format}
+
+
+If you encounter any bugs or if you just want to look at the code and drop a star:
+https://github.com/Nukesor/stickerfinder
 """
 
 tag_text = f"""Now please send tags and text for each sticker I'll send you.
-
+If you don't want to edit a sticker, just send /next.
 {tag_format}
 """
 

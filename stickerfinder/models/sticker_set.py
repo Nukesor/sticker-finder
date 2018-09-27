@@ -23,6 +23,7 @@ class StickerSet(base):
     title = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
+    completely_tagged = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     chats = relationship(
@@ -66,6 +67,9 @@ class StickerSet(base):
 
                 except telegram.error.TimedOut:
                     print(f'Finally failed on file {tg_sticker.file_id}')
+                    pass
+                except telegram.error.BadRequest:
+                    print(f'Failed to get image of f{tg_sticker.file_id}')
                     pass
 
             # Create new Sticker.

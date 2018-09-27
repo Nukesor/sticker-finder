@@ -61,6 +61,6 @@ class Sticker(base):
         """Add tags for every emoji in the incoming string."""
         from stickerfinder.models import Tag
         for emoji in emojis:
-            tag = Tag.get_or_create(session, emoji)
+            tag = Tag.get_or_create(session, emoji, emoji=True)
             if tag not in self.tags:
                 self.tags.append(tag)

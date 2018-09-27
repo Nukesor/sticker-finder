@@ -23,13 +23,22 @@ def stats(bot, update, session, chat):
         return 'You are not authorized for this command.'
 
     user_count = session.query(User).count()
-    tag_count = session.query(Tag).count()
+
+    tag_count = session.query(Tag) \
+        .filter(Tag.emoji == False) \
+        .count()
+
+    emoji_count = session.query(Tag) \
+        .filter(Tag.emoji == True) \
+        .count()
+
     sticker_set_count = session.query(StickerSet).count()
     sticker_count = session.query(Sticker).count()
 
     tag_count_select = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     tagged_sticker_count = session.query(Sticker, tag_count_select) \
         .join(Sticker.tags) \
+        .filter(Tag.emoji == False) \
         .group_by(Sticker) \
         .having(tag_count_select > 0) \
         .count()
@@ -40,6 +49,7 @@ def stats(bot, update, session, chat):
 
     return f"""Users: {user_count}
 Tags: {tag_count}
+Emojis: {emoji_count}
 Sticker sets: {sticker_set_count}
 Stickers: {sticker_count}
 Stickers with Text: {text_sticker_count}
