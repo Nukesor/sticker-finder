@@ -6,13 +6,16 @@ A basic text recognition is executed on all known stickers, to allow a nice stic
 Additionally there is a convenient way of tagging stickers or to modify a sticker search text (In case the text recognition failed.)
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder.png">
+    <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
+    <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
 Available commands:
 
+        /help       Display help
         /tag [tags] Tag the last sticker posted in this chat
         /tag_set    Start to tag a whole set
+        /next       Skip the current tag
         /cancel     Cancel all current tag actions
 
 Feel free to host your own or to use mine: @std_bot
@@ -35,6 +38,7 @@ Finally execute following commands to install all dependencies and to start the 
 
 ## Botfather commands
 
+    help - Display help
     next - Skip the current tag
     tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat
