@@ -90,10 +90,13 @@ def handle_private_sticker(bot, update, session, chat):
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
 
-    if session.query(StickerSet).get(set_name):
+    sticker_set = session.query(StickerSet).get(set_name)
+    if sticker_set and sticker_set.complete:
         call_tg_func(update.message.chat, 'send_message',
                      args=['I already know this sticker set :)'])
-    StickerSet.get_or_create(session, set_name, bot, update)
+
+    if sticker_set is None:
+        StickerSet.get_or_create(session, set_name, bot, update)
 
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
