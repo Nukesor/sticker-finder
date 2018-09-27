@@ -43,8 +43,8 @@ class StickerSet(base):
         for tg_sticker in tg_sticker_set.stickers:
             # Ignore already existing stickers if we don't need to rescan images
             sticker = session.query(Sticker).get(tg_sticker.file_id)
+            text = None
             if sticker is None or refresh_ocr:
-                text = None
                 # Download the image for text recognition
                 # This sometimes fail. Thereby we implement a retry
                 # If the retry failes 5 times, we ignore the image
@@ -67,13 +67,18 @@ class StickerSet(base):
                 except telegram.error.TimedOut:
                     print(f'Finally failed on file {tg_sticker.file_id}')
                     pass
-                sticker.text = text
 
             # Create new Sticker.
             if sticker is None:
-                sticker = Sticker(session, tg_sticker)
+                sticker = Sticker(tg_sticker.file_id)
+
+            # Only set text, if we got some text from the ocr recognition
+            if text is not None:
+                sticker.text = text
+
             sticker.add_emojis(session, tg_sticker.emoji)
             stickers.append(sticker)
+            session.commit()
 
         # TODO: DELETE when database refresh is done
         self.title = tg_sticker_set.title
