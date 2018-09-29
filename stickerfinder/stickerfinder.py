@@ -232,8 +232,19 @@ def find_stickers(bot, update, session):
         if sticker not in matching_stickers:
             matching_stickers.append(sticker)
 
+    # Handle offset
+    offset = update.inline_query.offset
+    if offset == '':
+        offset = 0
+    else:
+        offset = int(offset)
+
+    if len(matching_stickers) < offset:
+        return
+
     # Create a result list with the cached sticker objects
     results = []
+    matching_stickers = matching_stickers[offset:]
     for sticker in matching_stickers:
         if len(results) == 50:
             break
@@ -241,6 +252,7 @@ def find_stickers(bot, update, session):
 
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
+                     'next_offset': offset + 50,
                      'cache_time': 1,
                      'is_personal': True,
                      'switch_pm_text': 'Maybe tag some stickers :)?',
