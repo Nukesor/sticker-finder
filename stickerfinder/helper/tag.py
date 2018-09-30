@@ -1,7 +1,9 @@
 """Helper functions for tagging."""
+from sqlalchemy import func
 from stickerfinder.models import (
     Change,
     Tag,
+    Sticker,
     StickerSet,
 )
 
@@ -29,7 +31,9 @@ def get_next(chat, update):
             chat.current_sticker = stickers[index+1]
 
             # Send next sticker and the tags of this sticker
-            call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
+            call_tg_func(update.message.chat, 'send_sticker',
+                         args=[chat.current_sticker.file_id],
+                         kwargs={'timeout': 60})
 
             message = current_sticker_tags_message(chat.current_sticker)
             if message:
@@ -38,6 +42,33 @@ def get_next(chat, update):
             return True
 
     return False
+
+
+def get_random(chat, update, session):
+    """Get a random sticker for tagging."""
+    # Find a random sticker with no changes
+    sticker = session.query(Sticker) \
+        .outerjoin(Sticker.changes) \
+        .filter(Change.id.is_(None)) \
+        .order_by(func.random()) \
+        .limit(1) \
+        .one_or_none()
+
+    if not sticker:
+        return False
+
+    chat.current_sticker = sticker
+
+    # Send next sticker and the tags of this sticker
+    call_tg_func(update.message.chat, 'send_sticker',
+                 args=[chat.current_sticker.file_id],
+                 kwargs={'timeout': 60})
+
+    message = current_sticker_tags_message(chat.current_sticker)
+    if message:
+        call_tg_func(update.message.chat, 'send_message', args=[message])
+
+    return True
 
 
 def initialize_set_tagging(bot, update, session, name, chat):
@@ -54,7 +85,9 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(update.message.chat, 'send_message', args=[tag_text])
-    call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
+    call_tg_func(update.message.chat, 'send_sticker',
+                 args=[chat.current_sticker.file_id],
+                 kwargs={'timeout': 60})
 
     current = current_sticker_tags_message(chat.current_sticker)
     if current is not None:
@@ -80,7 +113,7 @@ def tag_sticker(session, text, sticker, user, update):
 
     # Get the old tags/text for tracking
     old_text = sticker.text
-    old_tags = sticker.tags_as_text()
+    old_tags_as_text = sticker.tags_as_text()
 
     # Only extract and update tags if we have some text
     if incoming_tags != '':
@@ -97,14 +130,19 @@ def tag_sticker(session, text, sticker, user, update):
                 tags.append(tag)
             session.add(tag)
 
+        # Keep old sticker tags if they are emojis
+        for tag in sticker.tags:
+            if tag.emoji and tag not in tags:
+                tags.append(tag)
+
         # Remove old tags and add new tags
         sticker.tags = tags
 
     if text is not None and text != '':
-        # Only use the first 300 chars. This should prevent abuse from text spammers.
+        # Only use the first 200 chars. This should prevent abuse from text spammers.
         sticker.text = text[:200]
 
-    change = Change(user, sticker, old_text, old_tags)
+    change = Change(user, sticker, old_text, old_tags_as_text)
     session.add(change)
 
     return True

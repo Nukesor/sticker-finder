@@ -5,6 +5,7 @@ from stickerfinder.models import (
 )
 from stickerfinder.helper.tag import (
     get_next,
+    get_random,
     tag_sticker,
 )
 
@@ -51,6 +52,25 @@ def tag_next(bot, update, session, chat):
         chat.current_sticker_set.completely_tagged = True
         chat.cancel()
         return 'The full sticker set is now tagged.'
+
+    elif chat.tagging_random_sticker:
+        get_random(chat, update, session)
+
+
+@session_wrapper()
+def tag_random(bot, update, session, chat):
+    """Initialize tagging of a whole set."""
+    if chat.type != 'private':
+        return 'Please tag in direct conversation with me.'
+
+    chat.cancel()
+    # Check there is a next sticker
+    if not get_random(chat, update, session):
+        return "It looks like all stickers are already tagged :)."
+
+    chat.tagging_random_sticker = True
+
+    return
 
 
 @session_wrapper()

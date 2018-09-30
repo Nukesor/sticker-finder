@@ -46,6 +46,7 @@ class Chat(base):
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
     current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
 
+    tagging_random_sticker = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     full_sticker_set = Column(Boolean, nullable=False, default=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
 
@@ -74,6 +75,7 @@ class Chat(base):
 
     def cancel(self):
         """Cancel all interactions."""
+        self.tagging_random_sticker = False
         self.full_sticker_set = False
         self.expecting_sticker_set = False
 

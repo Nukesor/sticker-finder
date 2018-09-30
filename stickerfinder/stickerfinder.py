@@ -28,6 +28,7 @@ from stickerfinder.helper import (
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.tag import (
     get_next,
+    get_random,
     initialize_set_tagging,
     tag_sticker,
 )
@@ -38,6 +39,7 @@ from stickerfinder.commands import (
     flag_chat,
     tag_next,
     tag_single,
+    tag_random,
     tag_set,
     cancel,
     stats,
@@ -81,6 +83,23 @@ def handle_private_text(bot, update, session, chat):
         chat.cancel()
         return 'The full sticker set is now tagged.'
 
+    elif chat.tagging_random_sticker:
+        # Try to tag the sticker. Return early if it didn't work.
+        success = tag_sticker(session, update.message.text,
+                              chat.current_sticker, user, update)
+        if not success:
+            return
+
+        session.commit()
+
+        # Send the next random sticker
+        # If there are no more stickers, reset the chat and send success message.
+        if get_random(chat, update, session):
+            return
+
+        chat.cancel()
+        return 'There are no more stickers to tag.'
+
 
 @run_async
 @session_wrapper()
@@ -109,7 +128,9 @@ def handle_private_sticker(bot, update, session, chat):
 
         return
 
-    else:
+    # Set the send sticker to the current sticker for tagging or vote_ban.
+    # But don't do it if we currently are in a tagging process.
+    elif not chat.full_sticker_set and not chat.tagging_random_sticker:
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
 
@@ -126,7 +147,7 @@ def handle_group_sticker(bot, update, session, chat):
     """
     # Check if we know this sticker set. Early return if we don't
     set_name = update.message.sticker.set_name
-    sticker_set = session.query(StickerSet).get(set_name)
+    sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
     if not sticker_set:
         return
 
@@ -139,6 +160,7 @@ def handle_group_sticker(bot, update, session, chat):
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
 
+    # Set the send sticker to the current sticker for tagging or vote_ban.
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
 
@@ -289,6 +311,7 @@ dispatcher.add_handler(CommandHandler('cancel', cancel))
 dispatcher.add_handler(CommandHandler('next', tag_next))
 dispatcher.add_handler(CommandHandler('tag', tag_single))
 dispatcher.add_handler(CommandHandler('tag_set', tag_set))
+dispatcher.add_handler(CommandHandler('tag_random', tag_random))
 dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
 
 # Maintenance command handler

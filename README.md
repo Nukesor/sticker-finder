@@ -12,11 +12,13 @@ Additionally there is a convenient way of tagging stickers or to modify a sticke
 
 Available commands:
 
-        /help       Display help
-        /tag [tags] Tag the last sticker posted in this chat
-        /tag_set    Start to tag a whole set
-        /next       Skip the current tag
-        /cancel     Cancel all current tag actions
+    /help       Display help
+    /tag [tags] Tag the last sticker posted in this chat
+    /tag_set    Start to tag a whole set
+    /tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
+    /vote_ban [reason] Vote to ban the sticker set of the last sticker in the chat.
+    /next       Skip the current tag
+    /cancel     Cancel all current tag actions
 
 Feel free to host your own or to use mine: @std_bot
 
@@ -42,4 +44,16 @@ Finally execute following commands to install all dependencies and to start the 
     next - Skip the current tag
     tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat
+    tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
+    vote_ban - Vote to ban the sticker set of the last sticker in the chat.
     cancel - Cancel all current tag actions
+
+
+## Dev commands
+This is just for people hosting a bot and those with `admin` permissions:
+
+    /ban [name|id] Ban a user
+    /unban [name|id] Unban a user
+    /flag_chat [ban|maintenance|newsfeed] Flag a chat as a maintenance, ban or newsfeed chat. Sticker send to ban chats are automatically banned. Newsfeed chats get the first sticker of every new set that is added.
+    /stats Get some statistics
+    /refresh Refresh all stickerpacks.
