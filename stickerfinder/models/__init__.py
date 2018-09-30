@@ -4,3 +4,4 @@ from stickerfinder.models.sticker_set import StickerSet # noqa
 from stickerfinder.models.tag import Tag # noqa
 from stickerfinder.models.user import User # noqa
 from stickerfinder.models.change import Change # noqa
+from stickerfinder.models.vote_ban import VoteBan # noqa

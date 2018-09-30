@@ -21,11 +21,14 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
+    banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    newsfeed_sent = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
+    vote_bans = relationship("VoteBan", order_by="desc(VoteBan.created_at)")
     chats = relationship(
         "Chat",
         secondary=chat_sticker_set,

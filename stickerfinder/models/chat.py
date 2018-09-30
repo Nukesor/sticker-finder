@@ -6,7 +6,7 @@ from sqlalchemy import (
     Column,
     DateTime,
     func,
-    Integer,
+    BigInteger,
     String,
     Table,
     ForeignKey,
@@ -18,7 +18,7 @@ from sqlalchemy.orm import relationship
 chat_sticker_set = Table(
     'chat_sticker_set', base.metadata,
     Column('chat_id',
-           Integer,
+           BigInteger,
            ForeignKey('chat.id', ondelete='CASCADE',
                       onupdate='CASCADE', deferrable=True),
            index=True),
@@ -32,13 +32,16 @@ chat_sticker_set = Table(
 
 
 class Chat(base):
-    """The sqlite model for a chat."""
+    """The model for a chat."""
 
     __tablename__ = 'chat'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     type = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    is_ban = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    is_newsfeed = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    is_maintenance = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
     current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)

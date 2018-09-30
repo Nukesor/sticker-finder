@@ -1,7 +1,7 @@
 """The sqlite model for a change."""
-from stickerfinder.db import base
-
+from sqlalchemy.orm import relationship
 from sqlalchemy import (
+    BigInteger,
     Column,
     DateTime,
     func,
@@ -9,22 +9,23 @@ from sqlalchemy import (
     String,
     ForeignKey,
 )
-from sqlalchemy.orm import relationship
+
+from stickerfinder.db import base
 
 
 class Change(base):
-    """The sqlite model for a change."""
+    """The model for a change."""
 
     __tablename__ = 'change'
 
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    old_text = Column(String, index=True)
-    old_tags = Column(String, index=True)
-    new_tags = Column(String, index=True)
-    new_text = Column(String, index=True)
+    old_text = Column(String)
+    old_tags = Column(String)
+    new_tags = Column(String)
+    new_text = Column(String)
 
-    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
     sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
 
     user = relationship("User")

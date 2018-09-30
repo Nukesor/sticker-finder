@@ -56,15 +56,17 @@ def session_wrapper(send_message=True):
             try:
                 response = None
                 # Normal messages
-                if update.message:
+                if hasattr(update, 'message') and update.message:
                     chat_id = update.message.chat_id
                     chat_type = update.message.chat.type
                     chat = Chat.get_or_create(session, chat_id, chat_type)
                     response = func(bot, update, session, chat)
-                # Inline Query
+                # Inline Query or job tasks
                 else:
                     func(bot, update, session)
-                if response is not None:
+
+                # Respond to user
+                if hasattr(update, 'message') and response is not None:
                     call_tg_func(update.message.chat, 'send_message', args=[response])
 
                 session.commit()

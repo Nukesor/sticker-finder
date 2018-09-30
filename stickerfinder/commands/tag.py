@@ -29,8 +29,7 @@ def tag_single(bot, update, session, chat):
         user = User.get_or_create(session, update.message.from_user)
 
         # Remove the /tag command
-        text = update.message.text
-        text = text.split(' ', 1)[1]
+        text = update.message.text.split(' ', 1)[1]
 
         tag_sticker(session, text, chat.current_sticker, user, update)
 

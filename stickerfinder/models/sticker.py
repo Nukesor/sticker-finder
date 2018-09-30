@@ -30,7 +30,7 @@ sticker_tag = Table(
 
 
 class Sticker(base):
-    """The sqlite model for a sticker."""
+    """The model for a sticker."""
 
     __tablename__ = 'sticker'
 

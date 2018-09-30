@@ -2,28 +2,29 @@
 from stickerfinder.db import base
 
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Column,
     DateTime,
     func,
-    Integer,
     String,
 )
 from sqlalchemy.orm import relationship
 
 
 class User(base):
-    """The sqlite model for a user."""
+    """The model for a user."""
 
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)
     username = Column(String, unique=True)
     banned = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, server_default=func.now(), nullable=False)
     admin = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     changes = relationship("Change")
+    vote_bans = relationship("VoteBan")
 
     def __init__(self, user_id, username):
         """Create a new user."""

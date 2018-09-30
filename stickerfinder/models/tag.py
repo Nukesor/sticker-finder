@@ -7,7 +7,7 @@ from stickerfinder.models.sticker import sticker_tag
 
 
 class Tag(base):
-    """The sqlite model for a sticker."""
+    """The model for a sticker."""
 
     __tablename__ = 'tag'
 

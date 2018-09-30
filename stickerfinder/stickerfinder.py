@@ -34,12 +34,17 @@ from stickerfinder.helper.tag import (
 from stickerfinder.commands import (
     ban_user,
     unban_user,
+    vote_ban_set,
+    flag_chat,
     tag_next,
     tag_single,
     tag_set,
     cancel,
     stats,
     refresh_sticker_sets,
+)
+from stickerfinder.commands.tasks import (
+    newsfeed,
 )
 
 
@@ -50,10 +55,10 @@ def send_help_text(bot, update):
 
 @run_async
 @session_wrapper()
-def handle_text(bot, update, session, chat):
+def handle_private_text(bot, update, session, chat):
     """Read all messages and handle the tagging of stickers."""
     user = User.get_or_create(session, update.message.from_user)
-    # Handle the initial naming of a sticker set
+    # Handle the name of a sticker set to initialize full sticker set tagging
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
         initialize_set_tagging(bot, update, session, name, chat)
@@ -121,9 +126,15 @@ def handle_group_sticker(bot, update, session, chat):
     """
     # Check if we know this sticker set. Early return if we don't
     set_name = update.message.sticker.set_name
-    sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
+    sticker_set = session.query(StickerSet).get(set_name)
     if not sticker_set:
         return
+
+    # Handle ban chat
+    if chat.is_ban:
+        sticker_set.banned = True
+
+        return f'Banned sticker set {sticker_set.title}'
 
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
@@ -167,6 +178,7 @@ def find_stickers(bot, update, session):
     name_tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
+        .filter(StickerSet.banned.is_(False)) \
         .filter(Tag.name.in_(tags)) \
         .filter(or_(*set_conditions)) \
         .group_by(Sticker) \
@@ -183,6 +195,8 @@ def find_stickers(bot, update, session):
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     text_tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
+        .join(Sticker.sticker_set) \
+        .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*text_conditions)) \
         .filter(Tag.name.in_(tags)) \
         .group_by(Sticker) \
@@ -193,6 +207,8 @@ def find_stickers(bot, update, session):
 
     # Search for matching stickers by text
     text_stickers = session.query(Sticker) \
+        .join(Sticker.sticker_set) \
+        .filter(StickerSet.banned.is_(False)) \
         .filter(Sticker.text.ilike(f'%{query}%')) \
         .all()
 
@@ -200,6 +216,8 @@ def find_stickers(bot, update, session):
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
     tag_stickers = session.query(Sticker, tag_count) \
         .join(Sticker.tags) \
+        .join(Sticker.sticker_set) \
+        .filter(StickerSet.banned.is_(False)) \
         .filter(Tag.name.in_(tags)) \
         .group_by(Sticker) \
         .having(tag_count > 0) \
@@ -210,6 +228,7 @@ def find_stickers(bot, update, session):
     # Search for matching stickers with a matching set name
     set_name_stickers = session.query(Sticker) \
         .join(Sticker.sticker_set) \
+        .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*set_conditions)) \
         .all()
 
@@ -270,10 +289,18 @@ dispatcher.add_handler(CommandHandler('cancel', cancel))
 dispatcher.add_handler(CommandHandler('next', tag_next))
 dispatcher.add_handler(CommandHandler('tag', tag_single))
 dispatcher.add_handler(CommandHandler('tag_set', tag_set))
+dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
+
+# Maintenance command handler
 dispatcher.add_handler(CommandHandler('ban', ban_user))
 dispatcher.add_handler(CommandHandler('unban', unban_user))
 dispatcher.add_handler(CommandHandler('stats', stats))
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
+dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
+
+# Regular tasks
+job_queue = updater.job_queue
+job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
 
 # Create message handler
 dispatcher.add_handler(
@@ -281,7 +308,7 @@ dispatcher.add_handler(
 dispatcher.add_handler(
     MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
 dispatcher.add_handler(
-    MessageHandler(Filters.text & Filters.private, handle_text))
+    MessageHandler(Filters.text & Filters.private, handle_private_text))
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))
