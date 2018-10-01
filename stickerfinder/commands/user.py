@@ -1,20 +1,11 @@
 """User management related commands."""
-from stickerfinder.helper import session_wrapper
-from stickerfinder.config import config
-from stickerfinder.models import (
-    User,
-)
+from stickerfinder.helper.session import session_wrapper
+from stickerfinder.models import User
 
 
-@session_wrapper()
-def ban_user(bot, update, session, chat):
+@session_wrapper(admin_only=True)
+def ban_user(bot, update, session, chat, user):
     """Send a help text."""
-    tg_user = update.message.from_user
-    user = User.get_or_create(session, update.message.from_user)
-
-    if tg_user.username != config.ADMIN and not user.admin:
-        return 'You are not authorized for this command.'
-
     name_to_ban = update.message.text.split(' ', 1)[1].lower()
 
     user_to_ban = session.query(User) \
@@ -33,15 +24,9 @@ def ban_user(bot, update, session, chat):
         return 'Unknown username'
 
 
-@session_wrapper()
-def unban_user(bot, update, session, chat):
+@session_wrapper(admin_only=True)
+def unban_user(bot, update, session, chat, user):
     """Send a help text."""
-    tg_user = update.message.from_user
-    user = User.get_or_create(session, update.message.from_user)
-
-    if tg_user.username != config.ADMIN and not user.admin:
-        return 'You are not authorized for this command.'
-
     name_to_unban = update.message.text.split(' ', 1)[1].lower()
 
     user_to_unban = session.query(User) \

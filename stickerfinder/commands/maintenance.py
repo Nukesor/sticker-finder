@@ -1,9 +1,8 @@
 """Maintenance related commands."""
 from sqlalchemy import func
 
-from stickerfinder.helper import session_wrapper
+from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.config import config
 from stickerfinder.models import (
     StickerSet,
     Sticker,
@@ -13,15 +12,9 @@ from stickerfinder.models import (
 )
 
 
-@session_wrapper()
-def stats(bot, update, session, chat):
+@session_wrapper(admin_only=True)
+def stats(bot, update, session, chat, user):
     """Send a help text."""
-    tg_user = update.message.from_user
-    user = User.get_or_create(session, update.message.from_user)
-
-    if tg_user.username != config.ADMIN and not user.admin:
-        return 'You are not authorized for this command.'
-
     user_count = session.query(User).count()
 
     tag_count = session.query(Tag) \
@@ -57,15 +50,9 @@ Stickers with Tags: {tagged_sticker_count}
     """
 
 
-@session_wrapper()
-def refresh_sticker_sets(bot, update, session, chat):
+@session_wrapper(admin_only=True)
+def refresh_sticker_sets(bot, update, session, chat, user):
     """Send a help text."""
-    tg_user = update.message.from_user
-    user = User.get_or_create(session, update.message.from_user)
-
-    if tg_user.username != config.ADMIN and not user.admin:
-        return 'You are not authorized for this command.'
-
     sticker_sets = session.query(StickerSet).all()
 
     count = 0
@@ -79,15 +66,9 @@ def refresh_sticker_sets(bot, update, session, chat):
     return 'All sticker sets are refreshed.'
 
 
-@session_wrapper()
-def flag_chat(bot, update, session, chat):
+@session_wrapper(admin_only=True)
+def flag_chat(bot, update, session, chat, user):
     """Flag a chat as maintenance or ban chat."""
-    tg_user = update.message.from_user
-    user = User.get_or_create(session, update.message.from_user)
-
-    if tg_user.username != config.ADMIN and not user.admin:
-        return 'You are not authorized for this command.'
-
     chat_type = update.message.text.split(' ', 1)[1].strip()
 
     # Flag chat as ban channel

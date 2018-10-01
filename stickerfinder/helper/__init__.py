@@ -1,11 +1,4 @@
 """Some static stuff or helper functions for sticker finder bot."""
-import traceback
-from functools import wraps
-
-from stickerfinder.db import get_session
-from stickerfinder.sentry import sentry
-from stickerfinder.models import Chat
-from .telegram import call_tg_func
 
 
 tag_format = """Your tag messages should be formatted like this:
@@ -44,40 +37,3 @@ tag_text = f"""Now please send tags and text for each sticker I'll send you.
 If you don't want to edit a sticker, just send /next.
 {tag_format}
 """
-
-
-def session_wrapper(send_message=True):
-    """Allow specification whether a debug message should be sent to the user."""
-    def real_decorator(func):
-        """Create a database session and handle exceptions."""
-        @wraps(func)
-        def wrapper(bot, update):
-            session = get_session()
-            try:
-                response = None
-                # Normal messages
-                if hasattr(update, 'message') and update.message:
-                    chat_id = update.message.chat_id
-                    chat_type = update.message.chat.type
-                    chat = Chat.get_or_create(session, chat_id, chat_type)
-                    response = func(bot, update, session, chat)
-                # Inline Query or job tasks
-                else:
-                    func(bot, update, session)
-
-                # Respond to user
-                if hasattr(update, 'message') and response is not None:
-                    call_tg_func(update.message.chat, 'send_message', args=[response])
-
-                session.commit()
-            except BaseException:
-                if send_message:
-                    call_tg_func(update.message.chat, 'send_message',
-                                 args=['An unknown error occurred.'])
-                traceback.print_exc()
-                sentry.captureException()
-            finally:
-                session.remove()
-        return wrapper
-
-    return real_decorator

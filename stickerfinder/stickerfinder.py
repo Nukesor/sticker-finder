@@ -15,16 +15,14 @@ from telegram.ext import (
 
 from stickerfinder.config import config
 from stickerfinder.models import (
-    User,
     Sticker,
     StickerSet,
     sticker_tag,
     Tag,
 )
-from stickerfinder.helper import (
-    help_text,
-    session_wrapper,
-)
+from stickerfinder.helper import help_text
+from stickerfinder.helper.session import session_wrapper
+
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.tag import (
     get_next,
@@ -56,10 +54,9 @@ def send_help_text(bot, update):
 
 
 @run_async
-@session_wrapper()
-def handle_private_text(bot, update, session, chat):
+@session_wrapper(check_ban=True)
+def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
-    user = User.get_or_create(session, update.message.from_user)
     # Handle the name of a sticker set to initialize full sticker set tagging
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
@@ -102,17 +99,19 @@ def handle_private_text(bot, update, session, chat):
 
 
 @run_async
-@session_wrapper()
-def handle_private_sticker(bot, update, session, chat):
+@session_wrapper(check_ban=True)
+def handle_private_sticker(bot, update, session, chat, user):
     """Read all stickers.
 
     - Handle initial sticker addition.
     - Handle sticker tagging
     """
-    User.get_or_create(session, update.message .from_user)
-
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
+
+    # The sticker is no longer associated to a stickerpack
+    if set_name is None:
+        return
 
     sticker_set = session.query(StickerSet).get(set_name)
     if sticker_set and sticker_set.complete:
@@ -138,15 +137,20 @@ def handle_private_sticker(bot, update, session, chat):
 
 
 @run_async
-@session_wrapper(send_message=False)
-def handle_group_sticker(bot, update, session, chat):
+@session_wrapper(send_message=False, get_user=False)
+def handle_group_sticker(bot, update, session, chat, user):
     """Read all stickers.
 
     - Handle initial sticker addition.
     - Detect whether a sticker pack is used in a chat or not.
     """
-    # Check if we know this sticker set. Early return if we don't
     set_name = update.message.sticker.set_name
+
+    # The sticker is no longer associated to a stickerpack
+    if set_name is None:
+        return
+
+    # Check if we know this sticker set. Early return if we don't
     sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
     if not sticker_set:
         return
@@ -169,16 +173,17 @@ def handle_group_sticker(bot, update, session, chat):
 
 @run_async
 @session_wrapper(send_message=False)
-def find_stickers(bot, update, session):
+def find_stickers(bot, update, session, user):
     """Handle inline queries for sticker search."""
     query = update.inline_query.query.strip().lower()
+    if query == '':
+        return
+
     if ',' in query:
         tags = query.split(',')
     else:
         tags = query.split(' ')
     tags = [tag.strip() for tag in tags if tag.strip() != '']
-
-    user = User.get_or_create(session, update.inline_query.from_user)
 
     # We don't want banned users
     if user.banned:

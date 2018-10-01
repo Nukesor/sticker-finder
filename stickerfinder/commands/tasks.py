@@ -3,7 +3,7 @@ import telegram
 import traceback
 
 from stickerfinder.sentry import sentry
-from stickerfinder.helper import session_wrapper
+from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import (
     Chat,
@@ -12,7 +12,7 @@ from stickerfinder.models import (
 
 
 @session_wrapper(send_message=False)
-def newsfeed(bot, job, session):
+def newsfeed(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
     chats = session.query(Chat) \
         .filter(Chat.is_newsfeed.is_(True)) \

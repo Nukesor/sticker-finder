@@ -1,13 +1,10 @@
 """Sticker set related commands."""
-from stickerfinder.helper import session_wrapper
-from stickerfinder.models import (
-    User,
-    VoteBan,
-)
+from stickerfinder.helper.session import session_wrapper
+from stickerfinder.models import VoteBan
 
 
-@session_wrapper()
-def vote_ban_set(bot, update, session, chat):
+@session_wrapper(check_ban=True)
+def vote_ban_set(bot, update, session, chat, user):
     """Vote ban the set of the last sticker send to this chat."""
     if chat.current_sticker:
         # Remove the /vote_ban command
@@ -16,8 +13,6 @@ def vote_ban_set(bot, update, session, chat):
             return "Please add reason for your vote ban (/vote_ban offensive pic)"
 
         reason = text[1].strip()
-        # Get user
-        user = User.get_or_create(session, update.message.from_user)
 
         vote_ban = VoteBan(user, chat.current_sticker.sticker_set, reason)
         session.add(vote_ban)
