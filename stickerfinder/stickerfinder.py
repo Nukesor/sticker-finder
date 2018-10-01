@@ -48,9 +48,16 @@ from stickerfinder.commands.tasks import (
 )
 
 
+def start(bot, update):
+    """Send a help text."""
+    call_tg_func(update.message, 'reply_text',
+                 args=[help_text], kwargs={'quote': False})
+
+
 def send_help_text(bot, update):
     """Send a help text."""
-    call_tg_func(update.message.chat, 'send_message', args=[help_text])
+    call_tg_func(update.message, 'reply_text',
+                 args=[help_text], kwargs={'quote': False})
 
 
 @run_async
@@ -111,12 +118,16 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     # The sticker is no longer associated to a stickerpack
     if set_name is None:
+        call_tg_func(update.message, 'reply_text',
+                     args=["This sticker doesn't belong to a sticker set."],
+                     kwargs={'quote': False})
         return
 
     sticker_set = session.query(StickerSet).get(set_name)
     if sticker_set and sticker_set.complete:
-        call_tg_func(update.message.chat, 'send_message',
-                     args=['I already know this sticker set :)'])
+        call_tg_func(update.message, 'reply_text',
+                     args=['I already know this sticker set :)'],
+                     kwargs={'quote': False})
 
     if sticker_set is None:
         StickerSet.get_or_create(session, set_name, bot, update)
@@ -311,6 +322,7 @@ updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
 
 # Add command handler
 dispatcher = updater.dispatcher
+dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', send_help_text))
 dispatcher.add_handler(CommandHandler('cancel', cancel))
 dispatcher.add_handler(CommandHandler('next', tag_next))

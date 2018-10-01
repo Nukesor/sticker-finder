@@ -84,7 +84,7 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker_set = sticker_set
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(update.message.chat, 'send_message', args=[tag_text])
+    call_tg_func(update.message.chat, 'send_reply', args=[tag_text])
     call_tg_func(update.message.chat, 'send_sticker',
                  args=[chat.current_sticker.file_id],
                  kwargs={'timeout': 60})

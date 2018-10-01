@@ -1,6 +1,7 @@
 """Telegram job tasks."""
 import telegram
 import traceback
+from telegram.ext import run_async
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.session import session_wrapper
@@ -11,6 +12,7 @@ from stickerfinder.models import (
 )
 
 
+@run_async
 @session_wrapper(send_message=False)
 def newsfeed(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
