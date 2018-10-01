@@ -1,16 +1,28 @@
-# Stickerfinder
+# Stickerfinder (@std_bot)
 
-Stickerfinder is a telegram bot which allows you to find stickers via inline query and text/tags.
-A basic text recognition is executed on all known stickers, to allow a nice sticker search.
+Stickerfinder aka StickerDiscoveryBot is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query and text/tags.
+A basic text recognition is executed on all known stickers, to allow a nice sticker search by text.
 
-Additionally there is a convenient way of tagging stickers or to modify a sticker search text (In case the text recognition failed.)
+Additionally there is a convenient way of tagging stickers and modifying the detected sticker text (In case the text recognition failed.)
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Available commands:
+Feel free to host your own or to use mine: `@std_bot`
+
+## Features:
+
+    - Inline query search by text, tags, emoji, stickerset name and title.
+    - Manual tagging of single stickers or whole sets.
+    - Random tagging of stickers to help the project and the community.
+    - Automatic sticker set detection when added to groups.
+    - Manual sticker set detection when stickers are sent to direct conversation.
+    - /vote_ban for inappropriate sticker sets.
+
+
+## Available commands:
 
     /help       Display help
     /tag [tags] Tag the last sticker posted in this chat
@@ -19,8 +31,6 @@ Available commands:
     /vote_ban [reason] Vote to ban the sticker set of the last sticker in the chat.
     /next       Skip the current tag
     /cancel     Cancel all current tag actions
-
-Feel free to host your own or to use mine: @std_bot
 
 
 ## Installation and starting:
