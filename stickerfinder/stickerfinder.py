@@ -190,11 +190,21 @@ def find_stickers(bot, update, session, user):
     if query == '':
         return
 
+    # Format query tags
     if ',' in query:
         tags = query.split(',')
     else:
         tags = query.split(' ')
     tags = [tag.strip() for tag in tags if tag.strip() != '']
+
+    # Handle offset. If the offset is 'done' there are no more stickers for this query.
+    offset = update.inline_query.offset
+    if offset == '':
+        offset = 0
+    elif offset == 'done':
+        return
+    else:
+        offset = int(offset)
 
     # We don't want banned users
     if user.banned:
@@ -213,7 +223,7 @@ def find_stickers(bot, update, session, user):
         set_conditions.append(StickerSet.title.ilike(f'%{tag}%'))
 
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    name_tag_stickers = session.query(Sticker, tag_count) \
+    name_tag_stickers = session.query(Sticker.file_id, tag_count) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
@@ -226,12 +236,13 @@ def find_stickers(bot, update, session, user):
 
     name_tag_stickers = [result[0] for result in name_tag_stickers]
 
+    # Search for matching stickers by tags and text
     text_conditions = []
     for tag in tags:
         text_conditions.append(Sticker.text.ilike(f'%{tag}%'))
-    # Search for matching stickers by tags and text
+
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    text_tag_stickers = session.query(Sticker, tag_count) \
+    text_tag_stickers = session.query(Sticker.file_id, tag_count) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
@@ -244,7 +255,7 @@ def find_stickers(bot, update, session, user):
     text_tag_stickers = [result[0] for result in text_tag_stickers]
 
     # Search for matching stickers by text
-    text_stickers = session.query(Sticker) \
+    text_stickers = session.query(Sticker.file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(Sticker.text.ilike(f'%{query}%')) \
@@ -252,7 +263,7 @@ def find_stickers(bot, update, session, user):
 
     # Search for matching stickers by tags
     tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    tag_stickers = session.query(Sticker, tag_count) \
+    tag_stickers = session.query(Sticker.file_id, tag_count) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
@@ -264,52 +275,40 @@ def find_stickers(bot, update, session, user):
     tag_stickers = [result[0] for result in tag_stickers]
 
     # Search for matching stickers with a matching set name
-    set_name_stickers = session.query(Sticker) \
+    set_name_stickers = session.query(Sticker.file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*set_conditions)) \
         .all()
 
     # Now add all found sticker together and deduplicate without killing the order.
-    matching_stickers = name_tag_stickers
+    matching_stickers = []
+    sticker_exists = set()
+    sticker_lists = [name_tag_stickers, text_tag_stickers,
+                     text_stickers, tag_stickers, set_name_stickers]
 
-    for sticker in text_tag_stickers:
-        if sticker not in matching_stickers:
-            matching_stickers.append(sticker)
+    # Check for each query result list if we already have this file_id
+    # in our matched results whilst keeping the original order
+    for sticker_list in sticker_lists:
+        for file_id in sticker_list:
+            if file_id not in sticker_exists:
+                sticker_exists.add(file_id)
+                matching_stickers.append(file_id)
 
-    for sticker in text_stickers:
-        if sticker not in matching_stickers:
-            matching_stickers.append(sticker)
-
-    for sticker in tag_stickers:
-        if sticker not in matching_stickers:
-            matching_stickers.append(sticker)
-
-    for sticker in set_name_stickers:
-        if sticker not in matching_stickers:
-            matching_stickers.append(sticker)
-
-    # Handle offset
-    offset = update.inline_query.offset
-    if offset == '':
-        offset = 0
-    else:
-        offset = int(offset)
-
-    if len(matching_stickers) < offset:
-        return
-
-    # Create a result list with the cached sticker objects
+    # Create a result list of max 50 cached sticker objects
     results = []
-    matching_stickers = matching_stickers[offset:]
-    for sticker in matching_stickers:
-        if len(results) == 50:
-            break
-        results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=sticker.file_id))
+    for file_id in matching_stickers[offset:offset+50]:
+        results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=file_id))
+
+    # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
+    if len(results) >= 50:
+        next_offset = offset + 50
+    else:
+        next_offset = 'done'
 
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
-                     'next_offset': offset + 50,
+                     'next_offset': next_offset,
                      'cache_time': 1,
                      'is_personal': True,
                      'switch_pm_text': 'Maybe tag some stickers :)?',
