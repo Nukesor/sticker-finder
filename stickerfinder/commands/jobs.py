@@ -84,7 +84,7 @@ def maintenance_tasks(bot, job, session, user):
         .filter(Task.id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .group_by(StickerSet) \
-        .having(vote_ban_count > 0) \
+        .having(vote_ban_count > 3) \
         .all()
 
     for (sticker_set, _) in vote_ban_candidates:
@@ -100,7 +100,7 @@ def maintenance_tasks(bot, job, session, user):
         .filter(Task.id.is_(None)) \
         .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
         .group_by(User) \
-        .having(change_count >= 1) \
+        .having(change_count >= 100) \
         .all()
 
     for (user, _) in user_check_candidates:
