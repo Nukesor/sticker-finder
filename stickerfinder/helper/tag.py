@@ -31,9 +31,7 @@ def get_next(chat, update):
             chat.current_sticker = stickers[index+1]
 
             # Send next sticker and the tags of this sticker
-            call_tg_func(update.message.chat, 'send_sticker',
-                         args=[chat.current_sticker.file_id],
-                         kwargs={'timeout': 60})
+            call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
             message = current_sticker_tags_message(chat.current_sticker)
             if message:
@@ -60,9 +58,7 @@ def get_random(chat, update, session):
     chat.current_sticker = sticker
 
     # Send next sticker and the tags of this sticker
-    call_tg_func(update.message.chat, 'send_sticker',
-                 args=[chat.current_sticker.file_id],
-                 kwargs={'timeout': 60})
+    call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     message = current_sticker_tags_message(chat.current_sticker)
     if message:
@@ -85,9 +81,7 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(update.message.chat, 'send_reply', args=[tag_text])
-    call_tg_func(update.message.chat, 'send_sticker',
-                 args=[chat.current_sticker.file_id],
-                 kwargs={'timeout': 60})
+    call_tg_func(update.message.chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     current = current_sticker_tags_message(chat.current_sticker)
     if current is not None:

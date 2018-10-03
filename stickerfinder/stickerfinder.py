@@ -7,6 +7,7 @@ from telegram import (
 from telegram.ext import (
     Filters,
     CommandHandler,
+    CallbackQueryHandler,
     InlineQueryHandler,
     MessageHandler,
     run_async,
@@ -35,6 +36,7 @@ from stickerfinder.commands import (
     unban_user,
     vote_ban_set,
     flag_chat,
+    start_tasks,
     tag_next,
     tag_single,
     tag_random,
@@ -43,21 +45,21 @@ from stickerfinder.commands import (
     stats,
     refresh_sticker_sets,
 )
-from stickerfinder.commands.tasks import (
+from stickerfinder.commands.jobs import (
     newsfeed,
+    maintenance_tasks,
 )
+from stickerfinder.commands.callback import handle_callback_query
 
 
 def start(bot, update):
     """Send a help text."""
-    call_tg_func(update.message, 'reply_text',
-                 args=[help_text], kwargs={'quote': False})
+    call_tg_func(update.message.chat, 'send_message', args=[help_text])
 
 
 def send_help_text(bot, update):
     """Send a help text."""
-    call_tg_func(update.message, 'reply_text',
-                 args=[help_text], kwargs={'quote': False})
+    call_tg_func(update.message.chat, 'send_message', args=[help_text])
 
 
 @run_async
@@ -118,19 +120,15 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     # The sticker is no longer associated to a stickerpack
     if set_name is None:
-        call_tg_func(update.message, 'reply_text',
-                     args=["This sticker doesn't belong to a sticker set."],
-                     kwargs={'quote': False})
+        call_tg_func(update.message.chat, 'send_message', args=["This sticker doesn't belong to a sticker set."])
         return
 
     sticker_set = session.query(StickerSet).get(set_name)
     if sticker_set and sticker_set.complete:
-        call_tg_func(update.message, 'reply_text',
-                     args=['I already know this sticker set :)'],
-                     kwargs={'quote': False})
+        call_tg_func(update.message.chat, 'send_message', args=['I already know this sticker set :)'])
 
     if sticker_set is None:
-        StickerSet.get_or_create(session, set_name, bot, update)
+        sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
 
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
@@ -234,8 +232,6 @@ def find_stickers(bot, update, session, user):
         .order_by(tag_count.desc()) \
         .all()
 
-    name_tag_stickers = [result[0] for result in name_tag_stickers]
-
     # Search for matching stickers by tags and text
     text_conditions = []
     for tag in tags:
@@ -252,7 +248,6 @@ def find_stickers(bot, update, session, user):
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
         .all()
-    text_tag_stickers = [result[0] for result in text_tag_stickers]
 
     # Search for matching stickers by text
     text_stickers = session.query(Sticker.file_id) \
@@ -272,7 +267,6 @@ def find_stickers(bot, update, session, user):
         .having(tag_count > 0) \
         .order_by(tag_count.desc()) \
         .all()
-    tag_stickers = [result[0] for result in tag_stickers]
 
     # Search for matching stickers with a matching set name
     set_name_stickers = session.query(Sticker.file_id) \
@@ -292,8 +286,10 @@ def find_stickers(bot, update, session, user):
     for sticker_list in sticker_lists:
         for file_id in sticker_list:
             if file_id not in sticker_exists:
-                sticker_exists.add(file_id[0])
-                matching_stickers.append(file_id[0])
+                if isinstance(file_id, tuple):
+                    file_id = file_id[0]
+                sticker_exists.add(file_id)
+                matching_stickers.append(file_id)
 
     # Create a result list of max 50 cached sticker objects
     results = []
@@ -317,7 +313,8 @@ def find_stickers(bot, update, session, user):
 
 
 # Initialize telegram updater and dispatcher
-updater = Updater(token=config.TELEGRAM_API_KEY, workers=16)
+updater = Updater(token=config.TELEGRAM_API_KEY, workers=16,
+                  request_kwargs={'read_timeout': 20.})
 
 # Add command handler
 dispatcher = updater.dispatcher
@@ -336,10 +333,12 @@ dispatcher.add_handler(CommandHandler('unban', unban_user))
 dispatcher.add_handler(CommandHandler('stats', stats))
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
 dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
+dispatcher.add_handler(CommandHandler('tasks', start_tasks))
 
 # Regular tasks
 job_queue = updater.job_queue
 job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
+job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new tasks')
 
 # Create message handler
 dispatcher.add_handler(
@@ -348,6 +347,9 @@ dispatcher.add_handler(
     MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
 dispatcher.add_handler(
     MessageHandler(Filters.text & Filters.private, handle_private_text))
+
+# Inline callback handler
+dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))

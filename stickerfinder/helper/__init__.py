@@ -9,13 +9,13 @@ or if you don't want to add text simply write:
 tag1, tag2, tag3, tag4
 """
 
-help_text = f"""To search for stickers just start typing @std_bot and you can now search for stickers by keywords or emojis.
-I'll try to give you the best match depending on your keywords and emojis.
+help_text = f"""To search for stickers just start typing @std_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles.
+I'll try to give you the best match depending on your search query :).
 
-You can add sticker sets by simply sending any sticker of the set to me in a direct conversation.
+You can add stickersets by simply sending any sticker of the set to me in a direct conversation.
 If I'm added to a group chat, I will automatically add all stickers posted in this chat!
 
-If you already added a set, but can't find any sticker from it, you probably need to tag them first (or search by the set name).
+If you already added a set, but can't find any sticker from it, you probably need to tag them first (or just search by the set name).
 To tag a whole set send me the /tag_set command and a sticker from the set you want to tag.
 If you want to skip a sticker during the tagging process just type /next.
 

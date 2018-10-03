@@ -1,7 +1,7 @@
 raven
 
 alembic
-python-telegram-bot~=10.1
+python-telegram-bot~=11.1
 SQLAlchemy~=1.2
 sqlalchemy-utils~=0.33
 psycopg2-binary

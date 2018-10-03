@@ -3,6 +3,7 @@ from sqlalchemy import func
 
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.maintenance import process_task
 from stickerfinder.models import (
     StickerSet,
     Sticker,
@@ -98,3 +99,16 @@ def flag_chat(bot, update, session, chat, user):
             return "Chat can't be flagged for ban and maintenance or newsfeed"
 
     return "Unknown chat type."
+
+
+@session_wrapper(admin_only=True)
+def start_tasks(bot, update, session, chat, user):
+    """Start the handling of tasks."""
+    if not chat.is_maintenance:
+        return 'The chat is no maintenance chat'
+
+    if chat.current_task:
+        return 'There already is a task active for this chat.'
+
+    if not process_task(session, update.message.chat, chat):
+        return 'There are no tasks for processing.'

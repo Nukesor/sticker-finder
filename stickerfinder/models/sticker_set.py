@@ -29,6 +29,7 @@ class StickerSet(base):
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     vote_bans = relationship("VoteBan", order_by="desc(VoteBan.created_at)")
+    tasks = relationship("Task")
     chats = relationship(
         "Chat",
         secondary=chat_sticker_set,
@@ -55,7 +56,7 @@ class StickerSet(base):
                 text = None
                 try:
                     # Get Image and preprocess it
-                    tg_file = call_tg_func(tg_sticker, 'get_file', kwargs={'timeout': 15})
+                    tg_file = call_tg_func(tg_sticker, 'get_file')
                     image_bytes = call_tg_func(tg_file, 'download_as_bytearray')
                     image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
                     image = preprocess_image(image)
@@ -87,7 +88,6 @@ class StickerSet(base):
             stickers.append(sticker)
             session.commit()
 
-        # TODO: DELETE when database refresh is done
         self.title = tg_sticker_set.title
         self.stickers = stickers
         self.complete = True

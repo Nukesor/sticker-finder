@@ -25,6 +25,7 @@ class User(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     changes = relationship("Change")
+    tasks = relationship("Task")
     vote_bans = relationship("VoteBan")
 
     def __init__(self, user_id, username):
@@ -41,9 +42,5 @@ class User(base):
             user = User(tg_user.id, tg_user.username)
             session.add(user)
             session.commit()
-
-        # TODO: Remove if db is updated
-        if not user.username and tg_user.username is not None:
-            user.username = tg_user.username.lower()
 
         return user

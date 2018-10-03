@@ -38,9 +38,10 @@ def session_wrapper(
 
                 # Check for admin permissions.
                 if admin_only and user and not user.admin \
-                        and user.username != config.ADMIN:
+                        and user.username != config.ADMIN.lower():
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['You are not authorized for this command.'])
+                    return
 
                 # Normal messages
                 if hasattr(update, 'message') and update.message:
@@ -58,11 +59,11 @@ def session_wrapper(
 
                 session.commit()
             except BaseException:
+                traceback.print_exc()
+                sentry.captureException()
                 if send_message:
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['An unknown error occurred.'])
-                traceback.print_exc()
-                sentry.captureException()
             finally:
                 session.remove()
         return wrapper

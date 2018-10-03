@@ -13,6 +13,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 
 
 chat_sticker_set = Table(
@@ -39,17 +40,24 @@ class Chat(base):
     id = Column(BigInteger, primary_key=True)
     type = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
+
+    # Maintenance and chat flags
     is_ban = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     is_newsfeed = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     is_maintenance = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
+    # Tagging process related flags
+    tagging_random_sticker = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    expecting_sticker_set = Column(Boolean, nullable=False, default=False)
+    full_sticker_set = Column(Boolean, nullable=False, default=False)
+
+    # ForeignKeys
+    current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id'), index=True)
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
     current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
 
-    tagging_random_sticker = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    full_sticker_set = Column(Boolean, nullable=False, default=False)
-    expecting_sticker_set = Column(Boolean, nullable=False, default=False)
-
+    # Relationships
+    current_task = relationship("Task")
     current_sticker = relationship("Sticker")
     current_sticker_set = relationship("StickerSet")
     sticker_sets = relationship(
@@ -79,5 +87,6 @@ class Chat(base):
         self.full_sticker_set = False
         self.expecting_sticker_set = False
 
-        self.current_sticker_set = None
+        self.current_task = None
         self.current_sticker = None
+        self.current_sticker_set = None
