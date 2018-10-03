@@ -292,8 +292,8 @@ def find_stickers(bot, update, session, user):
     for sticker_list in sticker_lists:
         for file_id in sticker_list:
             if file_id not in sticker_exists:
-                sticker_exists.add(file_id)
-                matching_stickers.append(file_id)
+                sticker_exists.add(file_id[0])
+                matching_stickers.append(file_id[0])
 
     # Create a result list of max 50 cached sticker objects
     results = []
