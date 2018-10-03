@@ -37,8 +37,8 @@ def session_wrapper(
                     return
 
                 # Check for admin permissions.
-                if admin_only and user and \
-                        not user.admin and user.nickname != config.ADMIN:
+                if admin_only and user and not user.admin \
+                        and user.username != config.ADMIN:
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['You are not authorized for this command.'])
 

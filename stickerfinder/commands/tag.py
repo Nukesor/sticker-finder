@@ -68,7 +68,7 @@ def tag_random(bot, update, session, chat, user):
 
 
 @session_wrapper()
-def cancel(bot, update, session, chat):
+def cancel(bot, update, session, chat, user):
     """Send a help text."""
     chat.cancel()
     return 'All running commands are canceled'
