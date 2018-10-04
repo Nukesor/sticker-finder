@@ -8,6 +8,9 @@ I even perform a basic text recognition on all stickers to allow a nice sticker 
 
 In case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
 
+And yes, I know that `std` also stands for sexually transmitted diseases, but there are very few short bot names left and I couldn't be picky.
+That's why there are two bot users ;). Choose whichever you want since they are practically the same bot.
+
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
@@ -17,12 +20,12 @@ Feel free to host your own or to use mine on telegram: [@StickerDiscoveryBot](ht
 
 ## Features:
 
-    - Inline query search by text, emoji, stickerset name and title.
-    - Tagging of single stickers or whole sets.
-    - Random tagging of stickers if you're bored.
-    - Sticker set addition in direct conversations.
-    - Sticker set addition when bot is added to groups.
-    - /vote_ban for inappropriate sticker sets.
+- Inline query search by text, emoji, stickerset name and title.
+- Tagging of single stickers or whole sets.
+- Random tagging of stickers if you're bored.
+- Sticker set addition in direct conversations.
+- Sticker set addition when bot is added to groups.
+- /vote_ban for inappropriate sticker sets.
 
 
 ## Available commands:
