@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
+from stickerfinder.helper import admin_keyboard
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.callback import CallbackType, CallbackResult
@@ -11,7 +12,7 @@ from stickerfinder.models import (
 )
 
 
-def process_task(session, tg_chat, chat):
+def process_task(session, tg_chat, chat, job=False):
     """Get the next task and send it to the maintenance channel."""
     task = session.query(Task) \
         .filter(Task.reviewed.is_(False)) \
@@ -22,7 +23,15 @@ def process_task(session, tg_chat, chat):
     chat.current_task = task
 
     if task is None:
-        return False
+        # Don't send messages if we are calling this from a job.
+        if job:
+            return
+
+        call_tg_func(tg_chat, 'send_message',
+                     ['There are no more tasks for processing.'],
+                     {'reply_markup': admin_keyboard})
+
+        return
 
     if task.type == 'user_ban':
         changes = session.query(Change) \

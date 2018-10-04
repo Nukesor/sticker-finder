@@ -1,6 +1,7 @@
 """Maintenance related commands."""
 from sqlalchemy import func
 
+from stickerfinder.helper import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
@@ -41,7 +42,7 @@ def stats(bot, update, session, chat, user):
         .filter(Sticker.text.isnot(None)) \
         .count()
 
-    return f"""Users: {user_count}
+    stats = f"""Users: {user_count}
 Tags: {tag_count}
 Emojis: {emoji_count}
 Sticker sets: {sticker_set_count}
@@ -49,6 +50,7 @@ Stickers: {sticker_count}
 Stickers with Text: {text_sticker_count}
 Stickers with Tags: {tagged_sticker_count}
     """
+    call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': admin_keyboard})
 
 
 @session_wrapper(admin_only=True)
@@ -64,7 +66,8 @@ def refresh_sticker_sets(bot, update, session, chat, user):
             progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
-    return 'All sticker sets are refreshed.'
+    call_tg_func(update.message.chat, 'send_message',
+                 ['All sticker sets are refreshed.'], {'reply_markup': admin_keyboard})
 
 
 @session_wrapper(admin_only=True)
@@ -86,7 +89,9 @@ def flag_chat(bot, update, session, chat, user):
             chat.is_maintenance = not chat.is_maintenance
             return f"Chat is {'now' if chat.is_maintenance else 'no longer' } a maintenance chat."
         else:
-            return "Chat can't be flagged for ban and maintenance or newsfeed"
+            call_tg_func(update.message.chat, 'send_message',
+                         ["Chat can't be flagged for ban and maintenance or newsfeed"],
+                         {'reply_markup': admin_keyboard})
 
     # Flag chat as newsfeed channel
     elif chat_type == 'newsfeed':
@@ -103,13 +108,13 @@ def flag_chat(bot, update, session, chat, user):
 def start_tasks(bot, update, session, chat, user):
     """Start the handling of tasks."""
     if not chat.is_maintenance:
-        return 'The chat is no maintenance chat'
+        call_tg_func(update.message.chat, 'send_message',
+                     ['The chat is no maintenance chat'], {'reply_markup': admin_keyboard})
 
-    if chat.current_task:
+    elif chat.current_task:
         return 'There already is a task active for this chat.'
 
-    if not process_task(session, update.message.chat, chat):
-        return 'There are no tasks for processing.'
+    process_task(session, update.message.chat, chat)
 
 
 @session_wrapper(admin_only=True)
@@ -157,4 +162,5 @@ def tag_cleanup(bot, update, session, chat, user):
             progress = f'Processed {len(all_tags)} tags. ({len(all_tags) - count} remaining)'
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
-    return "Tag cleanup finished."
+    call_tg_func(update.message.chat, 'send_message',
+                 ['Tag cleanup finished.'], {'reply_markup': admin_keyboard})

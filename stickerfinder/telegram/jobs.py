@@ -126,4 +126,4 @@ def maintenance_tasks(bot, job, session, user):
     for chat in idle_maintenance_chats:
         # There are no more tasks
         tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
-        process_task(session, tg_chat, chat)
+        process_task(session, tg_chat, chat, job=True)

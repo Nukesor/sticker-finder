@@ -1,4 +1,6 @@
 """User management related commands."""
+from stickerfinder.helper import main_keyboard, admin_keyboard
+from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import User
 
@@ -43,3 +45,13 @@ def unban_user(bot, update, session, chat, user):
         return f'User {name_to_unban} unbanned'
     else:
         return 'Unknown username'
+
+
+@session_wrapper()
+def cancel(bot, update, session, chat, user):
+    """Send a help text."""
+    chat.cancel()
+
+    keyboard = admin_keyboard if chat.is_maintenance else main_keyboard
+    call_tg_func(update.message.chat, 'send_message', ['All running commands are canceled'],
+                 {'reply_markup': keyboard})

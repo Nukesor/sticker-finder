@@ -39,3 +39,9 @@ blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'h
 
 main_keyboard = ReplyKeyboardMarkup([['/help', '/tag_set', '/tag_random']],
                                     one_time_keyboard=True, resize_keyboard=True)
+
+admin_keyboard = ReplyKeyboardMarkup(
+    [
+        ['/cancel', '/tasks'],
+        ['/stats', '/refresh', '/tag_cleanup'],
+    ], resize_keyboard=True, one_time_keyboard=True)

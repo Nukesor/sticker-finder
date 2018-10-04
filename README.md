@@ -29,7 +29,6 @@ Feel free to host your own or to use mine: `@std_bot`
     /tag_set    Start to tag a whole set
     /tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     /vote_ban [reason] Vote to ban the sticker set of the last sticker in the chat.
-    /next       Skip the current tag
     /cancel     Cancel all current tag actions
 
 
@@ -51,12 +50,11 @@ Finally execute following commands to install all dependencies and to start the 
 ## Botfather commands
 
     help - Display help
-    next - Skip the current tag
     tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat
     tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     vote_ban - Vote to ban the sticker set of the last sticker in the chat.
-    cancel - Cancel all current tag actions
+    cancel - Cancel all current actions.
 
 
 ## Dev commands

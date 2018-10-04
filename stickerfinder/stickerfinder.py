@@ -9,15 +9,15 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
+from stickerfinder.helper import help_text, main_keyboard, admin_keyboard
+from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper import help_text, main_keyboard
 from stickerfinder.telegram.commands import (
     ban_user,
     unban_user,
     vote_ban_set,
     flag_chat,
     start_tasks,
-    tag_next,
     tag_single,
     tag_random,
     tag_set,
@@ -39,10 +39,15 @@ from stickerfinder.telegram.callback import handle_callback_query
 from stickerfinder.telegram.inline_query import find_stickers
 
 
-def start(bot, update):
+@session_wrapper()
+def start(bot, update, session, chat, user):
     """Send a help text."""
-    call_tg_func(update.message.chat, 'send_message', [help_text],
-                 {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
+    if chat.is_maintenance:
+        call_tg_func(update.message.chat, 'send_message', ['Hello there'],
+                     {'reply_markup': admin_keyboard})
+    else:
+        call_tg_func(update.message.chat, 'send_message', [help_text],
+                     {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
 def send_help_text(bot, update):
@@ -55,25 +60,28 @@ def send_help_text(bot, update):
 updater = Updater(token=config.TELEGRAM_API_KEY, workers=16,
                   request_kwargs={'read_timeout': 20.})
 
-# Add command handler
+# Input commands
 dispatcher = updater.dispatcher
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('help', send_help_text))
-dispatcher.add_handler(CommandHandler('cancel', cancel))
-dispatcher.add_handler(CommandHandler('next', tag_next))
 dispatcher.add_handler(CommandHandler('tag', tag_single))
-dispatcher.add_handler(CommandHandler('tag_set', tag_set))
-dispatcher.add_handler(CommandHandler('tag_random', tag_random))
 dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
 
-# Maintenance command handler
+# Button commands
+dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('help', send_help_text))
+dispatcher.add_handler(CommandHandler('tag_set', tag_set))
+dispatcher.add_handler(CommandHandler('tag_random', tag_random))
+dispatcher.add_handler(CommandHandler('cancel', cancel))
+
+# Maintenance input commands
 dispatcher.add_handler(CommandHandler('ban', ban_user))
 dispatcher.add_handler(CommandHandler('unban', unban_user))
-dispatcher.add_handler(CommandHandler('stats', stats))
+dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
+
+# Maintenance Button commands
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
 dispatcher.add_handler(CommandHandler('tag_cleanup', tag_cleanup))
-dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
 dispatcher.add_handler(CommandHandler('tasks', start_tasks))
+dispatcher.add_handler(CommandHandler('stats', stats))
 
 # Regular tasks
 job_queue = updater.job_queue
