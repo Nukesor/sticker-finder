@@ -3,7 +3,7 @@ import telegram
 import traceback
 from datetime import datetime, timedelta
 from telegram.ext import run_async
-from sqlalchemy import func
+from sqlalchemy import func, or_
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.session import session_wrapper
@@ -94,16 +94,21 @@ def maintenance_tasks(bot, job, session, user):
 
     # Get all users which tagged more than 100 sticker in the last 24 hours.
     change_count = func.count(Change.id).label('change_count')
-    user_check_candidates = session.query(User, change_count) \
+    task_count = func.count(Task.id).label('task_count')
+    user_check_candidates = session.query(User, change_count, task_count) \
         .join(User.changes) \
         .outerjoin(User.tasks) \
-        .filter(Task.id.is_(None)) \
+        .filter(or_(
+            Task.created_at < (datetime.now() - timedelta(days=2)),
+            Task.id.is_(None),
+        )) \
         .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
         .group_by(User) \
         .having(change_count >= 100) \
+        .having(task_count == 0) \
         .all()
 
-    for (user, _) in user_check_candidates:
+    for (user, _, _) in user_check_candidates:
         task = Task('user_ban', user=user)
         tasks.append(task)
         session.add(task)

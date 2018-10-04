@@ -28,4 +28,5 @@ It would be awesome if you could also add the text in the sticker :).
 """
 
 
-blacklist = set(['me', 'is'])
+blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
+                 'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])

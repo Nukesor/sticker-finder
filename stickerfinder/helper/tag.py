@@ -150,6 +150,6 @@ def tag_sticker(session, text, sticker, user, tg_chat, keep_old=False):
             sticker.tags = tags
 
         # Create a change for logging
-        change = Change(user, sticker, old_tags_as_text)
-
-        session.add(change)
+        if old_tags_as_text != sticker.tags_as_text():
+            change = Change(user, sticker, old_tags_as_text)
+            session.add(change)
