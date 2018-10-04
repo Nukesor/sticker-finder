@@ -1,24 +1,27 @@
-# Stickerfinder (@std_bot)
+# Stickerfinder ([@StickerDiscoveryBot](https://t.me/StickerDiscoveryBot) or [@std_bot](https://t.me/std_bot) )
 
-Stickerfinder aka StickerDiscoveryBot is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query and text/tags.
-A basic text recognition is executed on all known stickers, to allow a nice sticker search by text.
+Stickerfinder aka StickerDiscoveryBot is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query search (just like @gif).
+You can easily add your own sticker sets and search existing ones (already over 12k).
 
-Additionally there is a convenient way of tagging stickers and modifying the detected sticker text (In case the text recognition failed.)
+Also there are several ways to conveniently tag stickers either in a direct telegram conversation or on the fly in any other chat.
+I even perform a basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
+
+In case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Feel free to host your own or to use mine: `@std_bot`
+Feel free to host your own or to use mine on telegram: [@StickerDiscoveryBot](https://t.me/StickerDiscoveryBot) or [@std_bot](https://t.me/std_bot)
 
 ## Features:
 
-    - Inline query search by text, tags, emoji, stickerset name and title.
-    - Manual tagging of single stickers or whole sets.
-    - Random tagging of stickers to help the project and the community.
-    - Automatic sticker set detection when added to groups.
-    - Manual sticker set detection when stickers are sent to direct conversation.
+    - Inline query search by text, emoji, stickerset name and title.
+    - Tagging of single stickers or whole sets.
+    - Random tagging of stickers if you're bored.
+    - Sticker set addition in direct conversations.
+    - Sticker set addition when bot is added to groups.
     - /vote_ban for inappropriate sticker sets.
 
 

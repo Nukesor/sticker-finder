@@ -13,8 +13,11 @@ If I'm added to a group chat, I will automatically add all stickers posted in th
 If you already added a set, you probably need to tag them first (or just search by the set name).
 To tag a whole set send /tag_set and a sticker from the set you want to tag.
 
+<b>How to tag:</b>
+Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
+
 <b>Tagging a single sticker:</b>
-/tag allows to tag the last sticker posted in a chat.
+/tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
 This is great for ad hoc tagging of single stickers in group chats, but I need to be in this chat for this to work.
 
 <b>Want to help?</b>
