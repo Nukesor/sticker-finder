@@ -6,8 +6,7 @@ from stickerfinder.models import (
     StickerSet,
 )
 from stickerfinder.helper.tag import (
-    get_next,
-    get_random,
+    handle_next,
     tag_sticker,
     initialize_set_tagging,
 )
@@ -33,14 +32,8 @@ def handle_private_text(bot, update, session, chat, user):
         if not success:
             return
 
-        # Send the next sticker
-        # If there are no more stickers, reset the chat and send success message.
-        found_next = get_next(chat, update)
-        if found_next:
-            return
-
-        chat.cancel()
-        return 'The full sticker set is now tagged.'
+        session.commit()
+        handle_next(session, chat, update.message.chat)
 
     elif chat.tagging_random_sticker:
         # Try to tag the sticker. Return early if it didn't work.
@@ -50,14 +43,7 @@ def handle_private_text(bot, update, session, chat, user):
             return
 
         session.commit()
-
-        # Send the next random sticker
-        # If there are no more stickers, reset the chat and send success message.
-        if get_random(chat, update, session):
-            return
-
-        chat.cancel()
-        return 'There are no more stickers to tag.'
+        handle_next(session, chat, update.message.chat)
 
 
 @run_async

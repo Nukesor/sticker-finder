@@ -51,8 +51,7 @@ def process_task(session, tg_chat, chat):
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
         ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
         buttons = [[
-            InlineKeyboardButton(text='Everything is fine',
-                                 callback_data=ok_data),
+            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
             InlineKeyboardButton(text='Ban user', callback_data=ban_data),
         ]]
 
@@ -69,8 +68,7 @@ def process_task(session, tg_chat, chat):
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
         ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
         buttons = [[
-            InlineKeyboardButton(text='Everything is fine',
-                                 callback_data=ok_data),
+            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
             InlineKeyboardButton(text='Ban set', callback_data=ban_data),
         ]]
 

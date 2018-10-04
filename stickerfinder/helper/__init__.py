@@ -17,7 +17,6 @@ If I'm added to a group chat, I will automatically add all stickers posted in th
 
 If you already added a set, but can't find any sticker from it, you probably need to tag them first (or just search by the set name).
 To tag a whole set send me the /tag_set command and a sticker from the set you want to tag.
-If you want to skip a sticker during the tagging process just type /next.
 
 The /tag command also allows to tag the last sticker posted in a chat.
 This is great for ad hoc tagging of single stickers in group chats, but I need to be in this chat for this functionality to work.

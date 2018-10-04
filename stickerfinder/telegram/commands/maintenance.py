@@ -62,9 +62,7 @@ def refresh_sticker_sets(bot, update, session, chat, user):
         count += 1
         if count % 50 == 0:
             progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
-            call_tg_func(update.message, 'reply_text',
-                         args=[progress],
-                         kwargs={'quote': False})
+            call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     return 'All sticker sets are refreshed.'
 

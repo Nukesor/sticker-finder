@@ -6,6 +6,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import Chat, Task
 from stickerfinder.helper.maintenance import process_task
 from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.tag import handle_next
 
 
 @run_async
@@ -33,6 +34,7 @@ def handle_callback_query(bot, update, session, user):
             call_tg_func(query, 'answer', args=['Set not banned'])
 
         task.reviewed = True
+        process_task(session, query.message.chat, chat)
 
     # Handle task user ban callbacks
     elif CallbackType(callback_type).name == 'task_user_ban':
@@ -45,7 +47,14 @@ def handle_callback_query(bot, update, session, user):
             call_tg_func(query, 'answer', args=['User not banned'])
 
         task.reviewed = True
+        process_task(session, query.message.chat, chat)
 
-    process_task(session, query.message.chat, chat)
+    # Handle task user ban callbacks
+    elif CallbackType(callback_type).name == 'next':
+        handle_next(session, chat, query.message.chat)
+
+    elif CallbackType(callback_type).name == 'cancel':
+        call_tg_func(query, 'answer', args=['All active commands have been canceled'])
+        chat.cancel()
 
     return
