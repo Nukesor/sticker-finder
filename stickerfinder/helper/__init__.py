@@ -1,14 +1,6 @@
 """Some static stuff or helper functions for sticker finder bot."""
 
 
-tag_format = """Your tag messages should be formatted like this:
-tag1, tag2, tag3, tag4
-The text inside the sticker.
-
-or if you don't want to add text simply write:
-tag1, tag2, tag3, tag4
-"""
-
 help_text = f"""To search for stickers just start typing @std_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles.
 I'll try to give you the best match depending on your search query :).
 
@@ -26,13 +18,14 @@ Don't expect this functionality to work reliably!
 
 If you want to help the project and tag some stickers, just type /tag_random in a direct conversation with me :).
 
-{tag_format}
-
 In case you encounter any bugs or you just want to look at the code and drop a star:
 https://github.com/Nukesor/stickerfinder
 """
 
-tag_text = f"""Now please send tags and text for each sticker I'll send you.
-If you don't want to edit a sticker, just send /next.
-{tag_format}
+tag_text = f"""Now please send me tags for each sticker I'll send you.
+Just write what describes this sticker best.
+It would be awesome if you could also add the text in the sticker :).
 """
+
+
+blacklist = set(['me', 'is'])

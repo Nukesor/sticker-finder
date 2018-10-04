@@ -110,3 +110,51 @@ def start_tasks(bot, update, session, chat, user):
 
     if not process_task(session, update.message.chat, chat):
         return 'There are no tasks for processing.'
+
+
+@session_wrapper(admin_only=True)
+def tag_cleanup(bot, update, session, chat, user):
+    """Triggering a one time conversion from text changes to tags."""
+    from stickerfinder.models import Change
+    from stickerfinder.helper.tag import tag_sticker
+    from stickerfinder.helper import blacklist
+    changes = session.query(Change) \
+        .filter(Change.new_text.isnot(None)) \
+        .filter(Change.new_text != Change.old_text) \
+        .all()
+
+    for change in changes:
+        tag_sticker(session, change.new_text, change.sticker,
+                    user, update.message.chat, keep_old=True)
+
+    all_tags = session.query(Tag).all()
+    count = 0
+    call_tg_func(update.message.chat, 'send_message', args=[f'Found {len(all_tags)} tags'])
+    for tag in all_tags:
+        # Remove all tags in the blacklist
+        if tag.name in blacklist:
+            session.delete(tag)
+
+            continue
+
+        # Split multi word tags into single word tags and delete the old tags
+        splitted = tag.name.split(' ')
+        if len(splitted) > 1:
+            new_tags = []
+            for word in splitted:
+                new_tag = Tag.get_or_create(session, word)
+                new_tags.append(new_tag)
+
+            for sticker in tag.stickers:
+                for new_tag in new_tags:
+                    if new_tag not in sticker.tags:
+                        sticker.tags.append(new_tag)
+
+            session.delete(tag)
+
+        count += 1
+        if count % 1000 == 0:
+            progress = f'Processed {len(all_tags)} tags. ({len(all_tags) - count} remaining)'
+            call_tg_func(update.message.chat, 'send_message', args=[progress])
+
+    return "Tag cleanup finished."

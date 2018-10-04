@@ -27,20 +27,16 @@ def handle_private_text(bot, update, session, chat, user):
 
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
-        success = tag_sticker(session, update.message.text,
-                              chat.current_sticker, user, update)
-        if not success:
-            return
+        tag_sticker(session, update.message.text,
+                    chat.current_sticker, user, update.message.chat)
 
         session.commit()
         handle_next(session, chat, update.message.chat)
 
     elif chat.tagging_random_sticker:
         # Try to tag the sticker. Return early if it didn't work.
-        success = tag_sticker(session, update.message.text,
-                              chat.current_sticker, user, update)
-        if not success:
-            return
+        tag_sticker(session, update.message.text,
+                    chat.current_sticker, user, update.message.chat)
 
         session.commit()
         handle_next(session, chat, update.message.chat)

@@ -123,9 +123,9 @@ def find_stickers(bot, update, session, user):
     # in our matched results whilst keeping the original order
     for sticker_list in sticker_lists:
         for file_id in sticker_list:
+            if isinstance(file_id, tuple):
+                file_id = file_id[0]
             if file_id not in sticker_exists:
-                if isinstance(file_id, tuple):
-                    file_id = file_id[0]
                 sticker_exists.add(file_id)
                 matching_stickers.append(file_id)
 

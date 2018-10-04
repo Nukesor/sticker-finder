@@ -2,7 +2,7 @@
 from sqlalchemy import func
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from stickerfinder.helper import tag_text
+from stickerfinder.helper import tag_text, blacklist
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
@@ -104,37 +104,30 @@ def initialize_set_tagging(bot, update, session, name, chat):
     send_tag_messages(chat, update.message.chat)
 
 
-def tag_sticker(session, text, sticker, user, update):
+def tag_sticker(session, text, sticker, user, tg_chat, keep_old=False):
     """Tag a single sticker."""
     text = text.lower()
     # Remove the /tag command
     if text.startswith('/tag'):
         text = text.split(' ')[1:]
-        call_tg_func(update.message.chat, 'send_message',
-                     args=["You don't need to add the /tag command ;)"])
+        call_tg_func(tg_chat, 'send_message', args=["You don't need to add the /tag command ;)"])
 
-    # Split the tags and the text
-    splitted = text.split('\n', 1)
-    if len(splitted) > 1:
-        incoming_tags, text = splitted
-    else:
-        incoming_tags = splitted[0]
-        text = None
+    # Clean the text
+    for ignored in ['\n', ',', '.', ';', ':', '!', '?']:
+        text = text.replace(ignored, ' ')
 
-    # Get the old tags/text for tracking
-    old_text = sticker.text
-    old_tags_as_text = sticker.tags_as_text()
+    # Split tags and strip them. Ignore empty tags
+    incoming_tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
 
-    # Only extract and update tags if we have some text
-    if incoming_tags != '':
-        # Split tags and strip them.
-        # Only use the first 10 tags. This should prevent abuse from tag spammers.
-        incoming_tags = incoming_tags.split(',')[:10]
+    # Only use the first few tags. This should prevent abuse from tag spammers.
+    incoming_tags = incoming_tags[:15]
+    # Clean the tags from unwanted words
+    incoming_tags = [tag for tag in incoming_tags if tag not in blacklist]
+
+    if len(incoming_tags) > 0:
+        # Create tags
         tags = []
         for incoming_tag in incoming_tags:
-            incoming_tag = incoming_tag.strip()
-            if incoming_tag == '':
-                continue
             tag = Tag.get_or_create(session, incoming_tag)
             if tag not in tags:
                 tags.append(tag)
@@ -145,14 +138,18 @@ def tag_sticker(session, text, sticker, user, update):
             if tag.emoji and tag not in tags:
                 tags.append(tag)
 
-        # Remove old tags and add new tags
-        sticker.tags = tags
+        # Get the old tags for tracking
+        old_tags_as_text = sticker.tags_as_text()
 
-    if text is not None and text != '':
-        # Only use the first 200 chars. This should prevent abuse from text spammers.
-        sticker.text = text[:200]
+        if keep_old:
+            for tag in tags:
+                if tag not in sticker.tags:
+                    sticker.tags.append(tag)
+        else:
+            # Remove replace old tags
+            sticker.tags = tags
 
-    change = Change(user, sticker, old_text, old_tags_as_text)
-    session.add(change)
+        # Create a change for logging
+        change = Change(user, sticker, old_tags_as_text)
 
-    return True
+        session.add(change)

@@ -22,7 +22,7 @@ def tag_single(bot, update, session, chat, user):
         # Remove the /tag command
         text = update.message.text.split(' ', 1)[1]
 
-        tag_sticker(session, text, chat.current_sticker, user, update)
+        tag_sticker(session, text, chat.current_sticker, user, update.message.chat)
 
 
 @session_wrapper(check_ban=True)

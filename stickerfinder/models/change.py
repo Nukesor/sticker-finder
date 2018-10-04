@@ -31,13 +31,14 @@ class Change(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, old_text, old_tags):
+    def __init__(self, user, sticker, old_tags, old_text=None):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
 
-        self.old_text = old_text
-        self.old_tags = old_tags
+        if old_text is not None:
+            self.old_text = old_text
+            self.new_text = sticker.text
 
-        self.new_text = sticker.text
+        self.old_tags = old_tags
         self.new_tags = sticker.tags_as_text()

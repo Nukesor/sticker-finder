@@ -21,6 +21,7 @@ from stickerfinder.telegram.commands import (
     tag_single,
     tag_random,
     tag_set,
+    tag_cleanup,
     cancel,
     stats,
     refresh_sticker_sets,
@@ -68,6 +69,7 @@ dispatcher.add_handler(CommandHandler('ban', ban_user))
 dispatcher.add_handler(CommandHandler('unban', unban_user))
 dispatcher.add_handler(CommandHandler('stats', stats))
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
+dispatcher.add_handler(CommandHandler('tag_cleanup', tag_cleanup))
 dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
 dispatcher.add_handler(CommandHandler('tasks', start_tasks))
 
