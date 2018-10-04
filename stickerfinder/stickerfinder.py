@@ -84,9 +84,10 @@ dispatcher.add_handler(CommandHandler('tasks', start_tasks))
 dispatcher.add_handler(CommandHandler('stats', stats))
 
 # Regular tasks
-job_queue = updater.job_queue
-job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
-job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new tasks')
+if config.RUN_JOBS:
+    job_queue = updater.job_queue
+    job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
+    job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new tasks')
 
 # Create message handler
 dispatcher.add_handler(

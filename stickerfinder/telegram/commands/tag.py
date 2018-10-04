@@ -20,7 +20,9 @@ def tag_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     if chat.current_sticker:
         # Remove the /tag command
-        text = update.message.text.split(' ', 1)[1]
+        text = update.message.text[4:]
+        if text.strip() == '':
+            return 'You need to add some tags to the /tag command. E.g. "/tag meme prequel obi wan"'
 
         tag_sticker(session, text, chat.current_sticker, user, update.message.chat)
 
