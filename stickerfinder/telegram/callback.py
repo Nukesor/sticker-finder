@@ -1,12 +1,13 @@
 """Callback query handling."""
 from telegram.ext import run_async
 
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.models import Chat, Task
-from stickerfinder.helper.maintenance import process_task
-from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper import main_keyboard
 from stickerfinder.helper.tag import handle_next
+from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.maintenance import process_task
+from stickerfinder.models import Chat, Task
 
 
 @run_async
@@ -55,6 +56,8 @@ def handle_callback_query(bot, update, session, user):
 
     elif CallbackType(callback_type).name == 'cancel':
         call_tg_func(query, 'answer', args=['All active commands have been canceled'])
+        call_tg_func(query.message.chat, 'send_message', ['All running commands are canceled'],
+                     {'reply_markup': main_keyboard})
         chat.cancel()
 
     return

@@ -10,7 +10,7 @@ from telegram.ext import (
 
 from stickerfinder.config import config
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper import help_text
+from stickerfinder.helper import help_text, main_keyboard
 from stickerfinder.telegram.commands import (
     ban_user,
     unban_user,
@@ -41,12 +41,14 @@ from stickerfinder.telegram.inline_query import find_stickers
 
 def start(bot, update):
     """Send a help text."""
-    call_tg_func(update.message.chat, 'send_message', args=[help_text])
+    call_tg_func(update.message.chat, 'send_message', [help_text],
+                 {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
 def send_help_text(bot, update):
     """Send a help text."""
-    call_tg_func(update.message.chat, 'send_message', args=[help_text])
+    call_tg_func(update.message.chat, 'send_message', [help_text],
+                 {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
 # Initialize telegram updater and dispatcher

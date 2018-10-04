@@ -2,7 +2,7 @@
 from sqlalchemy import func
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from stickerfinder.helper import tag_text, blacklist
+from stickerfinder.helper import tag_text, blacklist, main_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
@@ -44,8 +44,8 @@ def send_tag_messages(chat, tg_chat):
         call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     if message:
-        call_tg_func(tg_chat, 'send_message', args=[message],
-                     kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+        call_tg_func(tg_chat, 'send_message', [message],
+                     {'reply_markup': InlineKeyboardMarkup(buttons)})
 
 
 def handle_next(session, chat, tg_chat):
@@ -65,7 +65,8 @@ def handle_next(session, chat, tg_chat):
         # There are no stickers left, reset the chat and send success message.
         chat.current_sticker_set.completely_tagged = True
         chat.cancel()
-        call_tg_func(tg_chat, 'send_message', args=['The full sticker set is now tagged.'])
+        call_tg_func(tg_chat, 'send_message', ['The full sticker set is now tagged.'],
+                     {'reply_markup': main_keyboard})
 
     # Find a random sticker with no changes
     elif chat.tagging_random_sticker:
@@ -79,7 +80,8 @@ def handle_next(session, chat, tg_chat):
         # No stickers for tagging left :)
         if not sticker:
             call_tg_func(tg_chat, 'send_message',
-                         args=['It looks like all stickers are already tagged :).'])
+                         ['It looks like all stickers are already tagged :).'],
+                         {'reply_markup': main_keyboard})
             chat.cancel()
 
         # Found a sticker. Send the messages
@@ -100,7 +102,7 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker_set = sticker_set
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(update.message.chat, 'send_message', args=[tag_text])
+    call_tg_func(update.message.chat, 'send_message', [tag_text])
     send_tag_messages(chat, update.message.chat)
 
 
@@ -110,7 +112,7 @@ def tag_sticker(session, text, sticker, user, tg_chat, keep_old=False):
     # Remove the /tag command
     if text.startswith('/tag'):
         text = text.split(' ')[1:]
-        call_tg_func(tg_chat, 'send_message', args=["You don't need to add the /tag command ;)"])
+        call_tg_func(tg_chat, 'send_message', ["You don't need to add the /tag command ;)"])
 
     # Clean the text
     for ignored in ['\n', ',', '.', ';', ':', '!', '?']:

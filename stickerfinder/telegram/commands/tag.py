@@ -1,4 +1,6 @@
 """Tag related commands."""
+from stickerfinder.helper import main_keyboard
+from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag import handle_next, tag_sticker
 
@@ -50,5 +52,9 @@ def tag_random(bot, update, session, chat, user):
 @session_wrapper()
 def cancel(bot, update, session, chat, user):
     """Send a help text."""
+    if chat.type != 'private':
+        return 'Please tag in direct conversation with me.'
+
     chat.cancel()
-    return 'All running commands are canceled'
+    call_tg_func(update.message.chat, 'send_message', ['All running commands are canceled'],
+                 {'reply_markup': main_keyboard})
