@@ -6,7 +6,7 @@ from stickerfinder.helper.tag import handle_next
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import process_task
+from stickerfinder.helper.maintenance import process_task, revert_user_changes
 from stickerfinder.models import Chat, Task
 
 
@@ -38,14 +38,12 @@ def handle_callback_query(bot, update, session, user):
         process_task(session, query.message.chat, chat)
 
     # Handle task user ban callbacks
-    elif CallbackType(callback_type).name == 'task_user_ban':
+    elif CallbackType(callback_type).name == 'task_user_revert':
         task = session.query(Task).get(entity_id)
-        if CallbackResult(action).name == 'ban':
+        if CallbackResult(action).name == 'revert':
             task.user.banned = True
-            call_tg_func(query, 'answer', args=['User banned'])
-        else:
-            task.user.banned = False
-            call_tg_func(query, 'answer', args=['User not banned'])
+            call_tg_func(query, 'answer', args=['User banned and changes reverted'])
+            revert_user_changes(session, task.user)
 
         task.reviewed = True
         process_task(session, query.message.chat, chat)

@@ -1,4 +1,5 @@
 """Helper functions for maintenance."""
+from sqlalchemy.orm import joinedload
 from datetime import datetime, timedelta
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
@@ -9,6 +10,9 @@ from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.models import (
     Change,
     Task,
+    Sticker,
+    User,
+    Tag,
 )
 
 
@@ -33,7 +37,7 @@ def process_task(session, tg_chat, chat, job=False):
 
         return
 
-    if task.type == 'user_ban':
+    if task.type == 'user_revert':
         changes = session.query(Change) \
             .filter(Change.user == task.user) \
             .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
@@ -47,20 +51,21 @@ def process_task(session, tg_chat, chat, job=False):
             if change.new_tags:
                 text.append(change.new_tags)
             elif change.old_tags:
-                text.append(f'Changed text from {change.old_tags} to None')
+                text.append(f'Changed tags from {change.old_tags} to None')
 
             if change.new_text:
                 text.append(change.new_text)
             elif change.old_text:
-                text.append(f'Changed tags from {change.old_tags} to None')
+                text.append(f'Changed text from {change.old_tags} to None')
 
-        callback_type = CallbackType['task_user_ban'].value
+        callback_type = CallbackType['task_user_revert'].value
         # Set task callback data
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
-        ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
         buttons = [[
             InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
-            InlineKeyboardButton(text='Ban user', callback_data=ban_data),
+            InlineKeyboardButton(
+                text='Revert changes and Ban user', callback_data=revert_data),
         ]]
 
     elif task.type == 'vote_ban':
@@ -94,3 +99,41 @@ def process_task(session, tg_chat, chat, job=False):
                          kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
 
     return True
+
+
+def revert_user_changes(session, user):
+    """Revert all changes of a user."""
+    affected_stickers = session.query(Sticker) \
+        .options(
+            joinedload(Sticker.changes),
+        ) \
+        .join(Sticker.changes) \
+        .join(Change.user) \
+        .filter(User.id == user.id) \
+        .all()
+
+    for sticker in affected_stickers:
+        # Changes are sorted by created_at desc
+        # We want to revert all changes until the last valid change
+        for change in sticker.changes:
+            # We already have an reverted change, check further
+            if change.reverted:
+                continue
+
+            # We found a valid change of a user which isn't reverted
+            if change.user != user and change.user.reverted is False:
+                break
+
+            old_tags = change.old_tags.split(',')
+
+            tags = session.query(Tag) \
+                .filter(Tag.name.in_(old_tags)) \
+                .all()
+            sticker.tags = tags
+            change.reverted = True
+
+    user.reverted = True
+    Tag.remove_unused_tags(session)
+
+    session.add(user)
+    session.commit()

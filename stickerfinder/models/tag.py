@@ -39,3 +39,15 @@ class Tag(base):
             tag.emoji = emoji
 
         return tag
+
+    @staticmethod
+    def remove_unused_tags(session):
+        """Remove all currently unused tags."""
+        from stickerfinder.models import Sticker
+        tags = session.query(Tag) \
+            .outerjoin(Tag.stickers) \
+            .filter(Sticker.file_id.is_(None)) \
+            .all()
+
+        for tag in tags:
+            session.delete(tag)

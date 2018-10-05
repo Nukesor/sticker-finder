@@ -42,7 +42,7 @@ class Sticker(base):
     sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
     sticker_set = relationship("StickerSet", back_populates="stickers")
 
-    changes = relationship("Change")
+    changes = relationship("Change", order_by="desc(Change.created_at)")
     tags = relationship(
         "Tag",
         secondary=sticker_tag,

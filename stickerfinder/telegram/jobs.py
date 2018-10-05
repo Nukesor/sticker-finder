@@ -103,12 +103,12 @@ def maintenance_tasks(bot, job, session, user):
         )) \
         .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
         .group_by(User) \
-        .having(change_count >= 100) \
+        .having(change_count >= 20) \
         .having(task_count == 0) \
         .all()
 
     for (user, _, _) in user_check_candidates:
-        task = Task('user_ban', user=user)
+        task = Task('user_revert', user=user)
         tasks.append(task)
         session.add(task)
 

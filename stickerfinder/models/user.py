@@ -20,6 +20,7 @@ class User(base):
     id = Column(BigInteger, primary_key=True)
     username = Column(String, unique=True)
     banned = Column(Boolean, default=False, nullable=False)
+    reverted = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     admin = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     authorized = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

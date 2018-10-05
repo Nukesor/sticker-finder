@@ -11,8 +11,9 @@ class CallbackType(Enum):
 
     task_user_ban = 1
     task_vote_ban = 2
-    next = 3
-    cancel = 4
+    task_user_revert = 3
+    next = 10
+    cancel = 11
 
 
 @unique
@@ -21,3 +22,4 @@ class CallbackResult(Enum):
 
     ok = 1
     ban = 2
+    revert = 3

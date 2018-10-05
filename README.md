@@ -53,6 +53,8 @@ Finally execute following commands to install all dependencies and to start the 
     % ./main.py
 
 
+When you are updating from a previous version do a `alembic upgrade head` instead of `./initdb.py`. `./initdb.py` always wipes your db.
+
 ## Botfather commands
 
     help - Display help

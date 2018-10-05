@@ -32,4 +32,5 @@ def split_text(lines, max_chunks=5):
             if len(chunks) == max_chunks:
                 return chunks
 
+    chunks.append('\n'.join(current_chunk))
     return chunks
