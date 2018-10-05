@@ -22,4 +22,11 @@ def display_reverted_changes():
         print(change.sticker.tags_as_text())
 
 
-display_reverted_changes()
+def display_query_time():
+    inline_searches = session.query(InlineSearch).all()
+
+    for search in inline_searches:
+        print(f"{search.query}: {search.duration}")
+
+
+display_query_time()

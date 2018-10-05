@@ -3,6 +3,7 @@ from telegram.ext import (
     Filters,
     CommandHandler,
     CallbackQueryHandler,
+    ChosenInlineResultHandler,
     InlineQueryHandler,
     MessageHandler,
     Updater,
@@ -35,7 +36,10 @@ from stickerfinder.telegram.message_handlers import (
     handle_private_sticker,
     handle_group_sticker,
 )
-from stickerfinder.telegram.callback import handle_callback_query
+from stickerfinder.telegram.callback import (
+    handle_callback_query,
+    handle_chosen_inline_result,
+)
 from stickerfinder.telegram.inline_query import find_stickers
 
 
@@ -99,6 +103,7 @@ dispatcher.add_handler(
 
 # Inline callback handler
 dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
+dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))

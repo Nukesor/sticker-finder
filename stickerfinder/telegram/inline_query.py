@@ -1,16 +1,17 @@
 """Inline query handler function."""
 from uuid import uuid4
-from telegram.ext import run_async
-
+from datetime import datetime
 from sqlalchemy import func, or_
+from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
 )
 
-
+from stickerfinder.helper.text import create_result_id
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import (
+    InlineSearch,
     Sticker,
     StickerSet,
     sticker_tag,
@@ -50,6 +51,9 @@ def find_stickers(bot, update, session, user):
         update.inline_query.answer(results, cache_time=300, is_personal=True,
                                    switch_pm_text="Maybe don't be a dick :)?",
                                    switch_pm_parameter='inline')
+
+    # Measure the db query time
+    start = datetime.now()
 
     # At first we check for results, where one tag ilke matches the name of the set
     # and where at least one tag matches the sticker tag.
@@ -129,10 +133,16 @@ def find_stickers(bot, update, session, user):
                 sticker_exists.add(file_id)
                 matching_stickers.append(file_id)
 
+    # Measure the db query time
+    end = datetime.now()
+
+    query_uuid = uuid4()
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers[offset:offset+50]:
-        results.append(InlineQueryResultCachedSticker(uuid4(), sticker_file_id=file_id))
+        result_id = create_result_id(query_uuid, file_id)
+        results.append(InlineQueryResultCachedSticker(
+            result_id, sticker_file_id=file_id))
 
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
     if len(results) >= 50:
@@ -148,3 +158,6 @@ def find_stickers(bot, update, session, user):
                      'switch_pm_text': 'Maybe tag some stickers :)?',
                      'switch_pm_parameter': 'inline',
                  })
+
+    inline_search = InlineSearch(query_uuid, query, user, end-start)
+    session.add(inline_search)

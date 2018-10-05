@@ -1,10 +1,11 @@
 """Telegram job tasks."""
 import telegram
 import traceback
-from datetime import datetime, timedelta
+from datetime import datetime
 from telegram.ext import run_async
 from sqlalchemy import func, or_
 
+from stickerfinder.config import config
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
@@ -83,7 +84,7 @@ def maintenance_tasks(bot, job, session, user):
         .filter(Task.id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .group_by(StickerSet) \
-        .having(vote_ban_count > 3) \
+        .having(vote_ban_count >= config.VOTE_BAN_COUNT) \
         .all()
 
     for (sticker_set, _) in vote_ban_candidates:
@@ -98,12 +99,12 @@ def maintenance_tasks(bot, job, session, user):
         .join(User.changes) \
         .outerjoin(User.tasks) \
         .filter(or_(
-            Task.created_at < (datetime.now() - timedelta(days=2)),
+            Task.created_at < (datetime.now() - config.USER_CHECK_RECHECK_INTERVAL),
             Task.id.is_(None),
         )) \
-        .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
+        .filter(Change.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL)) \
         .group_by(User) \
-        .having(change_count >= 20) \
+        .having(change_count >= config.USER_CHECK_COUNT) \
         .having(task_count == 0) \
         .all()
 

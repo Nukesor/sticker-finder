@@ -7,7 +7,7 @@ from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task, revert_user_changes
-from stickerfinder.models import Chat, Task
+from stickerfinder.models import Chat, Task, InlineSearch
 
 
 @run_async
@@ -59,3 +59,17 @@ def handle_callback_query(bot, update, session, user):
         chat.cancel()
 
     return
+
+
+@run_async
+@session_wrapper(send_message=False)
+def handle_chosen_inline_result(bot, update, session, user):
+    """Save the chosen inline result."""
+    print('hell yeah')
+    result = update.chosen_inline_result
+    inline_search_uuid, file_id = extract_from_result_id(result.id)
+    print(inline_search_uuid)
+    print(file_id)
+    inline_search = session.query(InlineSearch).get(inline_search_uuid)
+
+    inline_search.sticker_file_id = file_id
