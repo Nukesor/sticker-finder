@@ -1,12 +1,13 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, or_
+from sqlalchemy import func, or_, desc, asc
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
 )
 
+from stickerfinder.sentry import sentry
 from stickerfinder.helper.text import create_result_id
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
@@ -55,86 +56,99 @@ def find_stickers(bot, update, session, user):
     # Measure the db query time
     start = datetime.now()
 
-    # At first we check for results, where one tag ilke matches the name of the set
-    # and where at least one tag matches the sticker tag.
+    # Aliases
+    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
+    single_tag_count = func.count(1).label('tag_count')
+
+    sticker_group1 = func.count(1).label('sticker_group')
+    sticker_group2 = func.count(2).label('sticker_group')
+    sticker_group3 = func.count(3).label('sticker_group')
+
+    # Compiled conditions
     set_conditions = []
     for tag in tags:
-        set_conditions.append(StickerSet.name.ilike(f'%{tag}%'))
-        set_conditions.append(StickerSet.title.ilike(f'%{tag}%'))
+        set_conditions.append(StickerSet.name.like(f'%{tag}%'))
+        set_conditions.append(StickerSet.title.like(f'%{tag}%'))
 
-    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    name_tag_stickers = session.query(Sticker.file_id, tag_count) \
-        .join(Sticker.tags) \
-        .join(Sticker.sticker_set) \
-        .filter(StickerSet.banned.is_(False)) \
-        .filter(Tag.name.in_(tags)) \
-        .filter(or_(*set_conditions)) \
-        .group_by(Sticker) \
-        .having(tag_count > 0) \
-        .order_by(tag_count.desc()) \
-        .all()
-
-    # Search for matching stickers by tags and text
     text_conditions = []
     for tag in tags:
-        text_conditions.append(Sticker.text.ilike(f'%{tag}%'))
+        text_conditions.append(Sticker.text.like(f'%{tag}%'))
 
-    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    text_tag_stickers = session.query(Sticker.file_id, tag_count) \
+    # At first we check for results, where at least one tag directly matches
+    tag_stickers = session.query(Sticker.file_id, tag_count, sticker_group1) \
         .join(Sticker.tags) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
-        .filter(or_(*text_conditions)) \
         .filter(Tag.name.in_(tags)) \
-        .group_by(Sticker) \
+        .group_by(Sticker.file_id) \
         .having(tag_count > 0) \
-        .order_by(tag_count.desc()) \
-        .all()
+
+#    print('ilike_stickers')
+#    tag_conditions = []
+#    for tag in tags:
+#        text_conditions.append(Tag.name.like(f'%{tag}%'))
+
+#    matching_tags = session.query(Tag.name) \
+#        .filter(or_(*tag_conditions)) \
+#        .subquery('matching_tags')
+#
+#    # Search for tags where a substring matches
+#    ilike_tag_stickers = session.query(Sticker.file_id, tag_count) \
+#        .join(Sticker.tags) \
+#        .join(Sticker.sticker_set) \
+#        .join(matching_tags, Tag.name == matching_tags.c.name) \
+#        .filter(StickerSet.banned.is_(False)) \
+#        .group_by(Sticker) \
+#        .having(tag_count > 0) \
+#        .order_by(tag_count.desc()) \
+#        .all()
 
     # Search for matching stickers by text
-    text_stickers = session.query(Sticker.file_id) \
+    text_stickers = session.query(Sticker.file_id, single_tag_count, sticker_group2) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
-        .filter(Sticker.text.ilike(f'%{query}%')) \
-        .all()
+        .filter(Sticker.text.like(f'%{query}%')) \
+        .group_by(Sticker.file_id) \
 
-    # Search for matching stickers by tags
-    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    tag_stickers = session.query(Sticker.file_id, tag_count) \
-        .join(Sticker.tags) \
-        .join(Sticker.sticker_set) \
-        .filter(StickerSet.banned.is_(False)) \
-        .filter(Tag.name.in_(tags)) \
-        .group_by(Sticker) \
-        .having(tag_count > 0) \
-        .order_by(tag_count.desc()) \
-        .all()
-
-    # Search for matching stickers with a matching set name
-    set_name_stickers = session.query(Sticker.file_id) \
+    # Search for stickersets where any tag matches the title or name
+    set_name_stickers = session.query(Sticker.file_id, single_tag_count, sticker_group3) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*set_conditions)) \
+        .group_by(Sticker.file_id) \
+
+    found_stickers = tag_stickers \
+        .union(text_stickers) \
+        .union(set_name_stickers) \
+        .order_by(sticker_group1.desc(), tag_count.asc()) \
+        .limit(1000) \
         .all()
 
     # Now add all found sticker together and deduplicate without killing the order.
     matching_stickers = []
     sticker_exists = set()
-    sticker_lists = [name_tag_stickers, text_tag_stickers,
-                     text_stickers, tag_stickers, set_name_stickers]
 
     # Check for each query result list if we already have this file_id
     # in our matched results whilst keeping the original order
-    for sticker_list in sticker_lists:
-        for file_id in sticker_list:
-            if isinstance(file_id, tuple):
-                file_id = file_id[0]
-            if file_id not in sticker_exists:
-                sticker_exists.add(file_id)
-                matching_stickers.append(file_id)
+    for file_id in found_stickers:
+        file_id = file_id[0]
+        if file_id not in sticker_exists:
+            sticker_exists.add(file_id)
+            matching_stickers.append(file_id)
+
+        # We have enough stickers
+        if len(matching_stickers) > offset+50:
+            break
 
     # Measure the db query time
     end = datetime.now()
+    duration = end-start
+    if duration.seconds >= 9:
+        sentry.captureMessage(f'Query took too long.', level='info',
+                              extra={
+                                  'query': query, 'duration': duration,
+                                  'results': len(matching_stickers),
+                              })
 
     query_uuid = uuid4()
     # Create a result list of max 50 cached sticker objects
@@ -159,5 +173,5 @@ def find_stickers(bot, update, session, user):
                      'switch_pm_parameter': 'inline',
                  })
 
-    inline_search = InlineSearch(query_uuid, query, user, end-start)
+    inline_search = InlineSearch(query_uuid, query, user, duration)
     session.add(inline_search)
