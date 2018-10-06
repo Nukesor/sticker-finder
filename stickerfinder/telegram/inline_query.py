@@ -1,7 +1,8 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, or_, desc, asc
+from sqlalchemy import func, or_
+from sqlalchemy.sql.expression import literal_column
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -16,7 +17,6 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
     sticker_tag,
-    Tag,
 )
 
 
@@ -56,13 +56,13 @@ def find_stickers(bot, update, session, user):
     # Measure the db query time
     start = datetime.now()
 
-    # Aliases
-    tag_count = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    single_tag_count = func.count(1).label('tag_count')
-
-    sticker_group1 = func.count(1).label('sticker_group')
-    sticker_group2 = func.count(2).label('sticker_group')
-    sticker_group3 = func.count(3).label('sticker_group')
+    # Tag match subquery
+    tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
+    tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
+        .filter(sticker_tag.c.tag_name.in_(tags)) \
+        .group_by(sticker_tag.c.sticker_file_id) \
+        .having(tag_count > 0) \
+        .subquery("tag_subq")
 
     # Compiled conditions
     set_conditions = []
@@ -75,52 +75,33 @@ def find_stickers(bot, update, session, user):
         text_conditions.append(Sticker.text.like(f'%{tag}%'))
 
     # At first we check for results, where at least one tag directly matches
-    tag_stickers = session.query(Sticker.file_id, tag_count, sticker_group1) \
-        .join(Sticker.tags) \
+    tag_stickers = session.query(Sticker.file_id,
+                                 tag_subq.c.tag_count,
+                                 literal_column("0").label("group")) \
+        .join(tag_subq, tag_subq.c.sticker_file_id == Sticker.file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
-        .filter(Tag.name.in_(tags)) \
-        .group_by(Sticker.file_id) \
-        .having(tag_count > 0) \
-
-#    print('ilike_stickers')
-#    tag_conditions = []
-#    for tag in tags:
-#        text_conditions.append(Tag.name.like(f'%{tag}%'))
-
-#    matching_tags = session.query(Tag.name) \
-#        .filter(or_(*tag_conditions)) \
-#        .subquery('matching_tags')
-#
-#    # Search for tags where a substring matches
-#    ilike_tag_stickers = session.query(Sticker.file_id, tag_count) \
-#        .join(Sticker.tags) \
-#        .join(Sticker.sticker_set) \
-#        .join(matching_tags, Tag.name == matching_tags.c.name) \
-#        .filter(StickerSet.banned.is_(False)) \
-#        .group_by(Sticker) \
-#        .having(tag_count > 0) \
-#        .order_by(tag_count.desc()) \
-#        .all()
+        .group_by(Sticker.file_id, tag_subq.c.tag_count)
 
     # Search for matching stickers by text
-    text_stickers = session.query(Sticker.file_id, single_tag_count, sticker_group2) \
+    text_stickers = session.query(Sticker.file_id,
+                                  literal_column("0").label("tag_count"),
+                                  literal_column("1").label("group")) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(Sticker.text.like(f'%{query}%')) \
-        .group_by(Sticker.file_id) \
 
     # Search for stickersets where any tag matches the title or name
-    set_name_stickers = session.query(Sticker.file_id, single_tag_count, sticker_group3) \
+    set_name_stickers = session.query(Sticker.file_id,
+                                      literal_column("0").label("tag_count"),
+                                      literal_column("2").label("group")) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*set_conditions)) \
-        .group_by(Sticker.file_id) \
 
     found_stickers = tag_stickers \
-        .union(text_stickers) \
-        .union(set_name_stickers) \
-        .order_by(sticker_group1.desc(), tag_count.asc()) \
+        .union(text_stickers, set_name_stickers) \
+        .order_by("group", tag_count.asc()) \
         .limit(1000) \
         .all()
 
