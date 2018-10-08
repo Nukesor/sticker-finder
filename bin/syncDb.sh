@@ -3,7 +3,7 @@
 host=nuke@jarvis
 
 echo 'Dumping DB on remote'
-ssh $host 'pg_dump -F c stickerfinder > stickerfinder.dump'
+ssh $host 'pg_dump -O -F c stickerfinder > stickerfinder.dump'
 echo 'Sync DB'
 scp $host:stickerfinder.dump ./
 
@@ -12,7 +12,7 @@ dropdb stickerfinder || true
 createdb stickerfinder
 
 echo 'Restoring DB'
-pg_restore -j 4 -F c -d stickerfinder stickerfinder.dump
+pg_restore -O -j 4 -F c -d stickerfinder stickerfinder.dump
 
 echo 'Deleting dumps'
 rm stickerfinder.dump

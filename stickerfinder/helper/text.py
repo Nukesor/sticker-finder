@@ -1,5 +1,4 @@
 """Helper for text handling."""
-
 MAX_LENGTH = 4096
 
 

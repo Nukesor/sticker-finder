@@ -74,3 +74,4 @@ This is just for people hosting a bot and those with `admin` permissions:
     /flag_chat [ban|maintenance|newsfeed] Flag a chat as a maintenance, ban or newsfeed chat. Sticker send to ban chats are automatically banned. Newsfeed chats get the first sticker of every new set that is added.
     /stats Get some statistics
     /refresh Refresh all stickerpacks.
+    /refresh_ocr Refresh all stickerpacks and refresh ocr.

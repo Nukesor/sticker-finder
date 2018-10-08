@@ -1,5 +1,6 @@
 """The sqlite model for a sticker set."""
 import io
+import re
 import logging
 import telegram
 from PIL import Image
@@ -39,7 +40,7 @@ class StickerSet(base):
         self.name = name
         self.stickers = []
 
-    def refresh_stickers(self, session, bot, refresh_ocr=False, chat=False):
+    def refresh_stickers(self, session, bot, refresh_ocr=False, chat=None):
         """Refresh stickers and set data from telegram."""
         # Get sticker set from telegram and create new a Sticker for each sticker
         stickers = []
@@ -62,11 +63,11 @@ class StickerSet(base):
 
                     # Extract text
                     text = image_to_string(image).strip().lower()
+
+                    # Only allow chars
+                    text = re.sub('[^a-zA-Z\ ]+', '', text)
                     if text == '':
                         text = None
-                    else:
-                        # Remove multiple lines
-                        text = text.replace('\n', ' ')
 
                 except telegram.error.TimedOut:
                     logger = logging.getLogger()

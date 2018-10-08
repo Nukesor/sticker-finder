@@ -58,7 +58,7 @@ Stickers with Tags: {tagged_sticker_count}
 @run_async
 @session_wrapper(admin_only=True)
 def refresh_sticker_sets(bot, update, session, chat, user):
-    """Send a help text."""
+    """Refresh all stickers."""
     sticker_sets = session.query(StickerSet).all()
 
     count = 0
@@ -66,6 +66,26 @@ def refresh_sticker_sets(bot, update, session, chat, user):
         sticker_set.refresh_stickers(session, bot)
         count += 1
         if count % 50 == 0:
+            progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
+            call_tg_func(update.message.chat, 'send_message', args=[progress])
+
+    call_tg_func(update.message.chat, 'send_message',
+                 ['All sticker sets are refreshed.'], {'reply_markup': admin_keyboard})
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def refresh_ocr(bot, update, session, chat, user):
+    """Refresh all stickers and rescan for text."""
+    sticker_sets = session.query(StickerSet).all()
+    call_tg_func(update.message.chat, 'send_message',
+                 args=[f'Found {len(sticker_sets)} sticker sets.'])
+
+    count = 0
+    for sticker_set in sticker_sets:
+        sticker_set.refresh_stickers(session, bot, refresh_ocr=True)
+        count += 1
+        if count % 10 == 0:
             progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 

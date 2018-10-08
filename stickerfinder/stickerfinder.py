@@ -27,6 +27,7 @@ from stickerfinder.telegram.commands import (
     cancel,
     stats,
     refresh_sticker_sets,
+    refresh_ocr,
 )
 from stickerfinder.telegram.jobs import (
     newsfeed,
@@ -88,6 +89,7 @@ dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
 
 # Maintenance Button commands
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
+dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
 dispatcher.add_handler(CommandHandler('tag_cleanup', tag_cleanup))
 dispatcher.add_handler(CommandHandler('tasks', start_tasks))
 dispatcher.add_handler(CommandHandler('stats', stats))
