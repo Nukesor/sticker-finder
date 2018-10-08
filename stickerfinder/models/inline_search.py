@@ -12,6 +12,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
+from stickerfinder.config import config
 
 
 class InlineSearch(base):
@@ -21,6 +22,7 @@ class InlineSearch(base):
 
     id = Column(UUID(as_uuid=True), primary_key=True)
     query = Column(String)
+    bot = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     duration = Column(Interval)
 
@@ -36,3 +38,4 @@ class InlineSearch(base):
         self.query = query
         self.user = user
         self.duration = duration
+        self.bot = config.BOT_NAME

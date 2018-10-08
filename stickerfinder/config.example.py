@@ -1,4 +1,5 @@
 """Config values for stickerfinder."""
+import logging
 from datetime import timedelta
 
 
@@ -9,10 +10,18 @@ class Config:
     TELEGRAM_API_KEY = None
     SQL_URI = 'sqlite:///stickerfinder.db'
     SENTRY_TOKEN = None
+    LOG_LEVEL = logging.INFO
     # Username of the admin
     ADMIN = 'Nukesor'
     # Run maintenance jobs. This is important if you want to run multiple instances of the bot
     RUN_JOBS = True
+    # Only important if running multiple instances ( for logging )
+    BOT_NAME = 'stickerfinder'
+
+    # Performance/thread/db settings
+    WORKER_COUNT = 16
+    CONNECTION_COUNT = 20
+    OVERFLOW_COUNT = 10
 
     # Job parameter
     USER_CHECK_INTERVAL = timedelta(days=1)

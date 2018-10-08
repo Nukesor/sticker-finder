@@ -25,9 +25,9 @@ class User(base):
     authorized = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    changes = relationship("Change")
-    tasks = relationship("Task")
-    vote_bans = relationship("VoteBan")
+    changes = relationship('Change')
+    tasks = relationship('Task')
+    vote_bans = relationship('VoteBan')
 
     def __init__(self, user_id, username):
         """Create a new user."""

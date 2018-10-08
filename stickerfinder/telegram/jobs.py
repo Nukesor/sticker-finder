@@ -20,7 +20,6 @@ from stickerfinder.models import (
 )
 
 
-@run_async
 @session_wrapper(send_message=False)
 def newsfeed(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
@@ -35,11 +34,16 @@ def newsfeed(bot, job, session, user):
 
     new_sets = session.query(StickerSet) \
         .filter(StickerSet.newsfeed_sent.is_(False)) \
+        .filter(StickerSet.complete.is_(True)) \
         .all()
 
     requery_chats = False
     # Send the first sticker of each new pack to all newsfeed channels
     for new_set in new_sets:
+        # Skip sets with zero stickers
+        if len(new_set.stickers) == 0:
+            continue
+
         for chat in chats:
             try:
                 call_tg_func(bot, 'send_sticker',
@@ -67,7 +71,6 @@ def newsfeed(bot, job, session, user):
     return
 
 
-@run_async
 @session_wrapper(send_message=False)
 def maintenance_tasks(bot, job, session, user):
     """Create new maintenance tasks.
@@ -88,7 +91,7 @@ def maintenance_tasks(bot, job, session, user):
         .all()
 
     for (sticker_set, _) in vote_ban_candidates:
-        task = Task('vote_ban', sticker_set=sticker_set)
+        task = Task(Task.VOTE_BAN, sticker_set=sticker_set)
         tasks.append(task)
         session.add(task)
 
@@ -109,7 +112,7 @@ def maintenance_tasks(bot, job, session, user):
         .all()
 
     for (user, _, _) in user_check_candidates:
-        task = Task('user_revert', user=user)
+        task = Task(Task.USER_REVERT, user=user)
         tasks.append(task)
         session.add(task)
 
@@ -127,3 +130,24 @@ def maintenance_tasks(bot, job, session, user):
         # There are no more tasks
         tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
         process_task(session, tg_chat, chat, job=True)
+
+
+@run_async
+@session_wrapper(send_message=False)
+def scan_sticker_sets(bot, job, session, user):
+    """Send all new sticker to the newsfeed chats."""
+    job.enabled = False
+    tasks = session.query(Task) \
+        .filter(Task.type == Task.SCAN_SET) \
+        .filter(Task.reviewed.is_(False)) \
+        .order_by(Task.created_at.asc()) \
+        .all()
+
+    # Send the first sticker of each new pack to all newsfeed channels
+    for task in tasks:
+        task.sticker_set.refresh_stickers(session, bot, chat=task.chat)
+        task.reviewed = True
+        session.commit()
+
+    job.enabled = True
+    return

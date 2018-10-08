@@ -20,6 +20,7 @@ def process_task(session, tg_chat, chat, job=False):
     """Get the next task and send it to the maintenance channel."""
     task = session.query(Task) \
         .filter(Task.reviewed.is_(False)) \
+        .filter(Task.type.in_([Task.USER_REVERT, Task.VOTE_BAN])) \
         .order_by(Task.created_at.asc()) \
         .limit(1) \
         .one_or_none()
@@ -37,7 +38,7 @@ def process_task(session, tg_chat, chat, job=False):
 
         return
 
-    if task.type == 'user_revert':
+    if task.type == Task.USER_REVERT:
         changes = session.query(Change) \
             .filter(Change.user == task.user) \
             .filter(Change.created_at >= (datetime.now() - timedelta(days=1))) \
@@ -68,7 +69,7 @@ def process_task(session, tg_chat, chat, job=False):
                 text='Revert changes and Ban user', callback_data=revert_data),
         ]]
 
-    elif task.type == 'vote_ban':
+    elif task.type == Task.VOTE_BAN:
         # Compile task text
         text = ['Ban sticker set? \n']
         for ban in task.sticker_set.vote_bans:
@@ -130,6 +131,7 @@ def revert_user_changes(session, user):
                 .filter(Tag.name.in_(old_tags)) \
                 .all()
             sticker.tags = tags
+
             change.reverted = True
 
     user.reverted = True

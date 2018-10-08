@@ -57,7 +57,8 @@ class Chat(base):
     current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
 
     # Relationships
-    current_task = relationship("Task")
+    current_task = relationship("Task", foreign_keys='Chat.current_task_id')
+    tasks = relationship("Task", foreign_keys='Task.chat_id')
     current_sticker = relationship("Sticker")
     current_sticker_set = relationship("StickerSet")
     sticker_sets = relationship(

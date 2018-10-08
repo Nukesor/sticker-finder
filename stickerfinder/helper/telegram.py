@@ -1,5 +1,6 @@
 """All helper for interaction with telegram."""
 import time
+import logging
 import telegram
 from raven import breadcrumbs
 from random import randrange
@@ -22,7 +23,8 @@ def call_tg_func(tg_object: object, function_name: str,
             return retrieved_object
         except telegram.error.TimedOut:
             sleep_time = randrange(2, 5)
-            print(f'Hit socket timeout waiting {sleep_time} secs.')
+            logger = logging.getLogger()
+            logger.info(f'Hit socket timeout waiting {sleep_time} secs.')
             time.sleep(sleep_time)
             breadcrumbs.record(data={'action': 'Socket timeout hit'}, category='info')
 

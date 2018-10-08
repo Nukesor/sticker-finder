@@ -7,7 +7,9 @@ Start typing @std_bot in any chat. You can search for stickers by keywords, emoj
 
 <b>Add stickersets:</b>
 Send any sticker set to me in a direct conversation, I'll add the whole set.
+I will tell you if I don't know this set yet and you will get a notification when the sticker set has been processed and added.
 If I'm added to a group chat, I will automatically add all stickers posted in this chat!
+It can take quite a while to add a new sticker set, so please bear with me.
 
 <b>Can't find a sticker?</b>
 If you already added a set, you probably need to tag them first (or just search by the set name).

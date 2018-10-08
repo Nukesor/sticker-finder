@@ -1,5 +1,6 @@
 """Maintenance related commands."""
 from sqlalchemy import func
+from telegram.ext import run_async
 
 from stickerfinder.helper import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
@@ -14,6 +15,7 @@ from stickerfinder.models import (
 )
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def stats(bot, update, session, chat, user):
     """Send a help text."""
@@ -53,6 +55,7 @@ Stickers with Tags: {tagged_sticker_count}
     call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': admin_keyboard})
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def refresh_sticker_sets(bot, update, session, chat, user):
     """Send a help text."""
@@ -117,6 +120,7 @@ def start_tasks(bot, update, session, chat, user):
     process_task(session, update.message.chat, chat)
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def tag_cleanup(bot, update, session, chat, user):
     """Triggering a one time conversion from text changes to tags."""

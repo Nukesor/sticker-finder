@@ -1,15 +1,14 @@
 """The sqlite model for a sticker set."""
 import io
-import time
+import logging
 import telegram
 from PIL import Image
 from pytesseract import image_to_string
-from random import randrange
 from sqlalchemy import Column, String, DateTime, func, Boolean
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
-from stickerfinder.models import chat_sticker_set, Sticker
+from stickerfinder.models import chat_sticker_set, Sticker, Task
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.image import preprocess_image
 
@@ -40,7 +39,7 @@ class StickerSet(base):
         self.name = name
         self.stickers = []
 
-    def refresh_stickers(self, session, bot, refresh_ocr=False):
+    def refresh_stickers(self, session, bot, refresh_ocr=False, chat=False):
         """Refresh stickers and set data from telegram."""
         # Get sticker set from telegram and create new a Sticker for each sticker
         stickers = []
@@ -70,10 +69,12 @@ class StickerSet(base):
                         text = text.replace('\n', ' ')
 
                 except telegram.error.TimedOut:
-                    print(f'Finally failed on file {tg_sticker.file_id}')
+                    logger = logging.getLogger()
+                    logger.info(f'Finally failed on file {tg_sticker.file_id}')
                     pass
                 except telegram.error.BadRequest:
-                    print(f'Failed to get image of f{tg_sticker.file_id}')
+                    logger = logging.getLogger()
+                    logger.info(f'Failed to get image of f{tg_sticker.file_id}')
                     pass
 
             # Create new Sticker.
@@ -93,24 +94,22 @@ class StickerSet(base):
         self.complete = True
         session.commit()
 
+        if chat and chat.type == 'private':
+            call_tg_func(bot, 'send_message',
+                         [chat.id, f'Stickerset {self.name} has been added.'])
+            return
+
     @staticmethod
-    def get_or_create(session, name, bot, update):
+    def get_or_create(session, name, chat):
         """Get or create a new sticker set."""
         sticker_set = session.query(StickerSet).get(name)
-        if not sticker_set or not sticker_set.complete:
-            # Instantly set sticker
-            if not sticker_set:
-                sticker_set = StickerSet(name, None)
-                session.add(sticker_set)
-                session.commit()
-
-            sticker_set.refresh_stickers(session, bot)
-
-            # Random sleep a little, in case we have many concurrent packs.
-            # This otherwise results in multiple file requests at the exact same time.
-            # This is something the telegram API doesn't seem to like, thereby it responds with a Timeout.
-            time.sleep(randrange(1, 5))
-
-            call_tg_func(update.message.chat, 'send_message', args=[f'Set {name} has been added.'])
+        if not sticker_set:
+            # Create a task for adding a sticker.
+            # This task will be processed by a job, since adding a sticker can take quite a while
+            sticker_set = StickerSet(name, None)
+            task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat)
+            session.add(sticker_set)
+            session.add(task)
+            session.commit()
 
         return sticker_set

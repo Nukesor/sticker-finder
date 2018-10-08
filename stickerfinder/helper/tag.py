@@ -91,10 +91,9 @@ def handle_next(session, chat, tg_chat):
 
 def initialize_set_tagging(bot, update, session, name, chat):
     """Initialize the set tag functionality of a chat."""
-    try:
-        sticker_set = StickerSet.get_or_create(session, name, bot, update)
-    except BaseException:
-        return "Couldn't find a sticker set with this name."
+    sticker_set = StickerSet.get_or_create(session, name, chat)
+    if sticker_set.complete is False:
+        return "Sticker set {name} is currently being added."
 
     # Chat now expects an incoming tag for the next sticker
     chat.expecting_sticker_set = False

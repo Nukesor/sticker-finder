@@ -1,6 +1,7 @@
 """The sqlite model for a task."""
 from uuid import uuid4
 from sqlalchemy import (
+    BigInteger,
     Boolean,
     Column,
     func,
@@ -8,7 +9,6 @@ from sqlalchemy import (
     Integer,
     String,
     ForeignKey,
-    CheckConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -20,10 +20,10 @@ class Task(base):
     """The model for a vote ban."""
 
     __tablename__ = 'task'
-    __table_args__ = (
-        CheckConstraint('(user_id IS NOT NULL AND sticker_set_name IS NULL) OR \
-                         (user_id IS NULL AND sticker_set_name IS NOT NULL)'),
-    )
+
+    VOTE_BAN = 'vote_ban'
+    USER_REVERT = 'user_revert'
+    SCAN_SET = 'scan_set'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     type = Column(String)
@@ -31,13 +31,16 @@ class Task(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    chat_id = Column(BigInteger, ForeignKey('chat.id'), index=True)
     sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
 
-    user = relationship("User")
-    sticker_set = relationship("StickerSet")
+    user = relationship('User')
+    chat = relationship('Chat', foreign_keys='Task.chat_id', back_populates='tasks')
+    sticker_set = relationship('StickerSet')
 
-    def __init__(self, task_type, user=None, sticker_set=None):
+    def __init__(self, task_type, user=None, sticker_set=None, chat=None):
         """Create a new change."""
         self.type = task_type
         self.user = user
+        self.chat = chat
         self.sticker_set = sticker_set

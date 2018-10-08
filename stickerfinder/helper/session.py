@@ -32,6 +32,7 @@ def session_wrapper(
 
                 # Check if the user has been banned.
                 if check_ban and user and user.banned:
+                    session.close()
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['You have been banned.'])
                     return
@@ -39,6 +40,7 @@ def session_wrapper(
                 # Check for admin permissions.
                 if admin_only and user and not user.admin \
                         and user.username != config.ADMIN.lower():
+                    session.close()
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['You are not authorized for this command.'])
                     return
@@ -55,6 +57,7 @@ def session_wrapper(
 
                 # Respond to user
                 if hasattr(update, 'message') and response is not None:
+                    session.commit()
                     call_tg_func(update.message.chat, 'send_message', args=[response])
 
                 session.commit()
@@ -62,10 +65,11 @@ def session_wrapper(
                 traceback.print_exc()
                 sentry.captureException()
                 if send_message:
+                    session.close()
                     call_tg_func(update.message.chat, 'send_message',
                                  args=['An unknown error occurred.'])
             finally:
-                session.remove()
+                session.close()
         return wrapper
 
     return real_decorator

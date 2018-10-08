@@ -1,6 +1,4 @@
 """Message handler functions."""
-from telegram.ext import run_async
-
 from stickerfinder.models import (
     Sticker,
     StickerSet,
@@ -14,16 +12,14 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 
 
-@run_async
 @session_wrapper(check_ban=True)
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
-        initialize_set_tagging(bot, update, session, name, chat)
 
-        return
+        return initialize_set_tagging(bot, update, session, name, chat)
 
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
@@ -42,7 +38,6 @@ def handle_private_text(bot, update, session, chat, user):
         handle_next(session, chat, update.message.chat)
 
 
-@run_async
 @session_wrapper(check_ban=True)
 def handle_private_sticker(bot, update, session, chat, user):
     """Read all stickers.
@@ -58,18 +53,14 @@ def handle_private_sticker(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message', args=["This sticker doesn't belong to a sticker set."])
         return
 
-    sticker_set = session.query(StickerSet).get(set_name)
-    if sticker_set and sticker_set.complete:
-        call_tg_func(update.message.chat, 'send_message', args=['I already know this sticker set :)'])
-
-    if sticker_set is None:
-        sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
+    sticker_set = StickerSet.get_or_create(session, set_name, chat)
+    if sticker_set.complete is False:
+        call_tg_func(update.message.chat, 'send_message',
+                     args=[f'Set {sticker_set.name} is going to be added soon.'])
 
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
-        initialize_set_tagging(bot, update, session, set_name, chat)
-
-        return
+        return initialize_set_tagging(bot, update, session, set_name, chat)
 
     # Set the send sticker to the current sticker for tagging or vote_ban.
     # But don't do it if we currently are in a tagging process.
@@ -80,7 +71,6 @@ def handle_private_sticker(bot, update, session, chat, user):
     return
 
 
-@run_async
 @session_wrapper(send_message=False, get_user=False)
 def handle_group_sticker(bot, update, session, chat, user):
     """Read all stickers.
@@ -95,8 +85,8 @@ def handle_group_sticker(bot, update, session, chat, user):
         return
 
     # Check if we know this sticker set. Early return if we don't
-    sticker_set = StickerSet.get_or_create(session, set_name, bot, update)
-    if not sticker_set:
+    sticker_set = StickerSet.get_or_create(session, set_name, chat)
+    if sticker_set.complete is False:
         return
 
     # Handle ban chat

@@ -1,4 +1,5 @@
 """A bot which checks if there is a new record in the server section of hetzner."""
+import logging
 from telegram.ext import (
     Filters,
     CommandHandler,
@@ -30,6 +31,7 @@ from stickerfinder.telegram.commands import (
 from stickerfinder.telegram.jobs import (
     newsfeed,
     maintenance_tasks,
+    scan_sticker_sets,
 )
 from stickerfinder.telegram.message_handlers import (
     handle_private_text,
@@ -60,8 +62,11 @@ def send_help_text(bot, update):
                  {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
+logging.basicConfig(level=config.LOG_LEVEL,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 # Initialize telegram updater and dispatcher
-updater = Updater(token=config.TELEGRAM_API_KEY, workers=16,
+updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
                   request_kwargs={'read_timeout': 20.})
 
 # Input commands
@@ -91,7 +96,9 @@ dispatcher.add_handler(CommandHandler('stats', stats))
 if config.RUN_JOBS:
     job_queue = updater.job_queue
     job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
-    job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new tasks')
+    job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new maintenance tasks')
+    job_queue.run_repeating(scan_sticker_sets, interval=10, first=0,
+                            name='Scan new sticker sets')
 
 # Create message handler
 dispatcher.add_handler(

@@ -101,7 +101,7 @@ def find_stickers(bot, update, session, user):
 
     found_stickers = tag_stickers \
         .union(text_stickers, set_name_stickers) \
-        .order_by("group", tag_count.asc()) \
+        .order_by("group", tag_count.desc()) \
         .limit(1000) \
         .all()
 
@@ -145,6 +145,10 @@ def find_stickers(bot, update, session, user):
     else:
         next_offset = 'done'
 
+    inline_search = InlineSearch(query_uuid, query, user, duration)
+    session.add(inline_search)
+
+    session.commit()
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
                      'next_offset': next_offset,
@@ -153,6 +157,3 @@ def find_stickers(bot, update, session, user):
                      'switch_pm_text': 'Maybe tag some stickers :)?',
                      'switch_pm_parameter': 'inline',
                  })
-
-    inline_search = InlineSearch(query_uuid, query, user, duration)
-    session.add(inline_search)
