@@ -1,5 +1,8 @@
 # Stickerfinder ([@StickerDiscoveryBot](https://t.me/StickerDiscoveryBot) or [@std_bot](https://t.me/std_bot) )
 
+Did you ever want to find your favorite stickers via text search, discover new stickers and to tag stickers for better discoverability?
+Let me introduce you to **Stickerfinder**.
+
 Stickerfinder aka StickerDiscoveryBot is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query search (just like @gif).
 You can easily add your own sticker sets and search existing ones (already over 12k).
 
