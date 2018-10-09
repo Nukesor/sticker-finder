@@ -12,9 +12,12 @@ class CallbackType(Enum):
     task_user_ban = 1
     task_vote_ban = 2
     task_user_revert = 3
+    ban_set = 4
+
     next = 10
     cancel = 11
     edit_sticker = 12
+    tag_set = 13
 
 
 @unique

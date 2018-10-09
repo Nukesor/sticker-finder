@@ -91,7 +91,7 @@ def handle_next(session, chat, tg_chat):
         send_tag_messages(chat, tg_chat)
 
 
-def initialize_set_tagging(bot, update, session, name, chat):
+def initialize_set_tagging(bot, tg_chat, session, name, chat):
     """Initialize the set tag functionality of a chat."""
     sticker_set = StickerSet.get_or_create(session, name, chat)
     if sticker_set.complete is False:
@@ -103,8 +103,8 @@ def initialize_set_tagging(bot, update, session, name, chat):
     chat.current_sticker_set = sticker_set
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(update.message.chat, 'send_message', [tag_text])
-    send_tag_messages(chat, update.message.chat)
+    call_tg_func(tg_chat, 'send_message', [tag_text])
+    send_tag_messages(chat, tg_chat)
 
 
 def tag_sticker(session, text, sticker, user,

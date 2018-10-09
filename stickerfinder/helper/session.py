@@ -59,6 +59,7 @@ def session_wrapper(
                 if hasattr(update, 'message') and response is not None:
                     session.commit()
                     call_tg_func(update.message.chat, 'send_message', args=[response])
+                    return
 
                 session.commit()
             except BaseException:

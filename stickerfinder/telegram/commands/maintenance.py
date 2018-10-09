@@ -100,8 +100,8 @@ def flag_chat(bot, update, session, chat, user):
 
     # Flag chat as ban channel
     if chat_type == 'ban':
-        if not chat.is_maintenance or chat.is_newsfeed:
-            chat.is_ban = True
+        if not chat.is_maintenance and not chat.is_newsfeed:
+            chat.is_ban = not chat.is_ban
             return f"Chat is {'now' if chat.is_ban else 'no longer'} a ban chat."
         else:
             return "Chat can't be flagged for ban and maintenance or newsfeed"

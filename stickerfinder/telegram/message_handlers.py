@@ -19,7 +19,7 @@ def handle_private_text(bot, update, session, chat, user):
     if chat.expecting_sticker_set:
         name = update.message.text.strip()
 
-        return initialize_set_tagging(bot, update, session, name, chat)
+        return initialize_set_tagging(bot, update.message.chat, session, name, chat)
 
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
@@ -66,7 +66,7 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
-        return initialize_set_tagging(bot, update, session, set_name, chat)
+        return initialize_set_tagging(bot, update.message.chat, session, set_name, chat)
 
     # Set the send sticker to the current sticker for tagging or vote_ban.
     # But don't do it if we currently are in a tagging process.
