@@ -13,7 +13,7 @@ It can take quite a while to add a new sticker set, so please bear with me.
 
 <b>Can't find a sticker?</b>
 If you already added a set, you probably need to tag them first (or just search by the set name).
-To tag a whole set send /tag_set and a sticker from the set you want to tag.
+To tag a whole set just send me a sticker from the set you want to tag.
 
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>

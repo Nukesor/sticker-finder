@@ -1,4 +1,6 @@
 """Message handler functions."""
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+
 from stickerfinder.models import (
     Sticker,
     StickerSet,
@@ -10,6 +12,7 @@ from stickerfinder.helper.tag import (
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.callback import CallbackType
 
 
 @session_wrapper(check_ban=True)
@@ -64,6 +67,8 @@ def handle_private_sticker(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message',
                      args=[f'Set {sticker_set.name} is going to be added soon.'])
 
+        return
+
     # Handle the initial sticker for a full sticker set tagging
     if chat.expecting_sticker_set:
         return initialize_set_tagging(bot, update.message.chat, session, set_name, chat)
@@ -73,6 +78,14 @@ def handle_private_sticker(bot, update, session, chat, user):
     elif not chat.full_sticker_set and not chat.tagging_random_sticker:
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
+
+        # Change the inline keyboard to allow fast fixing of the sticker's tags
+        edit_again_data = f'{CallbackType["edit_sticker"].value}:{sticker.file_id}:0'
+        buttons = [[InlineKeyboardButton(
+            text="Tag this sticker set.", callback_data=edit_again_data)]]
+        call_tg_func(update.message.chat, 'send_message',
+                     ["I already know this sticker set"],
+                     {'reply_markup': InlineKeyboardMarkup(buttons)})
 
     return
 
