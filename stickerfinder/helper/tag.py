@@ -2,9 +2,15 @@
 from sqlalchemy import func
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
-from stickerfinder.helper import tag_text, blacklist, main_keyboard
+from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.callback import CallbackType
+from stickerfinder.helper import (
+    tag_text,
+    blacklist,
+    main_keyboard,
+    reward_messages,
+)
 from stickerfinder.models import (
     Change,
     Tag,
@@ -127,6 +133,18 @@ def tag_sticker(session, text, sticker, user,
     incoming_tags = incoming_tags[:15]
     # Clean the tags from unwanted words
     incoming_tags = [tag for tag in incoming_tags if tag not in blacklist]
+
+    if len(user.changes) in reward_messages:
+        reward = reward_messages[len(user.changes)]
+        call_tg_func(tg_chat, 'send_message', [reward])
+
+        sentry.captureMessage(
+            f'User hit {len(user.changes)} changes!', level='info',
+            extra={
+                'user': user,
+                'changes': len(user.changes),
+            },
+        )
 
     if len(incoming_tags) > 0:
         # Create tags

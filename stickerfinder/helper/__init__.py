@@ -18,6 +18,10 @@ To tag a whole set send /tag_set and a sticker from the set you want to tag.
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 
+<b>Getting Banned:</b>
+If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
+When you're banned, you can't use the inline search any longer and all of your changes will be reverted.
+
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
 This is great for ad hoc tagging of single stickers in group chats, but I need to be in this chat for this to work.
@@ -38,6 +42,18 @@ Just write what describes this sticker best.
 It would be awesome if you could also add the text in the sticker :).
 """
 
+
+reward_messages = {
+    27: '🎉🎉🎉 Nice! 🎉🎉🎉 \n You just tagged your 10th sticker!',
+    25: "25 Stickers. \n You're getting faster!",
+    50: '50 Stickers. \n Way to go!',
+    100: '🎉🎉🎉 100 Stickers...🎉🎉🎉 \n Wow!',
+    200: "250 Stickers! \n I think you can manage 1000, can you?",
+    500: '500 Stickers! \n Halfway there!',
+    1000: "🎉🎉🎉 1000 Stickers!!!!! 🎉🎉🎉 \n Get a life :D!",
+    2000: "2000 Stickers.. \n It stops being funny",
+    3000: "3000 Stickers.... \n You should really stop.",
+}
 
 blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
                  'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])
