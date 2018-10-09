@@ -38,14 +38,16 @@ def send_tag_messages(chat, tg_chat):
     # Otherwise attach it to the following message.
     message = current_sticker_tags_message(chat.current_sticker)
     if not message:
-        call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id],
-                     kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+        response = call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id],
+                                kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+        chat.last_sticker_message_id = response.message_id
     else:
         call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     if message:
-        call_tg_func(tg_chat, 'send_message', [message],
-                     {'reply_markup': InlineKeyboardMarkup(buttons)})
+        response = call_tg_func(tg_chat, 'send_message', [message],
+                                {'reply_markup': InlineKeyboardMarkup(buttons)})
+        chat.last_sticker_message_id = response.message_id
 
 
 def handle_next(session, chat, tg_chat):
@@ -105,7 +107,8 @@ def initialize_set_tagging(bot, update, session, name, chat):
     send_tag_messages(chat, update.message.chat)
 
 
-def tag_sticker(session, text, sticker, user, tg_chat, keep_old=False):
+def tag_sticker(session, text, sticker, user,
+                tg_chat, chat=None, keep_old=False):
     """Tag a single sticker."""
     text = text.lower()
     # Remove the /tag command
@@ -154,3 +157,16 @@ def tag_sticker(session, text, sticker, user, tg_chat, keep_old=False):
         if old_tags_as_text != sticker.tags_as_text():
             change = Change(user, sticker, old_tags_as_text)
             session.add(change)
+
+    session.commit()
+    if chat and chat.last_sticker_message_id:
+        # Change the inline keyboard to allow fast fixing of the sticker's tags
+        edit_again_data = f'{CallbackType["edit_sticker"].value}:{chat.current_sticker.file_id}:0'
+        buttons = [[InlineKeyboardButton(
+            text="Fix this sticker's tags", callback_data=edit_again_data)]]
+        call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
+                     [tg_chat.id, chat.last_sticker_message_id],
+                     {'reply_markup': InlineKeyboardMarkup(buttons)})
+
+        # Reset last sticker message id
+        chat.last_sticker_message_id = None

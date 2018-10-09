@@ -14,6 +14,7 @@ class CallbackType(Enum):
     task_user_revert = 3
     next = 10
     cancel = 11
+    edit_sticker = 12
 
 
 @unique

@@ -23,19 +23,25 @@ def handle_private_text(bot, update, session, chat, user):
 
     elif chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
-        tag_sticker(session, update.message.text,
-                    chat.current_sticker, user, update.message.chat)
+        tag_sticker(session, update.message.text, chat.current_sticker,
+                    user, update.message.chat, chat=chat)
 
         session.commit()
         handle_next(session, chat, update.message.chat)
 
     elif chat.tagging_random_sticker:
         # Try to tag the sticker. Return early if it didn't work.
-        tag_sticker(session, update.message.text,
-                    chat.current_sticker, user, update.message.chat)
+        tag_sticker(session, update.message.text, chat.current_sticker,
+                    user, update.message.chat, chat)
 
         session.commit()
         handle_next(session, chat, update.message.chat)
+    elif chat.fix_single_sticker:
+        tag_sticker(session, update.message.text, chat.current_sticker,
+                    user, update.message.chat, chat)
+
+        chat.cancel()
+        return "Sticker tags adjusted."
 
 
 @session_wrapper(check_ban=True)

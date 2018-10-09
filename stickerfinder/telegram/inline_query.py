@@ -75,9 +75,9 @@ def find_stickers(bot, update, session, user):
         text_conditions.append(Sticker.text.like(f'%{tag}%'))
 
     # At first we check for results, where at least one tag directly matches
-    tag_stickers = session.query(Sticker.file_id,
-                                 tag_subq.c.tag_count,
-                                 literal_column("0").label("group")) \
+    tagged_stickers = session.query(Sticker.file_id,
+                                    tag_subq.c.tag_count,
+                                    literal_column("0").label("group")) \
         .join(tag_subq, tag_subq.c.sticker_file_id == Sticker.file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
@@ -99,7 +99,7 @@ def find_stickers(bot, update, session, user):
         .filter(StickerSet.banned.is_(False)) \
         .filter(or_(*set_conditions)) \
 
-    found_stickers = tag_stickers \
+    found_stickers = tagged_stickers \
         .union(text_stickers, set_name_stickers) \
         .order_by("group", tag_count.desc()) \
         .limit(1000) \

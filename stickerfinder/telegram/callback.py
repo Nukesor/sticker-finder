@@ -2,12 +2,17 @@
 from telegram.ext import run_async
 
 from stickerfinder.helper import main_keyboard
-from stickerfinder.helper.tag import handle_next
+from stickerfinder.helper.tag import handle_next, send_tag_messages
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task, revert_user_changes
-from stickerfinder.models import Chat, Task, InlineSearch
+from stickerfinder.models import (
+    Chat,
+    Task,
+    InlineSearch,
+    Sticker,
+)
 
 
 @run_async
@@ -23,6 +28,7 @@ def handle_callback_query(bot, update, session, user):
     action = int(action)
 
     chat = session.query(Chat).get(query.message.chat.id)
+    tg_chat = query.message.chat
 
     # Handle task vote ban callbacks
     if CallbackType(callback_type).name == 'task_vote_ban':
@@ -35,7 +41,7 @@ def handle_callback_query(bot, update, session, user):
             call_tg_func(query, 'answer', args=['Set not banned'])
 
         task.reviewed = True
-        process_task(session, query.message.chat, chat)
+        process_task(session, tg_chat, chat)
 
     # Handle task user ban callbacks
     elif CallbackType(callback_type).name == 'task_user_revert':
@@ -46,17 +52,26 @@ def handle_callback_query(bot, update, session, user):
             revert_user_changes(session, task.user)
 
         task.reviewed = True
-        process_task(session, query.message.chat, chat)
+        process_task(session, tg_chat, chat)
 
-    # Handle task user ban callbacks
+    # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
-        handle_next(session, chat, query.message.chat)
+        handle_next(session, chat, tg_chat)
 
+    # Handle the "Stop tagging" button
     elif CallbackType(callback_type).name == 'cancel':
         call_tg_func(query, 'answer', args=['All active commands have been canceled'])
-        call_tg_func(query.message.chat, 'send_message', ['All running commands are canceled'],
+        call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
                      {'reply_markup': main_keyboard})
         chat.cancel()
+
+    # Handle "Fix this sticker's tags"
+    elif CallbackType(callback_type).name == 'edit_sticker':
+        sticker = session.query(Sticker).get(entity_id)
+        chat.current_sticker = sticker
+        if not chat.full_sticker_set and not chat.tagging_random_sticker:
+            chat.fix_single_sticker = True
+        send_tag_messages(chat, tg_chat)
 
     return
 

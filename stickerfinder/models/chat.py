@@ -46,10 +46,12 @@ class Chat(base):
     is_newsfeed = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     is_maintenance = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
-    # Tagging process related flags
+    # Tagging process related flags and data
     tagging_random_sticker = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
     full_sticker_set = Column(Boolean, nullable=False, default=False)
+    fix_single_sticker = Column(Boolean, server_default='FALSE', nullable=False, default=False)
+    last_sticker_message_id = Column(BigInteger)
 
     # ForeignKeys
     current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id'), index=True)
@@ -87,6 +89,8 @@ class Chat(base):
         self.tagging_random_sticker = False
         self.full_sticker_set = False
         self.expecting_sticker_set = False
+        self.fix_single_sticker = False
+        self.last_sticker_message_id = None
 
         self.current_task = None
         self.current_sticker = None
