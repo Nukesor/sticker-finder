@@ -1,6 +1,9 @@
 """Sticker set related commands."""
+from sqlalchemy.sql.expression import func
+
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.models import VoteBan
+from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.models import VoteBan, StickerSet
 
 
 @session_wrapper(check_ban=True)
@@ -35,5 +38,11 @@ Please send the sticker first before you use "/vote_ban"."""
 
 @session_wrapper(check_ban=True)
 def random_set(bot, update, session, chat, user):
+    """Get random sticker_set."""
+    sticker_set = session.query(StickerSet)\
+        .order_by(func.random()) \
+        .limit(1) \
+        .one_or_none()
 
-
+    if sticker_set is not None:
+        call_tg_func(update.message.chat, 'send_sticker', args=[sticker_set.stickers[0].file_id])
