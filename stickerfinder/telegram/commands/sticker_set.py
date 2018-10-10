@@ -31,3 +31,9 @@ def vote_ban_set(bot, update, session, chat, user):
     else:
         return """There has no sticker been posted in this chat yet.
 Please send the sticker first before you use "/vote_ban"."""
+
+
+@session_wrapper(check_ban=True)
+def random_set(bot, update, session, chat, user):
+
+

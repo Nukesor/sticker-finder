@@ -10,6 +10,7 @@ Send any sticker set to me in a direct conversation, I'll add the whole set.
 I will tell you if I don't know this set yet and you will get a notification when the sticker set has been processed and added.
 If I'm added to a group chat, I will automatically add all stickers posted in this chat!
 It can take quite a while to add a new sticker set, so please bear with me.
+<b>DISCLAIMER:</b> If you add a set, it will be available to <b>ALL</b> users.
 
 <b>Can't find a sticker?</b>
 If you already added a set, you probably need to tag them first (or just search by the set name).
