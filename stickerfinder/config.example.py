@@ -18,6 +18,13 @@ class Config:
     # Only important if running multiple instances ( for logging )
     BOT_NAME = 'stickerfinder'
 
+    # Use and configure nginx webhooks
+    WEB_HOOK = False
+    DOMAIN = 'https://example.com'
+    TOKEN = 'token'
+    CERT_PATH = './cert.pem'
+    PORT = 5000
+
     # Performance/thread/db settings
     WORKER_COUNT = 16
     CONNECTION_COUNT = 20

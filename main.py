@@ -2,6 +2,12 @@
 """Start the bot."""
 
 from stickerfinder.stickerfinder import updater
+from stickerfinder.config import config
 
-updater.start_polling()
-updater.idle()
+if config.WEB_HOOK:
+    updater.start_webhook(listen='127.0.0.1', port=config.PORT, url_path=config.TOKEN)
+    updater.bot.set_webhook(webhook_url=f'{config.DOMAIN}{config.TOKEN}',
+                            certificate=open(config.CERT_PATH, 'rb'))
+else:
+    updater.start_polling()
+    updater.idle()
