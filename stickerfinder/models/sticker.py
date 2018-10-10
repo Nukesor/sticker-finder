@@ -36,6 +36,7 @@ class Sticker(base):
 
     file_id = Column(String, primary_key=True)
     text = Column(String)
+    original_emojis = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -60,6 +61,7 @@ class Sticker(base):
     def add_emojis(self, session, emojis):
         """Add tags for every emoji in the incoming string."""
         from stickerfinder.models import Tag
+        self.original_emojis = emojis
         for emoji in emojis:
             tag = Tag.get_or_create(session, emoji, emoji=True)
             if tag not in self.tags:

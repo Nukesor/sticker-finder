@@ -60,13 +60,15 @@ Stickers with Tags: {tagged_sticker_count}
 def refresh_sticker_sets(bot, update, session, chat, user):
     """Refresh all stickers."""
     sticker_sets = session.query(StickerSet).all()
+    progress = f'Found {len(sticker_sets)} sets.'
+    call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     count = 0
     for sticker_set in sticker_sets:
         sticker_set.refresh_stickers(session, bot)
         count += 1
         if count % 50 == 0:
-            progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
+            progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     call_tg_func(update.message.chat, 'send_message',
@@ -86,7 +88,7 @@ def refresh_ocr(bot, update, session, chat, user):
         sticker_set.refresh_stickers(session, bot, refresh_ocr=True)
         count += 1
         if count % 50 == 0:
-            progress = f"Updated {count} sets ({len(sticker_sets) - count} remaining)."
+            progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     call_tg_func(update.message.chat, 'send_message',
@@ -124,7 +126,7 @@ def flag_chat(bot, update, session, chat, user):
         else:
             return "Chat can't be flagged for ban and maintenance or newsfeed"
 
-    return "Unknown chat type."
+    return 'Unknown chat type.'
 
 
 @session_wrapper(admin_only=True)

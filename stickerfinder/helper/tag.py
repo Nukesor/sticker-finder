@@ -157,7 +157,7 @@ def tag_sticker(session, text, sticker, user,
 
         # Keep old sticker tags if they are emojis
         for tag in sticker.tags:
-            if tag.emoji and tag not in tags:
+            if tag.name in tag.original_emojis:
                 tags.append(tag)
 
         # Get the old tags for tracking
