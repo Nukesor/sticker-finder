@@ -4,7 +4,7 @@ from sqlalchemy.sql.expression import func
 from stickerfinder.helper import main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.models import VoteBan, StickerSet
+from stickerfinder.models import VoteBan, StickerSet, Sticker
 
 
 @session_wrapper(check_ban=True)
@@ -40,7 +40,11 @@ Please send the sticker first before you use "/vote_ban"."""
 @session_wrapper(check_ban=True)
 def random_set(bot, update, session, chat, user):
     """Get random sticker_set."""
+    sticker_count = func.count(Sticker.file_id).label("sticker_count")
     sticker_set = session.query(StickerSet)\
+        .join(StickerSet.stickers) \
+        .group_by(StickerSet) \
+        .having(sticker_count > 0) \
         .order_by(func.random()) \
         .limit(1) \
         .one_or_none()
