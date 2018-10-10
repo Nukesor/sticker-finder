@@ -87,7 +87,7 @@ def handle_callback_query(bot, update, session, user):
         send_tag_messages(chat, tg_chat)
 
     elif CallbackType(callback_type).name == 'tag_set':
-        initialize_set_tagging(bot, tg_chat, session, payload, chat)
+        initialize_set_tagging(bot, tg_chat, session, payload, chat, user)
 
     return
 

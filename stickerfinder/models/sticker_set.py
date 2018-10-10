@@ -107,14 +107,14 @@ class StickerSet(base):
             return
 
     @staticmethod
-    def get_or_create(session, name, chat):
+    def get_or_create(session, name, chat, user):
         """Get or create a new sticker set."""
         sticker_set = session.query(StickerSet).get(name)
         if not sticker_set:
             # Create a task for adding a sticker.
             # This task will be processed by a job, since adding a sticker can take quite a while
             sticker_set = StickerSet(name, None)
-            task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat)
+            task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat, user=user)
             session.add(sticker_set)
             session.add(task)
             session.commit()

@@ -59,7 +59,7 @@ def newsfeed(bot, job, session, user):
                              args=[chat.id, new_set.stickers[0].file_id],
                              kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
 
-                message = f'Set {new_set.name} added by user: {new_set.task.user} ({new_set.task.user.id})'
+                message = f'Set {new_set.name} added by user: {new_set.tasks[0].user.username} ({new_set.tasks[0].user.id})'
                 call_tg_func(bot, 'send_message', args=[chat.id, message])
 
             # A newsfeed chat has been converted to a super group.
