@@ -1,6 +1,7 @@
 """Sticker set related commands."""
 from sqlalchemy.sql.expression import func
 
+from stickerfinder.helper import main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import VoteBan, StickerSet
@@ -45,4 +46,6 @@ def random_set(bot, update, session, chat, user):
         .one_or_none()
 
     if sticker_set is not None:
-        call_tg_func(update.message.chat, 'send_sticker', args=[sticker_set.stickers[0].file_id])
+        call_tg_func(update.message.chat, 'send_sticker',
+                     args=[sticker_set.stickers[0].file_id],
+                     kwargs={'reply_markup': main_keyboard})

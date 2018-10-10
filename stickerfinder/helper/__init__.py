@@ -59,7 +59,7 @@ reward_messages = {
 blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
                  'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])
 
-main_keyboard = ReplyKeyboardMarkup([['/help', '/tag_set', '/tag_random']],
+main_keyboard = ReplyKeyboardMarkup([['/random_set', '/tag_set', '/tag_random']],
                                     one_time_keyboard=True, resize_keyboard=True)
 
 admin_keyboard = ReplyKeyboardMarkup(

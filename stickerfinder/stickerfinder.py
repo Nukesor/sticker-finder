@@ -28,6 +28,7 @@ from stickerfinder.telegram.commands import (
     stats,
     refresh_sticker_sets,
     refresh_ocr,
+    random_set,
 )
 from stickerfinder.telegram.jobs import (
     newsfeed,
@@ -80,6 +81,7 @@ dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('help', send_help_text))
 dispatcher.add_handler(CommandHandler('tag_set', tag_set))
 dispatcher.add_handler(CommandHandler('tag_random', tag_random))
+dispatcher.add_handler(CommandHandler('random_set', random_set))
 dispatcher.add_handler(CommandHandler('cancel', cancel))
 
 # Maintenance input commands
