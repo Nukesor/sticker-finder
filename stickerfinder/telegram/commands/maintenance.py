@@ -1,6 +1,7 @@
 """Maintenance related commands."""
 from sqlalchemy import func
 from telegram.ext import run_async
+from datetime import datetime, timedelta
 
 from stickerfinder.helper import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
@@ -12,6 +13,7 @@ from stickerfinder.models import (
     sticker_tag,
     Tag,
     User,
+    InlineSearch,
 )
 
 
@@ -44,6 +46,11 @@ def stats(bot, update, session, chat, user):
         .filter(Sticker.text.isnot(None)) \
         .count()
 
+    queries_count = session.query(InlineSearch).count()
+    last_day_queries_count = session.query(InlineSearch)\
+        .filter(InlineSearch.created_at > datetime.now() - timedelta(days=1)) \
+        .count()
+
     stats = f"""Users: {user_count}
 Tags: {tag_count}
 Emojis: {emoji_count}
@@ -51,6 +58,8 @@ Sticker sets: {sticker_set_count}
 Stickers: {sticker_count}
 Stickers with Text: {text_sticker_count}
 Stickers with Tags: {tagged_sticker_count}
+Total queries : {queries_count}
+Queries of the last day: {last_day_queries_count}
     """
     call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': admin_keyboard})
 
