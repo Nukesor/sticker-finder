@@ -15,7 +15,7 @@ def tag_set(bot, update, session, chat, user):
     chat.cancel()
     chat.expecting_sticker_set = True
 
-    return 'Please send me the name of the set or a sticker from the set.'
+    return 'Please send me a sticker from the set.'
 
 
 @run_async

@@ -47,6 +47,7 @@ class StickerSet(base):
         # Get sticker set from telegram and create new a Sticker for each sticker
         stickers = []
         tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
+
         for tg_sticker in tg_sticker_set.stickers:
             # Ignore already existing stickers if we don't need to rescan images
             sticker = session.query(Sticker).get(tg_sticker.file_id)

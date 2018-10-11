@@ -19,12 +19,7 @@ from stickerfinder.helper.callback import CallbackType
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
-    if chat.expecting_sticker_set:
-        name = update.message.text.strip()
-
-        return initialize_set_tagging(bot, update.message.chat, session, name, chat, user)
-
-    elif chat.full_sticker_set:
+    if chat.full_sticker_set:
         # Try to tag the sticker. Return early if it didn't work.
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat=chat)
@@ -80,7 +75,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         chat.current_sticker = sticker
 
         # Change the inline keyboard to allow fast fixing of the sticker's tags
-        edit_again_data = f'{CallbackType["edit_sticker"].value}:{sticker.file_id}:0'
+        edit_again_data = f'{CallbackType["tag_set"].value}:{set_name}:0'
         buttons = [[InlineKeyboardButton(
             text="Tag this sticker set.", callback_data=edit_again_data)]]
         call_tg_func(update.message.chat, 'send_message',
