@@ -9,6 +9,7 @@ from stickerfinder.helper.tag import (
     handle_next,
     tag_sticker,
     initialize_set_tagging,
+    current_sticker_tags_message,
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
@@ -68,19 +69,25 @@ def handle_private_sticker(bot, update, session, chat, user):
     if chat.expecting_sticker_set:
         return initialize_set_tagging(bot, update.message.chat, session, set_name, chat, user)
 
+    # Notify if they are still in a tagging process
+    elif chat.full_sticker_set or chat.tagging_random_sticker:
+        call_tg_func(update.message.chat, 'send_message',
+                     args=[f'You are still tagging a set or random stickers. Please /cancel first.'])
+
     # Set the send sticker to the current sticker for tagging or vote_ban.
     # But don't do it if we currently are in a tagging process.
     elif not chat.full_sticker_set and not chat.tagging_random_sticker:
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
 
+        sticker_tags_message = current_sticker_tags_message(sticker)
         # Change the inline keyboard to allow fast fixing of the sticker's tags
         edit_again_data = f'{CallbackType["tag_set"].value}:{set_name}:0'
         buttons = [[InlineKeyboardButton(
             text="Tag this sticker set.", callback_data=edit_again_data)]]
         call_tg_func(update.message.chat, 'send_message',
-                     ["I already know this sticker set"],
-                     {'reply_markup': InlineKeyboardMarkup(buttons)})
+                     [f'I already know this sticker set. Tag this specific sticker with: \n `/tag tag1 tag2` \n {sticker_tags_message}'],
+                     {'reply_markup': InlineKeyboardMarkup(buttons), 'parse_mode': 'Markdown'})
 
     return
 

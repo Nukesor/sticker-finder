@@ -24,11 +24,11 @@ def current_sticker_tags_message(sticker):
     if len(sticker.tags) == 0 and sticker.text is None:
         return None
     elif len(sticker.tags) > 0 and sticker.text is None:
-        return f"""Current tags: \n {sticker.tags_as_text()}"""
+        return f"""Current tags are: \n {sticker.tags_as_text()}"""
     elif len(sticker.tags) == 0 and sticker.text is not None:
-        return f"""Current text: \n {sticker.text}"""
+        return f"""Current text is: \n {sticker.text}"""
     else:
-        return f"""Current tags and text: \n {sticker.tags_as_text()} \n {sticker.text}"""
+        return f"""Current tags and text are : \n {sticker.tags_as_text()} \n {sticker.text}"""
 
 
 def send_tag_messages(chat, tg_chat):
