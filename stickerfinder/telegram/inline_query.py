@@ -105,6 +105,7 @@ def find_stickers(bot, update, session, user):
         .limit(1000) \
         .all()
 
+
     # Now add all found sticker together and deduplicate without killing the order.
     matching_stickers = []
     sticker_exists = set()

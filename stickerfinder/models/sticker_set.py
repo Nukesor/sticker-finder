@@ -39,7 +39,7 @@ class StickerSet(base):
 
     def __init__(self, name, stickers):
         """Create a new StickerSet instance."""
-        self.name = name
+        self.name = name.lower()
         self.stickers = []
 
     def refresh_stickers(self, session, bot, refresh_ocr=False, chat=None):
@@ -92,7 +92,7 @@ class StickerSet(base):
             stickers.append(sticker)
             session.commit()
 
-        self.title = tg_sticker_set.title
+        self.title = tg_sticker_set.title.lower()
         self.stickers = stickers
         self.complete = True
         session.commit()
