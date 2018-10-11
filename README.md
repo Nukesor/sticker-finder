@@ -1,4 +1,4 @@
-# Stickerfinder ([@StickerDiscoveryBot](https://t.me/StickerDiscoveryBot) or [@std_bot](https://t.me/std_bot) )
+# Stickerfinder ([@StickerFinderBot](https://t.me/stfi_bot) or [@StickerDiscoveryBot](https://t.me/std_bot) )
 
 Did you ever want to find your favorite stickers via text search, discover new stickers and to tag stickers for better discoverability?
 Let me introduce you to **Stickerfinder**.
@@ -11,15 +11,12 @@ I even perform a basic text recognition on all stickers to allow a nice sticker 
 
 In case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
 
-And yes, I know that `std` also stands for sexually transmitted diseases, but there are very few short bot names left and I couldn't be picky.
-That's why there are two bot users ;). Choose whichever you want since they are practically the same bot.
-
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Feel free to host your own or to use mine on telegram: [@StickerDiscoveryBot](https://t.me/StickerDiscoveryBot) or [@std_bot](https://t.me/std_bot)
+Feel free to host your own or to use mine on telegram: [@StickerFinderBot](https://t.me/stfi_bot) or [@StickerDiscoveryBot](https://t.me/std_bot)
 
 ## Features:
 
