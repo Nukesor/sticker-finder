@@ -45,7 +45,7 @@ It would be awesome if you could also add the text in the sticker :).
 
 
 reward_messages = {
-    27: '🎉🎉🎉 Nice! 🎉🎉🎉 \n You just tagged your 10th sticker!',
+    10: '🎉🎉🎉 Nice! 🎉🎉🎉 \n You just tagged your 10th sticker!',
     25: "25 Stickers. \n You're getting faster!",
     50: '50 Stickers. \n Way to go!',
     100: '🎉🎉🎉 100 Stickers...🎉🎉🎉 \n Wow!',
