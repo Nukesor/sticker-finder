@@ -11,6 +11,7 @@ from sqlalchemy.orm import relationship
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from stickerfinder.db import base
+from stickerfinder.sentry import sentry
 from stickerfinder.models import chat_sticker_set, Sticker, Task
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.image import preprocess_image
@@ -47,6 +48,7 @@ class StickerSet(base):
         """Refresh stickers and set data from telegram."""
         # Get sticker set from telegram and create new a Sticker for each sticker
         stickers = []
+        logger = logging.getLogger()
         tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
 
         for tg_sticker in tg_sticker_set.stickers:
@@ -74,11 +76,9 @@ class StickerSet(base):
                         text = None
 
                 except telegram.error.TimedOut:
-                    logger = logging.getLogger()
                     logger.info(f'Finally failed on file {tg_sticker.file_id}')
                     pass
                 except telegram.error.BadRequest:
-                    logger = logging.getLogger()
                     logger.info(f'Failed to get image of f{tg_sticker.file_id}')
                     pass
 
@@ -99,14 +99,20 @@ class StickerSet(base):
         self.complete = True
         session.commit()
 
-        if chat and chat.type == 'private':
-            tag_set_data = f'{CallbackType["tag_set"].value}:{self.name}:0'
-            buttons = [[
-                InlineKeyboardButton(text='Tag this set', callback_data=tag_set_data)]]
-            call_tg_func(bot, 'send_message',
-                         [chat.id, f'Stickerset {self.name} has been added.'],
-                         kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
-            return
+        try:
+            if chat and chat.type == 'private':
+                tag_set_data = f'{CallbackType["tag_set"].value}:{self.name}:0'
+                buttons = [[
+                    InlineKeyboardButton(text='Tag this set', callback_data=tag_set_data)]]
+                call_tg_func(bot, 'send_message',
+                             [chat.id, f'Stickerset {self.name} has been added.'],
+                             kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+                return
+        except telegram.error.BadRequest:
+            message = "Couldn't send success message to user."
+            logger.info(message)
+            sentry.captureMessage(message, level='info')
+            pass
 
     @staticmethod
     def get_or_create(session, name, chat, user):

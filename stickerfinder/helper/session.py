@@ -70,7 +70,7 @@ def session_wrapper(
                         extra={
                             'user': user.id if user else None,
                             'user_name': user.username if user else None,
-                            'chat_id': update.message.chat.id if update.message else None,
+                            'chat_id': update.message.chat.id if hasattr(update, 'message') else None,
                         })
                 else:
                     traceback.print_exc()

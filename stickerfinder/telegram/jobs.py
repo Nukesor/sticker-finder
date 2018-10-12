@@ -73,6 +73,7 @@ def newsfeed(bot, job, session, user):
         new_set.newsfeed_sent = True
         session.commit()
 
+        # Error handling in case a user stops the bot after adding a sticker.
         # Query newsfeed chats again. Something has changed.
         if requery_chats:
             chats = session.query(Chat) \

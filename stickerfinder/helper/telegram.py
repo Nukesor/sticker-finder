@@ -26,21 +26,23 @@ def call_tg_func(tg_object: object, function_name: str,
 
         except telegram.error.BadRequest as e:
             if e.message == 'Chat not found':
-                if tries == 0:
+                if _try == 0:
                     sentry.captureMessage('First try: Chat not found.', level='info')
-                elif tries == 1:
+                elif _try == 1:
                     sentry.captureMessage('Second try: Chat not found.', level='info')
-                elif tries == 2:
+                elif _try == 2:
                     sentry.captureMessage('Third try: Chat not found.', level='info')
-                elif tries == 3:
+                elif _try == 3:
                     sentry.captureMessage('Forth try: Chat not found.', level='info')
-                elif tries == 4:
+                elif _try == 4:
                     sentry.captureMessage('Fifth try: Chat not found.', level='info')
                 time.sleep(1)
             else:
                 raise e
+
+            exception = e
             _try += 1
-        except telegram.error.TimedOut:
+        except telegram.error.TimedOut as e:
             sleep_time = randrange(2, 5)
             logger = logging.getLogger()
             logger.info(f'Hit socket timeout waiting {sleep_time} secs.')
@@ -49,6 +51,8 @@ def call_tg_func(tg_object: object, function_name: str,
 
             time.sleep(sleep_time)
             _try += 1
+
+            exception = e
             pass
 
     raise exception

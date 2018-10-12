@@ -138,7 +138,7 @@ def find_stickers(bot, update, session, user):
     for file_id in matching_stickers[offset:offset+50]:
         result_id = create_result_id(query_uuid, file_id)
         results.append(InlineQueryResultCachedSticker(
-            query_uuid, sticker_file_id=file_id))
+            uuid4(), sticker_file_id=file_id))
 
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
     if len(results) >= 50:
