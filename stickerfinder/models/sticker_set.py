@@ -3,6 +3,7 @@ import io
 import re
 import logging
 import telegram
+from psycopg2 import IntegrityError
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy import Column, String, DateTime, func, Boolean
@@ -118,6 +119,13 @@ class StickerSet(base):
             task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat, user=user)
             session.add(sticker_set)
             session.add(task)
-            session.commit()
+            # Error handling: Retry in case somebody sent to stickers at the same time
+            try:
+                session.commit()
+            except IntegrityError as e:
+                session.rollback()
+                sticker_set = session.query(StickerSet).get(name)
+                if sticker_set is None:
+                    raise e
 
         return sticker_set

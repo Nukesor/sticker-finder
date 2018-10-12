@@ -5,6 +5,8 @@ import telegram
 from raven import breadcrumbs
 from random import randrange
 
+from stickerfinder.sentry import sentry
+
 
 def call_tg_func(tg_object: object, function_name: str,
                  args: list = None, kwargs: dict = None):
@@ -21,6 +23,14 @@ def call_tg_func(tg_object: object, function_name: str,
             kwargs = kwargs if kwargs else {}
             retrieved_object = getattr(tg_object, function_name)(*args, **kwargs)
             return retrieved_object
+
+        except telegram.error.BadRequest as e:
+            if e.message == 'Chat not found':
+                sentry.captureMessage('Chat not found', level='info')
+                time.sleep(1)
+                pass
+            else:
+                raise e
         except telegram.error.TimedOut:
             sleep_time = randrange(2, 5)
             logger = logging.getLogger()
