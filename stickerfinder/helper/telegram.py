@@ -17,7 +17,7 @@ def call_tg_func(tg_object: object, function_name: str,
     _try = 0
     tries = 5
     exception = None
-    while _try <= tries:
+    while _try < tries:
         try:
             args = args if args else []
             kwargs = kwargs if kwargs else {}
@@ -26,11 +26,20 @@ def call_tg_func(tg_object: object, function_name: str,
 
         except telegram.error.BadRequest as e:
             if e.message == 'Chat not found':
-                sentry.captureMessage('Chat not found', level='info')
+                if tries == 0:
+                    sentry.captureMessage('First try: Chat not found.', level='info')
+                elif tries == 1:
+                    sentry.captureMessage('Second try: Chat not found.', level='info')
+                elif tries == 2:
+                    sentry.captureMessage('Third try: Chat not found.', level='info')
+                elif tries == 3:
+                    sentry.captureMessage('Forth try: Chat not found.', level='info')
+                elif tries == 4:
+                    sentry.captureMessage('Fifth try: Chat not found.', level='info')
                 time.sleep(1)
-                pass
             else:
                 raise e
+            _try += 1
         except telegram.error.TimedOut:
             sleep_time = randrange(2, 5)
             logger = logging.getLogger()
