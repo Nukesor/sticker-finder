@@ -121,6 +121,7 @@ def maintenance_tasks(bot, job, session, user):
             Task.id.is_(None),
         )) \
         .filter(Change.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL)) \
+        .filter(Task.type == Task.USER_REVERT) \
         .group_by(User) \
         .having(change_count >= config.USER_CHECK_COUNT) \
         .having(task_count == 0) \
