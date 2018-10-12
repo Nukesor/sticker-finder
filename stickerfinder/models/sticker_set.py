@@ -3,7 +3,7 @@ import io
 import re
 import logging
 import telegram
-from sqlalchemy.ext import IntegrityError
+from sqlalchemy.exc import IntegrityError
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy import Column, String, DateTime, func, Boolean

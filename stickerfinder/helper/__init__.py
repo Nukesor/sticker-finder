@@ -49,7 +49,7 @@ reward_messages = {
     25: "25 Stickers. \n You're getting faster!",
     50: '50 Stickers. \n Way to go!',
     100: '🎉🎉🎉 100 Stickers...🎉🎉🎉 \n Wow!',
-    200: "250 Stickers! \n I think you can manage 1000, can you?",
+    250: "250 Stickers! \n I think you can manage 1000, can you?",
     500: '500 Stickers! \n Halfway there!',
     1000: "🎉🎉🎉 1000 Stickers!!!!! 🎉🎉🎉 \n Get a life :D!",
     2000: "2000 Stickers.. \n It stops being funny",
