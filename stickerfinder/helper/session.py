@@ -64,7 +64,7 @@ def session_wrapper(
 
                 session.commit()
             except telegram.error.BadRequest as e:
-                if e.message == 'Chat not found':
+                if e.message == 'chat not found':
                     sentry.captureMessage(
                         f'Chat not found', level='info', stack=True,
                         extra={

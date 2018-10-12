@@ -3,7 +3,7 @@ import io
 import re
 import logging
 import telegram
-from psycopg2 import IntegrityError
+from sqlalchemy.ext import IntegrityError
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy import Column, String, DateTime, func, Boolean
@@ -112,7 +112,6 @@ class StickerSet(base):
             message = "Couldn't send success message to user."
             logger.info(message)
             sentry.captureMessage(message, level='info')
-            pass
 
     @staticmethod
     def get_or_create(session, name, chat, user):
