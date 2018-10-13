@@ -155,17 +155,7 @@ def start_tasks(bot, update, session, chat, user):
 @session_wrapper(admin_only=True)
 def tag_cleanup(bot, update, session, chat, user):
     """Triggering a one time conversion from text changes to tags."""
-    from stickerfinder.models import Change
-    from stickerfinder.helper.tag import tag_sticker
     from stickerfinder.helper import blacklist
-    changes = session.query(Change) \
-        .filter(Change.new_text.isnot(None)) \
-        .filter(Change.new_text != Change.old_text) \
-        .all()
-
-    for change in changes:
-        tag_sticker(session, change.new_text, change.sticker,
-                    user, update.message.chat, keep_old=True)
 
     all_tags = session.query(Tag).all()
     count = 0

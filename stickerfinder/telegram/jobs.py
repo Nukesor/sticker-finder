@@ -3,7 +3,7 @@ import telegram
 import traceback
 from datetime import datetime
 from telegram.ext import run_async
-from sqlalchemy import func, or_
+from sqlalchemy import func, and_
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from stickerfinder.config import config
@@ -112,27 +112,25 @@ def maintenance_tasks(bot, job, session, user):
 
     # Get all users which tagged more than 100 sticker in the last 24 hours.
     change_count = func.count(Change.id).label('change_count')
-    task_count = func.count(Task.id).label('task_count')
-    user_check_candidates = session.query(User, change_count, task_count) \
+    user_check_candidates = session.query(User, change_count) \
         .join(User.changes) \
-        .outerjoin(User.tasks) \
-        .filter(or_(
-            Task.created_at < (datetime.now() - config.USER_CHECK_RECHECK_INTERVAL),
-            Task.id.is_(None),
+        .outerjoin(Task, and_(
+            Task.user_id == User.id,
+            Task.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL),
+            Task.type != Task.USER_REVERT,
         )) \
+        .filter(Task.id.is_(None)) \
         .filter(Change.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL)) \
-        .filter(Task.type == Task.USER_REVERT) \
         .group_by(User) \
         .having(change_count >= config.USER_CHECK_COUNT) \
-        .having(task_count == 0) \
         .all()
 
-    for (user, _, _) in user_check_candidates:
+    for (user, _) in user_check_candidates:
         task = Task(Task.USER_REVERT, user=user)
         tasks.append(task)
         session.add(task)
 
-    if len(tasks) > 0:
+    if len(tasks) == 0:
         return
 
     session.commit()

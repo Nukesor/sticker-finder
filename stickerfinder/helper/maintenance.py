@@ -54,11 +54,6 @@ def process_task(session, tg_chat, chat, job=False):
             elif change.old_tags:
                 text.append(f'Changed tags from {change.old_tags} to None')
 
-            if change.new_text:
-                text.append(change.new_text)
-            elif change.old_text:
-                text.append(f'Changed text from {change.old_tags} to None')
-
         callback_type = CallbackType['task_user_revert'].value
         # Set task callback data
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
