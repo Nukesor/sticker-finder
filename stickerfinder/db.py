@@ -7,7 +7,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 engine = create_engine(config.SQL_URI,
                        pool_size=config.CONNECTION_COUNT,
-                       max_overflow=config.OVERFLOW_COUNT)
+                       max_overflow=config.OVERFLOW_COUNT,
+                       echo=False)
 base = declarative_base(bind=engine)
 
 
