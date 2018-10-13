@@ -125,9 +125,11 @@ class StickerSet(base):
             session.add(sticker_set)
             session.add(task)
             # Error handling: Retry in case somebody sent to stickers at the same time
+            # TODO: Find out why Integrity error doesn't catch
             try:
                 session.commit()
-            except IntegrityError as e:
+            # except IntegrityError as e:
+            except BaseException as e:
                 session.rollback()
                 sticker_set = session.query(StickerSet).get(name)
                 if sticker_set is None:
