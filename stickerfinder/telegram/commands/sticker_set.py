@@ -58,9 +58,16 @@ def random_set(bot, update, session, chat, user):
 @session_wrapper(check_ban=True)
 def add_sets(bot, update, session, chat, user):
     """Get random sticker_set."""
-    text = update.message.text[4:]
+    text = update.message.text[9:]
 
+    count = 0
     names = text.split('\n')
     for name in names:
         set_name = name.strip()
-        StickerSet.get_or_create(session, set_name, chat, user)
+        try:
+            StickerSet.get_or_create(session, set_name, chat, user)
+            count += 1
+        except BaseException:
+            pass
+
+    return 'Added {len(count)} stickers.'
