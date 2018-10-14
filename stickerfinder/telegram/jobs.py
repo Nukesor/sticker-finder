@@ -116,11 +116,11 @@ def maintenance_tasks(bot, job, session, user):
         .join(User.changes) \
         .outerjoin(Task, and_(
             Task.user_id == User.id,
-            Task.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL),
+            Task.created_at >= (datetime.now() - config.USER_CHECK_RECHECK_INTERVAL),
             Task.type != Task.USER_REVERT,
         )) \
         .filter(Task.id.is_(None)) \
-        .filter(Change.created_at <= (datetime.now() - config.USER_CHECK_INTERVAL)) \
+        .filter(Change.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL)) \
         .group_by(User) \
         .having(change_count >= config.USER_CHECK_COUNT) \
         .all()
