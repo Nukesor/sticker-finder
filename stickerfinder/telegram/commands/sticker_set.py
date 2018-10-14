@@ -53,3 +53,14 @@ def random_set(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_sticker',
                      args=[sticker_set.stickers[0].file_id],
                      kwargs={'reply_markup': main_keyboard})
+
+
+@session_wrapper(check_ban=True)
+def add_sets(bot, update, session, chat, user):
+    """Get random sticker_set."""
+    text = update.message.text[4:]
+
+    names = text.split('\n')
+    for name in names:
+        set_name = name.strip()
+        StickerSet.get_or_create(session, set_name, chat, user)
