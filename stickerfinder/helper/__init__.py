@@ -18,6 +18,7 @@ To tag a whole set just send me a sticker from the set you want to tag.
 
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
+If there already are tags on a sticker, you'll overwrite all existing stickers.
 
 <b>Getting Banned:</b>
 If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
