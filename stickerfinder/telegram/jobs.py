@@ -117,7 +117,7 @@ def maintenance_tasks(bot, job, session, user):
         .outerjoin(Task, and_(
             Task.user_id == User.id,
             Task.created_at >= (datetime.now() - config.USER_CHECK_RECHECK_INTERVAL),
-            Task.type != Task.USER_REVERT,
+            Task.type == Task.USER_REVERT,
         )) \
         .filter(Task.id.is_(None)) \
         .filter(Change.created_at >= (datetime.now() - config.USER_CHECK_INTERVAL)) \
