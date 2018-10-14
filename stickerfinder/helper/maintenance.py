@@ -47,7 +47,7 @@ def process_task(session, tg_chat, chat, job=False):
             .all()
 
         # Compile task text
-        text = [f'User {task.user.username} ({task.user.id})']
+        text = [f'User {task.user.username} ({task.user.id}) tagged {len(changes)} sticker']
         text.append(f'Detected at {task.created_at}: \n')
         for change in changes:
             if change.new_tags:
