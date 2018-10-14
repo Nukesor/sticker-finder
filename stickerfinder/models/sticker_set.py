@@ -3,9 +3,9 @@ import io
 import re
 import logging
 import telegram
-from sqlalchemy.exc import IntegrityError
 from PIL import Image
 from pytesseract import image_to_string
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, String, DateTime, func, Boolean
 from sqlalchemy.orm import relationship
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton
@@ -41,7 +41,7 @@ class StickerSet(base):
 
     def __init__(self, name, stickers):
         """Create a new StickerSet instance."""
-        self.name = name.lower()
+        self.name = name
         self.stickers = []
 
     def refresh_stickers(self, session, bot, refresh_ocr=False, chat=None):
@@ -94,6 +94,8 @@ class StickerSet(base):
             stickers.append(sticker)
             session.commit()
 
+        self.name = tg_sticker_set.name
+
         self.title = tg_sticker_set.title.lower()
         self.stickers = stickers
         self.complete = True
@@ -125,11 +127,9 @@ class StickerSet(base):
             session.add(sticker_set)
             session.add(task)
             # Error handling: Retry in case somebody sent to stickers at the same time
-            # TODO: Find out why Integrity error doesn't catch
             try:
                 session.commit()
-            # except IntegrityError as e:
-            except BaseException as e:
+            except IntegrityError as e:
                 session.rollback()
                 sticker_set = session.query(StickerSet).get(name)
                 if sticker_set is None:

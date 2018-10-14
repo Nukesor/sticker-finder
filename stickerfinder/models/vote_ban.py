@@ -23,7 +23,7 @@ class VoteBan(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
-    sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
+    sticker_set_name = Column(String, ForeignKey('sticker_set.name', onupdate='cascade'), index=True)
 
     user = relationship("User")
     sticker_set = relationship("StickerSet")

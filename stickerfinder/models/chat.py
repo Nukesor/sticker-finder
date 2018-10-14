@@ -56,7 +56,7 @@ class Chat(base):
     # ForeignKeys
     current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id'), index=True)
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
-    current_sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
+    current_sticker_set_name = Column(String, ForeignKey('sticker_set.name', onupdate='cascade'), index=True)
 
     # Relationships
     current_task = relationship("Task", foreign_keys='Chat.current_task_id')

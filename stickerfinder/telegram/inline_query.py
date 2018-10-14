@@ -67,7 +67,7 @@ def find_stickers(bot, update, session, user):
     # Compiled conditions
     set_conditions = []
     for tag in tags:
-        set_conditions.append(StickerSet.name.like(f'%{tag}%'))
+        set_conditions.append(StickerSet.name.ilike(f'%{tag}%'))
         set_conditions.append(StickerSet.title.like(f'%{tag}%'))
 
     text_conditions = []

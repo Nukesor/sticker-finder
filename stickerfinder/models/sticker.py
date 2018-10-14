@@ -40,7 +40,7 @@ class Sticker(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
-    sticker_set_name = Column(String, ForeignKey('sticker_set.name'), index=True)
+    sticker_set_name = Column(String, ForeignKey('sticker_set.name', onupdate='cascade'), index=True)
     sticker_set = relationship("StickerSet", back_populates="stickers")
 
     changes = relationship("Change", order_by="desc(Change.created_at)")
