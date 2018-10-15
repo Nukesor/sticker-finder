@@ -18,6 +18,8 @@ To tag a whole set just send me a sticker from the set you want to tag.
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 If there already are tags on a sticker, you'll overwrite all existing stickers.
+<b>Please</b> tag in English, unless the sticker is specifically in another language.
+If you want tagged stickers in a different language, <b>please host your own bot</b>. I can give you a DB dump.
 
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>

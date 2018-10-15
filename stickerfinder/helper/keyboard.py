@@ -34,10 +34,10 @@ def get_nsfw_ban_keyboard(sticker_set):
 
     if sticker_set.banned:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
-        ban_text = 'Ban this set'
+        ban_text = 'Unban'
     else:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
-        ban_text = 'Unban'
+        ban_text = 'Ban this set'
 
     buttons = [[
         InlineKeyboardButton(text=ban_text, callback_data=ban_data),
