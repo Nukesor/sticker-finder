@@ -19,16 +19,20 @@ To tag a whole set just send me a sticker from the set you want to tag.
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 If there already are tags on a sticker, you'll overwrite all existing stickers.
 
-<b>Getting Banned:</b>
-If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
-When you're banned, you can't use the inline search any longer and all of your changes will be reverted.
-
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
 This is great for ad hoc tagging of single stickers in group chats, but I need to be in this chat for this to work.
 
 <b>Want to help?</b>
 Tag some stickers :)! Just type /tag_random in a direct conversation with me.
+
+<b>NSFW & Sticker Ban:</b>
+I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with nsfw and can only be found when using the nsfw tag.
+In case I miss any, you can use the `/vote_ban` command to make me look at it again (Use it for both nsfw and ban).
+
+<b>User Ban:</b>
+If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
+When you're banned, you can't use the inline search any longer and all of your changes will be reverted.
 
 <b>Candy:</b>
 I also try to detect text in stickers, but this turns out to be quite ambitious.

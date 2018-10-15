@@ -74,6 +74,11 @@ def find_stickers(bot, update, session, user):
     for tag in tags:
         text_conditions.append(Sticker.text.like(f'%{tag}%'))
 
+    # Handle nsfw tag
+    nsfw = False
+    if 'nsfw' in tags:
+        nsfw = True
+
     # At first we check for results, where at least one tag directly matches
     tagged_stickers = session.query(Sticker.file_id,
                                     tag_subq.c.tag_count,
@@ -81,6 +86,7 @@ def find_stickers(bot, update, session, user):
         .join(tag_subq, tag_subq.c.sticker_file_id == Sticker.file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.nsfw.is_(nsfw)) \
         .group_by(Sticker.file_id, tag_subq.c.tag_count)
 
     # Search for matching stickers by text
@@ -89,6 +95,7 @@ def find_stickers(bot, update, session, user):
                                   literal_column("1").label("group")) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(Sticker.text.like(f'%{query}%')) \
 
     # Search for stickersets where any tag matches the title or name
@@ -97,6 +104,7 @@ def find_stickers(bot, update, session, user):
                                       literal_column("2").label("group")) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(or_(*set_conditions)) \
 
     found_stickers = tagged_stickers \
@@ -104,7 +112,6 @@ def find_stickers(bot, update, session, user):
         .order_by("group", tag_count.desc()) \
         .limit(1000) \
         .all()
-
 
     # Now add all found sticker together and deduplicate without killing the order.
     matching_stickers = []
