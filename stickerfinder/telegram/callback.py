@@ -47,10 +47,25 @@ def handle_callback_query(bot, update, session, user):
             call_tg_func(query, 'answer', args=['Set banned'])
         else:
             task.sticker_set.banned = False
-            call_tg_func(query, 'answer', args=['Set not banned'])
+            call_tg_func(query, 'answer', args=['Set unbanned'])
 
-        task.reviewed = True
-        process_task(session, tg_chat, chat)
+        if not task.reviewed:
+            task.reviewed = True
+            process_task(session, tg_chat, chat)
+
+    # Handle task vote ban callbacks
+    if CallbackType(callback_type).name == 'task_vote_nsfw':
+        task = session.query(Task).get(payload)
+        if CallbackResult(action).name == 'ban':
+            task.sticker_set.nsfw = True
+            call_tg_func(query, 'answer', args=['Set tagged as nsfw'])
+        else:
+            task.sticker_set.nsfw = False
+            call_tg_func(query, 'answer', args=['Set no longer tagged as nsfw'])
+
+        if not task.reviewed:
+            task.reviewed = True
+            process_task(session, tg_chat, chat)
 
     # Handle task user ban callbacks
     elif CallbackType(callback_type).name == 'task_user_revert':
@@ -60,8 +75,9 @@ def handle_callback_query(bot, update, session, user):
             call_tg_func(query, 'answer', args=['User banned and changes reverted'])
             revert_user_changes(session, task.user)
 
-        task.reviewed = True
-        process_task(session, tg_chat, chat)
+        if not task.reviewed:
+            task.reviewed = True
+            process_task(session, tg_chat, chat)
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'ban_set':

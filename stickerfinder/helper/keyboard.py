@@ -49,17 +49,27 @@ def get_nsfw_ban_keyboard(sticker_set):
 
 def get_vote_ban_keyboard(task):
     """Get keyboard for the vote ban task."""
-    callback_type = CallbackType['task_vote_ban'].value
+    ban_type = CallbackType['task_vote_ban'].value
+    nsfw_type = CallbackType['task_vote_nsfw'].value
     # Set task callback data
     if task.sticker_set.banned:
-        data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
-        text = 'Unban set'
+        ban_data_ok = f'{ban_type}:{task.id}:{CallbackResult["ok"].value}'
+        ban_text_ok = 'Unban set'
     else:
-        data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
-        text = 'Ban set'
-    buttons = [[
-        InlineKeyboardButton(text=text, callback_data=data),
-    ]]
+        ban_data_ban = f'{ban_type}:{task.id}:{CallbackResult["ban"].value}'
+        ban_text_ban = 'Ban set'
+
+    if task.sticker_set.nsfw:
+        nsfw_data_ok = f'{nsfw_type}:{task.id}:{CallbackResult["ok"].value}'
+        nsfw_text_ok = 'Unban set'
+    else:
+        nsfw_data_ban = f'{nsfw_type}:{task.id}:{CallbackResult["ban"].value}'
+        nsfw_text_ban = 'Ban set'
+
+    buttons = [[InlineKeyboardButton(text=ban_text_ok, callback_data=ban_data_ok),
+                InlineKeyboardButton(text=ban_text_ban, callback_data=ban_data_ban)],
+               [InlineKeyboardButton(text=nsfw_text_ok, callback_data=nsfw_data_ok),
+                InlineKeyboardButton(text=nsfw_text_ban, callback_data=nsfw_data_ban)]]
 
     return InlineKeyboardMarkup(buttons)
 
