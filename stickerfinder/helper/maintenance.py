@@ -1,12 +1,14 @@
 """Helper functions for maintenance."""
 from sqlalchemy.orm import joinedload
-from datetime import datetime, timedelta
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from datetime import timedelta
 
-from stickerfinder.helper import admin_keyboard
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.keyboard import (
+    admin_keyboard,
+    get_user_revert_keyboard,
+    get_vote_ban_keyboard,
+)
 from stickerfinder.models import (
     Change,
     Task,
@@ -55,15 +57,7 @@ def process_task(session, tg_chat, chat, job=False):
             elif change.old_tags:
                 text.append(f'Changed tags from {change.old_tags} to None')
 
-        callback_type = CallbackType['task_user_revert'].value
-        # Set task callback data
-        ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
-        revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
-        buttons = [[
-            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
-            InlineKeyboardButton(
-                text='Revert changes and Ban user', callback_data=revert_data),
-        ]]
+        keyboard = get_user_revert_keyboard(task)
 
     elif task.type == Task.VOTE_BAN:
         # Compile task text
@@ -71,14 +65,7 @@ def process_task(session, tg_chat, chat, job=False):
         for ban in task.sticker_set.vote_bans:
             text.append(ban.reason)
 
-        callback_type = CallbackType['task_vote_ban'].value
-        # Set task callback data
-        ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
-        ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
-        buttons = [[
-            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
-            InlineKeyboardButton(text='Ban set', callback_data=ban_data),
-        ]]
+        keyboard = get_vote_ban_keyboard(task)
 
         # Send first sticker of the set
         call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
@@ -93,7 +80,7 @@ def process_task(session, tg_chat, chat, job=False):
         # Last chunk. Send the text and the inline keyboard
         else:
             call_tg_func(tg_chat, 'send_message', args=[chunk],
-                         kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+                         kwargs={'reply_markup': keyboard})
 
     return True
 

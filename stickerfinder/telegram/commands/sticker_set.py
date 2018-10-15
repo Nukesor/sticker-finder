@@ -1,7 +1,7 @@
 """Sticker set related commands."""
 from sqlalchemy.sql.expression import func
 
-from stickerfinder.helper import main_keyboard
+from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import VoteBan, StickerSet, Sticker

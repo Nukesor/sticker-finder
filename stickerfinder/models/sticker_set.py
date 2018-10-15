@@ -8,14 +8,13 @@ from pytesseract import image_to_string
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, String, DateTime, func, Boolean
 from sqlalchemy.orm import relationship
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from stickerfinder.db import base
 from stickerfinder.sentry import sentry
 from stickerfinder.models import chat_sticker_set, Sticker, Task
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.image import preprocess_image
-from stickerfinder.helper.callback import CallbackType
+from stickerfinder.helper.keyboard import get_tag_this_set_keyboard
 
 
 class StickerSet(base):
@@ -26,6 +25,7 @@ class StickerSet(base):
     name = Column(String, primary_key=True)
     title = Column(String)
     banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    nsfw = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, server_default='FALSE', default=False, nullable=False)
@@ -103,12 +103,10 @@ class StickerSet(base):
 
         try:
             if chat and chat.type == 'private':
-                tag_set_data = f'{CallbackType["tag_set"].value}:{self.name}:0'
-                buttons = [[
-                    InlineKeyboardButton(text='Tag this set', callback_data=tag_set_data)]]
+                keyboard = get_tag_this_set_keyboard(self.name)
                 call_tg_func(bot, 'send_message',
                              [chat.id, f'Stickerset {self.name} has been added.'],
-                             kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+                             kwargs={'reply_markup': keyboard})
                 return
         except telegram.error.BadRequest:
             message = "Couldn't send success message to user."

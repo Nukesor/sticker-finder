@@ -1,5 +1,5 @@
 """User management related commands."""
-from stickerfinder.helper import main_keyboard, admin_keyboard
+from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import User

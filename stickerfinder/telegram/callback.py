@@ -1,11 +1,15 @@
 """Callback query handling."""
 from telegram.ext import run_async
 
-from stickerfinder.helper import main_keyboard
+from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import process_task, revert_user_changes
+from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
+from stickerfinder.helper.maintenance import (
+    process_task,
+    revert_user_changes,
+)
 from stickerfinder.helper.tag import (
     handle_next,
     send_tag_messages,
@@ -66,6 +70,21 @@ def handle_callback_query(bot, update, session, user):
             sticker_set.banned = True
         elif CallbackResult(action).name == 'ok':
             sticker_set.banned = False
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
+
+    elif CallbackType(callback_type).name == 'nsfw_set':
+        sticker_set = session.query(StickerSet).get(payload)
+        if CallbackResult(action).name == 'ban':
+            sticker_set.nsfw = True
+        elif CallbackResult(action).name == 'ok':
+            sticker_set.nsfw = False
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':

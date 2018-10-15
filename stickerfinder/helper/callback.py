@@ -13,6 +13,7 @@ class CallbackType(Enum):
     task_vote_ban = 2
     task_user_revert = 3
     ban_set = 4
+    nsfw_set = 5
 
     next = 10
     cancel = 11

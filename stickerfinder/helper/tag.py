@@ -1,14 +1,16 @@
 """Helper functions for tagging."""
 from sqlalchemy import func
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.callback import CallbackType
+from stickerfinder.helper.keyboard import (
+    main_keyboard,
+    get_tagging_keyboard,
+    get_fix_sticker_tags_keyboard,
+)
 from stickerfinder.helper import (
     tag_text,
     blacklist,
-    main_keyboard,
     reward_messages,
 )
 from stickerfinder.models import (
@@ -33,26 +35,23 @@ def current_sticker_tags_message(sticker):
 
 def send_tag_messages(chat, tg_chat):
     """Send next sticker and the tags of this sticker."""
-    next_data = f'{CallbackType["next"].value}:0:0'
-    cancel_data = f'{CallbackType["cancel"].value}:0:0'
-    buttons = [[
-        InlineKeyboardButton(text='Stop tagging', callback_data=cancel_data),
-        InlineKeyboardButton(text='Skip this sticker', callback_data=next_data),
-    ]]
-
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
     message = current_sticker_tags_message(chat.current_sticker)
+    keyboard = get_tagging_keyboard()
+
     if not message:
-        response = call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id],
-                                kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+        response = call_tg_func(tg_chat, 'send_sticker',
+                                args=[chat.current_sticker.file_id],
+                                kwargs={'reply_markup': keyboard})
+
         chat.last_sticker_message_id = response.message_id
+
     else:
         call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id])
 
     if message:
-        response = call_tg_func(tg_chat, 'send_message', [message],
-                                {'reply_markup': InlineKeyboardMarkup(buttons)})
+        response = call_tg_func(tg_chat, 'send_message', [message], {'reply_markup': keyboard})
         chat.last_sticker_message_id = response.message_id
 
 
@@ -179,12 +178,10 @@ def tag_sticker(session, text, sticker, user,
     session.commit()
     if chat and chat.last_sticker_message_id:
         # Change the inline keyboard to allow fast fixing of the sticker's tags
-        edit_again_data = f'{CallbackType["edit_sticker"].value}:{chat.current_sticker.file_id}:0'
-        buttons = [[InlineKeyboardButton(
-            text="Fix this sticker's tags", callback_data=edit_again_data)]]
+        keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
                      [tg_chat.id, chat.last_sticker_message_id],
-                     {'reply_markup': InlineKeyboardMarkup(buttons)})
+                     {'reply_markup': keyboard})
 
         # Reset last sticker message id
         chat.last_sticker_message_id = None

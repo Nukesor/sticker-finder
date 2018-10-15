@@ -1,5 +1,4 @@
 """Some static stuff or helper functions for sticker finder bot."""
-from telegram import ReplyKeyboardMarkup
 
 
 help_text = f"""<b>Search for stickers:</b>
@@ -59,12 +58,3 @@ reward_messages = {
 
 blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
                  'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])
-
-main_keyboard = ReplyKeyboardMarkup([['/random_set', '/tag_set', '/tag_random']],
-                                    one_time_keyboard=True, resize_keyboard=True)
-
-admin_keyboard = ReplyKeyboardMarkup(
-    [
-        ['/cancel', '/tasks'],
-        ['/stats', '/refresh', '/tag_cleanup'],
-    ], resize_keyboard=True, one_time_keyboard=True)

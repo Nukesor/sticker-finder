@@ -11,7 +11,8 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
-from stickerfinder.helper import help_text, main_keyboard, admin_keyboard
+from stickerfinder.helper import help_text
+from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.telegram.commands import (

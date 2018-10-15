@@ -1,6 +1,4 @@
 """Message handler functions."""
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
-
 from stickerfinder.models import (
     Sticker,
     StickerSet,
@@ -13,7 +11,7 @@ from stickerfinder.helper.tag import (
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.callback import CallbackType
+from stickerfinder.helper.keyboard import get_tag_this_set_keyboard
 
 
 @session_wrapper(check_ban=True)
@@ -81,13 +79,13 @@ def handle_private_sticker(bot, update, session, chat, user):
         chat.current_sticker = sticker
 
         sticker_tags_message = current_sticker_tags_message(sticker)
-        # Change the inline keyboard to allow fast fixing of the sticker's tags
-        edit_again_data = f'{CallbackType["tag_set"].value}:{set_name}:0'
-        buttons = [[InlineKeyboardButton(
-            text="Tag this sticker set.", callback_data=edit_again_data)]]
-        call_tg_func(update.message.chat, 'send_message',
-                     [f'I already know this sticker set. Tag this specific sticker with: \n `/tag tag1 tag2` \n {sticker_tags_message}'],
-                     {'reply_markup': InlineKeyboardMarkup(buttons), 'parse_mode': 'Markdown'})
+        # Send inline keyboard to allow fast tagging of the sticker's set
+        keyboard = get_tag_this_set_keyboard(set_name)
+        call_tg_func(
+            update.message.chat, 'send_message',
+            [f'I already know this sticker set. Tag this specific sticker with: \n `/tag tag1 tag2` \n {sticker_tags_message}'],
+            {'reply_markup': keyboard, 'parse_mode': 'Markdown'},
+        )
 
     return
 

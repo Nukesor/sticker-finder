@@ -4,14 +4,13 @@ import traceback
 from datetime import datetime
 from telegram.ext import run_async
 from sqlalchemy import func, and_
-from telegram import InlineKeyboardMarkup, InlineKeyboardButton
 
 from stickerfinder.config import config
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
+from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
 from stickerfinder.models import (
     Chat,
     Change,
@@ -48,16 +47,10 @@ def newsfeed(bot, job, session, user):
 
         for chat in chats:
             try:
-                callback_type = CallbackType["ban_set"].value
-                ban_data = f'{callback_type}:{new_set.name}:{CallbackResult["ban"].value}'
-                unban_data = f'{callback_type}:{new_set.name}:{CallbackResult["ok"].value}'
-                buttons = [[
-                    InlineKeyboardButton(text='Ban this set', callback_data=ban_data),
-                    InlineKeyboardButton(text='Unban this set', callback_data=unban_data),
-                ]]
+                keyboard = get_nsfw_ban_keyboard(new_set)
                 call_tg_func(bot, 'send_sticker',
                              args=[chat.id, new_set.stickers[0].file_id],
-                             kwargs={'reply_markup': InlineKeyboardMarkup(buttons)})
+                             kwargs={'reply_markup': keyboard})
 
                 message = f'Set {new_set.name} added by user: {new_set.tasks[0].user.username} ({new_set.tasks[0].user.id})'
                 call_tg_func(bot, 'send_message', args=[chat.id, message])

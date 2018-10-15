@@ -3,7 +3,7 @@ from sqlalchemy import func
 from telegram.ext import run_async
 from datetime import datetime, timedelta
 
-from stickerfinder.helper import admin_keyboard
+from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
