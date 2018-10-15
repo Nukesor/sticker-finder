@@ -64,10 +64,12 @@ def add_sets(bot, update, session, chat, user):
     names = text.split('\n')
     for name in names:
         set_name = name.strip()
-        try:
-            StickerSet.get_or_create(session, set_name, chat, user)
-            count += 1
-        except BaseException:
-            pass
+        sticker_set = session.query(StickerSet).get(set_name)
+        if sticker_set is None:
+            try:
+                StickerSet.get_or_create(session, set_name, chat, user)
+                count += 1
+            except BaseException:
+                pass
 
-    return 'Added {len(count)} stickers.'
+    return 'Added {len(count)} new Stickers.'
