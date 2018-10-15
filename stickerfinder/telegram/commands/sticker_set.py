@@ -72,4 +72,4 @@ def add_sets(bot, update, session, chat, user):
             except BaseException:
                 pass
 
-    return f'Added {len(count)} new Stickers.'
+    return f'Added {count} new Stickers.'
