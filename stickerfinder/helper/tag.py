@@ -21,23 +21,29 @@ from stickerfinder.models import (
 )
 
 
-def current_sticker_tags_message(sticker):
+def current_sticker_tags_message(sticker, send_set_info=False):
     """Create a message displaying the current text and tags."""
     if len(sticker.tags) == 0 and sticker.text is None:
         return None
     elif len(sticker.tags) > 0 and sticker.text is None:
-        return f"""Current tags are: \n {sticker.tags_as_text()}"""
+        message = f'Current tags are: \n {sticker.tags_as_text()}'
     elif len(sticker.tags) == 0 and sticker.text is not None:
-        return f"""Current text is: \n {sticker.text}"""
+        message = f'Current text is: \n {sticker.text}'
     else:
-        return f"""Current tags and text are : \n {sticker.tags_as_text()} \n {sticker.text}"""
+        message = f'Current tags and text are : \n {sticker.tags_as_text()} \n {sticker.text}'
+
+    if send_set_info:
+        set_info = f'From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n'
+        return set_info + message
+
+    return message
 
 
-def send_tag_messages(chat, tg_chat):
+def send_tag_messages(chat, tg_chat, send_set_info=False):
     """Send next sticker and the tags of this sticker."""
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
-    message = current_sticker_tags_message(chat.current_sticker)
+    message = current_sticker_tags_message(chat.current_sticker, send_set_info=send_set_info)
     keyboard = get_tagging_keyboard()
 
     if not message:
@@ -79,7 +85,10 @@ def handle_next(session, chat, tg_chat):
     elif chat.tagging_random_sticker:
         sticker = session.query(Sticker) \
             .outerjoin(Sticker.changes) \
+            .join(Sticker.sticker_set) \
             .filter(Change.id.is_(None)) \
+            .filter(StickerSet.banned.is_(False)) \
+            .filter(StickerSet.nsfw.is_(False)) \
             .order_by(func.random()) \
             .limit(1) \
             .one_or_none()
@@ -93,7 +102,7 @@ def handle_next(session, chat, tg_chat):
 
         # Found a sticker. Send the messages
         chat.current_sticker = sticker
-        send_tag_messages(chat, tg_chat)
+        send_tag_messages(chat, tg_chat, send_set_info=True)
 
 
 def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
