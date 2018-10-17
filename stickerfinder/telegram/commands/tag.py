@@ -40,6 +40,6 @@ def tag_random(bot, update, session, chat, user):
 
     chat.cancel()
     chat.tagging_random_sticker = True
-    handle_next(session, chat, update.message.chat, send_set_info=True)
+    handle_next(session, chat, update.message.chat)
 
     return
