@@ -21,12 +21,12 @@ class Change(base):
 
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    reverted = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    reverted = Column(Boolean, server_default='false', default=False, nullable=False)
     old_tags = Column(String)
     new_tags = Column(String)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
-    sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
+    sticker_file_id = Column(String, ForeignKey('sticker.file_id', ondelete='cascade'), index=True)
 
     user = relationship("User")
     sticker = relationship("Sticker")

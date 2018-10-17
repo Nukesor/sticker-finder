@@ -42,21 +42,23 @@ class Chat(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     # Maintenance and chat flags
-    is_ban = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    is_newsfeed = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    is_maintenance = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    is_ban = Column(Boolean, server_default='false', default=False, nullable=False)
+    is_newsfeed = Column(Boolean, server_default='false', default=False, nullable=False)
+    is_maintenance = Column(Boolean, server_default='false', default=False, nullable=False)
 
     # Tagging process related flags and data
-    tagging_random_sticker = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    tagging_random_sticker = Column(Boolean, server_default='false', default=False, nullable=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
     full_sticker_set = Column(Boolean, nullable=False, default=False)
-    fix_single_sticker = Column(Boolean, server_default='FALSE', nullable=False, default=False)
+    fix_single_sticker = Column(Boolean, server_default='false', nullable=False, default=False)
     last_sticker_message_id = Column(BigInteger)
 
     # ForeignKeys
     current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id', ondelete='cascade'), index=True)
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
-    current_sticker_set_name = Column(String, ForeignKey('sticker_set.name', onupdate='cascade'), index=True)
+    current_sticker_set_name = Column(String, ForeignKey('sticker_set.name',
+                                                         onupdate='cascade',
+                                                         ondelete='set null'), index=True)
 
     # Relationships
     current_task = relationship("Task", foreign_keys='Chat.current_task_id')

@@ -32,7 +32,9 @@ class Task(base):
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
     chat_id = Column(BigInteger, ForeignKey('chat.id'), index=True)
-    sticker_set_name = Column(String, ForeignKey('sticker_set.name', onupdate='cascade'), index=True)
+    sticker_set_name = Column(String, ForeignKey('sticker_set.name',
+                                                 onupdate='cascade',
+                                                 ondelete='cascade'), index=True)
 
     user = relationship('User')
     chat = relationship('Chat', foreign_keys='Task.chat_id', back_populates='tasks')

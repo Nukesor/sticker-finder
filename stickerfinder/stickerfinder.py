@@ -32,6 +32,7 @@ from stickerfinder.telegram.commands import (
     refresh_ocr,
     random_set,
     add_sets,
+    delete_set,
 )
 from stickerfinder.telegram.jobs import (
     newsfeed,
@@ -93,6 +94,7 @@ dispatcher.add_handler(CommandHandler('ban', ban_user))
 dispatcher.add_handler(CommandHandler('unban', unban_user))
 dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
 dispatcher.add_handler(CommandHandler('add_sets', add_sets))
+dispatcher.add_handler(CommandHandler('delete_set', delete_set))
 
 # Maintenance Button commands
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))

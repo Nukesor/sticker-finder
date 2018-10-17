@@ -78,3 +78,17 @@ def add_sets(bot, update, session, chat, user):
                 pass
 
     return f'Added {count} new sticker sets.'
+
+
+@session_wrapper(admin_only=True)
+def delete_set(bot, update, session, chat, user):
+    """Delete a specific set."""
+    name = update.message.text[11:].strip().lower()
+
+    sticker_set = session.query(StickerSet).get(name)
+
+    if sticker_set:
+        session.delete(sticker_set)
+        return f'Sticker set {name} deleted'
+
+    return f'No sticker set with name {name}'
