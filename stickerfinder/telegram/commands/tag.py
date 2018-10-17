@@ -43,3 +43,18 @@ def tag_random(bot, update, session, chat, user):
     handle_next(session, chat, update.message.chat)
 
     return
+
+
+@run_async
+@session_wrapper(check_ban=True)
+def skip(bot, update, session, chat, user):
+    """Initialize tagging of a whole set."""
+    if chat.type != 'private':
+        return 'Please tag in direct conversation with me.'
+
+    if chat.tagging_random_sticker or chat.full_sticker_set:
+        handle_next(session, chat, update.message.chat)
+
+        return
+
+    return "Currently not tagging a set or some random stickers"

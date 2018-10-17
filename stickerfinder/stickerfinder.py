@@ -25,6 +25,7 @@ from stickerfinder.telegram.commands import (
     tag_random,
     tag_set,
     tag_cleanup,
+    skip,
     cancel,
     stats,
     refresh_sticker_sets,
@@ -77,6 +78,7 @@ updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
 dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('tag', tag_single))
 dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
+dispatcher.add_handler(CommandHandler('skip', skip))
 
 # Button commands
 dispatcher.add_handler(CommandHandler('start', start))

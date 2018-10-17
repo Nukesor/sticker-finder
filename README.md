@@ -35,6 +35,7 @@ Feel free to host your own or to use mine on telegram: [@StickerFinderBot](https
     /tag_set    Start to tag a whole set
     /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     /random_set Get a random sticker set.
+    /skip       Skip the current sticker
     /vote_ban [reason] Vote to ban the sticker set of the last sticker in the chat.
     /cancel     Cancel all current tag actions
 
@@ -63,6 +64,7 @@ When you are updating from a previous version do a `alembic upgrade head` instea
     tag - Tag the last sticker posted in this chat
     tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     random_set - The bot sends you a random sticker set.
+    skip - Skip the current sticker
     vote_ban - Vote to ban the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
 
