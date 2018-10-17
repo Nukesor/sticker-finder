@@ -94,7 +94,7 @@ class StickerSet(base):
             stickers.append(sticker)
             session.commit()
 
-        self.name = tg_sticker_set.name
+        self.name = tg_sticker_set.name.lower()
 
         self.title = tg_sticker_set.title.lower()
         self.stickers = stickers
@@ -116,6 +116,7 @@ class StickerSet(base):
     @staticmethod
     def get_or_create(session, name, chat, user):
         """Get or create a new sticker set."""
+        name = name.lower()
         sticker_set = session.query(StickerSet).get(name)
         if not sticker_set:
             # Create a task for adding a sticker.

@@ -111,8 +111,8 @@ def get_matching_stickers(session, tags, nsfw, offset):
     set_conditions = []
     for tag in tags:
         set_conditions.append(case([
-            (StickerSet.name.ilike(f'%{tag}%'), 0.75),
-            (StickerSet.title.ilike(f'%{tag}%'), 0.75),
+            (StickerSet.name.like(f'%{tag}%'), 0.75),
+            (StickerSet.title.like(f'%{tag}%'), 0.75),
         ], else_=0))
 
     # Condition for matching sticker text
