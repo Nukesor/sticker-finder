@@ -64,7 +64,12 @@ def add_sets(bot, update, session, chat, user):
     names = text.split('\n')
     for name in names:
         set_name = name.strip()
-        sticker_set = session.query(StickerSet).get(set_name)
+        try:
+            tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[set_name])
+        except BaseException:
+            return f"Couldn't find set {set_name}"
+
+        sticker_set = session.query(StickerSet).get(tg_sticker_set.name)
         if sticker_set is None:
             try:
                 StickerSet.get_or_create(session, set_name, chat, user)
@@ -72,4 +77,4 @@ def add_sets(bot, update, session, chat, user):
             except BaseException:
                 pass
 
-    return f'Added {count} new Stickers.'
+    return f'Added {count} new sticker sets.'
