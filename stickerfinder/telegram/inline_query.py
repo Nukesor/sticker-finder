@@ -57,7 +57,7 @@ def find_stickers(bot, update, session, user):
 
     # Get matching stickers and measure the db query time
     start = datetime.now()
-    matching_stickers = get_matching_stickers(session, tags, nsfw)
+    matching_stickers = get_matching_stickers(session, tags, nsfw, offset)
     end = datetime.now()
 
     duration = end-start
@@ -72,7 +72,7 @@ def find_stickers(bot, update, session, user):
     query_uuid = uuid4()
     # Create a result list of max 50 cached sticker objects
     results = []
-    for file_id in matching_stickers[offset:offset+50]:
+    for file_id in matching_stickers:
         # TODO: Better id for inlinequery results
         # result_id = create_result_id(query_uuid, file_id)
         results.append(InlineQueryResultCachedSticker(
@@ -98,7 +98,7 @@ def find_stickers(bot, update, session, user):
                  })
 
 
-def get_matching_stickers(session, tags, nsfw):
+def get_matching_stickers(session, tags, nsfw, offset):
     """Query all matching stickers for given tags."""
     # Matching tag count subquery
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
@@ -137,7 +137,8 @@ def get_matching_stickers(session, tags, nsfw):
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(score > 0) \
         .order_by(score.desc(), Sticker.file_id) \
-        .limit(1000) \
+        .offset(offset) \
+        .limit(50) \
         .all()
 
     return matching_stickers
