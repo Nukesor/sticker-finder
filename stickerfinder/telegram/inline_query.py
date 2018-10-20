@@ -11,6 +11,7 @@ from stickerfinder.sentry import sentry
 from stickerfinder.helper.text import create_result_id
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.models import (
     InlineSearch,
     Sticker,
@@ -32,10 +33,9 @@ def find_stickers(bot, update, session, user):
                                    switch_pm_text="Maybe don't be a dick :)?",
                                    switch_pm_parameter='inline')
 
-    # Format query tags
-    query = update.inline_query.query.lower().strip()
-    tags = query.split(' ')
-    tags = [tag.strip() for tag in tags if tag.strip() != '']
+    # Get tags
+    query = update.inline_query.query
+    tags = get_tags_from_text(update.inline_query.query, limit=5)
 
     # Return early, if we have no tags
     if len(tags) == 0:
@@ -84,6 +84,7 @@ def find_stickers(bot, update, session, user):
     else:
         next_offset = 'done'
 
+    # Save this inline search for performance measurement
     inline_search = InlineSearch(query_uuid, query, user, duration)
     session.add(inline_search)
 

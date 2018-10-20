@@ -1,5 +1,6 @@
 """Helper functions for tagging."""
 from sqlalchemy import func
+from collections import OrderedDict
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
@@ -121,6 +122,22 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
     send_tag_messages(chat, tg_chat)
 
 
+def get_tags_from_text(text, limit=15):
+    """Extract and clean tags from incoming string."""
+    text = text.lower().strip()
+
+    # Clean the text
+    for ignored in ['\n', ',', '.', ';', ':', '!', '?']:
+        text = text.replace(ignored, ' ')
+
+    tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+
+    # Deduplicate tags
+    tags = list(OrderedDict.fromkeys(tags))
+
+    return tags[:limit]
+
+
 def tag_sticker(session, text, sticker, user,
                 tg_chat, chat=None, keep_old=False):
     """Tag a single sticker."""
@@ -130,12 +147,7 @@ def tag_sticker(session, text, sticker, user,
         text = text.split(' ')[1:]
         call_tg_func(tg_chat, 'send_message', ["You don't need to add the /tag command ;)"])
 
-    # Clean the text
-    for ignored in ['\n', ',', '.', ';', ':', '!', '?']:
-        text = text.replace(ignored, ' ')
-
-    # Split tags and strip them. Ignore empty tags
-    incoming_tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+    incoming_tags = get_tags_from_text(text)
 
     # Only use the first few tags. This should prevent abuse from tag spammers.
     incoming_tags = incoming_tags[:15]
