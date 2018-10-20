@@ -6,7 +6,7 @@ import telegram
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Column, String, DateTime, func, Boolean
+from sqlalchemy import Column, String, DateTime, func, Boolean, Index, text
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
@@ -21,6 +21,12 @@ class StickerSet(base):
     """The sqlite model for a sticker set."""
 
     __tablename__ = 'sticker_set'
+    __table_args__ = (
+        Index('sticker_set_name_gin_idx', 'name',
+              postgresql_using='gin', postgresql_ops={'name': 'gin_trgm_ops'}),
+        Index('sticker_title_name_gin_idx', 'title',
+              postgresql_using='gin', postgresql_ops={'title': 'gin_trgm_ops'}),
+    )
 
     name = Column(String, primary_key=True)
     title = Column(String)

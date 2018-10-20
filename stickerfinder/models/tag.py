@@ -1,5 +1,5 @@
 """The sqlite model for a tag."""
-from sqlalchemy import Boolean, Column, String, DateTime, func
+from sqlalchemy import Boolean, Column, String, DateTime, func, Index, text
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
@@ -10,6 +10,10 @@ class Tag(base):
     """The model for a sticker."""
 
     __tablename__ = 'tag'
+    __table_args__ = (
+        Index('tag_name_gin_idx', 'name',
+              postgresql_using='gin', postgresql_ops={'name': 'gin_trgm_ops'}),
+    )
 
     name = Column(String(), primary_key=True)
     emoji = Column(Boolean, server_default='False', default=False, nullable=False)

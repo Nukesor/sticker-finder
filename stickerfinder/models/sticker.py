@@ -6,6 +6,7 @@ from sqlalchemy import (
     String,
     Table,
     ForeignKey,
+    Index,
     UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
@@ -16,16 +17,18 @@ from stickerfinder.db import base
 sticker_tag = Table(
     'sticker_tag', base.metadata,
     Column('sticker_file_id',
-           String(),
+           String,
            ForeignKey('sticker.file_id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
     Column('tag_name',
-           String(),
+           String,
            ForeignKey('tag.name', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
     UniqueConstraint('sticker_file_id', 'tag_name'),
+    Index('sticker_tag_tag_name_idx', 'tag_name',
+          postgresql_using='gin', postgresql_ops={'tag_name': 'gin_trgm_ops'}),
 )
 
 
@@ -33,6 +36,10 @@ class Sticker(base):
     """The model for a sticker."""
 
     __tablename__ = 'sticker'
+    __table_args__ = (
+        Index('sticker_text_idx', 'text',
+              postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
+    )
 
     file_id = Column(String, primary_key=True)
     text = Column(String)
