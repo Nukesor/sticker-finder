@@ -9,7 +9,6 @@ from sqlalchemy import (
     String,
     ForeignKey,
 )
-from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
 from stickerfinder.config import config
@@ -20,7 +19,7 @@ class InlineSearch(base):
 
     __tablename__ = 'inline_search'
 
-    id = Column(UUID(as_uuid=True), primary_key=True)
+    search_id = Column(BigInteger, primary_key=True)
     query = Column(String)
     bot = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
@@ -32,9 +31,8 @@ class InlineSearch(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, uuid, query, user, duration):
+    def __init__(self, query, user, duration):
         """Create a new change."""
-        self.id = uuid
         self.query = query
         self.user = user
         self.duration = duration

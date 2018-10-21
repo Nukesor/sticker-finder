@@ -1,14 +1,13 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, or_, case, cast, Numeric
+from sqlalchemy import func, case, cast, Numeric
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
 )
 
 from stickerfinder.sentry import sentry
-from stickerfinder.helper.text import create_result_id
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag import get_tags_from_text
@@ -69,14 +68,17 @@ def find_stickers(bot, update, session, user):
                                   'results': len(matching_stickers),
                               })
 
-    query_uuid = uuid4()
+    # Save this inline search for performance measurement
+    inline_search = InlineSearch(query, user, duration)
+    session.add(inline_search)
+    session.commit()
+
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
         # TODO: Better id for inlinequery results
-        # result_id = create_result_id(query_uuid, file_id)
         results.append(InlineQueryResultCachedSticker(
-            uuid4(), sticker_file_id=file_id[0]))
+            f'{inline_search.search_id}:{file_id[0]}', sticker_file_id=file_id[0]))
 
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
     if len(results) >= 50:
@@ -84,11 +86,6 @@ def find_stickers(bot, update, session, user):
     else:
         next_offset = 'done'
 
-    # Save this inline search for performance measurement
-    inline_search = InlineSearch(query_uuid, query, user, duration)
-    session.add(inline_search)
-
-    session.commit()
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
                      'next_offset': next_offset,

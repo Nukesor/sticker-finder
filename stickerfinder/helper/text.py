@@ -35,11 +35,6 @@ def split_text(lines, max_chunks=5):
     return chunks
 
 
-def create_result_id(query_uuid, file_id):
-    """Generate the result byte string id for a inline query result."""
-    return f'{query_uuid}'.replace('-', '') + file_id
-
-
 def extract_from_result_id(result_id):
     """Extract default uuid string repr from compressed format."""
     delimiters = [8, 4, 4, 4, 12]

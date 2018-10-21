@@ -131,11 +131,9 @@ def handle_callback_query(bot, update, session, user):
 @session_wrapper(send_message=False)
 def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
-    print('hell yeah')
+    print('yey')
     result = update.chosen_inline_result
-    inline_search_uuid, file_id = extract_from_result_id(result.id)
-    print(inline_search_uuid)
-    print(file_id)
-    inline_search = session.query(InlineSearch).get(inline_search_uuid)
+    [search_id, file_id] = result.result_id.split(':')
+    inline_search = session.query(InlineSearch).get(search_id)
 
     inline_search.sticker_file_id = file_id
