@@ -2,7 +2,7 @@
 
 
 help_text = f"""<b>Search for stickers:</b>
-Start typing @std_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
+Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
 
 <b>Add stickersets:</b>
 Send any sticker set to me in a direct conversation, I'll add the whole set.
