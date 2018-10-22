@@ -1,7 +1,7 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, case, cast, Numeric
+from sqlalchemy import func, case, cast, Numeric, or_
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -138,7 +138,7 @@ def get_matching_stickers(session, tags, nsfw, furry, offset):
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
-        .filter(score > 0) \
+        .filter(or_(score > 0, nsfw, furry)) \
         .order_by(score.desc(), Sticker.file_id) \
         .offset(offset) \
         .limit(50) \
