@@ -81,7 +81,7 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'ban_set':
-        sticker_set = session.query(StickerSet).get(payload)
+        sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
             sticker_set.banned = True
         elif CallbackResult(action).name == 'ok':
@@ -92,7 +92,7 @@ def handle_callback_query(bot, update, session, user):
                      kwargs={'reply_markup': keyboard})
 
     elif CallbackType(callback_type).name == 'nsfw_set':
-        sticker_set = session.query(StickerSet).get(payload)
+        sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
             sticker_set.nsfw = True
         elif CallbackResult(action).name == 'ok':
@@ -103,7 +103,7 @@ def handle_callback_query(bot, update, session, user):
                      kwargs={'reply_markup': keyboard})
 
     elif CallbackType(callback_type).name == 'fur_set':
-        sticker_set = session.query(StickerSet).get(payload)
+        sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
             sticker_set.furry = True
         elif CallbackResult(action).name == 'ok':
