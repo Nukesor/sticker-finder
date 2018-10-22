@@ -35,17 +35,17 @@ def get_nsfw_ban_keyboard(sticker_set):
 
     if sticker_set.banned:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
-        ban_text = 'Unban'
+        ban_text = 'Revert ban tag'
     else:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         ban_text = 'Ban this set'
 
     if sticker_set.furry:
         fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
-        fur_text = 'No furry'
+        fur_text = 'Revert furry tag'
     else:
         fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
-        fur_text = 'Is Furry'
+        fur_text = 'Tag as Furry'
 
     buttons = [
         [
