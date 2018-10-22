@@ -24,8 +24,13 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
+
+    # Flags
     banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     nsfw = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    furry = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+
+    # Metadata
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, server_default='FALSE', default=False, nullable=False)

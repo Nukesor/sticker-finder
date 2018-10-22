@@ -102,6 +102,17 @@ def handle_callback_query(bot, update, session, user):
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
 
+    elif CallbackType(callback_type).name == 'fur_set':
+        sticker_set = session.query(StickerSet).get(payload)
+        if CallbackResult(action).name == 'ban':
+            sticker_set.furry = True
+        elif CallbackResult(action).name == 'ok':
+            sticker_set.furry = False
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
+
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
         handle_next(session, chat, tg_chat)
@@ -131,7 +142,6 @@ def handle_callback_query(bot, update, session, user):
 @session_wrapper(send_message=False)
 def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
-    print('yey')
     result = update.chosen_inline_result
     [search_id, file_id] = result.result_id.split(':')
     inline_search = session.query(InlineSearch).get(search_id)

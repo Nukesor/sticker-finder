@@ -31,6 +31,7 @@ Tag some stickers :)! Just type /tag_random in a direct conversation with me.
 <b>NSFW & Sticker Ban:</b>
 I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with nsfw and can only be found when using the nsfw tag.
 In case I miss any, you can use the `/vote_ban` command to make me look at it again (Use it for both nsfw and ban).
+Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
 <b>User Ban:</b>
 If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.

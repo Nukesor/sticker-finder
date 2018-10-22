@@ -54,9 +54,13 @@ def find_stickers(bot, update, session, user):
     if 'nsfw' in tags:
         nsfw = True
 
+    furry = False
+    if 'fur' in tags or 'furry' in tags:
+        furry = True
+
     # Get matching stickers and measure the db query time
     start = datetime.now()
-    matching_stickers = get_matching_stickers(session, tags, nsfw, offset)
+    matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset)
     end = datetime.now()
 
     duration = end-start
@@ -96,7 +100,7 @@ def find_stickers(bot, update, session, user):
                  })
 
 
-def get_matching_stickers(session, tags, nsfw, offset):
+def get_matching_stickers(session, tags, nsfw, furry, offset):
     """Query all matching stickers for given tags."""
     # Matching tag count subquery
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
@@ -133,6 +137,7 @@ def get_matching_stickers(session, tags, nsfw, offset):
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
+        .filter(StickerSet.furry.is_(furry)) \
         .filter(score > 0) \
         .order_by(score.desc(), Sticker.file_id) \
         .offset(offset) \
