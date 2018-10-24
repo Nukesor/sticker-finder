@@ -21,6 +21,7 @@ class InlineSearch(base):
 
     search_id = Column(BigInteger, primary_key=True)
     query = Column(String)
+    offset = Column(String)
     bot = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     duration = Column(Interval)
@@ -31,9 +32,10 @@ class InlineSearch(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, query, user, duration):
+    def __init__(self, offset, query, user, duration):
         """Create a new change."""
         self.query = query
+        self.offset = str(offset)
         self.user = user
         self.duration = duration
         self.bot = config.BOT_NAME
