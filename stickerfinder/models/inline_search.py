@@ -32,7 +32,7 @@ class InlineSearch(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, offset, query, user, duration):
+    def __init__(self, query, offset, user, duration):
         """Create a new change."""
         self.query = query
         self.offset = str(offset)

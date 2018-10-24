@@ -1,7 +1,7 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, case, cast, Numeric, or_
+from sqlalchemy import func, case, cast, Numeric, or_, Float
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -40,18 +40,20 @@ def find_stickers(bot, update, session, user):
     if len(tags) == 0:
         return
 
-    # Handle offset. If the offset is 'done' there are no more stickers for this query.
-    offset = update.inline_query.offset
-    fuzzy_offset = 0
-    if offset == '':
-        offset = 0
-    elif offset == 'done':
+    offset_incoming = update.inline_query.offset
+    # If the offset is 'done' there are no more stickers for this query.
+    if offset_incoming == 'done':
         return
-    elif ':' in offset:
-        offset = offset.split(':')[0]
-        fuzzy_offset = offset.split(':')[1]
+
+    # Handle offset and fuzzy offset
+    fuzzy_offset = 0
+    if offset_incoming == '':
+        offset = 0
+    elif ':' in offset_incoming:
+        offset = int(offset_incoming.split(':')[0])
+        fuzzy_offset = int(offset_incoming.split(':')[1])
     else:
-        offset = int(offset)
+        offset = int(offset_incoming)
 
     # Handle nsfw tag
     nsfw = False
@@ -62,21 +64,20 @@ def find_stickers(bot, update, session, user):
     if 'fur' in tags or 'furry' in tags:
         furry = True
 
-    # Get matching stickers and measure the db query time
+    # Measure the db query time
     start = datetime.now()
-    matching_stickers = None
+
+    # Get exactly matching stickers and fuzzy matching stickers
+    matching_stickers = []
     fuzzy_matching_stickers = []
-    if fuzzy_offset is None:
+    if fuzzy_offset == 0:
         matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset)
 
-    if fuzzy_offset or matching_stickers < 50:
+    if fuzzy_offset > 0 or len(matching_stickers) < 50:
         # Calculate the missing sticker amount
-        if matching_stickers is None:
-            limit = 50
-        else:
-            limit = 50 - len(matching_stickers)
+        fuzzy_limit = 50 - len(matching_stickers)
+        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, fuzzy_limit)
 
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, limit)
     end = datetime.now()
 
     duration = end-start
@@ -94,17 +95,18 @@ def find_stickers(bot, update, session, user):
     session.commit()
 
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
-    if len(matching_stickers) >= 50:
+    if len(matching_stickers) == 50:
         next_offset = offset + 50
-    elif len(fuzzy_matching_stickers) <= 50:
+    elif (len(matching_stickers) + len(fuzzy_matching_stickers)) < 50:
         next_offset = 'done'
     else:
         offset = offset + len(matching_stickers)
         fuzzy_offset = len(fuzzy_matching_stickers) + fuzzy_offset
         next_offset = f'{offset}:{fuzzy_offset}'
 
+    matching_stickers += fuzzy_matching_stickers
     # Create a result list of max 50 cached sticker objects
-    results = matching_stickers + fuzzy_matching_stickers
+    results = []
     for file_id in matching_stickers:
         # TODO: Better id for inlinequery results
         results.append(InlineQueryResultCachedSticker(
@@ -120,9 +122,8 @@ def find_stickers(bot, update, session, user):
                  })
 
 
-def get_matching_stickers(session, tags, nsfw, furry, offset):
-    """Query all matching stickers for given tags."""
-    # Matching tag count subquery
+def get_strict_matching_query(session, tags, nsfw, furry):
+    """Get the query for strict tag matching."""
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
@@ -149,7 +150,7 @@ def get_matching_stickers(session, tags, nsfw, furry, offset):
     score = score.label('score')
 
     # At first we check for results, where at least one tag directly matches
-    matching_stickers = session.query(
+    query = session.query(
         Sticker.file_id,
         score,
     ) \
@@ -159,20 +160,33 @@ def get_matching_stickers(session, tags, nsfw, furry, offset):
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
         .filter(or_(score > 0, nsfw, furry)) \
-        .order_by(score.desc(), Sticker.file_id) \
-        .offset(offset) \
+        .order_by(score.desc(), Sticker.file_id)
+
+    return query
+
+
+def get_matching_stickers(session, tags, nsfw, furry, offset):
+    """Query all matching stickers for given tags."""
+    query = get_strict_matching_query(session, tags, nsfw, furry)
+
+    matching_stickers = query.offset(offset) \
         .limit(50) \
         .all()
 
     return matching_stickers
 
 
-def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
+def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, limit):
     """Query all fuzzy matching stickers."""
+    threshold = 0.7
     # Matching tag count subquery
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
-    tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count, func.ST_Distance() \
-        .filter(sticker_tag.c.tag_name.in_(tags)) \
+    fuzzy_tags = []
+    for tag in tags:
+        fuzzy_tags.append(sticker_tag.c.tag_name.op('<->', return_type=Float)(tag) < threshold)
+
+    tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
+        .filter(or_(*fuzzy_tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
 
@@ -180,14 +194,14 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
     set_conditions = []
     for tag in tags:
         set_conditions.append(case([
-            (StickerSet.name.like(f'%{tag}%'), 0.75),
-            (StickerSet.title.like(f'%{tag}%'), 0.75),
+            (StickerSet.name.op('<->', return_type=Float)(tag) < threshold, 0.75),
+            (StickerSet.title.op('<->', return_type=Float)(tag) < threshold, 0.75),
         ], else_=0))
 
     # Condition for matching sticker text
     text_conditions = []
     for tag in tags:
-        text_conditions.append(case([(Sticker.text.like(f'%{tag}%'), 0.75)], else_=0))
+        text_conditions.append(case([(Sticker.text.op('<->', return_type=Float)(tag) < threshold, 0.75)], else_=0))
 
     # Compute the whole score
     score = cast(func.coalesce(tag_subq.c.tag_count, 0), Numeric)
@@ -195,21 +209,25 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
         score = score + condition
     score = score.label('score')
 
+    # Query all strict matching results to exclude them.
+    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry).subquery('strict_subquery')
+
     # At first we check for results, where at least one tag directly matches
     matching_stickers = session.query(
         Sticker.file_id,
         score,
     ) \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
+        .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set) \
+        .filter(strict_subquery.c.file_id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
         .filter(or_(score > 0, nsfw, furry)) \
         .order_by(score.desc(), Sticker.file_id) \
         .offset(offset) \
-        .limit(50) \
+        .limit(limit) \
         .all()
 
     return matching_stickers
-

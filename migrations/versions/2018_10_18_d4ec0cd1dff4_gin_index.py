@@ -1,17 +1,16 @@
-"""gin index
+"""Gin index.
 
 Revision ID: d4ec0cd1dff4
-Revises: 963070a023d2
+Revises: 85ad52b28135
 Create Date: 2018-10-18 12:31:11.437711
 
 """
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
 revision = 'd4ec0cd1dff4'
-down_revision = '963070a023d2'
+down_revision = '85ad52b28135'
 branch_labels = None
 depends_on = None
 
