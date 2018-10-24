@@ -45,13 +45,16 @@ def find_stickers(bot, update, session, user):
     if offset_incoming == 'done':
         return
 
-    # Handle offset and fuzzy offset
-    fuzzy_offset = 0
+    fuzzy_offset = None
+
+    # First incoming request, set the offset to 0
     if offset_incoming == '':
         offset = 0
+    # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
     elif ':' in offset_incoming:
         offset = int(offset_incoming.split(':')[0])
         fuzzy_offset = int(offset_incoming.split(':')[1])
+    # We are still looking for strictly matching stickers.
     else:
         offset = int(offset_incoming)
 
@@ -70,16 +73,17 @@ def find_stickers(bot, update, session, user):
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
-    if fuzzy_offset == 0:
+    if fuzzy_offset is None:
         matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset)
-
-    if fuzzy_offset > 0 or len(matching_stickers) < 50:
-        # Calculate the missing sticker amount
-        fuzzy_limit = 50 - len(matching_stickers)
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, fuzzy_limit)
+    # Get the fuzzy matching sticker, if there are no more strictly matching stickers
+    # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
+    else:
+        matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset)
 
     end = datetime.now()
 
+    # If we take more than 10 seconds, the answer will be invalid.
+    # We need to know about this, before it happens.
     duration = end-start
     if duration.seconds >= 9:
         sentry.captureMessage(f'Query took too long.', level='info',
@@ -97,14 +101,18 @@ def find_stickers(bot, update, session, user):
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
     if len(matching_stickers) == 50:
         next_offset = offset + 50
-    elif (len(matching_stickers) + len(fuzzy_matching_stickers)) < 50:
+    # Check whether we are done.
+    elif (len(matching_stickers) + len(fuzzy_matching_stickers)) < 50 and fuzzy_offset is not None:
         next_offset = 'done'
+    # We reached the end of the strictly matching stickers. Mark the next query for fuzzy searching
     else:
+        if fuzzy_offset is None:
+            fuzzy_offset = 0
+
         offset = offset + len(matching_stickers)
         fuzzy_offset = len(fuzzy_matching_stickers) + fuzzy_offset
         next_offset = f'{offset}:{fuzzy_offset}'
 
-    matching_stickers += fuzzy_matching_stickers
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
@@ -166,7 +174,7 @@ def get_strict_matching_query(session, tags, nsfw, furry):
 
 
 def get_matching_stickers(session, tags, nsfw, furry, offset):
-    """Query all matching stickers for given tags."""
+    """Query all strictly matching stickers for given tags."""
     query = get_strict_matching_query(session, tags, nsfw, furry)
 
     matching_stickers = query.offset(offset) \
@@ -176,7 +184,7 @@ def get_matching_stickers(session, tags, nsfw, furry, offset):
     return matching_stickers
 
 
-def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, limit):
+def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
     """Query all fuzzy matching stickers."""
     threshold = 0.7
     # Matching tag count subquery
@@ -227,7 +235,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, limit):
         .filter(or_(score > 0, nsfw, furry)) \
         .order_by(score.desc(), Sticker.file_id) \
         .offset(offset) \
-        .limit(limit) \
+        .limit(50) \
         .all()
 
     return matching_stickers
