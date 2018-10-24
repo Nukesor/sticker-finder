@@ -59,8 +59,13 @@ def newsfeed(bot, job, session, user):
             # A newsfeed chat has been converted to a super group.
             # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
             except telegram.error.ChatMigrated:
+                requery_chats = True
                 session.delete(chat)
             except BaseException as e:
+                if e.message == 'Chat not found':
+                    requery_chats = True
+                    session.delete(chat)
+
                 sentry.captureException()
                 traceback.print_exc()
 

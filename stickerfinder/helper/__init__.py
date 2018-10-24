@@ -2,7 +2,7 @@
 
 
 help_text = f"""<b>Search for stickers:</b>
-Start typing @std_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
+Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
 
 <b>Add stickersets:</b>
 Send any sticker set to me in a direct conversation, I'll add the whole set.
@@ -31,6 +31,7 @@ Tag some stickers :)! Just type /tag_random in a direct conversation with me.
 <b>NSFW & Sticker Ban:</b>
 I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with nsfw and can only be found when using the nsfw tag.
 In case I miss any, you can use the `/vote_ban` command to make me look at it again (Use it for both nsfw and ban).
+Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
 <b>User Ban:</b>
 If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.

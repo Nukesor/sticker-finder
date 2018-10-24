@@ -90,6 +90,7 @@ def handle_next(session, chat, tg_chat):
             .filter(Change.id.is_(None)) \
             .filter(StickerSet.banned.is_(False)) \
             .filter(StickerSet.nsfw.is_(False)) \
+            .filter(StickerSet.furry.is_(False)) \
             .order_by(func.random()) \
             .limit(1) \
             .one_or_none()

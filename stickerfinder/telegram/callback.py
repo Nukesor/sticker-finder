@@ -81,7 +81,7 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'ban_set':
-        sticker_set = session.query(StickerSet).get(payload)
+        sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
             sticker_set.banned = True
         elif CallbackResult(action).name == 'ok':
@@ -92,11 +92,22 @@ def handle_callback_query(bot, update, session, user):
                      kwargs={'reply_markup': keyboard})
 
     elif CallbackType(callback_type).name == 'nsfw_set':
-        sticker_set = session.query(StickerSet).get(payload)
+        sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
             sticker_set.nsfw = True
         elif CallbackResult(action).name == 'ok':
             sticker_set.nsfw = False
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
+
+    elif CallbackType(callback_type).name == 'fur_set':
+        sticker_set = session.query(StickerSet).get(payload.lower())
+        if CallbackResult(action).name == 'ban':
+            sticker_set.furry = True
+        elif CallbackResult(action).name == 'ok':
+            sticker_set.furry = False
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(query.message, 'edit_reply_markup',
@@ -131,11 +142,8 @@ def handle_callback_query(bot, update, session, user):
 @session_wrapper(send_message=False)
 def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
-    print('hell yeah')
     result = update.chosen_inline_result
-    inline_search_uuid, file_id = extract_from_result_id(result.id)
-    print(inline_search_uuid)
-    print(file_id)
-    inline_search = session.query(InlineSearch).get(inline_search_uuid)
+    [search_id, file_id] = result.result_id.split(':')
+    inline_search = session.query(InlineSearch).get(search_id)
 
     inline_search.sticker_file_id = file_id

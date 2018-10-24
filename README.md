@@ -1,4 +1,4 @@
-# Stickerfinder ([@StickerFinderBot](https://t.me/stfi_bot))
+# Stickerfinder (StickerFinderBot [@stfi_bot](https://t.me/stfi_bot))
 
 Did you ever want to find your favorite stickers via text search, discover new stickers and to tag stickers for better discoverability?
 Let me introduce you to **Stickerfinder**.
@@ -16,7 +16,7 @@ In case you get bored, you can go ahead and do some good by tagging a few random
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Feel free to host your own or to use mine on telegram: [@StickerFinderBot](https://t.me/stfi_bot)
+Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/stfi_bot)
 
 ## Features:
 

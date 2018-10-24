@@ -24,6 +24,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     """Get the inline keyboard for newsfeed messages."""
     ban_type = CallbackType["ban_set"].value
     nsfw_type = CallbackType["nsfw_set"].value
+    fur_type = CallbackType["fur_set"].value
 
     if sticker_set.nsfw:
         nsfw_data = f'{nsfw_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
@@ -34,15 +35,27 @@ def get_nsfw_ban_keyboard(sticker_set):
 
     if sticker_set.banned:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
-        ban_text = 'Unban'
+        ban_text = 'Revert ban tag'
     else:
         ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         ban_text = 'Ban this set'
 
-    buttons = [[
-        InlineKeyboardButton(text=ban_text, callback_data=ban_data),
-        InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
-    ]]
+    if sticker_set.furry:
+        fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
+        fur_text = 'Revert furry tag'
+    else:
+        fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
+        fur_text = 'Tag as Furry'
+
+    buttons = [
+        [
+            InlineKeyboardButton(text=fur_text, callback_data=fur_data),
+        ],
+        [
+            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
+            InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
+        ],
+    ]
 
     return InlineKeyboardMarkup(buttons)
 
