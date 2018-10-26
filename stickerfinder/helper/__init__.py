@@ -17,13 +17,13 @@ To tag a whole set just send me a sticker from the set you want to tag.
 
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
-If there already are tags on a sticker, you'll overwrite all existing stickers.
+If there already are tags on a sticker, you'll overwrite all existing tags.
 <b>Please</b> tag in English, unless the sticker is specifically in another language.
 If you want tagged stickers in a different language, <b>please host your own bot</b>. I can give you a DB dump.
 
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
-This is great for ad hoc tagging of single stickers in group chats, but I need to be in this chat for this to work.
+This is great for ad hoc tagging of single stickers in group chats, but I need to be in the chat for this to work.
 
 <b>Want to help?</b>
 Tag some stickers :)! Just type /tag_random in a direct conversation with me.
@@ -41,7 +41,7 @@ When you're banned, you can't use the inline search any longer and all of your c
 I also try to detect text in stickers, but this turns out to be quite ambitious.
 Don't expect this functionality to work reliably!
 
-In case you encounter any bugs or you just want to look at the code and drop a star:
+In case you encounter any bugs or you just want to look at the code:
 https://github.com/Nukesor/stickerfinder
 """
 
