@@ -6,4 +6,5 @@ from stickerfinder.models.tag import Tag # noqa
 from stickerfinder.models.user import User # noqa
 from stickerfinder.models.change import Change # noqa
 from stickerfinder.models.vote_ban import VoteBan # noqa
-from stickerfinder.models.inline_search import InlineSearch # noqa
+from stickerfinder.models.inline_query import InlineQuery # noqa
+from stickerfinder.models.inline_query_request import InlineQueryRequest # noqa

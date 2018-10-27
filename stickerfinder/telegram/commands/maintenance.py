@@ -13,7 +13,7 @@ from stickerfinder.models import (
     sticker_tag,
     Tag,
     User,
-    InlineSearch,
+    InlineQuery,
 )
 
 
@@ -46,9 +46,9 @@ def stats(bot, update, session, chat, user):
         .filter(Sticker.text.isnot(None)) \
         .count()
 
-    queries_count = session.query(InlineSearch).count()
-    last_day_queries_count = session.query(InlineSearch)\
-        .filter(InlineSearch.created_at > datetime.now() - timedelta(days=1)) \
+    queries_count = session.query(InlineQuery).count()
+    last_day_queries_count = session.query(InlineQuery)\
+        .filter(InlineQuery.created_at > datetime.now() - timedelta(days=1)) \
         .count()
 
     stats = f"""Users: {user_count}

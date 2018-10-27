@@ -12,7 +12,8 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.models import (
-    InlineSearch,
+    InlineQuery,
+    InlineQueryRequest,
     Sticker,
     StickerSet,
     sticker_tag,
@@ -45,18 +46,21 @@ def find_stickers(bot, update, session, user):
     if offset_incoming == 'done':
         return
 
+    offset = None
     fuzzy_offset = None
+    query_id = None
 
     # First incoming request, set the offset to 0
     if offset_incoming == '':
         offset = 0
-    # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
-    elif ':' in offset_incoming:
-        offset = int(offset_incoming.split(':')[0])
-        fuzzy_offset = int(offset_incoming.split(':')[1])
-    # We are still looking for strictly matching stickers.
+
     else:
-        offset = int(offset_incoming)
+        splitted = offset_incoming.split(':')
+        query_id = splitted[0]
+        offset = int(splitted[1])
+        # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
+        if len(splitted) > 2:
+            fuzzy_offset = int(splitted[2])
 
     # Handle nsfw tag
     nsfw = False
@@ -98,14 +102,22 @@ def find_stickers(bot, update, session, user):
                                   'results': len(matching_stickers),
                               })
 
-    # Save this inline search for performance measurement
-    inline_search = InlineSearch(query, offset, user, duration)
-    session.add(inline_search)
+    if query_id:
+        inline_query = session.query(InlineQuery).get(query_id)
+    else:
+        # Save this inline search for performance measurement
+        inline_query = InlineQuery(query, offset, user, duration)
+        session.add(inline_query)
+        session.commit()
+
+    saved_offset = offset_incoming.split(':', 1)[1] if offset != 0 else 0
+    inline_query_request = InlineQueryRequest(inline_query, saved_offset, duration)
+    session.add(inline_query_request)
     session.commit()
 
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
     if len(matching_stickers) == 50 and fuzzy_offset is None:
-        next_offset = offset + 50
+        next_offset = f'{inline_query.id}:{offset + 50}'
     # Check whether we are done.
     elif len(fuzzy_matching_stickers) < 50 and fuzzy_offset is not None:
         next_offset = 'done'
@@ -116,7 +128,7 @@ def find_stickers(bot, update, session, user):
 
         offset = offset + len(matching_stickers)
         fuzzy_offset += len(fuzzy_matching_stickers)
-        next_offset = f'{offset}:{fuzzy_offset}'
+        next_offset = f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
     # Create a result list of max 50 cached sticker objects
@@ -124,7 +136,7 @@ def find_stickers(bot, update, session, user):
     for file_id in matching_stickers:
         # TODO: Better id for inlinequery results
         results.append(InlineQueryResultCachedSticker(
-            f'{inline_search.search_id}:{file_id[0]}', sticker_file_id=file_id[0]))
+            f'{inline_query.id}:{file_id[0]}', sticker_file_id=file_id[0]))
 
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={

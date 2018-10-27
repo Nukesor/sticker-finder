@@ -18,7 +18,7 @@ from stickerfinder.helper.tag import (
 from stickerfinder.models import (
     Chat,
     Task,
-    InlineSearch,
+    InlineQuery,
     Sticker,
     StickerSet,
 )
@@ -144,6 +144,6 @@ def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
     result = update.chosen_inline_result
     [search_id, file_id] = result.result_id.split(':')
-    inline_search = session.query(InlineSearch).get(search_id)
+    inline_query = session.query(InlineQuery).get(search_id)
 
-    inline_search.sticker_file_id = file_id
+    inline_query.sticker_file_id = file_id

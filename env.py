@@ -23,7 +23,7 @@ def display_reverted_changes():
 
 
 def display_query_time():
-    inline_searches = session.query(InlineSearch).all()
+    inline_searches = session.query(InlineQuery).all()
 
     for search in inline_searches:
         print(f"{search.query}: {search.duration}")
