@@ -4,7 +4,6 @@ from sqlalchemy import (
     BigInteger,
     Column,
     DateTime,
-    Interval,
     func,
     String,
     ForeignKey,
@@ -20,10 +19,8 @@ class InlineQuery(base):
     __tablename__ = 'inline_query'
 
     id = Column(BigInteger, primary_key=True)
-    offset = Column(String)
     query = Column(String)
     bot = Column(String)
-    duration = Column(Interval)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
@@ -33,10 +30,8 @@ class InlineQuery(base):
     sticker = relationship("Sticker")
     requests = relationship("InlineQueryRequest")
 
-    def __init__(self, query, offset, user, duration):
+    def __init__(self, query, user):
         """Create a new change."""
         self.query = query
-        self.offset = str(offset)
         self.user = user
-        self.duration = duration
         self.bot = config.BOT_NAME

@@ -106,7 +106,7 @@ def find_stickers(bot, update, session, user):
         inline_query = session.query(InlineQuery).get(query_id)
     else:
         # Save this inline search for performance measurement
-        inline_query = InlineQuery(query, offset, user, duration)
+        inline_query = InlineQuery(query, user)
         session.add(inline_query)
         session.commit()
 
