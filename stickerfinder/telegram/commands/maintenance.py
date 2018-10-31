@@ -68,7 +68,10 @@ Queries of the last day: {last_day_queries_count}
 @session_wrapper(admin_only=True)
 def refresh_sticker_sets(bot, update, session, chat, user):
     """Refresh all stickers."""
-    sticker_sets = session.query(StickerSet).all()
+    sticker_sets = session.query(StickerSet) \
+        .filter(StickerSet.deleted.is_(False)) \
+        .all()
+
     progress = f'Found {len(sticker_sets)} sets.'
     call_tg_func(update.message.chat, 'send_message', args=[progress])
 

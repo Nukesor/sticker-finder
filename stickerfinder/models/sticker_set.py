@@ -6,7 +6,7 @@ import telegram
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Column, String, DateTime, func, Boolean, Index, text
+from sqlalchemy import Column, String, DateTime, func, Boolean, Index
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
@@ -30,6 +30,7 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
+    deleted = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
     # Flags
     banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
@@ -60,7 +61,14 @@ class StickerSet(base):
         # Get sticker set from telegram and create new a Sticker for each sticker
         stickers = []
         logger = logging.getLogger()
-        tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
+        try:
+            tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
+        except telegram.error.BadRequest as e:
+            if e.message == 'Stickerset_invalid':
+                self.deleted = True
+                return
+
+            raise e
 
         for tg_sticker in tg_sticker_set.stickers:
             # Ignore already existing stickers if we don't need to rescan images
@@ -127,7 +135,6 @@ class StickerSet(base):
             message = "Bot got blocked by user."
             logger.info(message)
             sentry.captureMessage(message, level='info')
-
 
     @staticmethod
     def get_or_create(session, name, chat, user):
