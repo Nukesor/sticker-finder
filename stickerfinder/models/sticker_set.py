@@ -123,6 +123,11 @@ class StickerSet(base):
             message = "Couldn't send success message to user."
             logger.info(message)
             sentry.captureMessage(message, level='info')
+        except telegram.error.Unauthorized:
+            message = "Bot got blocked by user."
+            logger.info(message)
+            sentry.captureMessage(message, level='info')
+
 
     @staticmethod
     def get_or_create(session, name, chat, user):
