@@ -21,6 +21,7 @@ from stickerfinder.models import (
 )
 
 
+@run_async
 @session_wrapper(send_message=False)
 def newsfeed(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
@@ -84,6 +85,7 @@ def newsfeed(bot, job, session, user):
     return
 
 
+@run_async
 @session_wrapper(send_message=False)
 def maintenance_tasks(bot, job, session, user):
     """Create new maintenance tasks.
