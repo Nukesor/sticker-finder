@@ -54,7 +54,10 @@ def newsfeed(bot, job, session, user):
                              kwargs={'reply_markup': keyboard})
 
                 if len(new_set.tasks) > 0:
-                    message = f'Set {new_set.name} added by user: {new_set.tasks[0].user.username} ({new_set.tasks[0].user.id})'
+                    if new_set.tasks[0].user is not None:
+                        message = f'Set {new_set.name} added by user: {new_set.tasks[0].user.username} ({new_set.tasks[0].user.id})'
+                    else:
+                        message = f'Set {new_set.name} added by chat: {new_set.tasks[0].chat.id}'
                     call_tg_func(bot, 'send_message', args=[chat.id, message])
 
             # A newsfeed chat has been converted to a super group.

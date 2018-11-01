@@ -1,5 +1,4 @@
 """Session helper functions."""
-import telegram
 import traceback
 from functools import wraps
 
