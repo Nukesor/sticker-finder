@@ -61,13 +61,12 @@ def newsfeed(bot, job, session, user):
             except telegram.error.ChatMigrated:
                 requery_chats = True
                 session.delete(chat)
-            except BaseException as e:
+            except telegram.error.BadRequest as e:
                 if e.message == 'Chat not found':
                     requery_chats = True
                     session.delete(chat)
-
-                sentry.captureException()
-                traceback.print_exc()
+                else:
+                    raise e
 
         new_set.newsfeed_sent = True
         session.commit()
