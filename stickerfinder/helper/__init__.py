@@ -65,3 +65,5 @@ reward_messages = {
 
 blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
                  'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])
+
+ignored_characters = set(['\n', ',', '.', '!', '?'])

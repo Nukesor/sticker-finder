@@ -12,6 +12,7 @@ from stickerfinder.helper.keyboard import (
 from stickerfinder.helper import (
     tag_text,
     blacklist,
+    ignored_characters,
     reward_messages,
 )
 from stickerfinder.models import (
@@ -128,7 +129,7 @@ def get_tags_from_text(text, limit=15):
     text = text.lower().strip()
 
     # Clean the text
-    for ignored in ['\n', ',', '.', ';', ':', '!', '?']:
+    for ignored in ignored_characters:
         text = text.replace(ignored, ' ')
 
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
