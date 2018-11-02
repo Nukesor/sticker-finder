@@ -63,7 +63,6 @@ reward_messages = {
     3000: "3000 Stickers.... \n You should really stop.",
 }
 
-blacklist = set(['me', 'is', 'i', 'ya', 'you', 'are', 'a', 'too', 'of', 'we', 'he',
-                 'she', 'it', 'them', 'have', 'to', 'my', 'the', "it's", 'will', 'and'])
+blacklist = set([])
 
 ignored_characters = set(['\n', ',', '.', '!', '?'])
