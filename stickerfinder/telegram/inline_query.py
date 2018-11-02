@@ -195,9 +195,9 @@ def get_strict_matching_query(session, tags, nsfw, furry):
 
 def get_matching_stickers(session, tags, nsfw, furry, offset):
     """Query all strictly matching stickers for given tags."""
-    query = get_strict_matching_query(session, tags, nsfw, furry)
+    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry)
 
-    matching_stickers = query.offset(offset) \
+    matching_stickers = matching_stickers.offset(offset) \
         .limit(50) \
         .all()
 
