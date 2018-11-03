@@ -2,6 +2,7 @@
 from stickerfinder.models import (
     Sticker,
     StickerSet,
+    Language,
 )
 from stickerfinder.helper.tag import (
     handle_next,
@@ -38,7 +39,16 @@ def handle_private_text(bot, update, session, chat, user):
                     user, update.message.chat, chat)
 
         chat.cancel()
-        return "Sticker tags adjusted."
+        return 'Sticker tags adjusted.'
+
+    elif chat.choosing_language:
+        language = session.query(Language).get(update.message.text)
+        if language is None:
+            return 'No such language, please propose new languages with /new_language.'
+
+        user.language = language.name
+
+        return f'User language changed to: {language.name}'
 
 
 @session_wrapper(check_ban=True)

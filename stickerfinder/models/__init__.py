@@ -8,3 +8,4 @@ from stickerfinder.models.change import Change # noqa
 from stickerfinder.models.vote_ban import VoteBan # noqa
 from stickerfinder.models.inline_query import InlineQuery # noqa
 from stickerfinder.models.inline_query_request import InlineQueryRequest # noqa
+from stickerfinder.models.language import Language # noqa

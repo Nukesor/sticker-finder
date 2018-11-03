@@ -172,7 +172,7 @@ def tag_sticker(session, text, sticker, user,
         # Create tags
         tags = []
         for incoming_tag in incoming_tags:
-            tag = Tag.get_or_create(session, incoming_tag)
+            tag = Tag.get_or_create(session, incoming_tag, user.language)
             if tag not in tags:
                 tags.append(tag)
             session.add(tag)

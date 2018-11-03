@@ -1,12 +1,10 @@
 """Telegram job tasks."""
 import telegram
-import traceback
 from datetime import datetime
 from telegram.ext import run_async
 from sqlalchemy import func, and_
 
 from stickerfinder.config import config
-from stickerfinder.sentry import sentry
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task

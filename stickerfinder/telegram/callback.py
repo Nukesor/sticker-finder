@@ -21,6 +21,7 @@ from stickerfinder.models import (
     InlineQuery,
     Sticker,
     StickerSet,
+    Language,
 )
 
 
@@ -112,6 +113,16 @@ def handle_callback_query(bot, update, session, user):
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
+
+    elif CallbackType(callback_type).name == 'accept_language':
+        task = session.query(Task).get(payload.lower())
+        if CallbackResult(action).name == 'ok':
+            language = Language(task.message)
+            session.add(language)
+
+        task.reviewed = True
+        session.commit()
+        call_tg_func(query.message, 'edit_reply_markup', kwargs={'reply_markup': []})
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':

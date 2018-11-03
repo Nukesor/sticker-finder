@@ -1,8 +1,8 @@
 """User management related commands."""
-from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
+from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard, get_language_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.models import User
+from stickerfinder.models import User, Language, Task
 
 
 @session_wrapper(admin_only=True)
@@ -55,3 +55,31 @@ def cancel(bot, update, session, chat, user):
     keyboard = admin_keyboard if chat.is_maintenance else main_keyboard
     call_tg_func(update.message.chat, 'send_message', ['All running commands are canceled'],
                  {'reply_markup': keyboard})
+
+
+@session_wrapper()
+def choosing_language(bot, update, session, chat, user):
+    """Select a language for the user."""
+    chat.choosing_language = True
+    languages = session.query(Language).all()
+    keyboard = get_language_keyboard(languages)
+    call_tg_func(update.message.chat, 'send_message', ['Choose your language'],
+                 {'reply_markup': keyboard})
+
+
+@session_wrapper()
+def new_language(bot, update, session, chat, user):
+    """Send a help text."""
+    language = update.message.text.split(' ', 1)[1].lower().strip()
+
+    exists = session.query(Language).get(language)
+
+    if exists is not None:
+        return "Language already exists"
+
+    task = Task(Task.NEW_LANGUAGE, user=user)
+    task.message = language
+    session.add(task)
+    session.commit()
+
+    return "Your language is proposed, it'll be added soon."

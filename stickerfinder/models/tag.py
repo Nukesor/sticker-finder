@@ -1,5 +1,15 @@
 """The sqlite model for a tag."""
-from sqlalchemy import Boolean, Column, String, DateTime, func, Index, text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    String,
+    DateTime,
+    func,
+    Index,
+    text,
+    ForeignKey,
+)
+
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base
@@ -16,6 +26,8 @@ class Tag(base):
     )
 
     name = Column(String(), primary_key=True)
+    language = Column(String, ForeignKey('language.name'),
+                      index=True, default='english', server_default="'english'")
     emoji = Column(Boolean, server_default='False', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -24,17 +36,18 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, emoji):
+    def __init__(self, name, emoji, language='english'):
         """Create a new sticker."""
         self.name = name
         self.emoji = emoji
+        self.language = language
 
     @staticmethod
-    def get_or_create(session, name, emoji=False):
+    def get_or_create(session, name, language='english', emoji=False):
         """Get or create a new sticker."""
         tag = session.query(Tag).get(name)
         if not tag:
-            tag = Tag(name, emoji)
+            tag = Tag(name, emoji, language)
             session.add(tag)
             session.commit()
 

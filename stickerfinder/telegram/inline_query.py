@@ -17,6 +17,7 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
     sticker_tag,
+    Tag,
 )
 
 
@@ -73,12 +74,13 @@ def find_stickers(bot, update, session, user):
 
     # Measure the db query time
     start = datetime.now()
+    language = user.language
 
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
     if fuzzy_offset is None:
-        matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset)
+        matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset, language)
     # Get the fuzzy matching sticker, if there are no more strictly matching stickers
     # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
@@ -87,7 +89,7 @@ def find_stickers(bot, update, session, user):
         # Directly jump to fuzzy search
         if fuzzy_offset is None:
             fuzzy_offset = 0
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset)
+        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, language)
 
     end = datetime.now()
 
@@ -148,10 +150,12 @@ def find_stickers(bot, update, session, user):
                  })
 
 
-def get_strict_matching_query(session, tags, nsfw, furry):
+def get_strict_matching_query(session, tags, nsfw, furry, language):
     """Get the query for strict tag matching."""
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
+        .join(Tag) \
+        .filter(or_(Tag.language == language, Tag.language == 'english')) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -193,9 +197,9 @@ def get_strict_matching_query(session, tags, nsfw, furry):
     return matching_stickers
 
 
-def get_matching_stickers(session, tags, nsfw, furry, offset):
+def get_matching_stickers(session, tags, nsfw, furry, offset, language):
     """Query all strictly matching stickers for given tags."""
-    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry)
+    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, language)
 
     matching_stickers = matching_stickers.offset(offset) \
         .limit(50) \
@@ -204,7 +208,7 @@ def get_matching_stickers(session, tags, nsfw, furry, offset):
     return matching_stickers
 
 
-def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
+def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     """Query all fuzzy matching stickers."""
     threshold = 0.7
     # Matching tag count subquery
@@ -214,6 +218,8 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
         fuzzy_tags.append(sticker_tag.c.tag_name.op('<->', return_type=Float)(tag) < threshold)
 
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
+        .join(Tag) \
+        .filter(or_(Tag.language == language, Tag.language == 'english')) \
         .filter(or_(*fuzzy_tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -238,11 +244,12 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset):
     score = score.label('score')
 
     # Query all strict matching results to exclude them.
-    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry).subquery('strict_subquery')
+    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry, language) \
+        .subquery('strict_subquery')
 
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
-    intermediate_query = session.query(Sticker.file_id,score) \
+    intermediate_query = session.query(Sticker.file_id, score) \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set) \

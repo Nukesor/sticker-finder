@@ -24,9 +24,11 @@ class Task(base):
     VOTE_BAN = 'vote_ban'
     USER_REVERT = 'user_revert'
     SCAN_SET = 'scan_set'
+    NEW_LANGUAGE = 'scan_set'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     type = Column(String)
+    message = Column(String)
     reviewed = Column(Boolean, server_default='FALSE', default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 

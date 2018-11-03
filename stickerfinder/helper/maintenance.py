@@ -8,6 +8,7 @@ from stickerfinder.helper.keyboard import (
     admin_keyboard,
     get_user_revert_keyboard,
     get_vote_ban_keyboard,
+    get_language_accept_keyboard,
 )
 from stickerfinder.models import (
     Change,
@@ -69,6 +70,11 @@ def process_task(session, tg_chat, chat, job=False):
 
         # Send first sticker of the set
         call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
+
+    elif task.type == Task.NEW_LANGUAGE:
+        # Compile task text
+        text = [f'Add new language: {task.message}?']
+        keyboard = get_language_accept_keyboard(task)
 
     text_chunks = split_text(text)
     while len(text_chunks) > 0:

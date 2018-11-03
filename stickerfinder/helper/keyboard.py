@@ -15,9 +15,23 @@ main_keyboard = ReplyKeyboardMarkup(
 
 
 admin_keyboard = ReplyKeyboardMarkup(
-    [['/cancel', '/tasks'],
+    [['/language', '/cancel', '/tasks'],
      ['/stats', '/refresh', '/tag_cleanup']],
     resize_keyboard=True, one_time_keyboard=True)
+
+
+def get_language_keyboard(languages):
+    """Get the language choosing keyboard."""
+    keyboard = []
+    next_row = []
+    for language in languages:
+        if len(next_row) < 2:
+            next_row.append(language)
+        else:
+            keyboard.append(next_row)
+            next_row = [language]
+
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
 
 def get_nsfw_ban_keyboard(sticker_set):
@@ -128,5 +142,18 @@ def get_fix_sticker_tags_keyboard(file_id):
     edit_again_data = f'{CallbackType["edit_sticker"].value}:{file_id}:0'
     buttons = [[InlineKeyboardButton(
         text="Fix this sticker's tags", callback_data=edit_again_data)]]
+
+    return InlineKeyboardMarkup(buttons)
+
+
+def get_language_accept_keyboard(task):
+    """Get the keyboard for accepting or declining a language."""
+    callback_type = CallbackType["accept_language"].value
+    language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"]}'
+    language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"]}'
+    buttons = [[
+        InlineKeyboardButton(text="Fix this sticker's tags", callback_data=language_ban),
+        InlineKeyboardButton(text="Fix this sticker's tags", callback_data=language_ok),
+    ]]
 
     return InlineKeyboardMarkup(buttons)

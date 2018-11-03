@@ -46,6 +46,9 @@ class Chat(base):
     is_newsfeed = Column(Boolean, server_default='false', default=False, nullable=False)
     is_maintenance = Column(Boolean, server_default='false', default=False, nullable=False)
 
+    # User process related flags and data
+    choosing_language = Column(Boolean, server_default='false', default=False, nullable=False)
+
     # Tagging process related flags and data
     tagging_random_sticker = Column(Boolean, server_default='false', default=False, nullable=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
@@ -92,6 +95,7 @@ class Chat(base):
         self.full_sticker_set = False
         self.expecting_sticker_set = False
         self.fix_single_sticker = False
+        self.choosing_language = False
         self.last_sticker_message_id = None
 
         self.current_task = None
