@@ -94,9 +94,9 @@ def get_user_revert_keyboard(task):
     ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
     revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
     buttons = [[
-        InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
         InlineKeyboardButton(
             text='Revert changes and Ban user', callback_data=revert_data),
+        InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
     ]]
 
     return InlineKeyboardMarkup(buttons)
