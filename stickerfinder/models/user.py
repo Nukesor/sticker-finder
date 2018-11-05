@@ -47,4 +47,8 @@ class User(base):
             session.add(user)
             session.commit()
 
+        # Allways update the username in case the username changed
+        if tg_user.username is not None:
+            user.username = tg_user.username.lower()
+
         return user

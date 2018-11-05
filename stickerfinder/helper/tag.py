@@ -169,8 +169,8 @@ def tag_sticker(session, text, sticker, user,
         )
 
     if len(incoming_tags) > 0:
-        # Create tags
-        tags = []
+        # Create tags. Keep all tags which don't match the user's language
+        tags = [tag for tag in user.tags if tag.language != user.language]
         for incoming_tag in incoming_tags:
             tag = Tag.get_or_create(session, incoming_tag, user.language)
             if tag not in tags:
@@ -183,7 +183,7 @@ def tag_sticker(session, text, sticker, user,
                 tags.append(tag)
 
         # Get the old tags for tracking
-        old_tags_as_text = sticker.tags_as_text()
+        old_tags_as_text = sticker.tags_as_text(user.language)
 
         if keep_old:
             for tag in tags:
@@ -195,7 +195,7 @@ def tag_sticker(session, text, sticker, user,
 
         # Create a change for logging
         if old_tags_as_text != sticker.tags_as_text():
-            change = Change(user, sticker, old_tags_as_text)
+            change = Change(user, sticker, old_tags_as_text, user.language)
             session.add(change)
 
     session.commit()

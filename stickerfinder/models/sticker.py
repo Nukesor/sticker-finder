@@ -62,9 +62,9 @@ class Sticker(base):
         """Create a new sticker."""
         self.file_id = file_id
 
-    def tags_as_text(self):
+    def tags_as_text(self, language):
         """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags]
+        tags = [tag.name for tag in self.tags if tag.language == language]
         return ', '.join(tags)
 
     def add_emojis(self, session, emojis):
