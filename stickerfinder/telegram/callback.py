@@ -5,7 +5,10 @@ from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
+from stickerfinder.helper.keyboard import (
+    get_nsfw_ban_keyboard,
+    get_fix_sticker_tags_keyboard,
+)
 from stickerfinder.helper.maintenance import (
     process_task,
     revert_user_changes,
@@ -80,7 +83,7 @@ def handle_callback_query(bot, update, session, user):
             task.reviewed = True
             process_task(session, tg_chat, chat)
 
-    # Handle the "Skip this sticker" button
+    # Handle the "Ban this set" button
     elif CallbackType(callback_type).name == 'ban_set':
         sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
@@ -92,6 +95,7 @@ def handle_callback_query(bot, update, session, user):
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
 
+    # Handle the "tag as nsfw" button
     elif CallbackType(callback_type).name == 'nsfw_set':
         sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
@@ -103,6 +107,7 @@ def handle_callback_query(bot, update, session, user):
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
 
+    # Handle the "tag as furry" button
     elif CallbackType(callback_type).name == 'fur_set':
         sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'ban':
@@ -126,7 +131,10 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
+        keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         handle_next(session, chat, tg_chat)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
 
     # Handle the "Stop tagging" button
     elif CallbackType(callback_type).name == 'cancel':
