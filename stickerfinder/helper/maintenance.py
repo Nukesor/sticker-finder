@@ -100,7 +100,7 @@ def process_task(session, tg_chat, chat, job=False):
 
 def revert_user_changes(session, user):
     """Revert all changes of a user."""
-    # Get all affected stickers and their respective changes
+    # Get all affected changes with their respective sticker
     affected_stickers = session.query(Sticker, Change) \
         .options(joinedload(Sticker.changes)) \
         .join(Sticker.changes) \
@@ -119,17 +119,21 @@ def revert_user_changes(session, user):
         if change.language not in languages_by_sticker[sticker.file_id]:
             languages_by_sticker[sticker.file_id].append(change.language)
 
-    for sticker in affected_stickers:
+    # Get distinct stickers
+    distinct_stickers = []
+    for (sticker, _) in affected_stickers:
+        if sticker not in distinct_stickers:
+            distinct_stickers.append(sticker)
+
+    for sticker in distinct_stickers:
         fixed_languages = []
         # Changes are sorted by created_at desc
         # We want to revert all changes until the last valid change
         for change in sticker.changes:
-            # We alread fixed all languages for this sticker
-            if len(fixed_languages) == languages_by_sticker[sticker.file_id]:
-                break
-
             # We already have an reverted change, or already declared this language as fixed
             if change.reverted or change.language in fixed_languages:
+                if change.user == user:
+                    change.reverted = True
                 continue
 
             # We found a valid change of a user which isn't reverted
@@ -141,7 +145,8 @@ def revert_user_changes(session, user):
 
             old_tags = change.old_tags.split(',')
 
-            tags_with_other_language = [tag for tag in sticker.tags if tag.language != change.language]
+            tags_with_other_language = [tag for tag in sticker.tags
+                                        if tag.language != change.language]
             tags = session.query(Tag) \
                 .filter(Tag.name.in_(old_tags)) \
                 .filter(Tag.language == change.language) \
@@ -177,25 +182,25 @@ def undo_user_changes_revert(session, user):
         for change in sticker.changes:
             # No reverted change, this is a valid tag change.
             if change.reverted is False and change.user != user:
-                break
+                continue
 
             # Only undo the newest reverted change per language
             if change.language not in updated_languages:
                 new_tags = change.new_tags.split(',')
-                tags_with_other_language = [tag for tag in sticker.tags if tag.language != change.language]
+                tags = [tag for tag in sticker.tags
+                        if (tag.language != change.language or tag.emoji)]
 
-                tags = []
                 for new_tag in new_tags:
-                    tag = Tag.get_or_create(new_tag, False, change.language)
-                    tags.insert(tag)
-                    session.add(tag)
+                    tag = Tag.get_or_create(session, new_tag, change.language, False)
+                    if tag not in tags:
+                        tags.append(tag)
 
-                sticker.tags = tags + tags_with_other_language
+                sticker.tags = tags
                 updated_languages.add(change.language)
 
             change.reverted = False
 
-    user.reverted = True
+    user.reverted = False
     Tag.remove_unused_tags(session)
 
     session.add(user)

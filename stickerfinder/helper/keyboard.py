@@ -91,14 +91,19 @@ def get_vote_ban_keyboard(task):
 def get_user_revert_keyboard(task):
     """Get keyboard for the user revert task."""
     callback_type = CallbackType['task_user_revert'].value
-    # Set task callback data
     ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
     revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
-    buttons = [[
-        InlineKeyboardButton(
-            text='Revert changes and Ban user', callback_data=revert_data),
-        InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
-    ]]
+    if not task.reviewed:
+        buttons = [[
+            InlineKeyboardButton(
+                text='Revert changes and Ban user', callback_data=revert_data),
+            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
+        ]]
+    elif task.user.reverted:
+        buttons = [[InlineKeyboardButton(text='Undo revert', callback_data=ok_data)]]
+    elif not task.user.reverted:
+        buttons = [[InlineKeyboardButton(
+            text='Revert changes and Ban user', callback_data=revert_data)]]
 
     return InlineKeyboardMarkup(buttons)
 

@@ -9,10 +9,12 @@ from stickerfinder.helper.keyboard import (
     get_nsfw_ban_keyboard,
     get_fix_sticker_tags_keyboard,
     get_language_accept_keyboard,
+    get_user_revert_keyboard,
 )
 from stickerfinder.helper.maintenance import (
     process_task,
     revert_user_changes,
+    undo_user_changes_revert,
 )
 from stickerfinder.helper.tag import (
     handle_next,
@@ -77,12 +79,20 @@ def handle_callback_query(bot, update, session, user):
         task = session.query(Task).get(payload)
         if CallbackResult(action).name == 'revert':
             task.user.banned = True
-            call_tg_func(query, 'answer', args=['User banned and changes reverted'])
             revert_user_changes(session, task.user)
+            call_tg_func(query, 'answer', args=['User banned and changes reverted'])
+        elif CallbackResult(action).name == 'ok' and task.reviewed:
+            task.user.banned = False
+            undo_user_changes_revert(session, task.user)
+            call_tg_func(query, 'answer', args=['User changes revert undone'])
 
         if not task.reviewed:
             task.reviewed = True
             process_task(session, tg_chat, chat)
+
+        keyboard = get_user_revert_keyboard(task)
+        call_tg_func(query.message, 'edit_reply_markup',
+                     kwargs={'reply_markup': keyboard})
 
     # Handle the "Ban this set" button
     elif CallbackType(callback_type).name == 'ban_set':
@@ -170,7 +180,13 @@ def handle_callback_query(bot, update, session, user):
 def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
     result = update.chosen_inline_result
-    [search_id, file_id] = result.result_id.split(':')
+    splitted = result.result_id.split(':')
+
+    # This is a result from a banned user
+    if len(splitted) < 2:
+        return
+
+    [search_id, file_id] = splitted
     inline_query = session.query(InlineQuery).get(search_id)
 
     inline_query.sticker_file_id = file_id
