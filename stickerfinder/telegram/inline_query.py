@@ -133,6 +133,8 @@ def find_stickers(bot, update, session, user):
         next_offset = f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
+    import pprint
+    pprint.pprint(matching_stickers)
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
@@ -210,17 +212,31 @@ def get_matching_stickers(session, tags, nsfw, furry, offset, language):
 
 def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     """Query all fuzzy matching stickers."""
-    threshold = 0.7
-    # Matching tag count subquery
-    tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
-    fuzzy_tags = []
+    threshold = 0.3
+    # Create a query for each tag, which fuzzy matches all tags and computes the distance
+    matching_tags = []
     for tag in tags:
-        fuzzy_tags.append(sticker_tag.c.tag_name.op('<->', return_type=Float)(tag) < threshold)
+        tag_query = session.query(Tag, func.similarity(Tag.name, tag).label('tag_similarity')) \
+            .filter(func.similarity(Tag.name, tag) >= threshold) \
+            .filter(or_(Tag.language == language, Tag.language == 'english'))
+        matching_tags.append(tag_query)
 
-    tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
-        .join(Tag) \
-        .filter(or_(Tag.language == language, Tag.language == 'english')) \
-        .filter(or_(*fuzzy_tags)) \
+    # Union all fuzzy matched tags
+    if len(matching_tags) > 1:
+        matching_tags = matching_tags[0].union(*matching_tags[1:])
+    else:
+        matching_tags = matching_tags[0]
+    matching_tags = matching_tags.subquery('matching_tags')
+
+    # Group all matching tags to get the max score of the best matching searched tag.
+    fuzzy_subquery = session.query(matching_tags.c.name, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
+        .group_by(matching_tags.c.name) \
+        .subquery()
+
+    # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
+    fuzzy_score = func.sum(fuzzy_subquery.c.tag_similarity).label("fuzzy_score")
+    tag_subq = session.query(sticker_tag.c.sticker_file_id, fuzzy_score) \
+        .join(fuzzy_subquery, sticker_tag.c.tag_name == fuzzy_subquery.c.name) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
 
@@ -228,17 +244,17 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     set_conditions = []
     for tag in tags:
         set_conditions.append(case([
-            (StickerSet.name.op('<->', return_type=Float)(tag) < threshold, 0.75),
-            (StickerSet.title.op('<->', return_type=Float)(tag) < threshold, 0.75),
+            (func.similarity(StickerSet.name, tag) >= threshold, func.similarity(StickerSet.name, tag)),
+            (func.similarity(StickerSet.title, tag) >= threshold, func.similarity(StickerSet.title, tag)),
         ], else_=0))
 
     # Condition for matching sticker text
     text_conditions = []
     for tag in tags:
-        text_conditions.append(case([(Sticker.text.op('<->', return_type=Float)(tag) < threshold, 0.40)], else_=0))
+        text_conditions.append(case([(func.similarity(Sticker.text, tag) >= threshold, 0.30)], else_=0))
 
     # Compute the whole score
-    score = cast(func.coalesce(tag_subq.c.tag_count, 0), Numeric)
+    score = cast(func.coalesce(tag_subq.c.fuzzy_score, 0), Numeric)
     for condition in set_conditions + text_conditions:
         score = score + condition
     score = score.label('score')
