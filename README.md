@@ -1,11 +1,11 @@
-# Stickerfinder (StickerFinderBot [@stfi_bot](https://t.me/stfi_bot))
+# StickerFinder (StickerFinderBot [@stfi_bot](https://t.me/stfi_bot))
 
-Stickerfinder is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query search (just like @gif).
+StickerFinder is a telegram bot which allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
 
-The inline search filters by looking at tags, detected text, emojis, stickerset name and title.
-There already are about 1700 sticker sets with over 80000 stickers that can be searched and in case the bot is missing some, you can easily add your own sticker sets.
+The inline query filters by looking at custom tags, detected text, emojis, sticker set name and title.
+There already are about 1700 sticker sets with over 80000 stickers, that can be searched. And in case the bot is missing some, you can easily add your own precious sets.
 
-Sticker finder is quite fast (about 0.1 sec for each search), features fuzzy searching, supports multiple languages and custom tagging!
+Sticker finder is quite fast (about 0.1 sec for each search), supports custom tagging, features fuzzy searching and  allows tagging in multiple languages!
 
 There are several ways to conveniently tag stickers: You can tag either in a direct telegram conversation or on the fly in any other chat.
 I even perform a basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
