@@ -24,7 +24,7 @@ All inline queries will look for tags in your current language and for tags in E
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 If there already are tags on a sticker, you'll overwrite all existing tags.
-<b>Please</b> only tag in the language you chose for your account, unless the sticker is specifically in another language.
+<b>Please</b> only tag in the language you chose for your account. If you tag in any other than your current language, you will get banned.
 
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
