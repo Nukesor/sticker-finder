@@ -84,7 +84,7 @@ def new_language(bot, update, session, chat, user):
 
     splitted = update.message.text.split(' ', 1)
     if len(splitted) < 2:
-        return 'Please write the language after the command e.g. "\new_language english"'
+        return 'Please write the language after the command e.g. "/new_language english"'
 
     language = splitted[1].lower().strip()
     exists = session.query(Language).get(language)
