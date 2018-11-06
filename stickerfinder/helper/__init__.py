@@ -15,11 +15,16 @@ It can take quite a while to add a new sticker set, so please bear with me.
 If you already added a set, you probably need to tag them first (or just search by the set name).
 To tag a whole set just send me a sticker from the set you want to tag.
 
+<b>Language:</b>
+The default language is English, but you can choose your language with \language.
+If there is a language missing, propose it with \\new_language [name].
+Every tag you add to a sticker after setting your language will be for your currently set language (That means that you need to switch languages if you want to tag more than one language, but that's just how it is :/ ).
+All inline queries will look for tags in your current language and for tags in English (as a fallback).
+
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 If there already are tags on a sticker, you'll overwrite all existing tags.
-<b>Please</b> tag in English, unless the sticker is specifically in another language.
-If you want tagged stickers in a different language, <b>please host your own bot</b>. I can give you a DB dump.
+<b>Please</b> only tag in the language you chose for your account, unless the sticker is specifically in another language.
 
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
