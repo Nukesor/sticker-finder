@@ -221,6 +221,11 @@ def broadcast(bot, update, session, chat, user):
                 deleted += 1
                 session.delete(chat)
                 continue
+        except telegram.error.Unauthorized as e:
+            # We are not allowed to contact this user.
+            deleted += 1
+            session.delete(chat)
+            continue
 
         # Sleep one second to not trigger flood prevention
         time.sleep(1)
