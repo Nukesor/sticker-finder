@@ -15,9 +15,8 @@ class Language(base):
 
     __tablename__ = 'language'
 
-    id = Column(Integer, primary_key=True)
+    name = Column(String, primary_key=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    name = Column(String)
 
     def __init__(self, name):
         """Create a new change."""

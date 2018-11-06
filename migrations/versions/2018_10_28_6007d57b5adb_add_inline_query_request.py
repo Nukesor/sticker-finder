@@ -11,13 +11,11 @@ import os
 import sys
 from sqlalchemy.orm.session import Session
 
-    # Set system path, so alembic is capable of finding the stickerfinder module
+# Set system path, so alembic is capable of finding the stickerfinder module
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
 sys.path.append(parent_dir)
 
 from stickerfinder.models import * # noqa
-
-
 
 
 # revision identifiers, used by Alembic.
