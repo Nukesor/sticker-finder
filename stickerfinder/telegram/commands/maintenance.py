@@ -221,7 +221,7 @@ def broadcast(bot, update, session, chat, user):
                 deleted += 1
                 session.delete(chat)
                 continue
-        except telegram.error.Unauthorized as e:
+        except telegram.error.Unauthorized:
             # We are not allowed to contact this user.
             deleted += 1
             session.delete(chat)
