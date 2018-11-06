@@ -60,6 +60,9 @@ def cancel(bot, update, session, chat, user):
 @session_wrapper()
 def choosing_language(bot, update, session, chat, user):
     """Select a language for the user."""
+    if chat.type != 'private':
+        return 'Please set your language in a direct conversation with me.'
+
     chat.cancel()
     chat.choosing_language = True
     languages = session.query(Language).all()
@@ -76,6 +79,8 @@ Registered languages are: \n \n""" + '\n'.join(names)
 @session_wrapper()
 def new_language(bot, update, session, chat, user):
     """Send a help text."""
+    if chat.type != 'private':
+        return 'Please add languages in a direct conversation with me.'
     language = update.message.text.split(' ', 1)[1].lower().strip()
 
     exists = session.query(Language).get(language)

@@ -1,14 +1,16 @@
 # Stickerfinder (StickerFinderBot [@stfi_bot](https://t.me/stfi_bot))
 
 Stickerfinder is a telegram bot which allows you to find your favorite stickers and discover new ones via inline query search (just like @gif).
-You can easily add your own sticker sets and search existing ones (about 1700 sticker sets with over 80000 stickers).
 
-It's quite fast and features fuzzy searching.
+The inline search filters by looking at tags, detected text, emojis, stickerset name and title.
+There already are about 1700 sticker sets with over 80000 stickers that can be searched and in case the bot is missing some, you can easily add your own sticker sets.
 
-Also there are several ways to conveniently tag stickers either in a direct telegram conversation or on the fly in any other chat.
+Sticker finder is quite fast (about 0.1 sec for each search), features fuzzy searching, supports multiple languages and custom tagging!
+
+There are several ways to conveniently tag stickers: You can tag either in a direct telegram conversation or on the fly in any other chat.
 I even perform a basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
 
-In case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
+And in case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
@@ -19,8 +21,9 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
 ## Features:
 
-- Inline query search by text, emoji, stickerset name and title.
+- Inline query search by tags, text, emoji, stickerset name and title.
 - Fuzzy searching to match similar words or typos.
+- Multi language support (with English as default and fallback)
 - Tagging of single stickers or whole sets.
 - Random tagging of stickers if you're bored.
 - Sticker set addition in direct conversations.
@@ -36,7 +39,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     /random_set Get a random sticker set.
     /skip       Skip the current sticker
-    /vote_ban [reason] Vote to ban the sticker set of the last sticker in the chat.
+    /language   Set your language.
+    /new_language [language] Propose a new language (In case I missed something).
     /cancel     Cancel all current tag actions
 
 
@@ -62,9 +66,11 @@ When you are updating from a previous version do a `alembic upgrade head` instea
     help - Display help
     tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat
-    tag_random - Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
+    tag_random - Get a random sticker for tagging. Thanks for doing this :)!
     random_set - The bot sends you a random sticker set.
     skip - Skip the current sticker
+    language - Set your language.
+    new_language - Propose a new language (In case I missed something).
     vote_ban - Vote to ban the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
 

@@ -10,7 +10,7 @@ from stickerfinder.helper.tag import handle_next, tag_sticker
 def tag_set(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
     if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
+        return 'Please tag in a direct conversation with me.'
 
     chat.cancel()
     chat.expecting_sticker_set = True
@@ -36,7 +36,7 @@ def tag_single(bot, update, session, chat, user):
 def tag_random(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
     if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
+        return 'Please tag in a direct conversation with me.'
 
     chat.cancel()
     chat.tagging_random_sticker = True
@@ -50,7 +50,7 @@ def tag_random(bot, update, session, chat, user):
 def skip(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
     if chat.type != 'private':
-        return 'Please tag in direct conversation with me.'
+        return 'Please tag in a direct conversation with me.'
 
     if chat.tagging_random_sticker or chat.full_sticker_set:
         handle_next(session, chat, update.message.chat)
