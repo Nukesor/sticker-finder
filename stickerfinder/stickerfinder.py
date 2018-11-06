@@ -16,6 +16,7 @@ from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.telegram.commands import (
+    broadcast,
     ban_user,
     unban_user,
     vote_ban_set,
@@ -99,6 +100,7 @@ dispatcher.add_handler(CommandHandler('unban', unban_user))
 dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
 dispatcher.add_handler(CommandHandler('add_sets', add_sets))
 dispatcher.add_handler(CommandHandler('delete_set', delete_set))
+dispatcher.add_handler(CommandHandler('broadcast', broadcast))
 
 # Maintenance Button commands
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))

@@ -1,4 +1,6 @@
 """Maintenance related commands."""
+import time
+import telegram
 from sqlalchemy import func
 from telegram.ext import run_async
 from datetime import datetime, timedelta
@@ -8,6 +10,7 @@ from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
 from stickerfinder.models import (
+    Chat,
     StickerSet,
     Sticker,
     sticker_tag,
@@ -194,3 +197,32 @@ def tag_cleanup(bot, update, session, chat, user):
                  ['Tag cleanup finished.'], {'reply_markup': admin_keyboard})
 
     Tag.remove_unused_tags(session)
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def broadcast(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    message = update.message.text.split(' ', 1)[1].strip()
+
+    chats = session.query(Chat) \
+        .filter(Chat.type == 'private') \
+        .all()
+
+    call_tg_func(update.message.chat, 'send_message',
+                 args=[f'Sending broadcast to {len(chats)} chats.'])
+    deleted = 0
+    for chat in chats:
+        try:
+            call_tg_func(bot, 'send_message', args=[chat.id, message])
+        except telegram.error.BadRequest as e:
+            # The chat doesn't exist any longer, delete it
+            if e.message == 'Chat not found':
+                deleted += 1
+                session.delete(chat)
+                continue
+
+        # Sleep one second to not trigger flood prevention
+        time.sleep(1)
+
+    call_tg_func(update.message.chat, 'send_message', args=[f'All messages sent. Deleted {deleted} chats.'])

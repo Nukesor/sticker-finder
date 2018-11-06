@@ -5,8 +5,6 @@ import telegram
 from raven import breadcrumbs
 from random import randrange
 
-from stickerfinder.sentry import sentry
-
 
 def call_tg_func(tg_object: object, function_name: str,
                  args: list = None, kwargs: dict = None):
@@ -15,7 +13,7 @@ def call_tg_func(tg_object: object, function_name: str,
     We need to handle those calls in case we get rate limited.
     """
     _try = 0
-    tries = 5
+    tries = 2
     exception = None
     while _try < tries:
         try:
@@ -24,18 +22,6 @@ def call_tg_func(tg_object: object, function_name: str,
             retrieved_object = getattr(tg_object, function_name)(*args, **kwargs)
             return retrieved_object
 
-        except telegram.error.BadRequest as e:
-            if e.message == 'Chat not found':
-                if _try == 0:
-                    sentry.captureMessage('First try: Chat not found.', level='info')
-                elif _try == 4:
-                    sentry.captureMessage('Last try: Chat not found.', level='info')
-                time.sleep(1)
-            else:
-                raise e
-
-            exception = e
-            _try += 1
         except telegram.error.TimedOut as e:
             sleep_time = randrange(2, 5)
             logger = logging.getLogger()
