@@ -133,8 +133,6 @@ def find_stickers(bot, update, session, user):
         next_offset = f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
-    import pprint
-    pprint.pprint(matching_stickers)
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
@@ -216,7 +214,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     # Create a query for each tag, which fuzzy matches all tags and computes the distance
     matching_tags = []
     for tag in tags:
-        tag_query = session.query(Tag, func.similarity(Tag.name, tag).label('tag_similarity')) \
+        tag_query = session.query(Tag.name.label('tag_name'), func.similarity(Tag.name, tag).label('tag_similarity')) \
             .filter(func.similarity(Tag.name, tag) >= threshold) \
             .filter(or_(Tag.language == language, Tag.language == 'english'))
         matching_tags.append(tag_query)
@@ -229,14 +227,14 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     matching_tags = matching_tags.subquery('matching_tags')
 
     # Group all matching tags to get the max score of the best matching searched tag.
-    fuzzy_subquery = session.query(matching_tags.c.name, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
-        .group_by(matching_tags.c.name) \
+    fuzzy_subquery = session.query(matching_tags.c.tag_name, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
+        .group_by(matching_tags.c.tag_name) \
         .subquery()
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
     fuzzy_score = func.sum(fuzzy_subquery.c.tag_similarity).label("fuzzy_score")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, fuzzy_score) \
-        .join(fuzzy_subquery, sticker_tag.c.tag_name == fuzzy_subquery.c.name) \
+        .join(fuzzy_subquery, sticker_tag.c.tag_name == fuzzy_subquery.c.tag_name) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
 
