@@ -81,8 +81,12 @@ def new_language(bot, update, session, chat, user):
     """Send a help text."""
     if chat.type != 'private':
         return 'Please add languages in a direct conversation with me.'
-    language = update.message.text.split(' ', 1)[1].lower().strip()
 
+    splitted = update.message.text.split(' ', 1)
+    if len(splitted) < 2:
+        return 'Please write the language after the command e.g. "\new_language english"'
+
+    language = splitted[1].lower().strip()
     exists = session.query(Language).get(language)
 
     if exists is not None:
