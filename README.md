@@ -25,6 +25,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 - Fuzzy searching to match similar words or typos.
 - Multi language support (with English as default and fallback)
 - Tagging of single stickers or whole sets.
+- NSFW and Furry filter. Use `nsfw` or `fur` tag to explicitly search for this stuff.
 - Random tagging of stickers if you're bored.
 - Sticker set addition in direct conversations.
 - Sticker set addition when bot is added to groups.
