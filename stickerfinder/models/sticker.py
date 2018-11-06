@@ -64,7 +64,9 @@ class Sticker(base):
 
     def tags_as_text(self, language):
         """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags if tag.language == language]
+        tags = [tag.name for tag in self.tags if (tag.language == language or tag.emoji)]
+        # Sort to ensure that there are no changes due to changed order
+        tags.sort()
         return ', '.join(tags)
 
     def add_emojis(self, session, emojis):

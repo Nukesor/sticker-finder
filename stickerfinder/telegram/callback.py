@@ -140,7 +140,7 @@ def handle_callback_query(bot, update, session, user):
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
-        handle_next(session, chat, tg_chat)
+        handle_next(session, chat, tg_chat, user.language)
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
 
@@ -157,7 +157,7 @@ def handle_callback_query(bot, update, session, user):
         chat.current_sticker = sticker
         if not chat.full_sticker_set and not chat.tagging_random_sticker:
             chat.fix_single_sticker = True
-        send_tag_messages(chat, tg_chat)
+        send_tag_messages(chat, tg_chat, user.language)
 
     elif CallbackType(callback_type).name == 'tag_set':
         initialize_set_tagging(bot, tg_chat, session, payload, chat, user)

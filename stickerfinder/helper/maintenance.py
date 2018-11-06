@@ -53,8 +53,11 @@ def process_task(session, tg_chat, chat, job=False):
             .order_by(Change.created_at.desc()) \
             .all()
 
+        languages = set([change.language for change in changes])
+
         # Compile task text
         text = [f'User {task.user.username} ({task.user.id}) tagged {len(changes)} sticker']
+        text.append(f'Used languages: {languages}')
         text.append(f'Detected at {task.created_at}: \n')
         for change in changes:
             if change.new_tags:

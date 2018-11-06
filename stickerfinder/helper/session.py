@@ -29,6 +29,8 @@ def session_wrapper(
                     user = User.get_or_create(session, update.message.from_user)
                 elif get_user and hasattr(update, 'inline_query') and update.inline_query:
                     user = User.get_or_create(session, update.inline_query.from_user)
+                elif get_user and hasattr(update, 'callback_query') and update.callback_query:
+                    user = User.get_or_create(session, update.callback_query.from_user)
 
                 # Check if the user has been banned.
                 if check_ban and user and user.banned:

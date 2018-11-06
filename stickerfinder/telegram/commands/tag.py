@@ -40,7 +40,7 @@ def tag_random(bot, update, session, chat, user):
 
     chat.cancel()
     chat.tagging_random_sticker = True
-    handle_next(session, chat, update.message.chat)
+    handle_next(session, chat, update.message.chat, user.language)
 
     return
 
@@ -53,7 +53,7 @@ def skip(bot, update, session, chat, user):
         return 'Please tag in a direct conversation with me.'
 
     if chat.tagging_random_sticker or chat.full_sticker_set:
-        handle_next(session, chat, update.message.chat)
+        handle_next(session, chat, update.message.chat, user.language)
 
         return
 

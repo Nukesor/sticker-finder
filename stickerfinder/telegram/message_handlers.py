@@ -25,7 +25,7 @@ def handle_private_text(bot, update, session, chat, user):
                     user, update.message.chat, chat=chat)
 
         session.commit()
-        handle_next(session, chat, update.message.chat)
+        handle_next(session, chat, update.message.chat, user.language)
 
     elif chat.tagging_random_sticker:
         # Try to tag the sticker. Return early if it didn't work.
@@ -33,7 +33,7 @@ def handle_private_text(bot, update, session, chat, user):
                     user, update.message.chat, chat)
 
         session.commit()
-        handle_next(session, chat, update.message.chat)
+        handle_next(session, chat, update.message.chat, user.language)
     elif chat.fix_single_sticker:
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat)
@@ -47,6 +47,7 @@ def handle_private_text(bot, update, session, chat, user):
             return 'No such language, please propose new languages with /new_language.'
 
         user.language = language.name
+        chat.cancel()
         call_tg_func(update.message.chat, 'send_message', [f'User language changed to: {language.name}'],
                      {'reply_markup': main_keyboard})
 
@@ -88,7 +89,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
 
-        sticker_tags_message = current_sticker_tags_message(sticker)
+        sticker_tags_message = current_sticker_tags_message(sticker, user.language)
         # Send inline keyboard to allow fast tagging of the sticker's set
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(
