@@ -22,7 +22,7 @@ class Change(base):
     id = Column(Integer, primary_key=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     reverted = Column(Boolean, server_default='false', default=False, nullable=False)
-    language = Column(String, ForeignKey('language.name'),
+    language = Column(String, ForeignKey('language.name', ondelete='cascade', onupdate='cascade'),
                       index=True, default='english', server_default="'english'")
     old_tags = Column(String)
     new_tags = Column(String)

@@ -23,7 +23,11 @@ def process_task(session, tg_chat, chat, job=False):
     """Get the next task and send it to the maintenance channel."""
     task = session.query(Task) \
         .filter(Task.reviewed.is_(False)) \
-        .filter(Task.type.in_([Task.USER_REVERT, Task.VOTE_BAN])) \
+        .filter(Task.type.in_([
+            Task.USER_REVERT,
+            Task.VOTE_BAN,
+            Task.NEW_LANGUAGE,
+        ])) \
         .order_by(Task.created_at.asc()) \
         .limit(1) \
         .one_or_none()
@@ -93,28 +97,44 @@ def process_task(session, tg_chat, chat, job=False):
 
 def revert_user_changes(session, user):
     """Revert all changes of a user."""
-    affected_stickers = session.query(Sticker) \
-        .options(
-            joinedload(Sticker.changes),
-        ) \
+    # Get all affected stickers and their respective changes
+    affected_stickers = session.query(Sticker, Change) \
+        .options(joinedload(Sticker.changes)) \
         .join(Sticker.changes) \
         .join(Change.user) \
         .filter(User.id == user.id) \
         .filter(Change.reverted.is_(False)) \
+        .order_by(Sticker.file_id, Change.created_at.desc()) \
         .all()
 
+    # Create a map of changed languages per sticker for this person.
+    languages_by_sticker = {}
+    for (sticker, change) in affected_stickers:
+        if sticker.file_id not in languages_by_sticker:
+            languages_by_sticker[sticker.file_id] = []
+
+        if change.language not in languages_by_sticker[sticker.file_id]:
+            languages_by_sticker[sticker.file_id].append(change.language)
+
     for sticker in affected_stickers:
+        fixed_languages = []
         # Changes are sorted by created_at desc
         # We want to revert all changes until the last valid change
         for change in sticker.changes:
-            # We already have an reverted change, check further
-            if change.reverted:
+            # We alread fixed all languages for this sticker
+            if len(fixed_languages) == languages_by_sticker[sticker.file_id]:
+                break
+
+            # We already have an reverted change, or already declared this language as fixed
+            if change.reverted or change.language in fixed_languages:
                 continue
 
             # We found a valid change of a user which isn't reverted
             # Thereby we use the new tags of the unbanned user
-            if change.user != user and change.user.reverted is False:
-                break
+            if change.user != user and change.user.reverted is False \
+                    and change.language in languages_by_sticker[sticker.file_id]:
+                fixed_languages.append(change.language)
+                continue
 
             old_tags = change.old_tags.split(',')
 

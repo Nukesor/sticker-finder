@@ -9,7 +9,8 @@ from stickerfinder.helper.callback import CallbackType, CallbackResult
 
 
 main_keyboard = ReplyKeyboardMarkup(
-    [['/random_set', '/tag_set', '/tag_random']],
+    [['/language', '/random_set'],
+     ['/tag_set', '/tag_random']],
     one_time_keyboard=True, resize_keyboard=True,
 )
 
@@ -18,20 +19,6 @@ admin_keyboard = ReplyKeyboardMarkup(
     [['/language', '/cancel', '/tasks'],
      ['/stats', '/refresh', '/tag_cleanup']],
     resize_keyboard=True, one_time_keyboard=True)
-
-
-def get_language_keyboard(languages):
-    """Get the language choosing keyboard."""
-    keyboard = []
-    next_row = []
-    for language in languages:
-        if len(next_row) < 2:
-            next_row.append(language)
-        else:
-            keyboard.append(next_row)
-            next_row = [language]
-
-    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True, one_time_keyboard=True)
 
 
 def get_nsfw_ban_keyboard(sticker_set):
@@ -146,14 +133,22 @@ def get_fix_sticker_tags_keyboard(file_id):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_language_accept_keyboard(task):
+def get_language_accept_keyboard(task, accepted=None):
     """Get the keyboard for accepting or declining a language."""
     callback_type = CallbackType["accept_language"].value
-    language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"]}'
-    language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"]}'
-    buttons = [[
-        InlineKeyboardButton(text="Fix this sticker's tags", callback_data=language_ban),
-        InlineKeyboardButton(text="Fix this sticker's tags", callback_data=language_ok),
-    ]]
+    if task.reviewed is False:
+        language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        buttons = [[
+            InlineKeyboardButton(text="Deny this language", callback_data=language_ban),
+            InlineKeyboardButton(text="Accept this language", callback_data=language_ok),
+        ]]
+
+    elif task.reviewed is True and accepted is True:
+        language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        buttons = [[InlineKeyboardButton(text="Delete this language", callback_data=language_ban)]]
+    else:
+        language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        buttons = [[InlineKeyboardButton(text="Accept this language", callback_data=language_ok)]]
 
     return InlineKeyboardMarkup(buttons)

@@ -20,7 +20,7 @@ class User(base):
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String, unique=True)
-    language = Column(String, ForeignKey('language.name'),
+    language = Column(String, ForeignKey('language.name', ondelete='set default', onupdate='cascade'),
                       index=True, default='english', server_default="'english'")
     banned = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, server_default='FALSE', default=False, nullable=False)

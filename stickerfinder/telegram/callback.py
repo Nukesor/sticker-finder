@@ -8,6 +8,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     get_nsfw_ban_keyboard,
     get_fix_sticker_tags_keyboard,
+    get_language_accept_keyboard,
 )
 from stickerfinder.helper.maintenance import (
     process_task,
@@ -110,24 +111,31 @@ def handle_callback_query(bot, update, session, user):
     # Handle the "tag as furry" button
     elif CallbackType(callback_type).name == 'fur_set':
         sticker_set = session.query(StickerSet).get(payload.lower())
-        if CallbackResult(action).name == 'ban':
-            sticker_set.furry = True
-        elif CallbackResult(action).name == 'ok':
+        if CallbackResult(action).name == 'ok':
             sticker_set.furry = False
+        elif CallbackResult(action).name == 'ban':
+            sticker_set.furry = True
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(query.message, 'edit_reply_markup',
                      kwargs={'reply_markup': keyboard})
 
+    # Add or delete a language
     elif CallbackType(callback_type).name == 'accept_language':
         task = session.query(Task).get(payload.lower())
         if CallbackResult(action).name == 'ok':
             language = Language(task.message)
             session.add(language)
+            accepted = True
+        elif CallbackResult(action).name == 'ban':
+            language = session.query(Language).get(task.message)
+            session.delete(language)
+            accepted = False
 
         task.reviewed = True
         session.commit()
-        call_tg_func(query.message, 'edit_reply_markup', kwargs={'reply_markup': []})
+        keyboard = get_language_accept_keyboard(task, accepted)
+        call_tg_func(query.message, 'edit_reply_markup', kwargs={'reply_markup': keyboard})
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':

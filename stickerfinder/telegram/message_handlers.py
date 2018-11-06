@@ -12,7 +12,7 @@ from stickerfinder.helper.tag import (
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.keyboard import get_tag_this_set_keyboard
+from stickerfinder.helper.keyboard import get_tag_this_set_keyboard, main_keyboard
 
 
 @session_wrapper(check_ban=True)
@@ -42,13 +42,13 @@ def handle_private_text(bot, update, session, chat, user):
         return 'Sticker tags adjusted.'
 
     elif chat.choosing_language:
-        language = session.query(Language).get(update.message.text)
+        language = session.query(Language).get(update.message.text.lower())
         if language is None:
             return 'No such language, please propose new languages with /new_language.'
 
         user.language = language.name
-
-        return f'User language changed to: {language.name}'
+        call_tg_func(update.message.chat, 'send_message', [f'User language changed to: {language.name}'],
+                     {'reply_markup': main_keyboard})
 
 
 @session_wrapper(check_ban=True)

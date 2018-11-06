@@ -1,5 +1,5 @@
 """User management related commands."""
-from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard, get_language_keyboard
+from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import User, Language, Task
@@ -60,11 +60,17 @@ def cancel(bot, update, session, chat, user):
 @session_wrapper()
 def choosing_language(bot, update, session, chat, user):
     """Select a language for the user."""
+    chat.cancel()
     chat.choosing_language = True
     languages = session.query(Language).all()
-    keyboard = get_language_keyboard(languages)
-    call_tg_func(update.message.chat, 'send_message', ['Choose your language'],
-                 {'reply_markup': keyboard})
+
+    names = [lang.name for lang in languages]
+    message = """Choose your language and send it to me.
+(If your language isn't here yet, add it with \\new_language
+Registered languages are: \n \n""" + '\n'.join(names)
+
+    call_tg_func(update.message.chat, 'send_message', [message],
+                 {'reply_markup': main_keyboard})
 
 
 @session_wrapper()

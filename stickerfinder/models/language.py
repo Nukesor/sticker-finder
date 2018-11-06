@@ -3,7 +3,6 @@ from sqlalchemy import (
     Column,
     DateTime,
     func,
-    Integer,
     String,
 )
 
