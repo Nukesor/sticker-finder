@@ -25,7 +25,7 @@ from stickerfinder.telegram.commands import (
     tag_single,
     tag_random,
     tag_set,
-    tag_cleanup,
+    cleanup,
     skip,
     cancel,
     stats,
@@ -105,7 +105,7 @@ dispatcher.add_handler(CommandHandler('broadcast', broadcast))
 # Maintenance Button commands
 dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
 dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
-dispatcher.add_handler(CommandHandler('tag_cleanup', tag_cleanup))
+dispatcher.add_handler(CommandHandler('cleanup', cleanup))
 dispatcher.add_handler(CommandHandler('tasks', start_tasks))
 dispatcher.add_handler(CommandHandler('stats', stats))
 

@@ -27,7 +27,7 @@ class Tag(base):
     name = Column(String(), primary_key=True)
     language = Column(String, ForeignKey('language.name', ondelete='cascade', onupdate='cascade'),
                       index=True, default='english', server_default="'english'")
-    emoji = Column(Boolean, server_default='False', default=False, nullable=False)
+    emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     stickers = relationship(

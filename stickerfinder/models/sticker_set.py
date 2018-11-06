@@ -30,18 +30,18 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
-    deleted = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    deleted = Column(Boolean, default=False, nullable=False)
 
     # Flags
-    banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    nsfw = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    furry = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    banned = Column(Boolean, default=False, nullable=False)
+    nsfw = Column(Boolean, default=False, nullable=False)
+    furry = Column(Boolean, default=False, nullable=False)
 
     # Metadata
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
-    completely_tagged = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    newsfeed_sent = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    completely_tagged = Column(Boolean, default=False, nullable=False)
+    newsfeed_sent = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     vote_bans = relationship("VoteBan", order_by="desc(VoteBan.created_at)")

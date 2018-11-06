@@ -23,14 +23,15 @@ class User(base):
     language = Column(String, ForeignKey('language.name', ondelete='set default', onupdate='cascade'),
                       index=True, default='english', server_default="'english'")
     banned = Column(Boolean, default=False, nullable=False)
-    reverted = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    admin = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    authorized = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    reverted = Column(Boolean, default=False, nullable=False)
+    admin = Column(Boolean, default=False, nullable=False)
+    authorized = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     changes = relationship('Change')
     tasks = relationship('Task')
     vote_bans = relationship('VoteBan')
+    inline_queries = relationship('InlineQuery')
 
     def __init__(self, user_id, username):
         """Create a new user."""
