@@ -143,9 +143,11 @@ def handle_callback_query(bot, update, session, user):
             accepted = False
 
         task.reviewed = True
-        session.commit()
         keyboard = get_language_accept_keyboard(task, accepted)
         call_tg_func(query.message, 'edit_reply_markup', kwargs={'reply_markup': keyboard})
+        call_tg_func(bot, 'send_message', [task.user.id, 'Your language proposal has been accepted'],
+                     {'reply_markup': main_keyboard})
+        process_task(session, tg_chat, chat)
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':

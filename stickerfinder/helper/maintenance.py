@@ -80,7 +80,7 @@ def process_task(session, tg_chat, chat, job=False):
 
     elif task.type == Task.NEW_LANGUAGE:
         # Compile task text
-        text = [f'New language proposed by {task.user.username} ({task.user.id}: {task.message}?']
+        text = [f'New language proposed by {task.user.username} ({task.user.id}: {task.message}']
         keyboard = get_language_accept_keyboard(task)
 
     text_chunks = split_text(text)
