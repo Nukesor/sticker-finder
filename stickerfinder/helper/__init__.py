@@ -47,7 +47,7 @@ I also try to detect text in stickers, but this turns out to be quite ambitious.
 Don't expect this functionality to work reliably!
 
 In case you encounter any bugs or you just want to look at the code:
-https://github.com/Nukesor/stickerfinder
+https://github.com/Nukesor/sticker-finder
 """
 
 tag_text = f"""Now please send me tags for each sticker I'll send you.
