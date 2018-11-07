@@ -16,8 +16,8 @@ If you already added a set, you probably need to tag them first (or just search 
 To tag a whole set just send me a sticker from the set you want to tag.
 
 <b>Language:</b>
-The default language is English, but you can choose your language with \language.
-If there is a language missing, propose it with \\new_language [name].
+The default language is English, but you can choose your language with /language.
+If there is a language missing, propose it with /new_language [name].
 Every tag you add to a sticker after setting your language will be for your currently set language (That means that you need to switch languages if you want to tag more than one language, but that's just how it is :/ ).
 All inline queries will look for tags in your current language and for tags in English (as a fallback).
 
@@ -35,7 +35,7 @@ Tag some stickers :)! Just type /tag_random in a direct conversation with me.
 
 <b>NSFW & Sticker Ban:</b>
 I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with nsfw and can only be found when using the nsfw tag.
-In case I miss any, you can use the `/vote_ban` command to make me look at it again (Use it for both nsfw and ban).
+In case I miss any, you can use the /vote_ban command to make me look at it again (Use it for both nsfw and ban).
 Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
 <b>User Ban:</b>
