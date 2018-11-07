@@ -69,7 +69,7 @@ def choosing_language(bot, update, session, chat, user):
 
     names = [lang.name for lang in languages]
     message = """Choose your language and send it to me.
-(If your language isn't here yet, add it with \\new_language
+(If your language isn't here yet, add it with e.g. "/new_language english"
 Registered languages are: \n \n""" + '\n'.join(names)
 
     call_tg_func(update.message.chat, 'send_message', [message],
