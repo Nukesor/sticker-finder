@@ -1,10 +1,12 @@
 """User management related commands."""
+from telegram.ext import run_async
 from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import User, Language, Task
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def ban_user(bot, update, session, chat, user):
     """Send a help text."""
@@ -26,6 +28,7 @@ def ban_user(bot, update, session, chat, user):
         return 'Unknown username'
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def unban_user(bot, update, session, chat, user):
     """Send a help text."""
@@ -47,6 +50,7 @@ def unban_user(bot, update, session, chat, user):
         return 'Unknown username'
 
 
+@run_async
 @session_wrapper()
 def cancel(bot, update, session, chat, user):
     """Send a help text."""
@@ -57,11 +61,22 @@ def cancel(bot, update, session, chat, user):
                  {'reply_markup': keyboard})
 
 
+@run_async
 @session_wrapper()
 def choosing_language(bot, update, session, chat, user):
     """Select a language for the user."""
     if chat.type != 'private':
         return 'Please set your language in a direct conversation with me.'
+
+    splitted = update.message.text.split(' ', 1)
+    if len(splitted) == 2:
+        language = session.query(Language).get(splitted[1].lower())
+        user.language = language.name
+        if language is not None:
+            user.language = language.name
+            call_tg_func(update.message.chat, 'send_message', [f'User language changed to: {language.name}'],
+                         {'reply_markup': main_keyboard})
+            return
 
     chat.cancel()
     chat.choosing_language = True
@@ -76,6 +91,7 @@ Registered languages are: \n \n""" + '\n'.join(names)
                  {'reply_markup': main_keyboard})
 
 
+@run_async
 @session_wrapper()
 def new_language(bot, update, session, chat, user):
     """Send a help text."""
