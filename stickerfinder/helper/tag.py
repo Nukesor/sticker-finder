@@ -132,7 +132,11 @@ def get_tags_from_text(text, limit=15):
     for ignored in ignored_characters:
         text = text.replace(ignored, ' ')
 
+    # Split and strip
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+
+    # Remove hashtags
+    tags = [tag[1:] if tag.startswith('#') else tag for tag in tags]
 
     # Deduplicate tags
     tags = list(OrderedDict.fromkeys(tags))

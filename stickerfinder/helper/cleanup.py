@@ -1,4 +1,5 @@
 """Some functions to cleanup the database."""
+from stickerfinder.helper import ignored_characters
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.models import (
@@ -19,6 +20,25 @@ def tag_cleanup(session, update):
             session.delete(tag)
 
             continue
+
+        # Remove ignored characters from tag
+        new_name = tag.name
+        for char in ignored_characters:
+            if char in new_name:
+                new_name = new_name.replace(char, '')
+
+        # Remove hash tags
+        if new_name.startswith('#'):
+            new_name = new_name[1:]
+
+        # If the new tag with removed chars already exists in the db, remove the old tag.
+        # Otherwise just update the tag name
+        if new_name != tag.name:
+            new_exists = session.query(Tag).get(new_name)
+            if new_exists is not None or new_name == '':
+                session.delete(tag)
+            else:
+                tag.name = new_name
 
     call_tg_func(update.message.chat, 'send_message', ['Tag cleanup finished.'], {'reply_markup': admin_keyboard})
 

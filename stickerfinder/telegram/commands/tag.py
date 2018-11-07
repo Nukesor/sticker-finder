@@ -30,6 +30,8 @@ def tag_single(bot, update, session, chat, user):
 
         tag_sticker(session, text, chat.current_sticker, user, update.message.chat)
 
+        return 'Sticker tags changed.'
+
 
 @run_async
 @session_wrapper(check_ban=True)
