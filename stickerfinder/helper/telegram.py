@@ -1,9 +1,9 @@
 """All helper for interaction with telegram."""
 import time
 import logging
-import telegram
 from raven import breadcrumbs
 from random import randrange
+from telegram.error import TimedOut, NetworkError, BadRequest
 
 
 def call_tg_func(tg_object: object, function_name: str,
@@ -22,10 +22,10 @@ def call_tg_func(tg_object: object, function_name: str,
             retrieved_object = getattr(tg_object, function_name)(*args, **kwargs)
             return retrieved_object
 
-        except telegram.error.TimedOut as e:
+        except (TimedOut, NetworkError, BadRequest) as e:
             sleep_time = randrange(2, 5)
             logger = logging.getLogger()
-            logger.info(f'Hit socket timeout waiting {sleep_time} secs.')
+            logger.info(f'Got exception waiting {sleep_time} secs.')
             time.sleep(sleep_time)
             breadcrumbs.record(data={'action': 'Socket timeout hit'}, category='info')
 
