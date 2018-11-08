@@ -5,7 +5,7 @@ from telegram.ext import run_async
 from sqlalchemy import func, and_
 
 from stickerfinder.config import config
-from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
 from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
@@ -20,7 +20,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def newsfeed(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
     chats = session.query(Chat) \
@@ -87,7 +87,7 @@ def newsfeed(bot, job, session, user):
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def maintenance_tasks(bot, job, session, user):
     """Create new maintenance tasks.
 
@@ -148,7 +148,7 @@ def maintenance_tasks(bot, job, session, user):
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def scan_sticker_sets(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
     job.enabled = False

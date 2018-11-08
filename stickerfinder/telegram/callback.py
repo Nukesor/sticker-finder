@@ -2,7 +2,7 @@
 from telegram.ext import run_async
 
 from stickerfinder.helper.keyboard import main_keyboard
-from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
@@ -32,7 +32,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def handle_callback_query(bot, update, session, user):
     """Handle callback queries from inline keyboards."""
     query = update.callback_query
@@ -181,7 +181,7 @@ def handle_callback_query(bot, update, session, user):
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def handle_chosen_inline_result(bot, update, session, user):
     """Save the chosen inline result."""
     result = update.chosen_inline_result

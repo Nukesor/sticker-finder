@@ -7,7 +7,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import VoteBan, StickerSet, Sticker
 
 
-@session_wrapper(check_ban=True)
+@session_wrapper(check_ban=True, private=True)
 def vote_ban_set(bot, update, session, chat, user):
     """Vote ban the set of the last sticker send to this chat."""
     if chat.current_sticker:
@@ -37,7 +37,7 @@ def vote_ban_set(bot, update, session, chat, user):
 Please send the sticker first before you use "/vote_ban"."""
 
 
-@session_wrapper(check_ban=True)
+@session_wrapper(check_ban=True, private=True)
 def random_set(bot, update, session, chat, user):
     """Get random sticker_set."""
     sticker_count = func.count(Sticker.file_id).label("sticker_count")
@@ -56,42 +56,3 @@ def random_set(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_sticker',
                      args=[sticker_set.stickers[0].file_id],
                      kwargs={'reply_markup': main_keyboard})
-
-
-@session_wrapper(check_ban=True)
-def add_sets(bot, update, session, chat, user):
-    """Get random sticker_set."""
-    text = update.message.text[9:]
-
-    count = 0
-    names = text.split('\n')
-    for name in names:
-        set_name = name.strip()
-        try:
-            tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[set_name])
-        except BaseException:
-            return f"Couldn't find set {set_name}"
-
-        sticker_set = session.query(StickerSet).get(tg_sticker_set.name)
-        if sticker_set is None:
-            try:
-                StickerSet.get_or_create(session, set_name, chat, user)
-                count += 1
-            except BaseException:
-                pass
-
-    return f'Added {count} new sticker sets.'
-
-
-@session_wrapper(admin_only=True)
-def delete_set(bot, update, session, chat, user):
-    """Delete a specific set."""
-    name = update.message.text[11:].strip().lower()
-
-    sticker_set = session.query(StickerSet).get(name)
-
-    if sticker_set:
-        session.delete(sticker_set)
-        return f'Sticker set {name} deleted'
-
-    return f'No sticker set with name {name}'

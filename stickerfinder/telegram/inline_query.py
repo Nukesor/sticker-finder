@@ -1,7 +1,7 @@
 """Inline query handler function."""
 from uuid import uuid4
 from datetime import datetime
-from sqlalchemy import func, case, cast, Numeric, or_, Float
+from sqlalchemy import func, case, cast, Numeric, or_
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -9,7 +9,7 @@ from telegram import (
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.models import (
     InlineQuery,
@@ -22,7 +22,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@session_wrapper(send_message=False)
+@hidden_session_wrapper(send_message=False)
 def find_stickers(bot, update, session, user):
     """Handle inline queries for sticker search."""
     # We don't want banned users
