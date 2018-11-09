@@ -1,12 +1,13 @@
 """Session helper functions."""
 import traceback
 from functools import wraps
+from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.config import config
 from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat, User
-from .telegram import call_tg_func
+from stickerfinder.helper.telegram import call_tg_func
 
 
 def hidden_session_wrapper(check_ban=False, admin_only=False):
@@ -24,6 +25,13 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
                 func(bot, update, session, user)
 
                 session.commit()
+            except BadRequest as e:
+                # An update for a reply keyboard has failed (Probably due to button spam)
+                if e.message == 'Message is not modified': # noqa
+                    return
+
+                traceback.print_exc()
+                sentry.captureException()
             except BaseException:
                 traceback.print_exc()
                 sentry.captureException()
@@ -63,6 +71,26 @@ def session_wrapper(send_message=True, check_ban=False,
                     return
 
                 session.commit()
+            except BadRequest as e:
+                # An update for a reply keyboard has failed (Probably due to button spam)
+                if e.message == 'Message is not modified': # noqa
+                    return
+                # We are on dev db or a user deleted a chat.
+                if e.message == 'Chat not found': # noqa
+                    session.delete(chat)
+
+                traceback.print_exc()
+                sentry.captureException()
+            # A user banned the bot
+            except Unauthorized:
+                session.delete(chat)
+                return
+
+            # A group chat has been converted to a super group.
+            except ChatMigrated:
+                session.delete(chat)
+                return
+
             except BaseException:
                 traceback.print_exc()
                 sentry.captureException()

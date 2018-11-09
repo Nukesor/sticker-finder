@@ -2,8 +2,7 @@
 import time
 import logging
 from raven import breadcrumbs
-from random import randrange
-from telegram.error import TimedOut, NetworkError, BadRequest
+from telegram.error import TimedOut, NetworkError
 
 
 def call_tg_func(tg_object: object, function_name: str,
@@ -22,14 +21,11 @@ def call_tg_func(tg_object: object, function_name: str,
             retrieved_object = getattr(tg_object, function_name)(*args, **kwargs)
             return retrieved_object
 
-        except (TimedOut, NetworkError, BadRequest) as e:
-            sleep_time = randrange(2, 5)
+        except (TimedOut, NetworkError) as e:
             logger = logging.getLogger()
-            logger.info(f'Got exception waiting {sleep_time} secs.')
-            time.sleep(sleep_time)
-            breadcrumbs.record(data={'action': 'Socket timeout hit'}, category='info')
-
-            time.sleep(sleep_time)
+            logger.info(f'Got telegram exception waiting 1 sec.')
+            breadcrumbs.record(data={'action': 'Telegram exception', 'exception': e}, category='info')
+            time.sleep(1)
             _try += 1
 
             exception = e

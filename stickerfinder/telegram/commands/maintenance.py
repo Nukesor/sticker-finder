@@ -3,6 +3,7 @@ import time
 import telegram
 from sqlalchemy import func
 from telegram.ext import run_async
+from telegram.error import BadRequest, Unauthorized
 from datetime import datetime, timedelta
 
 from stickerfinder.helper.keyboard import admin_keyboard
@@ -188,14 +189,16 @@ def broadcast(bot, update, session, chat, user):
     for chat in chats:
         try:
             call_tg_func(bot, 'send_message', args=[chat.id, message])
-        except telegram.error.BadRequest as e:
-            # The chat doesn't exist any longer, delete it
-            if e.message == 'Chat not found':
+
+        # The chat doesn't exist any longer, delete it
+        except BadRequest as e:
+            if e.message == 'Chat not found': # noqa
                 deleted += 1
                 session.delete(chat)
                 continue
-        except telegram.error.Unauthorized:
-            # We are not allowed to contact this user.
+
+        # We are not allowed to contact this user.
+        except Unauthorized:
             deleted += 1
             session.delete(chat)
             continue

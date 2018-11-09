@@ -130,7 +130,7 @@ class StickerSet(base):
         except telegram.error.BadRequest:
             message = "Couldn't send success message to user."
             logger.info(message)
-            sentry.captureMessage(message, level='info')
+            sentry.captureMessage(message, level='info', stack=True)
         except telegram.error.Unauthorized:
             message = "Bot got blocked by user."
             logger.info(message)

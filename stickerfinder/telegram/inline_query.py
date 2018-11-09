@@ -40,6 +40,9 @@ def find_stickers(bot, update, session, user):
 
     # Return early, if we have no tags
     if len(tags) == 0:
+        update.inline_query.answer([], cache_time=300, is_personal=True,
+                                   switch_pm_text="Just type what you're looking for :)",
+                                   switch_pm_parameter='inline')
         return
 
     offset_incoming = update.inline_query.offset
