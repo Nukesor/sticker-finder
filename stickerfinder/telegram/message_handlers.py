@@ -101,7 +101,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     return
 
 
-@session_wrapper(send_message=False, get_user=False)
+@session_wrapper(send_message=False)
 def handle_group_sticker(bot, update, session, chat, user):
     """Read all stickers.
 

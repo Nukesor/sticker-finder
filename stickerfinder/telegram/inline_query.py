@@ -22,7 +22,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@hidden_session_wrapper(send_message=False)
+@hidden_session_wrapper()
 def find_stickers(bot, update, session, user):
     """Handle inline queries for sticker search."""
     # We don't want banned users
