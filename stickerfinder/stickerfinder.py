@@ -79,56 +79,58 @@ logging.basicConfig(level=config.LOG_LEVEL,
 updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
                   request_kwargs={'read_timeout': 20.})
 
-# Input commands
-dispatcher = updater.dispatcher
-dispatcher.add_handler(CommandHandler('tag', tag_single))
-dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
-dispatcher.add_handler(CommandHandler('skip', skip))
-dispatcher.add_handler(CommandHandler('language', choosing_language))
-dispatcher.add_handler(CommandHandler('new_language', new_language))
+if not config.LEECHER:
+    # Input commands
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler('tag', tag_single))
+    dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
+    dispatcher.add_handler(CommandHandler('skip', skip))
+    dispatcher.add_handler(CommandHandler('language', choosing_language))
+    dispatcher.add_handler(CommandHandler('new_language', new_language))
 
-# Button commands
-dispatcher.add_handler(CommandHandler('start', start))
-dispatcher.add_handler(CommandHandler('help', send_help_text))
-dispatcher.add_handler(CommandHandler('tag_set', tag_set))
-dispatcher.add_handler(CommandHandler('tag_random', tag_random))
-dispatcher.add_handler(CommandHandler('random_set', random_set))
-dispatcher.add_handler(CommandHandler('cancel', cancel))
+    # Button commands
+    dispatcher.add_handler(CommandHandler('start', start))
+    dispatcher.add_handler(CommandHandler('help', send_help_text))
+    dispatcher.add_handler(CommandHandler('tag_set', tag_set))
+    dispatcher.add_handler(CommandHandler('tag_random', tag_random))
+    dispatcher.add_handler(CommandHandler('random_set', random_set))
+    dispatcher.add_handler(CommandHandler('cancel', cancel))
 
-# Maintenance input commands
-dispatcher.add_handler(CommandHandler('ban', ban_user))
-dispatcher.add_handler(CommandHandler('unban', unban_user))
-dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
-dispatcher.add_handler(CommandHandler('add_sets', add_sets))
-dispatcher.add_handler(CommandHandler('delete_set', delete_set))
-dispatcher.add_handler(CommandHandler('broadcast', broadcast))
+    # Maintenance input commands
+    dispatcher.add_handler(CommandHandler('ban', ban_user))
+    dispatcher.add_handler(CommandHandler('unban', unban_user))
+    dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
+    dispatcher.add_handler(CommandHandler('add_sets', add_sets))
+    dispatcher.add_handler(CommandHandler('delete_set', delete_set))
+    dispatcher.add_handler(CommandHandler('broadcast', broadcast))
 
-# Maintenance Button commands
-dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
-dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
-dispatcher.add_handler(CommandHandler('cleanup', cleanup))
-dispatcher.add_handler(CommandHandler('tasks', start_tasks))
-dispatcher.add_handler(CommandHandler('stats', stats))
+    # Maintenance Button commands
+    dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
+    dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
+    dispatcher.add_handler(CommandHandler('cleanup', cleanup))
+    dispatcher.add_handler(CommandHandler('tasks', start_tasks))
+    dispatcher.add_handler(CommandHandler('stats', stats))
 
-# Regular tasks
-if config.RUN_JOBS:
+    # Regular tasks
     job_queue = updater.job_queue
     job_queue.run_repeating(newsfeed_job, interval=300, first=0, name='Process newsfeed')
     job_queue.run_repeating(maintenance_job, interval=3600, first=0, name='Create new maintenance tasks')
     job_queue.run_repeating(scan_sticker_sets_job, interval=10, first=0, name='Scan new sticker sets')
     job_queue.run_repeating(distribute_tasks_job, interval=60, first=0, name='Distribute new tasks')
 
-# Create message handler
-dispatcher.add_handler(
-    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))
-dispatcher.add_handler(
-    MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
-dispatcher.add_handler(
-    MessageHandler(Filters.text & Filters.private, handle_private_text))
+    # Create private message handler
+    dispatcher.add_handler(
+        MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
+    dispatcher.add_handler(
+        MessageHandler(Filters.text & Filters.private, handle_private_text))
 
-# Inline callback handler
-dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
-dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
+    # Inline callback handler
+    dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
+    dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))
+
+# Create group message handler
+dispatcher.add_handler(
+    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))

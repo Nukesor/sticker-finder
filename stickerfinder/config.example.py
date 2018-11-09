@@ -11,10 +11,11 @@ class Config:
     SQL_URI = 'sqlite:///stickerfinder.db'
     SENTRY_TOKEN = None
     LOG_LEVEL = logging.INFO
+
     # Username of the admin
     ADMIN = 'Nukesor'
-    # Run maintenance jobs. This is important if you want to run multiple instances of the bot
-    RUN_JOBS = True
+    # Check whether the bot instance should only listen to chats and collect stickers
+    LEECHER = True
     # Only important if running multiple instances ( for logging )
     BOT_NAME = 'stickerfinder'
 
