@@ -7,7 +7,7 @@ from sqlalchemy import func, and_
 from stickerfinder.config import config
 from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import process_task
+from stickerfinder.helper.maintenance import distribute_tasks
 from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
 from stickerfinder.models import (
     Chat,
@@ -21,7 +21,7 @@ from stickerfinder.models import (
 
 @run_async
 @hidden_session_wrapper()
-def newsfeed(bot, job, session, user):
+def newsfeed_job(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
     chats = session.query(Chat) \
         .filter(Chat.is_newsfeed.is_(True)) \
@@ -64,7 +64,7 @@ def newsfeed(bot, job, session, user):
                 requery_chats = True
                 session.delete(chat)
             except telegram.error.BadRequest as e:
-                if e.message == 'Chat not found':
+                if e.message == 'Chat not found': # noqa
                     requery_chats = True
                     session.delete(chat)
                 else:
@@ -88,7 +88,7 @@ def newsfeed(bot, job, session, user):
 
 @run_async
 @hidden_session_wrapper()
-def maintenance_tasks(bot, job, session, user):
+def maintenance_job(bot, job, session, user):
     """Create new maintenance tasks.
 
     - Check for users to ban
@@ -99,7 +99,10 @@ def maintenance_tasks(bot, job, session, user):
     vote_ban_count = func.count(VoteBan.id).label('vote_ban_count')
     vote_ban_candidates = session.query(StickerSet, vote_ban_count) \
         .join(StickerSet.vote_bans) \
-        .outerjoin(StickerSet.tasks) \
+        .outerjoin(Task, and_(
+            StickerSet.name == Task.sticker_set_name,
+            Task.type == Task.VOTE_BAN,
+        )) \
         .filter(Task.id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .group_by(StickerSet) \
@@ -131,25 +134,19 @@ def maintenance_tasks(bot, job, session, user):
         tasks.append(task)
         session.add(task)
 
-    if len(tasks) == 0:
-        return
-
     session.commit()
-
-    idle_maintenance_chats = session.query(Chat) \
-        .filter(Chat.is_maintenance) \
-        .filter(Chat.current_task_id.is_(None)) \
-        .all()
-
-    for chat in idle_maintenance_chats:
-        # There are no more tasks
-        tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
-        process_task(session, tg_chat, chat, job=True)
 
 
 @run_async
 @hidden_session_wrapper()
-def scan_sticker_sets(bot, job, session, user):
+def distribute_tasks_job(bot, job, session, user):
+    """Distribute open tasks to maintenance channels."""
+    distribute_tasks(bot, session)
+
+
+@run_async
+@hidden_session_wrapper()
+def scan_sticker_sets_job(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
     job.enabled = False
     tasks = session.query(Task) \

@@ -1,6 +1,7 @@
 """Helper functions for maintenance."""
-from sqlalchemy.orm import joinedload
 from datetime import timedelta
+from sqlalchemy.orm import joinedload
+from telegram.error import BadRequest
 
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
@@ -11,12 +12,33 @@ from stickerfinder.helper.keyboard import (
     get_language_accept_keyboard,
 )
 from stickerfinder.models import (
+    Chat,
     Change,
     Task,
     Sticker,
     User,
     Tag,
 )
+
+
+def distribute_tasks(bot, session):
+    """Distribute tasks under idle maintenance chats."""
+    idle_maintenance_chats = session.query(Chat) \
+        .filter(Chat.is_maintenance) \
+        .filter(Chat.current_task_id.is_(None)) \
+        .all()
+
+    for chat in idle_maintenance_chats:
+        # There are no more tasks
+        try:
+            tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
+            process_task(session, tg_chat, chat, job=True)
+        except BadRequest as e:
+            if e.message == 'Chat not found': # noqa
+                session.delete(chat)
+                continue
+
+            raise e
 
 
 def process_task(session, tg_chat, chat, job=False):

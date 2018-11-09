@@ -38,9 +38,10 @@ from stickerfinder.telegram.commands import (
     choosing_language,
 )
 from stickerfinder.telegram.jobs import (
-    newsfeed,
-    maintenance_tasks,
-    scan_sticker_sets,
+    newsfeed_job,
+    maintenance_job,
+    scan_sticker_sets_job,
+    distribute_tasks_job,
 )
 from stickerfinder.telegram.message_handlers import (
     handle_private_text,
@@ -112,10 +113,10 @@ dispatcher.add_handler(CommandHandler('stats', stats))
 # Regular tasks
 if config.RUN_JOBS:
     job_queue = updater.job_queue
-    job_queue.run_repeating(newsfeed, interval=300, first=0, name='Process newsfeed')
-    job_queue.run_repeating(maintenance_tasks, interval=3600, first=0, name='Create new maintenance tasks')
-    job_queue.run_repeating(scan_sticker_sets, interval=10, first=0,
-                            name='Scan new sticker sets')
+    job_queue.run_repeating(newsfeed_job, interval=300, first=0, name='Process newsfeed')
+    job_queue.run_repeating(maintenance_job, interval=3600, first=0, name='Create new maintenance tasks')
+    job_queue.run_repeating(scan_sticker_sets_job, interval=10, first=0, name='Scan new sticker sets')
+    job_queue.run_repeating(distribute_tasks_job, interval=60, first=0, name='Distribute new tasks')
 
 # Create message handler
 dispatcher.add_handler(

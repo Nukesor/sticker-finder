@@ -142,7 +142,8 @@ def handle_callback_query(bot, update, session, user):
 
         elif CallbackResult(action).name == 'ban':
             language = session.query(Language).get(task.message)
-            session.delete(language)
+            if language:
+                session.delete(language)
             accepted = False
             call_tg_func(bot, 'send_message', [task.user.id, 'Your language proposal has been rejected.'],
                          {'reply_markup': main_keyboard})

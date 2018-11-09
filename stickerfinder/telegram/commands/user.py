@@ -1,20 +1,9 @@
 """User management related commands."""
 from telegram.ext import run_async
-from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
+from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.models import Language, Task
-
-
-@run_async
-@session_wrapper(check_ban=True, private=True)
-def cancel(bot, update, session, chat, user):
-    """Send a help text."""
-    chat.cancel()
-
-    keyboard = admin_keyboard if chat.is_maintenance else main_keyboard
-    call_tg_func(update.message.chat, 'send_message', ['All running commands are canceled'],
-                 {'reply_markup': keyboard})
 
 
 @run_async
@@ -60,6 +49,14 @@ def new_language(bot, update, session, chat, user):
 
     if exists is not None:
         return "Language already exists"
+
+    task_exists = session.query(Task) \
+        .filter(Task.type == Task.NEW_LANGUAGE) \
+        .filter(Task.message == language) \
+        .one_or_none()
+
+    if task_exists:
+        return "Language has already been proposed"
 
     task = Task(Task.NEW_LANGUAGE, user=user)
     task.message = language

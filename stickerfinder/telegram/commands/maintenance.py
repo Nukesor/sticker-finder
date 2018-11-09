@@ -151,6 +151,7 @@ def start_tasks(bot, update, session, chat, user):
     if not chat.is_maintenance:
         call_tg_func(update.message.chat, 'send_message',
                      ['The chat is no maintenance chat'], {'reply_markup': admin_keyboard})
+        return
 
     elif chat.current_task:
         return 'There already is a task active for this chat.'
