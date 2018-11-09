@@ -1,4 +1,4 @@
-# Sticker Finder (Sticker Finder Bot [@stfi_bot](https://t.me/stfi_bot))
+# Sticker Finder ([@stfi_bot](https://t.me/stfi_bot))
 
 Sticker Finder is a telegram bot which allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
 
