@@ -29,6 +29,10 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 if e.message == 'Message is not modified': # noqa
                     return
+                # It took to long to send the inline query response.
+                # Probably due to slow network on client side.
+                elif e.message == 'Query_id_invalid': # noqa
+                    return
 
                 traceback.print_exc()
                 sentry.captureException()
