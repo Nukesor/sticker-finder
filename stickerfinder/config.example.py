@@ -15,7 +15,7 @@ class Config:
     # Username of the admin
     ADMIN = 'Nukesor'
     # Check whether the bot instance should only listen to chats and collect stickers
-    LEECHER = True
+    LEECHER = False
     # Only important if running multiple instances ( for logging )
     BOT_NAME = 'stickerfinder'
 
