@@ -79,9 +79,16 @@ logging.basicConfig(level=config.LOG_LEVEL,
 updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
                   request_kwargs={'read_timeout': 20.})
 
+# Create inline query handler
+updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))
+
+dispatcher = updater.dispatcher
+# Create group message handler
+dispatcher.add_handler(
+    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))
+
 if not config.LEECHER:
     # Input commands
-    dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler('tag', tag_single))
     dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
     dispatcher.add_handler(CommandHandler('skip', skip))
@@ -127,10 +134,3 @@ if not config.LEECHER:
     # Inline callback handler
     dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
     dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
-
-# Create inline query handler
-updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))
-
-# Create group message handler
-dispatcher.add_handler(
-    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))
