@@ -30,6 +30,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 - Sticker set addition in direct conversations.
 - Sticker set addition when bot is added to groups.
 - /vote_ban for inappropriate sticker sets.
+- A minimalistic mode for groups that don't want user interaction (I already host one with the name [@stfil_bot](https://t.me/stfil_bot))
 
 
 ## Available commands:
