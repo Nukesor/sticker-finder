@@ -136,6 +136,14 @@ def find_stickers(bot, update, session, user):
         next_offset = f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
+
+    # Stuff for debugging, since I need that all the time
+    if False:
+        import pprint
+        pprint.pprint('\n\nNext: ') # noqa
+        pprint.pprint(offset_incoming) # noqa
+        pprint.pprint(matching_stickers) # noqa
+
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
@@ -184,7 +192,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
 
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
-    intermediate_query = session.query(Sticker.file_id, score) \
+    intermediate_query = session.query(Sticker.file_id, StickerSet.title, score) \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
@@ -195,7 +203,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
     matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score) \
         .filter(or_(intermediate_query.c.score > 0, nsfw, furry)) \
-        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.file_id)
+        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.title, intermediate_query.c.file_id)
 
     return matching_stickers
 
@@ -266,7 +274,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
 
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
-    intermediate_query = session.query(Sticker.file_id, score) \
+    intermediate_query = session.query(Sticker.file_id, StickerSet.title, score) \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set) \
@@ -279,7 +287,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
     matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score) \
         .filter(or_(intermediate_query.c.score > 0, nsfw, furry)) \
-        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.file_id) \
+        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.title, intermediate_query.c.file_id) \
         .offset(offset) \
         .limit(50) \
         .all()

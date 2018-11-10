@@ -1,6 +1,7 @@
 """Helper functions for maintenance."""
 from datetime import timedelta
 from sqlalchemy.orm import joinedload
+from telegram.error import BadRequest
 
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
@@ -28,7 +29,15 @@ def distribute_tasks(bot, session):
         .all()
 
     for chat in idle_maintenance_chats:
-        tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
+        try:
+            tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
+        except BadRequest as e:
+            if e.message == 'Chat not found': # noqa
+                session.delete(chat)
+                continue
+
+            raise e
+
         process_task(session, tg_chat, chat, job=True)
 
 

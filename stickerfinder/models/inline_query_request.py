@@ -23,7 +23,7 @@ class InlineQueryRequest(base):
     duration = Column(Interval)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    inline_query_id = Column(BigInteger, ForeignKey('inline_query.id'), index=True)
+    inline_query_id = Column(BigInteger, ForeignKey('inline_query.id', ondelete='CASCADE'), index=True)
 
     inline_query = relationship("InlineQuery")
 
