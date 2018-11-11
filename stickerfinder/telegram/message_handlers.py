@@ -136,7 +136,7 @@ def handle_group_sticker(bot, update, session, chat, user):
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
 
-    if chat.is_maintenance:
+    if chat.is_maintenance or chat.is_newsfeed:
         message = f'StickerSet {sticker_set.title} ({sticker_set.name})'
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
