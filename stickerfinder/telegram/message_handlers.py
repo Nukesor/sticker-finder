@@ -12,7 +12,11 @@ from stickerfinder.helper.tag import (
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.keyboard import get_tag_this_set_keyboard, main_keyboard
+from stickerfinder.helper.keyboard import (
+    get_tag_this_set_keyboard,
+    main_keyboard,
+    get_nsfw_ban_keyboard,
+)
 
 
 @session_wrapper(check_ban=True)
@@ -131,5 +135,10 @@ def handle_group_sticker(bot, update, session, chat, user):
     # Set the send sticker to the current sticker for tagging or vote_ban.
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
+
+    if chat.is_maintenance:
+        message = f'StickerSet {sticker_set.title} ({sticker_set.name})'
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
 
     return
