@@ -2,19 +2,17 @@
 import io
 import re
 import logging
-import telegram
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import Column, String, DateTime, func, Boolean, Index
 from sqlalchemy.orm import relationship
+from telegram.error import BadRequest, TimedOut
 
 from stickerfinder.db import base
-from stickerfinder.sentry import sentry
 from stickerfinder.models import chat_sticker_set, Sticker, Task
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.image import preprocess_image
-from stickerfinder.helper.keyboard import get_tag_this_set_keyboard
 
 
 class StickerSet(base):
@@ -41,7 +39,7 @@ class StickerSet(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, default=False, nullable=False)
-    newsfeed_sent = Column(Boolean, default=False, nullable=False)
+    reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     vote_bans = relationship("VoteBan", order_by="desc(VoteBan.created_at)")
@@ -63,7 +61,7 @@ class StickerSet(base):
         logger = logging.getLogger()
         try:
             tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[self.name])
-        except telegram.error.BadRequest as e:
+        except BadRequest as e:
             if e.message == 'Stickerset_invalid':
                 self.deleted = True
                 return
@@ -94,10 +92,10 @@ class StickerSet(base):
                     if text == '':
                         text = None
 
-                except telegram.error.TimedOut:
+                except TimedOut:
                     logger.info(f'Finally failed on file {tg_sticker.file_id}')
                     pass
-                except telegram.error.BadRequest:
+                except BadRequest:
                     logger.info(f'Failed to get image of f{tg_sticker.file_id}')
                     pass
 
@@ -119,22 +117,6 @@ class StickerSet(base):
         self.stickers = stickers
         self.complete = True
         session.commit()
-
-        try:
-            if chat and chat.type == 'private':
-                keyboard = get_tag_this_set_keyboard(self.name)
-                call_tg_func(bot, 'send_message',
-                             [chat.id, f'Stickerset {self.name} has been added.'],
-                             kwargs={'reply_markup': keyboard})
-                return
-        except telegram.error.BadRequest:
-            message = "Couldn't send success message to user."
-            logger.info(message)
-            sentry.captureMessage(message, level='info', stack=True)
-        except telegram.error.Unauthorized:
-            message = "Bot got blocked by user."
-            logger.info(message)
-            sentry.captureMessage(message, level='info')
 
     @staticmethod
     def get_or_create(session, name, chat, user):

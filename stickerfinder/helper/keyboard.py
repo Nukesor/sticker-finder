@@ -26,6 +26,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     ban_type = CallbackType["ban_set"].value
     nsfw_type = CallbackType["nsfw_set"].value
     fur_type = CallbackType["fur_set"].value
+    next_type = CallbackType["newsfeed_next_set"].value
 
     if sticker_set.nsfw:
         nsfw_data = f'{nsfw_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
@@ -50,13 +51,18 @@ def get_nsfw_ban_keyboard(sticker_set):
 
     buttons = [
         [
+            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
             InlineKeyboardButton(text=fur_text, callback_data=fur_data),
         ],
         [
-            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
             InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
         ],
     ]
+
+    if not sticker_set.reviewed:
+        next_data = f'{next_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
+        button = InlineKeyboardButton(text='Next', callback_data=next_data)
+        buttons[1].append(button)
 
     return InlineKeyboardMarkup(buttons)
 

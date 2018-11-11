@@ -1,7 +1,7 @@
 """Helper functions for maintenance."""
 from datetime import timedelta
 from sqlalchemy.orm import joinedload
-from telegram.error import BadRequest
+from telegram.error import BadRequest, ChatMigrated
 
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
@@ -10,15 +10,81 @@ from stickerfinder.helper.keyboard import (
     get_user_revert_keyboard,
     get_vote_ban_keyboard,
     get_language_accept_keyboard,
+    get_nsfw_ban_keyboard,
 )
 from stickerfinder.models import (
     Chat,
     Change,
     Task,
     Sticker,
+    StickerSet,
     User,
     Tag,
 )
+
+
+def distribute_newsfeed_tasks(bot, session, chats=None):
+    """Distribute tasks under idle newsfeed chats."""
+    if chats is None:
+        chats = session.query(Chat) \
+            .filter(Chat.is_newsfeed.is_(True)) \
+            .filter(Chat.current_task_id.is_(None)) \
+            .all()
+
+    # No newsfeed chats found
+    if chats is None:
+        return
+
+    for chat in chats:
+        # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
+        next_task = session.query(Task) \
+            .filter(Task.type == Task.SCAN_SET) \
+            .join(Task.sticker_set) \
+            .outerjoin(Task.processing_chat) \
+            .filter(Chat.current_task_id.is_(None)) \
+            .filter(StickerSet.complete.is_(True)) \
+            .filter(Task.reviewed.is_(False)) \
+            .order_by(Task.created_at.asc()) \
+            .limit(1) \
+            .one_or_none()
+
+        # No more tasks
+        if next_task is None:
+            chat.current_task = None
+            continue
+
+        # TODO: HANDLE
+        # Sticker set with zero stickers
+        if len(next_task.sticker_set.stickers) == 0:
+            continue
+
+        new_set = next_task.sticker_set
+
+        try:
+            keyboard = get_nsfw_ban_keyboard(new_set)
+            call_tg_func(bot, 'send_sticker',
+                         [chat.id, new_set.stickers[0].file_id],
+                         {'reply_markup': keyboard})
+
+            if next_task.user is not None:
+                message = f'Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})'
+            else:
+                message = f'Set {new_set.name} added by chat: {next_task.chat.id}'
+            call_tg_func(bot, 'send_message', [chat.id, message])
+
+            chat.current_task = next_task
+
+        # A newsfeed chat has been converted to a super group.
+        # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
+        except ChatMigrated:
+            session.delete(chat)
+        except BadRequest as e:
+            if e.message == 'Chat not found': # noqa
+                session.delete(chat)
+            else:
+                raise e
+
+        session.commit()
 
 
 def distribute_tasks(bot, session):

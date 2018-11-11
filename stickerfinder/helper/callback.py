@@ -22,6 +22,7 @@ class CallbackType(Enum):
     cancel = 11
     edit_sticker = 12
     tag_set = 13
+    newsfeed_next_set = 14
 
 
 @unique

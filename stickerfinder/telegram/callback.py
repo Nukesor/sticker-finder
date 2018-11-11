@@ -1,6 +1,7 @@
 """Callback query handling."""
 from telegram.ext import run_async
 
+from stickerfinder.sentry import sentry
 from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
@@ -10,11 +11,13 @@ from stickerfinder.helper.keyboard import (
     get_fix_sticker_tags_keyboard,
     get_language_accept_keyboard,
     get_user_revert_keyboard,
+    get_tag_this_set_keyboard,
 )
 from stickerfinder.helper.maintenance import (
     process_task,
     revert_user_changes,
     undo_user_changes_revert,
+    distribute_newsfeed_tasks,
 )
 from stickerfinder.helper.tag import (
     handle_next,
@@ -51,10 +54,10 @@ def handle_callback_query(bot, update, session, user):
         task = session.query(Task).get(payload)
         if CallbackResult(action).name == 'ban':
             task.sticker_set.banned = True
-            call_tg_func(query, 'answer', args=['Set banned'])
+            call_tg_func(query, 'answer', ['Set banned'])
         else:
             task.sticker_set.banned = False
-            call_tg_func(query, 'answer', args=['Set unbanned'])
+            call_tg_func(query, 'answer', ['Set unbanned'])
 
         if not task.reviewed:
             task.reviewed = True
@@ -65,10 +68,10 @@ def handle_callback_query(bot, update, session, user):
         task = session.query(Task).get(payload)
         if CallbackResult(action).name == 'ban':
             task.sticker_set.nsfw = True
-            call_tg_func(query, 'answer', args=['Set tagged as nsfw'])
+            call_tg_func(query, 'answer', ['Set tagged as nsfw'])
         else:
             task.sticker_set.nsfw = False
-            call_tg_func(query, 'answer', args=['Set no longer tagged as nsfw'])
+            call_tg_func(query, 'answer', ['Set no longer tagged as nsfw'])
 
         if not task.reviewed:
             task.reviewed = True
@@ -80,19 +83,18 @@ def handle_callback_query(bot, update, session, user):
         if CallbackResult(action).name == 'revert':
             task.user.banned = True
             revert_user_changes(session, task.user)
-            call_tg_func(query, 'answer', args=['User banned and changes reverted'])
+            call_tg_func(query, 'answer', ['User banned and changes reverted'])
         elif CallbackResult(action).name == 'ok' and task.reviewed:
             task.user.banned = False
             undo_user_changes_revert(session, task.user)
-            call_tg_func(query, 'answer', args=['User changes revert undone'])
+            call_tg_func(query, 'answer', ['User changes revert undone'])
 
         if not task.reviewed:
             task.reviewed = True
             process_task(session, tg_chat, chat)
 
         keyboard = get_user_revert_keyboard(task)
-        call_tg_func(query.message, 'edit_reply_markup',
-                     kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "Ban this set" button
     elif CallbackType(callback_type).name == 'ban_set':
@@ -103,8 +105,7 @@ def handle_callback_query(bot, update, session, user):
             sticker_set.banned = False
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(query.message, 'edit_reply_markup',
-                     kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "tag as nsfw" button
     elif CallbackType(callback_type).name == 'nsfw_set':
@@ -115,8 +116,7 @@ def handle_callback_query(bot, update, session, user):
             sticker_set.nsfw = False
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(query.message, 'edit_reply_markup',
-                     kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "tag as furry" button
     elif CallbackType(callback_type).name == 'fur_set':
@@ -127,8 +127,42 @@ def handle_callback_query(bot, update, session, user):
             sticker_set.furry = True
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(query.message, 'edit_reply_markup',
-                     kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+
+    # Handle the "next" button in the newsfeed chat
+    elif CallbackType(callback_type).name == 'newsfeed_next_set':
+        sticker_set = session.query(StickerSet).get(payload.lower())
+        task = session.query(Task) \
+            .filter(Task.type == Task.SCAN_SET) \
+            .filter(Task.sticker_set == sticker_set) \
+            .one()
+
+        task.reviewed = True
+        sticker_set.reviewed = True
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        task_chat = task.processing_chat[0]
+        distribute_newsfeed_tasks(bot, session, [task_chat])
+
+        if task_chat.current_task is None:
+            call_tg_func(query, 'answer', ['No new stickers sets'])
+
+        try:
+            if task.chat and task.chat.type == 'private':
+                if sticker_set.banned:
+                    call_tg_func(bot, 'send_message', [task.chat.id, f'Stickerset {sticker_set.name} has been banned.'])
+
+                else:
+                    keyboard = get_tag_this_set_keyboard(sticker_set.name)
+                    message = f'Stickerset {sticker_set.name} has been added.'
+                    if sticker_set.nsfw or sticker_set.furry:
+                        message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
+                        message += f"{'furry' if sticker_set.furry else ''}"
+                    call_tg_func(bot, 'send_message', [task.chat.id, message], {'reply_markup': keyboard})
+                return
+        except: # noqa
+            pass
 
     # Add or delete a language
     elif CallbackType(callback_type).name == 'accept_language':
@@ -150,19 +184,18 @@ def handle_callback_query(bot, update, session, user):
 
         task.reviewed = True
         keyboard = get_language_accept_keyboard(task, accepted)
-        call_tg_func(query.message, 'edit_reply_markup', kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
         process_task(session, tg_chat, chat)
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         handle_next(session, chat, tg_chat, user.language)
-        call_tg_func(query.message, 'edit_reply_markup',
-                     kwargs={'reply_markup': keyboard})
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "Stop tagging" button
     elif CallbackType(callback_type).name == 'cancel':
-        call_tg_func(query, 'answer', args=['All active commands have been canceled'])
+        call_tg_func(query, 'answer', ['All active commands have been canceled'])
         call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
                      {'reply_markup': main_keyboard})
         chat.cancel()

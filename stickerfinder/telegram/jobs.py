@@ -6,11 +6,8 @@ from sqlalchemy import func, and_
 
 from stickerfinder.config import config
 from stickerfinder.helper.session import hidden_session_wrapper
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import distribute_tasks
-from stickerfinder.helper.keyboard import get_nsfw_ban_keyboard
+from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfeed_tasks
 from stickerfinder.models import (
-    Chat,
     Change,
     StickerSet,
     VoteBan,
@@ -23,65 +20,8 @@ from stickerfinder.models import (
 @hidden_session_wrapper()
 def newsfeed_job(bot, job, session, user):
     """Send all new sticker to the newsfeed chats."""
-    chats = session.query(Chat) \
-        .filter(Chat.is_newsfeed.is_(True)) \
-        .all()
-
-    # Don't send a neewsfeed if there are no chats we can send to.
-    # This will result in a real message spam on the first chat
-    if len(chats) == 0:
-        return
-
-    new_sets = session.query(StickerSet) \
-        .filter(StickerSet.newsfeed_sent.is_(False)) \
-        .filter(StickerSet.complete.is_(True)) \
-        .all()
-
-    requery_chats = False
-    # Send the first sticker of each new pack to all newsfeed channels
-    for new_set in new_sets:
-        # Skip sets with zero stickers
-        if len(new_set.stickers) == 0:
-            continue
-
-        for chat in chats:
-            try:
-                keyboard = get_nsfw_ban_keyboard(new_set)
-                call_tg_func(bot, 'send_sticker',
-                             args=[chat.id, new_set.stickers[0].file_id],
-                             kwargs={'reply_markup': keyboard})
-
-                if len(new_set.tasks) > 0:
-                    if new_set.tasks[0].user is not None:
-                        message = f'Set {new_set.name} added by user: {new_set.tasks[0].user.username} ({new_set.tasks[0].user.id})'
-                    else:
-                        message = f'Set {new_set.name} added by chat: {new_set.tasks[0].chat.id}'
-                    call_tg_func(bot, 'send_message', args=[chat.id, message])
-
-            # A newsfeed chat has been converted to a super group.
-            # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
-            except telegram.error.ChatMigrated:
-                requery_chats = True
-                session.delete(chat)
-            except telegram.error.BadRequest as e:
-                if e.message == 'Chat not found': # noqa
-                    requery_chats = True
-                    session.delete(chat)
-                else:
-                    raise e
-
-        new_set.newsfeed_sent = True
-        session.commit()
-
-        # Error handling in case a user stops the bot after adding a sticker.
-        # Query newsfeed chats again. Something has changed.
-        if requery_chats:
-            chats = session.query(Chat) \
-                .filter(Chat.is_newsfeed.is_(True)) \
-                .all()
-            if len(chats) == 0:
-                return
-            requery_chats = False
+    # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
+    distribute_newsfeed_tasks(bot, session)
 
     return
 
@@ -151,14 +91,15 @@ def scan_sticker_sets_job(bot, job, session, user):
     job.enabled = False
     tasks = session.query(Task) \
         .filter(Task.type == Task.SCAN_SET) \
+        .join(Task.sticker_set) \
         .filter(Task.reviewed.is_(False)) \
+        .filter(StickerSet.complete.is_(False)) \
         .order_by(Task.created_at.asc()) \
         .all()
 
     # Send the first sticker of each new pack to all newsfeed channels
     for task in tasks:
         task.sticker_set.refresh_stickers(session, bot, chat=task.chat)
-        task.reviewed = True
         session.commit()
 
     job.enabled = True

@@ -116,33 +116,17 @@ def flag_chat(bot, update, session, chat, user):
     """Flag a chat as maintenance or ban chat."""
     chat_type = update.message.text.split(' ', 1)[1].strip()
 
-    # Flag chat as ban channel
-    if chat_type == 'ban':
-        if not chat.is_maintenance and not chat.is_newsfeed:
-            chat.is_ban = not chat.is_ban
-            return f"Chat is {'now' if chat.is_ban else 'no longer'} a ban chat."
-        else:
-            return "Chat can't be flagged for ban and maintenance or newsfeed"
-
     # Flag chat as maintenance channel
-    elif chat_type == 'maintenance':
-        if not chat.is_ban:
-            chat.is_maintenance = not chat.is_maintenance
-            return f"Chat is {'now' if chat.is_maintenance else 'no longer' } a maintenance chat."
-        else:
-            call_tg_func(update.message.chat, 'send_message',
-                         ["Chat can't be flagged for ban and maintenance or newsfeed"],
-                         {'reply_markup': admin_keyboard})
+    if chat_type == 'maintenance':
+        chat.is_maintenance = not chat.is_maintenance
+        return f"Chat is {'now' if chat.is_maintenance else 'no longer' } a maintenance chat."
 
     # Flag chat as newsfeed channel
     elif chat_type == 'newsfeed':
-        if not chat.is_ban:
-            chat.is_newsfeed = not chat.is_newsfeed
-            return f"Chat is {'now' if chat.is_newsfeed else 'no longer' } a newsfeed chat."
-        else:
-            return "Chat can't be flagged for ban and maintenance or newsfeed"
+        chat.is_newsfeed = not chat.is_newsfeed
+        return f"Chat is {'now' if chat.is_newsfeed else 'no longer' } a newsfeed chat."
 
-    return 'Unknown chat type.'
+    return 'Unknown flag.'
 
 
 @session_wrapper(admin_only=True)

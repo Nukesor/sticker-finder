@@ -225,6 +225,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .join(Sticker.sticker_set) \
         .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
         .subquery('strict_intermediate')
@@ -309,6 +310,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
         .join(Sticker.sticker_set) \
         .filter(strict_subquery.c.file_id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
         .subquery('fuzzy_intermediate')

@@ -42,7 +42,6 @@ class Chat(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     # Maintenance and chat flags
-    is_ban = Column(Boolean, default=False, nullable=False)
     is_newsfeed = Column(Boolean, default=False, nullable=False)
     is_maintenance = Column(Boolean, default=False, nullable=False)
 

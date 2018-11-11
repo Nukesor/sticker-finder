@@ -74,7 +74,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.complete is False:
         call_tg_func(update.message.chat, 'send_message',
-                     args=[f'Set {sticker_set.name} is going to be added soon.'])
+                     args=[f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'])
 
         return
 
@@ -122,12 +122,6 @@ def handle_group_sticker(bot, update, session, chat, user):
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.complete is False:
         return
-
-    # Handle ban chat
-    if chat.is_ban:
-        sticker_set.banned = True
-
-        return f'Banned sticker set {sticker_set.title}'
 
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
