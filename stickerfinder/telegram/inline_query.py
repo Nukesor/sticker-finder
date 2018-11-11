@@ -50,40 +50,43 @@ def find_stickers(bot, update, session, user):
     offset_incoming = update.inline_query.offset
     # If the offset is 'done' there are no more stickers for this query.
     if offset_incoming == 'done':
+        update.inline_query.answer([], cache_time=0)
         return
 
+    # Extract the current offsets from the incoming offset payload
     offset, fuzzy_offset, query_id = extract_info_from_offset(offset_incoming)
 
     # Handle special tags
     nsfw = 'nsfw' in tags
     furry = 'fur' in tags or 'furry' in tags
 
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
-        session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
-
-    if query_id:
-        # Save this inline search for performance measurement
-        inline_query = session.query(InlineQuery).get(query_id)
-    else:
-        # We have an offset request of an existing InlineQuery.
-        # Reuse the existing one and add the new InlineQueryRequest to this query.
-        inline_query = InlineQuery(query, user)
-        session.add(inline_query)
-        session.commit()
-
-    next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
+    # Create a new inline query or get the respective existing one, if we are working with an offset.
+    inline_query = InlineQuery.get_or_create(session, query_id, query, user)
 
     # Save this specific InlineQueryRequest
     try:
-        create_inline_query_result(session, inline_query, duration, offset, offset_incoming, next_offset)
+        saved_offset = offset_incoming.split(':', 1)[1] if offset != 0 else 0
+        inline_query_request = InlineQueryRequest(inline_query, saved_offset)
+        session.add(inline_query_request)
+        session.commit()
     except IntegrityError:
         # This needs some explaining:
         # Sometimes (probably due to slow sticker loading) the telegram clients fire queries with the same offset.
-        # To prevent this, we have an unique constraint on InlineQueryResults.
+        # To prevent this, we have an unique constraint on InlineQueryRequests.
         # If this constraint is violated, we assume that the scenario above just happened and just don't answer.
         # This prevents duplicate sticker suggestions due to slow internet connections.
         session.rollback()
         return
+
+    # Get all matching stickers
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
+        session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
+
+    # Calculate the next offset. 'done' means there are no more results.
+    next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
+
+    inline_query_request.duration = duration
+    inline_query_request.next_offset = next_offset.split(':', 1) if next_offset != 'done' else next_offset
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
@@ -130,15 +133,6 @@ def extract_info_from_offset(offset_incoming):
             fuzzy_offset = int(splitted[2])
 
     return offset, fuzzy_offset, query_id
-
-
-def create_inline_query_result(session, inline_query, duration, offset, offset_incoming, next_offset):
-    """Create the inline query result."""
-    saved_offset = offset_incoming.split(':', 1)[1] if offset != 0 else 0
-    saved_next_offset = next_offset.split(':', 1) if next_offset != 'done' else next_offset
-    inline_query_request = InlineQueryRequest(inline_query, saved_offset, saved_next_offset, duration)
-    session.add(inline_query_request)
-    session.commit()
 
 
 def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy_offset):

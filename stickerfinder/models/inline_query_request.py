@@ -32,9 +32,7 @@ class InlineQueryRequest(base):
 
     inline_query = relationship("InlineQuery")
 
-    def __init__(self, inline_query, offset, next_offset, duration):
+    def __init__(self, inline_query, offset):
         """Create a new change."""
         self.inline_query = inline_query
         self.offset = str(offset)
-        self.offset = str(next_offset)
-        self.duration = duration

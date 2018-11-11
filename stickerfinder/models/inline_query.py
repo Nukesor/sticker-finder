@@ -36,3 +36,18 @@ class InlineQuery(base):
         self.query = query
         self.user = user
         self.bot = config.BOT_NAME
+
+    @staticmethod
+    def get_or_create(session, query_id, query, user):
+        """Get or create the InlineQuery."""
+        if query_id:
+            # Save this inline search for performance measurement
+            inline_query = session.query(InlineQuery).get(query_id)
+        else:
+            # We have an offset request of an existing InlineQuery.
+            # Reuse the existing one and add the new InlineQueryRequest to this query.
+            inline_query = InlineQuery(query, user)
+            session.add(inline_query)
+            session.commit()
+
+        return inline_query
