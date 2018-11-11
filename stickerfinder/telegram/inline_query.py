@@ -86,7 +86,7 @@ def find_stickers(bot, update, session, user):
     next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
 
     inline_query_request.duration = duration
-    inline_query_request.next_offset = next_offset.split(':', 1) if next_offset != 'done' else next_offset
+    inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
