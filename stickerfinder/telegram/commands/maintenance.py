@@ -1,6 +1,5 @@
 """Maintenance related commands."""
 import time
-import telegram
 from sqlalchemy import func
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized

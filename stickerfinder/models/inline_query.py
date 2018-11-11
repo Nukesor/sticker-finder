@@ -28,7 +28,8 @@ class InlineQuery(base):
 
     user = relationship("User")
     sticker = relationship("Sticker")
-    requests = relationship("InlineQueryRequest")
+    requests = relationship("InlineQueryRequest",
+                            order_by="asc(InlineQueryRequest.created_at)")
 
     def __init__(self, query, user):
         """Create a new change."""

@@ -2,6 +2,7 @@
 from uuid import uuid4
 from datetime import datetime
 from sqlalchemy import func, case, cast, Numeric, or_
+from sqlalchemy.exc import IntegrityError
 from telegram.ext import run_async
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -33,6 +34,7 @@ def find_stickers(bot, update, session, user):
         update.inline_query.answer(results, cache_time=300, is_personal=True,
                                    switch_pm_text="Maybe don't be a dick :)?",
                                    switch_pm_parameter='inline')
+        return
 
     # Get tags
     query = update.inline_query.query
@@ -50,90 +52,52 @@ def find_stickers(bot, update, session, user):
     if offset_incoming == 'done':
         return
 
-    offset = None
-    fuzzy_offset = None
-    query_id = None
+    offset, fuzzy_offset, query_id = extract_info_from_offset(offset_incoming)
 
-    # First incoming request, set the offset to 0
-    if offset_incoming == '':
-        offset = 0
+    # Handle special tags
+    nsfw = 'nsfw' in tags
+    furry = 'fur' in tags or 'furry' in tags
 
-    else:
-        splitted = offset_incoming.split(':')
-        query_id = splitted[0]
-        offset = int(splitted[1])
-        # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
-        if len(splitted) > 2:
-            fuzzy_offset = int(splitted[2])
-
-    # Handle nsfw tag
-    nsfw = False
-    if 'nsfw' in tags:
-        nsfw = True
-
-    furry = False
-    if 'fur' in tags or 'furry' in tags:
-        furry = True
-
-    # Measure the db query time
-    start = datetime.now()
-    language = user.language
-
-    # Get exactly matching stickers and fuzzy matching stickers
-    matching_stickers = []
-    fuzzy_matching_stickers = []
-    if fuzzy_offset is None:
-        matching_stickers = get_matching_stickers(session, tags, nsfw, furry, offset, language)
-    # Get the fuzzy matching sticker, if there are no more strictly matching stickers
-    # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
-
-    if fuzzy_offset is not None or len(matching_stickers) == 0:
-        # We have no strict search results in the first search iteration.
-        # Directly jump to fuzzy search
-        if fuzzy_offset is None:
-            fuzzy_offset = 0
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, language)
-
-    end = datetime.now()
-
-    # If we take more than 10 seconds, the answer will be invalid.
-    # We need to know about this, before it happens.
-    duration = end-start
-    if duration.seconds >= 9:
-        sentry.captureMessage(f'Query took too long.', level='info',
-                              extra={
-                                  'query': query,
-                                  'duration': duration,
-                                  'results': len(matching_stickers),
-                              })
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
+        session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
 
     if query_id:
+        # Save this inline search for performance measurement
         inline_query = session.query(InlineQuery).get(query_id)
     else:
-        # Save this inline search for performance measurement
+        # We have an offset request of an existing InlineQuery.
+        # Reuse the existing one and add the new InlineQueryRequest to this query.
         inline_query = InlineQuery(query, user)
         session.add(inline_query)
         session.commit()
 
-    saved_offset = offset_incoming.split(':', 1)[1] if offset != 0 else 0
-    inline_query_request = InlineQueryRequest(inline_query, saved_offset, duration)
-    session.add(inline_query_request)
-    session.commit()
+    next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
 
-    # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
-    if len(matching_stickers) == 50 and fuzzy_offset is None:
-        next_offset = f'{inline_query.id}:{offset + 50}'
-    # Check whether we are done.
-    elif len(fuzzy_matching_stickers) < 50 and fuzzy_offset is not None:
-        next_offset = 'done'
-    # We reached the end of the strictly matching stickers. Mark the next query for fuzzy searching
-    else:
-        if fuzzy_offset is None:
-            fuzzy_offset = 0
+    # Save this specific InlineQueryRequest
+    try:
+        create_inline_query_result(session, inline_query, duration, offset, offset_incoming, next_offset)
+    except IntegrityError:
+        # This needs some explaining:
+        # Sometimes (probably due to slow sticker loading) the telegram clients fire queries with the same offset.
+        # To prevent this, we have an unique constraint on InlineQueryResults.
+        # If this constraint is violated, we assume that the scenario above just happened and we thereby
+        # need to query again, but now with the next offset.
+        # This prevents duplicate sticker suggestions due to slow internet connections.
+        print('Es knallt!')
+        print(offset_incoming)
+        print(query)
+        session.rollback()
+        offset_incoming = next_offset
+        offset, fuzzy_offset, query_id = extract_info_from_offset(offset_incoming)
 
-        offset = offset + len(matching_stickers)
-        fuzzy_offset += len(fuzzy_matching_stickers)
-        next_offset = f'{inline_query.id}:{offset}:{fuzzy_offset}'
+        matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
+            session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
+
+        next_offset = get_next_offset(inline_query, matching_stickers, offset,
+                                      fuzzy_matching_stickers, fuzzy_offset)
+
+        create_inline_query_result(session, inline_query, duration,
+                                   offset, offset_incoming, next_offset)
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
@@ -159,6 +123,91 @@ def find_stickers(bot, update, session, user):
                      'switch_pm_text': 'Maybe tag some stickers :)?',
                      'switch_pm_parameter': 'inline',
                  })
+
+
+def extract_info_from_offset(offset_incoming):
+    """Extract information from the incoming offset."""
+    offset = None
+    fuzzy_offset = None
+    query_id = None
+
+    # First incoming request, set the offset to 0
+    if offset_incoming == '':
+        offset = 0
+
+    else:
+        splitted = offset_incoming.split(':')
+        query_id = splitted[0]
+        offset = int(splitted[1])
+        # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
+        if len(splitted) > 2:
+            fuzzy_offset = int(splitted[2])
+
+    return offset, fuzzy_offset, query_id
+
+
+def create_inline_query_result(session, inline_query, duration, offset, offset_incoming, next_offset):
+    """Create the inline query result."""
+    saved_offset = offset_incoming.split(':', 1)[1] if offset != 0 else 0
+    saved_next_offset = next_offset.split(':', 1) if next_offset != 'done' else next_offset
+    inline_query_request = InlineQueryRequest(inline_query, saved_offset, saved_next_offset, duration)
+    session.add(inline_query_request)
+    session.commit()
+
+
+def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy_offset):
+    """Get all matching stickers and query duration for given criteria and offset."""
+    # Measure the db query time
+    start = datetime.now()
+    language = user.language
+
+    # Get exactly matching stickers and fuzzy matching stickers
+    matching_stickers = []
+    fuzzy_matching_stickers = []
+    if fuzzy_offset is None:
+        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, language)
+    # Get the fuzzy matching sticker, if there are no more strictly matching stickers
+    # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
+
+    if fuzzy_offset is not None or len(matching_stickers) == 0:
+        # We have no strict search results in the first search iteration.
+        # Directly jump to fuzzy search
+        if fuzzy_offset is None:
+            fuzzy_offset = 0
+        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, language)
+
+    end = datetime.now()
+
+    # If we take more than 10 seconds, the answer will be invalid.
+    # We need to know about this, before it happens.
+    duration = end-start
+    if duration.seconds >= 9:
+        sentry.captureMessage(f'Query took too long.', level='info',
+                              extra={
+                                  'query': query,
+                                  'duration': duration,
+                                  'results': len(matching_stickers),
+                              })
+
+    return matching_stickers, fuzzy_matching_stickers, duration
+
+
+def get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset):
+    """Get the offset for the next query."""
+    # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
+    if len(matching_stickers) == 50 and fuzzy_offset is None:
+        return f'{inline_query.id}:{offset + 50}'
+    # Check whether we are done.
+    elif len(fuzzy_matching_stickers) < 50 and fuzzy_offset is not None:
+        return 'done'
+    # We reached the end of the strictly matching stickers. Mark the next query for fuzzy searching
+    else:
+        if fuzzy_offset is None:
+            fuzzy_offset = 0
+
+        offset = offset + len(matching_stickers)
+        fuzzy_offset += len(fuzzy_matching_stickers)
+        return f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
 
 def get_strict_matching_query(session, tags, nsfw, furry, language):
@@ -208,7 +257,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
     return matching_stickers
 
 
-def get_matching_stickers(session, tags, nsfw, furry, offset, language):
+def get_strict_matching_stickers(session, tags, nsfw, furry, offset, language):
     """Query all strictly matching stickers for given tags."""
     matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, language)
 
