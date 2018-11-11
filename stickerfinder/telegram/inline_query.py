@@ -80,24 +80,10 @@ def find_stickers(bot, update, session, user):
         # This needs some explaining:
         # Sometimes (probably due to slow sticker loading) the telegram clients fire queries with the same offset.
         # To prevent this, we have an unique constraint on InlineQueryResults.
-        # If this constraint is violated, we assume that the scenario above just happened and we thereby
-        # need to query again, but now with the next offset.
+        # If this constraint is violated, we assume that the scenario above just happened and just don't answer.
         # This prevents duplicate sticker suggestions due to slow internet connections.
-        print('Es knallt!')
-        print(offset_incoming)
-        print(query)
         session.rollback()
-        offset_incoming = next_offset
-        offset, fuzzy_offset, query_id = extract_info_from_offset(offset_incoming)
-
-        matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
-            session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
-
-        next_offset = get_next_offset(inline_query, matching_stickers, offset,
-                                      fuzzy_matching_stickers, fuzzy_offset)
-
-        create_inline_query_result(session, inline_query, duration,
-                                   offset, offset_incoming, next_offset)
+        return
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
