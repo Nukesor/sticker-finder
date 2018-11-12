@@ -120,8 +120,8 @@ if not config.LEECHER:
 
     # Regular tasks
     job_queue = updater.job_queue
-    job_queue.run_repeating(newsfeed_job, interval=300, first=0, name='Process newsfeed')
-    job_queue.run_repeating(maintenance_job, interval=3600, first=0, name='Create new maintenance tasks')
+    job_queue.run_repeating(newsfeed_job, interval=60*5, first=0, name='Process newsfeed')
+    job_queue.run_repeating(maintenance_job, interval=60*60*24, first=0, name='Create new maintenance tasks')
     job_queue.run_repeating(scan_sticker_sets_job, interval=10, first=0, name='Scan new sticker sets')
     job_queue.run_repeating(distribute_tasks_job, interval=60, first=0, name='Distribute new tasks')
 
