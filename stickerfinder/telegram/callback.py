@@ -183,9 +183,12 @@ def handle_callback_query(bot, update, session, user):
                          {'reply_markup': main_keyboard})
 
         task.reviewed = True
-        keyboard = get_language_accept_keyboard(task, accepted)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
-        process_task(session, tg_chat, chat)
+        try:
+            keyboard = get_language_accept_keyboard(task, accepted)
+            call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+            process_task(session, tg_chat, chat)
+        except: # noqa
+            pass
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
