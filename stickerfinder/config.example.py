@@ -32,8 +32,6 @@ class Config:
     OVERFLOW_COUNT = 10
 
     # Job parameter
-    USER_CHECK_INTERVAL = timedelta(days=1)
-    USER_CHECK_RECHECK_INTERVAL = timedelta(days=2)
     USER_CHECK_COUNT = 200
     VOTE_BAN_COUNT = 1
 

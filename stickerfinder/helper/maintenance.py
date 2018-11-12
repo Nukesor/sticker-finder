@@ -134,12 +134,7 @@ def process_task(session, tg_chat, chat, job=False):
         return
 
     if task.type == Task.USER_REVERT:
-        changes = session.query(Change) \
-            .filter(Change.user == task.user) \
-            .filter(Change.created_at >= (task.created_at - timedelta(days=1))) \
-            .filter(Change.created_at <= task.created_at) \
-            .order_by(Change.created_at.desc()) \
-            .all()
+        changes = task.checking_changes
 
         languages = set([change.language for change in changes])
 

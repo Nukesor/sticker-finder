@@ -10,6 +10,7 @@ from sqlalchemy import (
     String,
     ForeignKey,
 )
+from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
 
@@ -28,8 +29,10 @@ class Change(base):
     new_tags = Column(String)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
+    check_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id'), index=True)
     sticker_file_id = Column(String, ForeignKey('sticker.file_id', ondelete='cascade'), index=True)
 
+    check_task = relationship("Task")
     user = relationship("User")
     sticker = relationship("Sticker")
 

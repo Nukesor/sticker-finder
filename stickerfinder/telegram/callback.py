@@ -171,22 +171,24 @@ def handle_callback_query(bot, update, session, user):
             language = Language(task.message)
             session.add(language)
             accepted = True
-            call_tg_func(bot, 'send_message', [task.user.id, 'Your language proposal has been accepted.'],
-                         {'reply_markup': main_keyboard})
+            user_message = 'Your language proposal has been accepted.'
 
         elif CallbackResult(action).name == 'ban':
             language = session.query(Language).get(task.message)
             if language:
                 session.delete(language)
             accepted = False
-            call_tg_func(bot, 'send_message', [task.user.id, 'Your language proposal has been rejected.'],
-                         {'reply_markup': main_keyboard})
+            user_message = 'Your language proposal has been rejected.'
 
         task.reviewed = True
+
+        keyboard = get_language_accept_keyboard(task, accepted)
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        process_task(session, tg_chat, chat)
         try:
-            keyboard = get_language_accept_keyboard(task, accepted)
-            call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
-            process_task(session, tg_chat, chat)
+            call_tg_func(bot, 'send_message', [task.user.id, user_message],
+                         {'reply_markup': main_keyboard})
+
         except: # noqa
             pass
 
