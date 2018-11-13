@@ -194,9 +194,10 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
-        keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         handle_next(session, chat, tg_chat, user.language)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        if chat.current_sticker is not None:
+            keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
+            call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "Stop tagging" button
     elif CallbackType(callback_type).name == 'cancel':

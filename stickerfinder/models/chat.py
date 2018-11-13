@@ -64,9 +64,10 @@ class Chat(base):
 
     # Relationships
     current_task = relationship("Task", foreign_keys='Chat.current_task_id')
-    tasks = relationship("Task", foreign_keys='Task.chat_id')
     current_sticker = relationship("Sticker")
     current_sticker_set = relationship("StickerSet")
+
+    tasks = relationship("Task", foreign_keys='Task.chat_id')
     sticker_sets = relationship(
         "StickerSet",
         secondary=chat_sticker_set,
@@ -90,11 +91,12 @@ class Chat(base):
 
     def cancel(self):
         """Cancel all interactions."""
-        self.tagging_random_sticker = False
-        self.full_sticker_set = False
-        self.expecting_sticker_set = False
-        self.fix_single_sticker = False
         self.choosing_language = False
+
+        self.tagging_random_sticker = False
+        self.expecting_sticker_set = False
+        self.full_sticker_set = False
+        self.fix_single_sticker = False
         self.last_sticker_message_id = None
 
         self.current_task = None
