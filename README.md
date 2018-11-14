@@ -85,7 +85,13 @@ This is just for people hosting a bot and those with `admin` permissions:
     /ban [name|id] Ban a user
     /unban [name|id] Unban a user
     /tasks Start to process tasks in a maintenance chat
-    /toggle_flag [ban|maintenance|newsfeed] Flag a chat as a maintenance, ban or newsfeed chat. Sticker send to ban chats are automatically banned. Newsfeed chats get the first sticker of every new set that is added.
+
+    /delete_set Completely delete a set
+    /add_set Add multiple sets at once by set_name
+
+    /toggle_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
+
     /stats Get some statistics
     /refresh Refresh all stickerpacks.
-    /refresh_ocr Refresh all stickerpacks and refresh ocr.
+    /refresh_ocr Refresh all stickerpacks including ocr.
+    /broadcast Send the message after this command to all users.
