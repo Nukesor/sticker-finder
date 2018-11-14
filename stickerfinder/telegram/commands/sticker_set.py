@@ -1,4 +1,5 @@
 """Sticker set related commands."""
+from telegram.ext import run_async
 from sqlalchemy.sql.expression import func
 
 from stickerfinder.helper.keyboard import main_keyboard
@@ -13,6 +14,7 @@ from stickerfinder.models import (
 )
 
 
+@run_async
 @session_wrapper(check_ban=True, private=True)
 def vote_ban_set(bot, update, session, chat, user):
     """Vote ban the set of the last sticker send to this chat."""
@@ -43,6 +45,7 @@ def vote_ban_set(bot, update, session, chat, user):
 Please send the sticker first before you use "/vote_ban"."""
 
 
+@run_async
 @session_wrapper(check_ban=True, private=True)
 def random_set(bot, update, session, chat, user):
     """Get random sticker_set."""
@@ -65,6 +68,7 @@ def random_set(bot, update, session, chat, user):
                      kwargs={'reply_markup': main_keyboard})
 
 
+@run_async
 @session_wrapper(check_ban=True)
 def set_sticker_set_language(bot, update, session, chat, user):
     """Set the language of the sticker set."""

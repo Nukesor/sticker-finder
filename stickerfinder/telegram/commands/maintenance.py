@@ -111,6 +111,7 @@ def refresh_ocr(bot, update, session, chat, user):
                  ['All sticker sets are refreshed.'], {'reply_markup': admin_keyboard})
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def flag_chat(bot, update, session, chat, user):
     """Flag a chat as maintenance or ban chat."""
@@ -129,6 +130,7 @@ def flag_chat(bot, update, session, chat, user):
     return 'Unknown flag.'
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def start_tasks(bot, update, session, chat, user):
     """Start the handling of tasks."""

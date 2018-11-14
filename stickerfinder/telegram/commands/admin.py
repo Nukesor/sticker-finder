@@ -50,6 +50,7 @@ def unban_user(bot, update, session, chat, user):
         return 'Unknown username'
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def add_sets(bot, update, session, chat, user):
     """Get random sticker_set."""
@@ -75,6 +76,7 @@ def add_sets(bot, update, session, chat, user):
     return f'Added {count} new sticker sets.'
 
 
+@run_async
 @session_wrapper(admin_only=True)
 def delete_set(bot, update, session, chat, user):
     """Delete a specific set."""
