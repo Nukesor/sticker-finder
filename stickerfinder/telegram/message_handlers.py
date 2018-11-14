@@ -21,7 +21,6 @@ from stickerfinder.helper.keyboard import (
 )
 
 
-@run_async
 @session_wrapper(check_ban=True)
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
@@ -59,7 +58,6 @@ def handle_private_text(bot, update, session, chat, user):
                      {'reply_markup': main_keyboard})
 
 
-@run_async
 @session_wrapper(check_ban=True)
 def handle_private_sticker(bot, update, session, chat, user):
     """Read all stickers.
