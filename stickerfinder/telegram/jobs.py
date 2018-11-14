@@ -1,6 +1,4 @@
 """Telegram job tasks."""
-import telegram
-from datetime import datetime
 from telegram.ext import run_async
 from sqlalchemy import func, and_
 

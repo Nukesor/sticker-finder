@@ -228,6 +228,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
+        .filter(or_(StickerSet.language == language, StickerSet.language == 'english')) \
         .subquery('strict_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
@@ -313,6 +314,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
+        .filter(or_(StickerSet.language == language, StickerSet.language == 'english')) \
         .subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw

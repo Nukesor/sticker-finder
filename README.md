@@ -23,14 +23,14 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
 - Inline query search by tags, text, emoji, stickerset name and title.
 - Fuzzy searching to match similar words or typos.
-- Multi language support (with English as default and fallback)
+- Multi language support (with English as default and fallback).
 - Tagging of single stickers or whole sets.
 - NSFW and Furry filter. Use `nsfw` or `fur` tag to explicitly search for this stuff.
+- Sticker set addition in direct conversations or when the bot is added to groups.
 - Random tagging of stickers if you're bored.
-- Sticker set addition in direct conversations.
-- Sticker set addition when bot is added to groups.
-- /vote_ban for inappropriate sticker sets.
-- A minimalistic mode for groups that don't want user interaction (I already host one with the name [@stfil_bot](https://t.me/stfil_bot))
+- Set languages of whole sticker sets with `/set_lang [lang]`.
+- `/vote_ban [reason]` for inappropriate sticker sets.
+- A minimalistic mode for groups that don't want user interaction (I already host one with the name [@stfil_bot](https://t.me/stfil_bot)).
 
 
 ## Available commands:
@@ -43,6 +43,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /skip       Skip the current sticker
     /language   Set your language.
     /new_language [language] Propose a new language (In case I missed something).
+    /set_lang [language] Set the language of a whole set
     /cancel     Cancel all current tag actions
 
 
@@ -73,6 +74,7 @@ When you are updating from a previous version do a `alembic upgrade head` instea
     skip - Skip the current sticker
     language - Set your language.
     new_language - Propose a new language (In case I missed something).
+    set_lang - Set the language of a whole set
     vote_ban - Vote to ban the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
 

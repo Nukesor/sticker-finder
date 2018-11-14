@@ -163,3 +163,24 @@ def get_language_accept_keyboard(task, accepted=None):
         buttons = [[InlineKeyboardButton(text="Accept this language", callback_data=language_ok)]]
 
     return InlineKeyboardMarkup(buttons)
+
+
+def get_sticker_set_language_keyboard(task):
+    """Get the keyboard for accepting or declining to set language of a sticker set."""
+    callback_type = CallbackType["sticker_set_language"].value
+    if task.reviewed is False:
+        language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        buttons = [[
+            InlineKeyboardButton(text="Deny", callback_data=language_ban),
+            InlineKeyboardButton(text="Accept", callback_data=language_ok),
+        ]]
+
+    elif task.reviewed is True and task.sticker_set.language == task.message:
+        language_ban = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        buttons = [[InlineKeyboardButton(text="Revert to english", callback_data=language_ban)]]
+    else:
+        language_ok = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        buttons = [[InlineKeyboardButton(text="Accept", callback_data=language_ok)]]
+
+    return InlineKeyboardMarkup(buttons)

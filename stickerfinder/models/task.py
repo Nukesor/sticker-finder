@@ -25,6 +25,7 @@ class Task(base):
     USER_REVERT = 'user_revert'
     SCAN_SET = 'scan_set'
     NEW_LANGUAGE = 'new_language'
+    SET_LANGUAGE = 'sticker_set_language'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     type = Column(String)

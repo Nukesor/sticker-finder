@@ -36,6 +36,7 @@ from stickerfinder.telegram.commands import (
     delete_set,
     new_language,
     choosing_language,
+    set_sticker_set_language,
 )
 from stickerfinder.telegram.jobs import (
     newsfeed_job,
@@ -94,6 +95,7 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('skip', skip))
     dispatcher.add_handler(CommandHandler('language', choosing_language))
     dispatcher.add_handler(CommandHandler('new_language', new_language))
+    dispatcher.add_handler(CommandHandler('set_lang', set_sticker_set_language))
 
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))

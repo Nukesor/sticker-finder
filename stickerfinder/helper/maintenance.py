@@ -1,5 +1,4 @@
 """Helper functions for maintenance."""
-from datetime import timedelta
 from sqlalchemy.orm import joinedload
 from telegram.error import BadRequest, ChatMigrated
 
@@ -11,6 +10,7 @@ from stickerfinder.helper.keyboard import (
     get_vote_ban_keyboard,
     get_language_accept_keyboard,
     get_nsfw_ban_keyboard,
+    get_sticker_set_language_keyboard,
 )
 from stickerfinder.models import (
     Chat,
@@ -73,6 +73,7 @@ def distribute_newsfeed_tasks(bot, session, chats=None):
             call_tg_func(bot, 'send_message', [chat.id, message])
 
             chat.current_task = next_task
+            chat.current_sticker = new_set.stickers[0]
 
         # A newsfeed chat has been converted to a super group.
         # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
@@ -115,6 +116,7 @@ def process_task(session, tg_chat, chat, job=False):
             Task.USER_REVERT,
             Task.VOTE_BAN,
             Task.NEW_LANGUAGE,
+            Task.SET_LANGUAGE,
         ])) \
         .order_by(Task.created_at.asc()) \
         .limit(1) \
@@ -165,6 +167,14 @@ def process_task(session, tg_chat, chat, job=False):
         # Compile task text
         text = [f'New language proposed by {task.user.username} ({task.user.id}: {task.message}']
         keyboard = get_language_accept_keyboard(task)
+
+    elif task.type == Task.SET_LANGUAGE:
+        # Send first sticker of the set
+        call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
+
+        # Compile task text
+        text = [f'User {task.user.username}({task.user.id} wants to change set language to: {task.message}']
+        keyboard = get_sticker_set_language_keyboard(task)
 
     text_chunks = split_text(text)
     while len(text_chunks) > 0:

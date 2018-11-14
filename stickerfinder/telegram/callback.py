@@ -12,6 +12,7 @@ from stickerfinder.helper.keyboard import (
     get_language_accept_keyboard,
     get_user_revert_keyboard,
     get_tag_this_set_keyboard,
+    get_sticker_set_language_keyboard,
 )
 from stickerfinder.helper.maintenance import (
     process_task,
@@ -183,6 +184,32 @@ def handle_callback_query(bot, update, session, user):
         task.reviewed = True
 
         keyboard = get_language_accept_keyboard(task, accepted)
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        process_task(session, tg_chat, chat)
+        try:
+            call_tg_func(bot, 'send_message', [task.user.id, user_message],
+                         {'reply_markup': main_keyboard})
+
+        except: # noqa
+            pass
+
+    # Add or delete a language
+    elif CallbackType(callback_type).name == 'sticker_set_language':
+        task = session.query(Task).get(payload.lower())
+        sticker_set = task.sticker_set
+
+        if CallbackResult(action).name == 'ok':
+            user_message = f'Your language proposal for set {sticker_set.title} has been accepted.'
+            sticker_set.language = task.message
+
+        elif CallbackResult(action).name == 'ban':
+            user_message = f'Your language proposal for set {sticker_set.title} has been rejected.'
+            if task.reviewed:
+                sticker_set.language = 'english'
+
+        task.reviewed = True
+
+        keyboard = get_sticker_set_language_keyboard(task)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
         process_task(session, tg_chat, chat)
         try:

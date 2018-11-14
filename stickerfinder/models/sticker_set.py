@@ -5,9 +5,17 @@ import logging
 from PIL import Image
 from pytesseract import image_to_string
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import Column, String, DateTime, func, Boolean, Index
 from sqlalchemy.orm import relationship
 from telegram.error import BadRequest, TimedOut
+from sqlalchemy import (
+    Column,
+    String,
+    DateTime,
+    Boolean,
+    func,
+    Index,
+    ForeignKey,
+)
 
 from stickerfinder.db import base
 from stickerfinder.models import chat_sticker_set, Sticker, Task
@@ -28,6 +36,8 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
+    language = Column(String, ForeignKey('language.name', ondelete='cascade', onupdate='cascade'),
+                      index=True, default='english', server_default="'english'")
     deleted = Column(Boolean, default=False, nullable=False)
 
     # Flags
