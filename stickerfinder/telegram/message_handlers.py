@@ -72,7 +72,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         return
 
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
-    if sticker_set.complete is False:
+    if sticker_set.reviewed is False:
         call_tg_func(update.message.chat, 'send_message',
                      args=[f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'])
 
@@ -98,7 +98,10 @@ def handle_private_sticker(bot, update, session, chat, user):
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(
             update.message.chat, 'send_message',
-            [f'I already know this sticker set. Tag this specific sticker with: \n `/tag tag1 tag2` \n {sticker_tags_message}'],
+            [f"""Current language for this set is {sticker_set.language}.
+Tag this specific sticker with:
+`/tag tag1 tag2`
+{sticker_tags_message}"""],
             {'reply_markup': keyboard, 'parse_mode': 'Markdown'},
         )
 
