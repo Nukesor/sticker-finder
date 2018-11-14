@@ -160,6 +160,8 @@ def handle_callback_query(bot, update, session, user):
                     if sticker_set.nsfw or sticker_set.furry:
                         message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
                         message += f"{'furry' if sticker_set.furry else ''}"
+
+                    message += '\nSet the language of the set with e.g. "/set_lang spanish"'
                     call_tg_func(bot, 'send_message', [task.chat.id, message], {'reply_markup': keyboard})
                 return
         except: # noqa

@@ -8,8 +8,9 @@ Start typing @stfi_bot in any chat. You can search for stickers by keywords, emo
 Send any sticker set to me in a direct conversation, I'll add the whole set.
 I will tell you if I don't know this set yet and you will get a notification when the sticker set has been processed and added.
 If I'm added to a group chat, I will automatically add all stickers posted in this chat!
-It can take quite a while to add a new sticker set, so please bear with me.
+It can take quite a while to review all new sticker sets, so please bear with me.
 <b>DISCLAIMER:</b> If you add a set, it will be available to <b>ALL</b> users.
+<b>LANGUAGE:</b> If the text of the added set is not in English, please tag it with such e.g. "/set_lang spanish".
 
 <b>Can't find a sticker?</b>
 If you already added a set, you probably need to tag them first (or just search by the set name).
