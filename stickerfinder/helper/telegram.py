@@ -23,9 +23,9 @@ def call_tg_func(tg_object: object, function_name: str,
 
         except (TimedOut, NetworkError) as e:
             logger = logging.getLogger()
-            logger.info(f'Got telegram exception waiting 1 sec.')
+            logger.info(f'Got telegram exception waiting 4 secs.')
             breadcrumbs.record(data={'action': 'Telegram exception', 'exception': e}, category='info')
-            time.sleep(1)
+            time.sleep(4)
             _try += 1
 
             exception = e
