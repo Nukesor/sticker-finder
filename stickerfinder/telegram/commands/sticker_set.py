@@ -1,6 +1,6 @@
 """Sticker set related commands."""
 from telegram.ext import run_async
-from sqlalchemy.sql.expression import func
+from sqlalchemy import func, or_
 
 from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import session_wrapper
@@ -52,6 +52,7 @@ def random_set(bot, update, session, chat, user):
     sticker_count = func.count(Sticker.file_id).label("sticker_count")
     sticker_set = session.query(StickerSet)\
         .join(StickerSet.stickers) \
+        .filter(or_(StickerSet.language == user.language, StickerSet.language == 'english')) \
         .filter(StickerSet.nsfw.is_(False)) \
         .filter(StickerSet.furry.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
