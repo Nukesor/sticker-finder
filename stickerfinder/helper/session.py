@@ -1,7 +1,13 @@
 """Session helper functions."""
 import traceback
 from functools import wraps
-from telegram.error import BadRequest, ChatMigrated, Unauthorized
+from telegram.error import (
+    BadRequest,
+    ChatMigrated,
+    Unauthorized,
+    NetworkError,
+    TimedOut,
+)
 
 from stickerfinder.config import config
 from stickerfinder.db import get_session
@@ -36,6 +42,11 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
 
                 traceback.print_exc()
                 sentry.captureException()
+
+            # Ignore network related errors
+            except (TimedOut, NetworkError) as e:
+                pass
+
             except BaseException:
                 traceback.print_exc()
                 sentry.captureException()
@@ -94,6 +105,10 @@ def session_wrapper(send_message=True, check_ban=False,
             except ChatMigrated:
                 session.delete(chat)
                 return
+
+            # Ignore network related errors
+            except (TimedOut, NetworkError) as e:
+                pass
 
             except BaseException:
                 traceback.print_exc()
