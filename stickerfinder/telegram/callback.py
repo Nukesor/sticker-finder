@@ -140,11 +140,15 @@ def handle_callback_query(bot, update, session, user):
 
         task.reviewed = True
         sticker_set.reviewed = True
+        session.commit()
 
-        keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
-        task_chat = task.processing_chat[0]
-        distribute_newsfeed_tasks(bot, session, [task_chat])
+        try:
+            keyboard = get_nsfw_ban_keyboard(sticker_set)
+            call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+            task_chat = task.processing_chat[0]
+            distribute_newsfeed_tasks(bot, session, [task_chat])
+        except:
+            pass
 
         if task_chat.current_task is None:
             call_tg_func(query, 'answer', ['No new stickers sets'])
