@@ -25,7 +25,10 @@ from stickerfinder.models import (
 @session_wrapper(admin_only=True)
 def stats(bot, update, session, chat, user):
     """Send a help text."""
-    user_count = session.query(User).count()
+    user_count = session.query(User) \
+        .join(User.changes) \
+        .group_by(User) \
+        .count()
 
     tag_count = session.query(Tag) \
         .filter(Tag.emoji.is_(False)) \
@@ -39,7 +42,7 @@ def stats(bot, update, session, chat, user):
     sticker_count = session.query(Sticker).count()
 
     tag_count_select = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    tagged_sticker_count = session.query(Sticker, tag_count_select) \
+    tagged_sticker_count = session.query(tag_count_select) \
         .join(Sticker.tags) \
         .filter(Tag.emoji.is_(False)) \
         .group_by(Sticker) \
