@@ -141,10 +141,13 @@ def handle_callback_query(bot, update, session, user):
         task.reviewed = True
         sticker_set.reviewed = True
 
-        task_chat = task.processing_chat[0]
-        distribute_newsfeed_tasks(bot, session, [task_chat])
-        keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        try:
+            task_chat = task.processing_chat[0]
+            distribute_newsfeed_tasks(bot, session, [task_chat])
+            keyboard = get_nsfw_ban_keyboard(sticker_set)
+            call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        except: # noqa
+            return
 
         session.commit()
 
