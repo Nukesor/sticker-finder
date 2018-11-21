@@ -151,7 +151,7 @@ def handle_callback_query(bot, update, session, user):
 
         session.commit()
 
-        if task_chat.current_task is None:
+        if task_chat is None or task_chat.current_task is None:
             call_tg_func(query, 'answer', ['No new stickers sets'])
 
         try:
