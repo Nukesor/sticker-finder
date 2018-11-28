@@ -14,7 +14,6 @@ from sqlalchemy.orm.session import Session
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
 sys.path.append(parent_dir)
 
-from stickerfinder.models import Language # noqa
 
 # revision identifiers, used by Alembic.
 revision = '157ccc4d9d0b'

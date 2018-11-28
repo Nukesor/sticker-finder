@@ -24,6 +24,7 @@ class Change(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     reviewed = Column(Boolean, default=False, nullable=False)
+    language = Column(String)
     default_language = Column(Boolean, default=True, nullable=False)
     old_tags = Column(String)
     new_tags = Column(String)

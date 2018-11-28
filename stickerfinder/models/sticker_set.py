@@ -35,6 +35,7 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
+    language = Column(String)
     default_language = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
 
