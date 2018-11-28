@@ -139,13 +139,13 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     """Get all matching stickers and query duration for given criteria and offset."""
     # Measure the db query time
     start = datetime.now()
-    language = user.language
+    default_language = user.default_language
 
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
     if fuzzy_offset is None:
-        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, language)
+        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, default_language)
     # Get the fuzzy matching sticker, if there are no more strictly matching stickers
     # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
@@ -154,7 +154,7 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
         # Directly jump to fuzzy search
         if fuzzy_offset is None:
             fuzzy_offset = 0
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, language)
+        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, default_language)
 
     end = datetime.now()
 
@@ -190,12 +190,12 @@ def get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stic
         return f'{inline_query.id}:{offset}:{fuzzy_offset}'
 
 
-def get_strict_matching_query(session, tags, nsfw, furry, language):
+def get_strict_matching_query(session, tags, nsfw, furry, default_language):
     """Get the query for strict tag matching."""
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
         .join(Tag) \
-        .filter(or_(Tag.language == language, Tag.language == 'english')) \
+        .filter(or_(Tag.default_language == default_language, Tag.default_language._is(True))) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -228,7 +228,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.language == language, StickerSet.language == 'english')) \
+        .filter(or_(StickerSet.default_language == default_language, StickerSet.default_language._is(True))) \
         .subquery('strict_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
@@ -239,9 +239,9 @@ def get_strict_matching_query(session, tags, nsfw, furry, language):
     return matching_stickers
 
 
-def get_strict_matching_stickers(session, tags, nsfw, furry, offset, language):
+def get_strict_matching_stickers(session, tags, nsfw, furry, offset, default_language):
     """Query all strictly matching stickers for given tags."""
-    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, language)
+    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, default_language)
 
     matching_stickers = matching_stickers.offset(offset) \
         .limit(50) \
@@ -250,7 +250,7 @@ def get_strict_matching_stickers(session, tags, nsfw, furry, offset, language):
     return matching_stickers
 
 
-def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
+def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, default_language):
     """Query all fuzzy matching stickers."""
     threshold = 0.3
     # Create a query for each tag, which fuzzy matches all tags and computes the distance
@@ -258,7 +258,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     for tag in tags:
         tag_query = session.query(Tag.name.label('tag_name'), func.similarity(Tag.name, tag).label('tag_similarity')) \
             .filter(func.similarity(Tag.name, tag) >= threshold) \
-            .filter(or_(Tag.language == language, Tag.language == 'english'))
+            .filter(or_(Tag.default_language == default_language, Tag.default_language._is(True)))
         matching_tags.append(tag_query)
 
     # Union all fuzzy matched tags
@@ -300,7 +300,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
     score = score.label('score')
 
     # Query all strict matching results to exclude them.
-    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry, language) \
+    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry, default_language) \
         .subquery('strict_subquery')
 
     # Compute the score for all stickers and filter nsfw stuff
@@ -314,7 +314,7 @@ def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, language):
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.language == language, StickerSet.language == 'english')) \
+        .filter(or_(StickerSet.default_language == default_language, StickerSet.default_language._is(True))) \
         .subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw

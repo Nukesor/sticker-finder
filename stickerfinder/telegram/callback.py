@@ -1,7 +1,6 @@
 """Callback query handling."""
 from telegram.ext import run_async
 
-from stickerfinder.sentry import sentry
 from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.callback import CallbackType, CallbackResult
@@ -9,10 +8,8 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     get_nsfw_ban_keyboard,
     get_fix_sticker_tags_keyboard,
-    get_language_accept_keyboard,
     get_user_revert_keyboard,
     get_tag_this_set_keyboard,
-    get_sticker_set_language_keyboard,
 )
 from stickerfinder.helper.maintenance import (
     process_task,
@@ -31,7 +28,6 @@ from stickerfinder.models import (
     InlineQuery,
     Sticker,
     StickerSet,
-    Language,
 )
 
 
@@ -166,70 +162,15 @@ def handle_callback_query(bot, update, session, user):
                         message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
                         message += f"{'furry' if sticker_set.furry else ''}"
 
-                    message += '\nSet the language of the set with e.g. "/set_lang spanish"'
                     call_tg_func(bot, 'send_message', [task.chat.id, message], {'reply_markup': keyboard})
                 return
-        except: # noqa
-            pass
-
-    # Add or delete a language
-    elif CallbackType(callback_type).name == 'accept_language':
-        task = session.query(Task).get(payload.lower())
-        if CallbackResult(action).name == 'ok':
-            language = Language(task.message)
-            session.add(language)
-            accepted = True
-            user_message = 'Your language proposal has been accepted.'
-
-        elif CallbackResult(action).name == 'ban':
-            language = session.query(Language).get(task.message)
-            if language:
-                session.delete(language)
-            accepted = False
-            user_message = 'Your language proposal has been rejected.'
-
-        task.reviewed = True
-
-        keyboard = get_language_accept_keyboard(task, accepted)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
-        process_task(session, tg_chat, chat)
-        try:
-            call_tg_func(bot, 'send_message', [task.user.id, user_message],
-                         {'reply_markup': main_keyboard})
-
-        except: # noqa
-            pass
-
-    # Add or delete a language
-    elif CallbackType(callback_type).name == 'sticker_set_language':
-        task = session.query(Task).get(payload.lower())
-        sticker_set = task.sticker_set
-
-        if CallbackResult(action).name == 'ok':
-            user_message = f'Your language proposal for set {sticker_set.title} has been accepted.'
-            sticker_set.language = task.message
-
-        elif CallbackResult(action).name == 'ban':
-            user_message = f'Your language proposal for set {sticker_set.title} has been rejected.'
-            if task.reviewed:
-                sticker_set.language = 'english'
-
-        task.reviewed = True
-
-        keyboard = get_sticker_set_language_keyboard(task)
-        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
-        process_task(session, tg_chat, chat)
-        try:
-            call_tg_func(bot, 'send_message', [task.user.id, user_message],
-                         {'reply_markup': main_keyboard})
-
         except: # noqa
             pass
 
     # Handle the "Skip this sticker" button
     elif CallbackType(callback_type).name == 'next':
         current_sticker = chat.current_sticker
-        handle_next(session, chat, tg_chat, user.language)
+        handle_next(session, chat, tg_chat)
         if chat.current_sticker is not None:
             keyboard = get_fix_sticker_tags_keyboard(current_sticker.file_id)
             call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -247,7 +188,7 @@ def handle_callback_query(bot, update, session, user):
         chat.current_sticker = sticker
         if not chat.full_sticker_set and not chat.tagging_random_sticker:
             chat.fix_single_sticker = True
-        send_tag_messages(chat, tg_chat, user.language)
+        send_tag_messages(chat, tg_chat)
 
     elif CallbackType(callback_type).name == 'tag_set':
         initialize_set_tagging(bot, tg_chat, session, payload, chat, user)

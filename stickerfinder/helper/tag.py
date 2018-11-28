@@ -23,16 +23,16 @@ from stickerfinder.models import (
 )
 
 
-def current_sticker_tags_message(sticker, language, send_set_info=False):
+def current_sticker_tags_message(sticker, send_set_info=False):
     """Create a message displaying the current text and tags."""
     if len(sticker.tags) == 0 and sticker.text is None:
         return None
     elif len(sticker.tags) > 0 and sticker.text is None:
-        message = f'Current tags are: \n {sticker.tags_as_text(language)}'
+        message = f'Current tags are: \n {sticker.tags_as_text()}'
     elif len(sticker.tags) == 0 and sticker.text is not None:
         message = f'Current text is: \n {sticker.text}'
     else:
-        message = f'Current tags and text are : \n {sticker.tags_as_text(language)} \n {sticker.text}'
+        message = f'Current tags and text are : \n {sticker.tags_as_text()} \n {sticker.text}'
 
     if send_set_info:
         set_info = f'From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n'
@@ -41,11 +41,11 @@ def current_sticker_tags_message(sticker, language, send_set_info=False):
     return message
 
 
-def send_tag_messages(chat, tg_chat, language, send_set_info=False):
+def send_tag_messages(chat, tg_chat, send_set_info=False):
     """Send next sticker and the tags of this sticker."""
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
-    message = current_sticker_tags_message(chat.current_sticker, language, send_set_info=send_set_info)
+    message = current_sticker_tags_message(chat.current_sticker, send_set_info=send_set_info)
     keyboard = get_tagging_keyboard()
 
     if not message:
@@ -63,7 +63,7 @@ def send_tag_messages(chat, tg_chat, language, send_set_info=False):
         chat.last_sticker_message_id = response.message_id
 
 
-def handle_next(session, chat, tg_chat, language):
+def handle_next(session, chat, tg_chat):
     """Handle the /next call or the 'next' button click."""
     # We are tagging a whole sticker set. Skip the current sticker
     if chat.full_sticker_set:
@@ -73,7 +73,7 @@ def handle_next(session, chat, tg_chat, language):
             if sticker == chat.current_sticker and index+1 < len(stickers):
                 # We found the next sticker. Send the messages and return
                 chat.current_sticker = stickers[index+1]
-                send_tag_messages(chat, tg_chat, language)
+                send_tag_messages(chat, tg_chat)
 
                 return
 
@@ -105,7 +105,7 @@ def handle_next(session, chat, tg_chat, language):
 
         # Found a sticker. Send the messages
         chat.current_sticker = sticker
-        send_tag_messages(chat, tg_chat, language, send_set_info=True)
+        send_tag_messages(chat, tg_chat, send_set_info=True)
 
 
 def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
@@ -121,7 +121,7 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(tg_chat, 'send_message', [tag_text])
-    send_tag_messages(chat, tg_chat, user.language)
+    send_tag_messages(chat, tg_chat)
 
 
 def get_tags_from_text(text, limit=15):
@@ -173,10 +173,9 @@ def tag_sticker(session, text, sticker, user,
         )
 
     if len(incoming_tags) > 0:
-        # Create tags. Keep all tags which don't match the user's language
-        tags = [tag for tag in sticker.tags if tag.language != user.language]
+        tags = [tag for tag in sticker.tags]
         for incoming_tag in incoming_tags:
-            tag = Tag.get_or_create(session, incoming_tag, user.language)
+            tag = Tag.get_or_create(session, incoming_tag)
             if tag not in tags:
                 tags.append(tag)
             session.add(tag)
@@ -187,7 +186,7 @@ def tag_sticker(session, text, sticker, user,
                 tags.append(tag)
 
         # Get the old tags for tracking
-        old_tags_as_text = sticker.tags_as_text(user.language)
+        old_tags_as_text = sticker.tags_as_text()
 
         if keep_old:
             for tag in tags:
@@ -198,8 +197,8 @@ def tag_sticker(session, text, sticker, user,
             sticker.tags = tags
 
         # Create a change for logging
-        if old_tags_as_text != sticker.tags_as_text(user.language):
-            change = Change(user, sticker, old_tags_as_text, user.language)
+        if old_tags_as_text != sticker.tags_as_text():
+            change = Change(user, sticker, old_tags_as_text)
             session.add(change)
 
     session.commit()

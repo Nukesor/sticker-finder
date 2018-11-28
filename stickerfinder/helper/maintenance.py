@@ -8,9 +8,7 @@ from stickerfinder.helper.keyboard import (
     admin_keyboard,
     get_user_revert_keyboard,
     get_vote_ban_keyboard,
-    get_language_accept_keyboard,
     get_nsfw_ban_keyboard,
-    get_sticker_set_language_keyboard,
 )
 from stickerfinder.models import (
     Chat,
@@ -115,8 +113,6 @@ def process_task(session, tg_chat, chat, job=False):
         .filter(Task.type.in_([
             Task.USER_REVERT,
             Task.VOTE_BAN,
-            Task.NEW_LANGUAGE,
-            Task.SET_LANGUAGE,
         ])) \
         .order_by(Task.created_at.asc()) \
         .limit(1) \
@@ -138,11 +134,8 @@ def process_task(session, tg_chat, chat, job=False):
     if task.type == Task.USER_REVERT:
         changes = task.checking_changes
 
-        languages = set([change.language for change in changes])
-
         # Compile task text
         text = [f'User {task.user.username} ({task.user.id}) tagged {len(changes)} sticker']
-        text.append(f'Used languages: {languages}')
         text.append(f'Detected at {task.created_at}: \n')
         for change in changes:
             if change.new_tags:
@@ -162,19 +155,6 @@ def process_task(session, tg_chat, chat, job=False):
 
         # Send first sticker of the set
         call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
-
-    elif task.type == Task.NEW_LANGUAGE:
-        # Compile task text
-        text = [f'New language proposed by {task.user.username} ({task.user.id}: {task.message}']
-        keyboard = get_language_accept_keyboard(task)
-
-    elif task.type == Task.SET_LANGUAGE:
-        # Send first sticker of the set
-        call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
-
-        # Compile task text
-        text = [f'User {task.user.username}({task.user.id} wants to change set language to: {task.message}']
-        keyboard = get_sticker_set_language_keyboard(task)
 
     text_chunks = split_text(text)
     while len(text_chunks) > 0:

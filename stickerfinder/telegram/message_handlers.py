@@ -1,10 +1,7 @@
 """Message handler functions."""
-from telegram.ext import run_async
-
 from stickerfinder.models import (
     Sticker,
     StickerSet,
-    Language,
 )
 from stickerfinder.helper.tag import (
     handle_next,
@@ -16,7 +13,6 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.keyboard import (
     get_tag_this_set_keyboard,
-    main_keyboard,
     get_nsfw_ban_keyboard,
 )
 
@@ -31,7 +27,7 @@ def handle_private_text(bot, update, session, chat, user):
                     user, update.message.chat, chat=chat)
 
         session.commit()
-        handle_next(session, chat, update.message.chat, user.language)
+        handle_next(session, chat, update.message.chat)
 
     elif chat.tagging_random_sticker:
         # Try to tag the sticker. Return early if it didn't work.
@@ -39,23 +35,13 @@ def handle_private_text(bot, update, session, chat, user):
                     user, update.message.chat, chat)
 
         session.commit()
-        handle_next(session, chat, update.message.chat, user.language)
+        handle_next(session, chat, update.message.chat)
     elif chat.fix_single_sticker:
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat)
 
         chat.cancel()
         return 'Sticker tags adjusted.'
-
-    elif chat.choosing_language:
-        language = session.query(Language).get(update.message.text.lower())
-        if language is None:
-            return 'No such language, please propose new languages with /new_language.'
-
-        user.language = language.name
-        chat.cancel()
-        call_tg_func(update.message.chat, 'send_message', [f'User language changed to: {language.name}'],
-                     {'reply_markup': main_keyboard})
 
 
 @session_wrapper(check_ban=True)
@@ -95,15 +81,12 @@ def handle_private_sticker(bot, update, session, chat, user):
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
 
-        sticker_tags_message = current_sticker_tags_message(sticker, user.language)
+        sticker_tags_message = current_sticker_tags_message(sticker)
         # Send inline keyboard to allow fast tagging of the sticker's set
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(
             update.message.chat, 'send_message',
-            [f"""Current language for this set is {sticker_set.language}.
-Tag this specific sticker with:
-`/tag tag1 tag2`
-{sticker_tags_message}"""],
+            [f"Tag this specific sticker with:\n `/tag tag1 tag2`\n {sticker_tags_message}"],
             {'reply_markup': keyboard, 'parse_mode': 'Markdown'},
         )
 
@@ -136,7 +119,7 @@ def handle_group_sticker(bot, update, session, chat, user):
     chat.current_sticker = sticker
 
     if chat.is_maintenance or chat.is_newsfeed:
-        message = f'StickerSet "{sticker_set.title}" ({sticker_set.name}). \n Language: {sticker_set.language}'
+        message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
 

@@ -10,17 +10,14 @@ I will tell you if I don't know this set yet and you will get a notification whe
 If I'm added to a group chat, I will automatically add all stickers posted in this chat!
 It can take quite a while to review all new sticker sets, so please bear with me.
 <b>DISCLAIMER:</b> If you add a set, it will be available to <b>ALL</b> users.
-<b>LANGUAGE:</b> If the text of the added set is not in English, please tag it with such e.g. "/set_lang spanish".
 
 <b>Can't find a sticker?</b>
 If you already added a set, you probably need to tag them first (or just search by the set name).
 To tag a whole set just send me a sticker from the set you want to tag.
 
 <b>Language:</b>
-The default language is English, but you can choose your language with /language.
-If there is a language missing, propose it with /new_language [name].
-Every tag you add to a sticker after setting your language will be for your currently set language (That means that you need to switch languages if you want to tag more than one language, but that's just how it is :/ ).
-All inline queries will look for tags in your current language and for tags in English (as a fallback).
+The default language is English. Every sticker pack, which is obviously not English will be flagged as such.
+These stickers can only be found, when changing your language to "Not English".
 
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
@@ -41,6 +38,7 @@ Furry stuff also got its own tags (`fur` or `furry`), since there is an unreason
 
 <b>User Ban:</b>
 If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
+You'll also get banned if you don't tag in English while not using the "Not English" option.
 When you're banned, you can't use the inline search any longer and all of your changes will be reverted.
 
 <b>Candy:</b>

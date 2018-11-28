@@ -16,8 +16,6 @@ class CallbackType(Enum):
     nsfw_set = 5
     task_vote_nsfw = 6
     fur_set = 7
-    accept_language = 8
-    sticker_set_language = 9
 
     next = 10
     cancel = 11

@@ -62,9 +62,9 @@ class Sticker(base):
         """Create a new sticker."""
         self.file_id = file_id
 
-    def tags_as_text(self, language):
+    def tags_as_text(self):
         """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags if (tag.language == language or tag.emoji)]
+        tags = [tag.name for tag in self.tags]
         # Sort to ensure that there are no changes due to changed order
         tags.sort()
         return ', '.join(tags)

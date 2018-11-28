@@ -8,7 +8,6 @@ from sqlalchemy import (
     DateTime,
     func,
     String,
-    ForeignKey,
 )
 from sqlalchemy.orm import relationship
 
@@ -20,8 +19,8 @@ class User(base):
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String, unique=True)
-    language = Column(String, ForeignKey('language.name', ondelete='set default', onupdate='cascade'),
-                      index=True, default='english', server_default="'english'")
+    default_language = Column(Boolean, default=True, nullable=False)
+
     banned = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     admin = Column(Boolean, default=False, nullable=False)

@@ -6,7 +6,6 @@ from sqlalchemy import (
     DateTime,
     func,
     Index,
-    ForeignKey,
 )
 
 from sqlalchemy.orm import relationship
@@ -25,8 +24,7 @@ class Tag(base):
     )
 
     name = Column(String(), primary_key=True)
-    language = Column(String, ForeignKey('language.name', ondelete='cascade', onupdate='cascade'),
-                      index=True, default='english', server_default="'english'")
+    default_language = Column(Boolean, default=True, nullable=False)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -35,18 +33,17 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, emoji, language='english'):
+    def __init__(self, name, emoji):
         """Create a new sticker."""
         self.name = name
         self.emoji = emoji
-        self.language = language
 
     @staticmethod
-    def get_or_create(session, name, language='english', emoji=False):
+    def get_or_create(session, name, emoji=False):
         """Get or create a new sticker."""
         tag = session.query(Tag).get(name)
         if not tag:
-            tag = Tag(name, emoji, language)
+            tag = Tag(name, emoji)
             session.add(tag)
             session.commit()
 

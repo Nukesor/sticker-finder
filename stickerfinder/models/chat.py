@@ -45,9 +45,6 @@ class Chat(base):
     is_newsfeed = Column(Boolean, default=False, nullable=False)
     is_maintenance = Column(Boolean, default=False, nullable=False)
 
-    # User process related flags and data
-    choosing_language = Column(Boolean, default=False, nullable=False)
-
     # Tagging process related flags and data
     tagging_random_sticker = Column(Boolean, default=False, nullable=False)
     expecting_sticker_set = Column(Boolean, nullable=False, default=False)
@@ -91,8 +88,6 @@ class Chat(base):
 
     def cancel(self):
         """Cancel all interactions."""
-        self.choosing_language = False
-
         self.tagging_random_sticker = False
         self.expecting_sticker_set = False
         self.full_sticker_set = False

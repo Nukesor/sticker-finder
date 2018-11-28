@@ -14,7 +14,6 @@ from sqlalchemy import (
     Boolean,
     func,
     Index,
-    ForeignKey,
 )
 
 from stickerfinder.db import base
@@ -36,8 +35,7 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
-    language = Column(String, ForeignKey('language.name', ondelete='cascade', onupdate='cascade'),
-                      index=True, default='english', server_default="'english'")
+    default_language = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
 
     # Flags
