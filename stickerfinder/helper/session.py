@@ -13,6 +13,7 @@ from stickerfinder.config import config
 from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat, User
+from stickerfinder.helper import error_text
 from stickerfinder.helper.telegram import call_tg_func
 
 
@@ -116,7 +117,7 @@ def session_wrapper(send_message=True, check_ban=False,
                 if send_message:
                     session.close()
                     call_tg_func(update.message.chat, 'send_message',
-                                 args=['An unknown error occurred.'])
+                                 args=[error_text])
             finally:
                 session.close()
         return wrapper

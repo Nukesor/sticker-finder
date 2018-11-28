@@ -1,7 +1,7 @@
 """Some static stuff or helper functions for sticker finder bot."""
 
 
-help_text = f"""<b>Search for stickers:</b>
+help_text = """<b>Search for stickers:</b>
 Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
 
 <b>Add stickersets:</b>
@@ -51,11 +51,14 @@ In case you encounter any bugs or you just want to look at the code:
 https://github.com/Nukesor/sticker-finder
 """
 
-tag_text = f"""Now please send me tags for each sticker I'll send you.
+tag_text = """Now please send me tags for each sticker I'll send you.
 Just write what describes this sticker best.
 It would be awesome if you could also add the text in the sticker :).
 """
 
+error_text = """An unknown error occurred. I probably just got a notification about this and I'll try to fix it as quickly as possible.
+In case this error still occurs in a day or two, please report the bug to me :). The link to the Github repository is in the /help text.
+"""
 
 reward_messages = {
     10: '🎉🎉🎉 Nice! 🎉🎉🎉 \n You just tagged your 10th sticker!',
