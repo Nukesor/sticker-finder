@@ -26,6 +26,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     ban_type = CallbackType["ban_set"].value
     nsfw_type = CallbackType["nsfw_set"].value
     fur_type = CallbackType["fur_set"].value
+    language_type = CallbackType["change_set_language"].value
     next_type = CallbackType["newsfeed_next_set"].value
 
     if sticker_set.nsfw:
@@ -49,6 +50,13 @@ def get_nsfw_ban_keyboard(sticker_set):
         fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         fur_text = 'Tag as Furry'
 
+    if sticker_set.default_language:
+        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
+        language_text = 'International'
+    else:
+        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["default"].value}'
+        language_text = 'English'
+
     buttons = [
         [
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
@@ -56,13 +64,14 @@ def get_nsfw_ban_keyboard(sticker_set):
         ],
         [
             InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
+            InlineKeyboardButton(text=language_text, callback_data=language_data),
         ],
     ]
 
     if not sticker_set.reviewed:
         next_data = f'{next_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         button = InlineKeyboardButton(text='Next', callback_data=next_data)
-        buttons[1].append(button)
+        buttons.append([button])
 
     return InlineKeyboardMarkup(buttons)
 
@@ -104,14 +113,14 @@ def get_user_revert_keyboard(task):
         ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
     else:
         ban_text = 'Unban user'
-        ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+        ban_data = f'{callback_type}:{task.id}:{CallbackResult["unban"].value}'
 
     # User change revert data
     if not task.user.reverted:
         revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
         revert_text = 'Revert changes'
     else:
-        revert_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        revert_data = f'{callback_type}:{task.id}:{CallbackResult["undo_revert"].value}'
         revert_text = 'Undo revert'
 
     # Language changing button
@@ -121,18 +130,18 @@ def get_user_revert_keyboard(task):
     else:
         change_text = 'English'
 
-    ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
     buttons = [[
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
             InlineKeyboardButton(text=revert_text, callback_data=revert_data),
         ], [
             InlineKeyboardButton(text=change_text, callback_data=change_data),
-            InlineKeyboardButton(text='Next', callback_data=ok_data),
             ]]
 
     # Remove next button, if the task is already finished
     if task.reviewed:
-        del buttons[1][1]
+        ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        next_button = InlineKeyboardButton(text='Next', callback_data=ok_data)
+        buttons[1].append(next_button)
 
     return InlineKeyboardMarkup(buttons)
 

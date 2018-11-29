@@ -34,17 +34,18 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, emoji):
+    def __init__(self, name, emoji, default_language):
         """Create a new sticker."""
         self.name = name
         self.emoji = emoji
+        self.default_language = default_language
 
     @staticmethod
-    def get_or_create(session, name, emoji=False):
+    def get_or_create(session, name, emoji=False, default_language=True):
         """Get or create a new sticker."""
         tag = session.query(Tag).get(name)
         if not tag:
-            tag = Tag(name, emoji)
+            tag = Tag(name, emoji, default_language)
             session.add(tag)
             session.commit()
 

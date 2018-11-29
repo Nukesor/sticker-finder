@@ -62,25 +62,34 @@ class Sticker(base):
         """Create a new sticker."""
         self.file_id = file_id
 
-    def default_tags_as_text(self):
+    def tags_as_text(self, default_language):
         """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags if tag.default_language and not tag.emojii]
+        tags = [tag.name for tag in self.tags if tag.default_language == default_language and not tag.emoji]
         # Sort to ensure that there are no changes due to changed order
         tags.sort()
         return ', '.join(tags)
 
-    def not_default_tags_as_text(self):
-        """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags if not tag.default_language and not tag.emojii]
-        # Sort to ensure that there are no changes due to changed order
-        tags.sort()
-        return ', '.join(tags)
+    def has_tags_for_language(self, default_language):
+        """Check whether there exist tags for the language type."""
+        tags = [tag.name for tag in self.tags if tag.default_language == default_language and not tag.emoji]
+        if len(tags) > 0:
+            return True
+
+        return False
+
+    def find_newest_change(self, default_language):
+        """Check whether there exist tags for the language type."""
+        for change in self.changes:
+            if change.default_language == default_language:
+                return change
+
+        return None
 
     def add_emojis(self, session, emojis):
         """Add tags for every emoji in the incoming string."""
         from stickerfinder.models import Tag
         self.original_emojis = emojis
         for emoji in emojis:
-            tag = Tag.get_or_create(session, emoji, emoji=True)
+            tag = Tag.get_or_create(session, emoji, emoji=True, default_language=True)
             if tag not in self.tags:
                 self.tags.append(tag)

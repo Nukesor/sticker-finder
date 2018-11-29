@@ -58,7 +58,7 @@ from stickerfinder.telegram.inline_query import find_stickers
 @session_wrapper()
 def start(bot, update, session, chat, user):
     """Send a help text."""
-    if chat.is_maintenance:
+    if chat.is_maintenance or chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
                      {'reply_markup': admin_keyboard})
     else:

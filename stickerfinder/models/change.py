@@ -37,10 +37,11 @@ class Change(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, old_tags):
+    def __init__(self, user, sticker, old_tags, default_language):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
+        self.default_language = default_language
 
         self.old_tags = old_tags
-        self.new_tags = sticker.tags_as_text()
+        self.new_tags = sticker.tags_as_text(default_language)

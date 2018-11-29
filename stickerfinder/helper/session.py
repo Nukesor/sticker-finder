@@ -35,10 +35,12 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 if e.message == 'Message is not modified': # noqa
+                    print(e)
                     return
                 # It took to long to send the inline query response.
                 # Probably due to slow network on client side.
                 elif e.message == 'Query_id_invalid': # noqa
+                    print(e)
                     return
 
                 traceback.print_exc()
@@ -90,9 +92,11 @@ def session_wrapper(send_message=True, check_ban=False,
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 if e.message == 'Message is not modified': # noqa
+                    print(e)
                     return
                 # We are on dev db or a user deleted a chat.
                 if e.message == 'Chat not found': # noqa
+                    print(e)
                     session.delete(chat)
 
                 traceback.print_exc()
@@ -109,6 +113,7 @@ def session_wrapper(send_message=True, check_ban=False,
 
             # Ignore network related errors
             except (TimedOut, NetworkError) as e:
+                print(e)
                 pass
 
             except BaseException:

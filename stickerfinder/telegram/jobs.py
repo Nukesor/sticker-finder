@@ -65,13 +65,14 @@ def maintenance_job(bot, job, session, user):
             .all()
 
         for (user, _) in user_check_candidates:
-            task = Task(Task.USER_REVERT, user=user)
+            task = Task(Task.CHECK_USER_TAGS, user=user)
             task.default_language = default_language
             session.add(task)
             session.commit()
             session.query(Change) \
                 .filter(Change.check_task_id.is_(None)) \
                 .filter(Change.user_id == user.id) \
+                .filter(Change.default_language.is_(default_language)) \
                 .update({'check_task_id': task.id}, synchronize_session='fetch')
 
         session.commit()

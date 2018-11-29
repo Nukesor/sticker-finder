@@ -158,8 +158,6 @@ def cleanup(bot, update, session, chat, user):
     call_tg_func(update.message.chat, 'send_message',
                  ['Cleanup finished.'], {'reply_markup': admin_keyboard})
 
-    Tag.remove_unused_tags(session)
-
 
 @run_async
 @session_wrapper(admin_only=True)

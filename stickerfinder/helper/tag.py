@@ -25,12 +25,14 @@ from stickerfinder.models import (
 
 def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
-    if len(sticker.tags) == 0:
-        return 'There are currently no tags'
-    elif len(sticker.tags) > 0:
-        message = f'Current tags are: \n {sticker.tags_as_text()}'
-    elif len(sticker.tags) == 0:
-        message = f'Current text is: \n {sticker.text}'
+    # Check if both user and sticker set are using the default language
+    default_language = user.default_language and sticker.sticker_set.default_language
+
+    language = 'english' if default_language else 'international'
+    if sticker.has_tags_for_language(default_language):
+        message = f'Current {language} tags are: \n {sticker.tags_as_text(default_language)}'
+    else:
+        return f'There are no {language} tags for this sticker'
 
     if send_set_info:
         set_info = f'From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n'
@@ -87,6 +89,7 @@ def handle_next(session, chat, tg_chat, user):
             .outerjoin(Sticker.changes) \
             .join(Sticker.sticker_set) \
             .filter(Change.id.is_(None)) \
+            .filter(StickerSet.default_language.is_(True)) \
             .filter(StickerSet.banned.is_(False)) \
             .filter(StickerSet.nsfw.is_(False)) \
             .filter(StickerSet.furry.is_(False)) \
@@ -119,7 +122,7 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(tg_chat, 'send_message', [tag_text])
-    send_tag_messages(chat, tg_chat)
+    send_tag_messages(chat, tg_chat, user)
 
 
 def get_tags_from_text(text, limit=15):
@@ -152,7 +155,7 @@ def tag_sticker(session, text, sticker, user,
         call_tg_func(tg_chat, 'send_message', ["You don't need to add the /tag command ;)"])
 
     incoming_tags = get_tags_from_text(text)
-    default_language = not (not user.default_language or not sticker.sticker_set.default_language)
+    default_language = user.default_language and sticker.sticker_set.default_language
 
     # Only use the first few tags. This should prevent abuse from tag spammers.
     incoming_tags = incoming_tags[:15]
@@ -176,8 +179,7 @@ def tag_sticker(session, text, sticker, user,
         for incoming_tag in incoming_tags:
             tag = session.query(Tag).get(incoming_tag)
             if tag is None:
-                tag = Tag(incoming_tag, False)
-                tag.default_language = default_language
+                tag = Tag(incoming_tag, False, default_language)
 
             if tag not in tags:
                 tags.append(tag)
@@ -189,7 +191,7 @@ def tag_sticker(session, text, sticker, user,
                 tags.append(tag)
 
         # Get the old tags for tracking
-        old_tags_as_text = sticker.tags_as_text()
+        old_tags_as_text = sticker.tags_as_text(default_language)
 
         if keep_old:
             for tag in tags:
@@ -200,9 +202,8 @@ def tag_sticker(session, text, sticker, user,
             sticker.tags = tags
 
         # Create a change for logging
-        if old_tags_as_text != sticker.tags_as_text():
-            change = Change(user, sticker, old_tags_as_text)
-            change.default_language = default_language
+        if old_tags_as_text != sticker.tags_as_text(default_language):
+            change = Change(user, sticker, old_tags_as_text, default_language)
             session.add(change)
 
     session.commit()

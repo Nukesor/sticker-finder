@@ -81,7 +81,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
 
-        sticker_tags_message = current_sticker_tags_message(sticker)
+        sticker_tags_message = current_sticker_tags_message(sticker, user)
         # Send inline keyboard to allow fast tagging of the sticker's set
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(

@@ -22,7 +22,7 @@ class Task(base):
     __tablename__ = 'task'
 
     VOTE_BAN = 'vote_ban'
-    USER_REVERT = 'user_revert'
+    CHECK_USER_TAGS = 'check_user_tags'
     SCAN_SET = 'scan_set'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -30,6 +30,7 @@ class Task(base):
     message = Column(String)
     reviewed = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
+    default_language = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)

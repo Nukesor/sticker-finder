@@ -16,6 +16,7 @@ from stickerfinder.helper.maintenance import (
     revert_user_changes,
     undo_user_changes_revert,
     distribute_newsfeed_tasks,
+    change_language_of_task_changes,
 )
 from stickerfinder.helper.tag import (
     handle_next,
@@ -75,20 +76,35 @@ def handle_callback_query(bot, update, session, user):
             process_task(session, tg_chat, chat)
 
     # Handle task user ban callbacks
-    elif CallbackType(callback_type).name == 'task_user_revert':
+    elif CallbackType(callback_type).name == 'check_user_tags':
         task = session.query(Task).get(payload)
-        if CallbackResult(action).name == 'revert':
+        # Ban the user
+        if CallbackResult(action).name == 'ban':
             task.user.banned = True
-            revert_user_changes(session, task.user)
-            call_tg_func(query, 'answer', ['User banned and changes reverted'])
-        elif CallbackResult(action).name == 'ok' and task.reviewed:
+            call_tg_func(query, 'answer', ['User banned'])
+        elif CallbackResult(action).name == 'unban':
             task.user.banned = False
+            call_tg_func(query, 'answer', ['User ban reverted'])
+
+        # Revert user changes
+        elif CallbackResult(action).name == 'revert':
+            task.reverted = True
+            revert_user_changes(session, task.user)
+            call_tg_func(query, 'answer', ['All user changes reverted'])
+        elif CallbackResult(action).name == 'undo_revert':
+            task.reverted = False
             undo_user_changes_revert(session, task.user)
             call_tg_func(query, 'answer', ['User changes revert undone'])
 
-        if not task.reviewed:
-            task.reviewed = True
-            process_task(session, tg_chat, chat)
+        # Change the language of all changes of this task.
+        elif CallbackResult(action).name == 'change_language':
+            change_language_of_task_changes(session, task)
+            call_tg_func(query, 'answer', ['Language changed'])
+
+        elif CallbackResult(action).name == 'ok':
+            if not task.reviewed:
+                task.reviewed = True
+                process_task(session, tg_chat, chat)
 
         keyboard = get_user_revert_keyboard(task)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -122,6 +138,17 @@ def handle_callback_query(bot, update, session, user):
             sticker_set.furry = False
         elif CallbackResult(action).name == 'ban':
             sticker_set.furry = True
+
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+
+    # Change sticker set language
+    elif CallbackType(callback_type).name == 'change_set_language':
+        sticker_set = session.query(StickerSet).get(payload.lower())
+        if CallbackResult(action).name == 'international':
+            sticker_set.default_language = False
+        elif CallbackResult(action).name == 'default':
+            sticker_set.default_language = True
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})

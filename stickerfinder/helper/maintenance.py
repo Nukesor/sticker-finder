@@ -3,7 +3,7 @@ from sqlalchemy.orm import joinedload
 from telegram.error import BadRequest, ChatMigrated
 
 from stickerfinder.helper.text import split_text
-from stickerfinder.helper.tags import get_tags_from_text
+from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     admin_keyboard,
@@ -112,7 +112,7 @@ def process_task(session, tg_chat, chat, job=False):
     task = session.query(Task) \
         .filter(Task.reviewed.is_(False)) \
         .filter(Task.type.in_([
-            Task.USER_REVERT,
+            Task.CHECK_USER_TAGS,
             Task.VOTE_BAN,
         ])) \
         .order_by(Task.created_at.asc()) \
@@ -132,7 +132,7 @@ def process_task(session, tg_chat, chat, job=False):
 
         return
 
-    if task.type == Task.USER_REVERT:
+    if task.type == Task.CHECK_USER_TAGS:
         changes = task.checking_changes
 
         # Compile task text
@@ -176,15 +176,16 @@ def change_language_of_task_changes(session, task):
     """Change the default language of all tags and changes of this task."""
     # Sort all changes by sticker
     changes_by_sticker = {}
-    for change in task.changes:
+    for change in task.checking_changes:
         file_id = change.sticker.file_id
         if file_id not in changes_by_sticker:
             changes_by_sticker[file_id] = []
         changes_by_sticker[file_id].append(change)
 
-    for changes in changes_by_sticker:
+    for file_id, changes in changes_by_sticker.items():
         # Get the newest change and use to set the tags
         newest_change = changes[0]
+        sticker = newest_change.sticker
 
         # Get the tags of the latest change
         tags = [session.query(Tag).get(tag) for tag in get_tags_from_text(newest_change.new_tags)]
@@ -199,8 +200,8 @@ def change_language_of_task_changes(session, task):
         # Iterate through all changes and search for an old change, which is not in our current change list
         # This is needed to restore old tags in the correct language
         previous_change = None
-        for change in newest_change.sticker.changes:
-            if change.default_language == task.default_language and change not in task.changes:
+        for change in sticker.changes:
+            if change.default_language == task.default_language and change not in task.checking_changes:
                 previous_change = change
                 break
 
@@ -214,6 +215,8 @@ def change_language_of_task_changes(session, task):
         for tag in tags:
             if tag not in new_tags:
                 new_tags.append(tag)
+
+        sticker.tags = new_tags
 
     task.default_language = not task.default_language
 
@@ -277,7 +280,6 @@ def revert_user_changes(session, user):
             change.reverted = True
 
     user.reverted = True
-    Tag.remove_unused_tags(session)
 
     session.add(user)
     session.commit()
@@ -311,7 +313,7 @@ def undo_user_changes_revert(session, user):
                         if (tag.default_language != change.default_language or tag.emoji)]
 
                 for new_tag in new_tags:
-                    tag = Tag.get_or_create(session, new_tag, change.default_language, False)
+                    tag = Tag.get_or_create(session, new_tag, False, change.default_language)
                     if tag not in tags:
                         tags.append(tag)
 
@@ -321,7 +323,6 @@ def undo_user_changes_revert(session, user):
             change.reverted = False
 
     user.reverted = False
-    Tag.remove_unused_tags(session)
 
     session.add(user)
     session.commit()

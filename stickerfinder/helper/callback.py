@@ -16,7 +16,7 @@ class CallbackType(Enum):
     nsfw_set = 5
     task_vote_nsfw = 6
     fur_set = 7
-    change_language = 8
+    change_set_language = 8
 
     next = 10
     cancel = 11
@@ -35,3 +35,6 @@ class CallbackResult(Enum):
     unban = 4
     undo_revert = 5
     change_language = 6
+
+    default = 20
+    international = 21
