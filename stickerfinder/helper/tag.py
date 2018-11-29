@@ -23,16 +23,14 @@ from stickerfinder.models import (
 )
 
 
-def current_sticker_tags_message(sticker, send_set_info=False):
+def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
-    if len(sticker.tags) == 0 and sticker.text is None:
-        return None
-    elif len(sticker.tags) > 0 and sticker.text is None:
+    if len(sticker.tags) == 0:
+        return 'There are currently no tags'
+    elif len(sticker.tags) > 0:
         message = f'Current tags are: \n {sticker.tags_as_text()}'
-    elif len(sticker.tags) == 0 and sticker.text is not None:
+    elif len(sticker.tags) == 0:
         message = f'Current text is: \n {sticker.text}'
-    else:
-        message = f'Current tags and text are : \n {sticker.tags_as_text()} \n {sticker.text}'
 
     if send_set_info:
         set_info = f'From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n'
@@ -41,11 +39,11 @@ def current_sticker_tags_message(sticker, send_set_info=False):
     return message
 
 
-def send_tag_messages(chat, tg_chat, send_set_info=False):
+def send_tag_messages(chat, tg_chat, user, send_set_info=False):
     """Send next sticker and the tags of this sticker."""
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
-    message = current_sticker_tags_message(chat.current_sticker, send_set_info=send_set_info)
+    message = current_sticker_tags_message(chat.current_sticker, user, send_set_info=send_set_info)
     keyboard = get_tagging_keyboard()
 
     if not message:
@@ -63,7 +61,7 @@ def send_tag_messages(chat, tg_chat, send_set_info=False):
         chat.last_sticker_message_id = response.message_id
 
 
-def handle_next(session, chat, tg_chat):
+def handle_next(session, chat, tg_chat, user):
     """Handle the /next call or the 'next' button click."""
     # We are tagging a whole sticker set. Skip the current sticker
     if chat.full_sticker_set:
@@ -73,7 +71,7 @@ def handle_next(session, chat, tg_chat):
             if sticker == chat.current_sticker and index+1 < len(stickers):
                 # We found the next sticker. Send the messages and return
                 chat.current_sticker = stickers[index+1]
-                send_tag_messages(chat, tg_chat)
+                send_tag_messages(chat, tg_chat, user)
 
                 return
 
@@ -105,7 +103,7 @@ def handle_next(session, chat, tg_chat):
 
         # Found a sticker. Send the messages
         chat.current_sticker = sticker
-        send_tag_messages(chat, tg_chat, send_set_info=True)
+        send_tag_messages(chat, tg_chat, user, send_set_info=True)
 
 
 def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
@@ -154,6 +152,7 @@ def tag_sticker(session, text, sticker, user,
         call_tg_func(tg_chat, 'send_message', ["You don't need to add the /tag command ;)"])
 
     incoming_tags = get_tags_from_text(text)
+    default_language = not (not user.default_language or not sticker.sticker_set.default_language)
 
     # Only use the first few tags. This should prevent abuse from tag spammers.
     incoming_tags = incoming_tags[:15]
@@ -171,18 +170,22 @@ def tag_sticker(session, text, sticker, user,
                 'changes': len(user.changes),
             },
         )
-
     if len(incoming_tags) > 0:
-        tags = [tag for tag in sticker.tags]
+        # Initialize the new tags array with the tags don't have the current language setting.
+        tags = [tag for tag in sticker.tags if tag.default_language is not default_language]
         for incoming_tag in incoming_tags:
-            tag = Tag.get_or_create(session, incoming_tag)
+            tag = session.query(Tag).get(incoming_tag)
+            if tag is None:
+                tag = Tag(incoming_tag, False)
+                tag.default_language = default_language
+
             if tag not in tags:
                 tags.append(tag)
             session.add(tag)
 
-        # Keep old sticker tags if they are emojis
+        # Keep old sticker tags if they are emojis and not in the new tags set
         for tag in sticker.tags:
-            if tag.name in sticker.original_emojis:
+            if tag.name in sticker.original_emojis and tag not in tags:
                 tags.append(tag)
 
         # Get the old tags for tracking
@@ -199,6 +202,7 @@ def tag_sticker(session, text, sticker, user,
         # Create a change for logging
         if old_tags_as_text != sticker.tags_as_text():
             change = Change(user, sticker, old_tags_as_text)
+            change.default_language = default_language
             session.add(change)
 
     session.commit()
