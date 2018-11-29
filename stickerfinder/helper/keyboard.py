@@ -9,8 +9,8 @@ from stickerfinder.helper.callback import CallbackType, CallbackResult
 
 
 main_keyboard = ReplyKeyboardMarkup(
-    [['/random_set'],
-     ['/tag_set', '/tag_random']],
+    [['/international', '/english'],
+     ['/tag_set', '/tag_random', '/random_set']],
     one_time_keyboard=True, resize_keyboard=True,
 )
 
@@ -96,20 +96,43 @@ def get_vote_ban_keyboard(task):
 
 def get_user_revert_keyboard(task):
     """Get keyboard for the user revert task."""
-    callback_type = CallbackType['task_user_revert'].value
+    callback_type = CallbackType['check_user_tags'].value
+
+    # User ban data
+    if not task.user.banned:
+        ban_text = 'Ban user'
+        ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+    else:
+        ban_text = 'Unban user'
+        ban_data = f'{callback_type}:{task.id}:{CallbackResult["ban"].value}'
+
+    # User change revert data
+    if not task.user.reverted:
+        revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
+        revert_text = 'Revert changes'
+    else:
+        revert_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
+        revert_text = 'Undo revert'
+
+    # Language changing button
+    change_data = f'{callback_type}:{task.id}:{CallbackResult["change_language"].value}'
+    if task.default_language:
+        change_text = 'International'
+    else:
+        change_text = 'English'
+
     ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
-    revert_data = f'{callback_type}:{task.id}:{CallbackResult["revert"].value}'
-    if not task.reviewed:
-        buttons = [[
-            InlineKeyboardButton(
-                text='Revert changes and Ban user', callback_data=revert_data),
-            InlineKeyboardButton(text='Everything is fine', callback_data=ok_data),
-        ]]
-    elif task.user.reverted:
-        buttons = [[InlineKeyboardButton(text='Undo revert', callback_data=ok_data)]]
-    elif not task.user.reverted:
-        buttons = [[InlineKeyboardButton(
-            text='Revert changes and Ban user', callback_data=revert_data)]]
+    buttons = [[
+            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
+            InlineKeyboardButton(text=revert_text, callback_data=revert_data),
+        ], [
+            InlineKeyboardButton(text=change_text, callback_data=change_data),
+            InlineKeyboardButton(text='Next', callback_data=ok_data),
+            ]]
+
+    # Remove next button, if the task is already finished
+    if task.reviewed:
+        del buttons[1][1]
 
     return InlineKeyboardMarkup(buttons)
 

@@ -40,6 +40,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /random_set Get a random sticker set.
     /skip       Skip the current sticker
     /cancel     Cancel all current tag actions
+    /english    Only english sticker sets and tags
+    /international Get sticker sets from all all languages.
 
 
 ## Installation and starting:
@@ -69,6 +71,8 @@ When you are updating from a previous version do a `alembic upgrade head` instea
     skip - Skip the current sticker
     vote_ban - Vote to ban the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
+    english - Only english sticker sets and tags
+    international - Get sticker sets from all all languages.
 
 
 ## Dev commands

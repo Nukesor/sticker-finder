@@ -29,6 +29,7 @@ class Task(base):
     type = Column(String)
     message = Column(String)
     reviewed = Column(Boolean, default=False, nullable=False)
+    reverted = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
@@ -41,7 +42,7 @@ class Task(base):
     chat = relationship('Chat', foreign_keys='Task.chat_id', back_populates='tasks')
     processing_chat = relationship('Chat', foreign_keys='Chat.current_task_id', back_populates='current_task')
     sticker_set = relationship('StickerSet')
-    checking_changes = relationship('Change')
+    checking_changes = relationship('Change', order_by="desc(Change.created_at)")
 
     def __init__(self, task_type, user=None, sticker_set=None, chat=None):
         """Create a new change."""
