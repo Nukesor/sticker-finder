@@ -2,18 +2,18 @@
 
 
 help_text = """<b>Search for stickers:</b>
-Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and stickerset titles and sometimes even recognized text.
+Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and pack titles and sometimes even recognized text.
 
-<b>Add stickersets:</b>
-Send any sticker set to me in a direct conversation, I'll add the whole set.
-I will tell you if I don't know this set yet and you will get a notification when the sticker set has been processed and added.
-If I'm added to a group chat, I will automatically add all stickers posted in this chat!
-It can take quite a while to review all new sticker sets, so please bear with me.
-<b>DISCLAIMER:</b> If you add a set, it will be available to <b>ALL</b> users.
+<b>Add sticker packs:</b>
+Send any sticker pack to me in a direct conversation and I'll add the whole pack.
+The bot will tell you if I don't know this pack yet and you will get a notification when the sticker pack has been processed and reviewed.
+If the bot is added to a group chat, it will automatically add all stickers posted in this chat!
+It can take quite a while to review all new sticker packs, so please bear with me.
+<b>DISCLAIMER:</b> If you add a pack, it will be available to <b>ALL</b> users.
 
 <b>Can't find a sticker?</b>
-If you already added a set, you probably need to tag them first (or just search by the set name).
-To tag a whole set just send me a sticker from the set you want to tag.
+If you already added a pack, you probably need to tag them first (or just search by the pack name).
+To tag a whole pack just send me a sticker from the pack you want to tag.
 
 <b>Language:</b>
 The default language is English. Every sticker pack, which is obviously not English will be flagged as such.
@@ -22,7 +22,7 @@ These stickers can only be found, when changing your language to "Not English".
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
 If there already are tags on a sticker, you'll overwrite all existing tags.
-<b>Please</b> only tag in the language you chose for your account. If you tag in any other than your current language, you will get banned.
+<b>Please</b> only tag in English, when you're in the English mode. If you tag in any other language, please use the international mode.
 
 <b>Tagging a single sticker:</b>
 /tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
@@ -37,13 +37,13 @@ In case I miss any, you can use the /vote_ban command to make me look at it agai
 Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
 <b>User Ban:</b>
-If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker set to gain popularity, you will get banned.
-You'll also get banned if you don't tag in English while not using the "Not English" option.
-When you're banned, you can't use the inline search any longer and all of your changes will be reverted.
+If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker pack to gain popularity, you will get banned.
+You'll also get banned if you don't repeatedly tag in other languages while being in the "English" mode and vica versa.
+When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted.
 
 <b>Candy:</b>
-I also try to detect text in stickers, but this turns out to be quite ambitious.
-Don't expect this functionality to work reliably!
+I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
+But don't expect this functionality to work reliably!
 
 In case you encounter any bugs or you just want to look at the code:
 https://github.com/Nukesor/sticker-finder

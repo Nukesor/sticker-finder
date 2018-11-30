@@ -24,7 +24,6 @@ class Tag(base):
     )
 
     name = Column(String, primary_key=True)
-    language = Column(String)
     default_language = Column(Boolean, default=True, nullable=False)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
