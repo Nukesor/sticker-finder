@@ -30,7 +30,7 @@ class Task(base):
     message = Column(String)
     reviewed = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
-    default_language = Column(Boolean, default=True, nullable=False)
+    default_language = Column(Boolean, default=True, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
