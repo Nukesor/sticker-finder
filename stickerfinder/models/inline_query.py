@@ -19,8 +19,7 @@ class InlineQuery(base):
     __tablename__ = 'inline_query'
 
     id = Column(BigInteger, primary_key=True)
-    query = Column(String)
-    bot = Column(String)
+    query = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)

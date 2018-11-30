@@ -11,6 +11,7 @@ from sqlalchemy import (
     Table,
     ForeignKey,
     UniqueConstraint,
+    CheckConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -36,6 +37,15 @@ class Chat(base):
     """The model for a chat."""
 
     __tablename__ = 'chat'
+    __table_args__ = (
+        CheckConstraint("""
+(expecting_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
+        (tagging_random_sticker IS TRUE AND expecting_sticker_set IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
+        (fix_single_sticker IS TRUE AND tagging_random_sticker IS FALSE AND expecting_sticker_set IS FALSE AND full_sticker_set IS FALSE) OR \
+        (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE) \
+        (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE)
+        """),
+    )
 
     id = Column(BigInteger, primary_key=True)
     type = Column(String)

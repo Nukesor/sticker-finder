@@ -43,7 +43,7 @@ class Sticker(base):
 
     file_id = Column(String, primary_key=True)
     text = Column(String)
-    original_emojis = Column(String)
+    original_emojis = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 

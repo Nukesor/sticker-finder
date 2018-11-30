@@ -100,7 +100,6 @@ def find_stickers(bot, update, session, user):
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
-        # TODO: Better id for inlinequery results
         results.append(InlineQueryResultCachedSticker(
             f'{inline_query.id}:{file_id[0]}', sticker_file_id=file_id[0]))
 

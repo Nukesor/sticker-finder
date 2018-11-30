@@ -23,9 +23,9 @@ class InlineQueryRequest(base):
     )
 
     id = Column(BigInteger, primary_key=True)
-    offset = Column(String)
-    next_offset = Column(String)
-    duration = Column(Interval)
+    offset = Column(String, nullable=False)
+    next_offset = Column(String, nullable=False)
+    duration = Column(Interval, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     inline_query_id = Column(BigInteger, ForeignKey('inline_query.id', ondelete='CASCADE'), index=True)

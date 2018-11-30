@@ -9,6 +9,7 @@ from sqlalchemy import (
     Integer,
     String,
     ForeignKey,
+    CheckConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
@@ -20,6 +21,12 @@ class Task(base):
     """The model for a vote ban."""
 
     __tablename__ = 'task'
+    __table_args__ = (
+        CheckConstraint("(type = 'check_user_tags' AND is_default_language IS NOT NULL AND \
+                         user_id IS NOT NULL) OR type != 'check_user_tags'"),
+        CheckConstraint("(type = 'vote_ban' AND user_id IS NOT NULL) OR type != 'vote_ban'"),
+        CheckConstraint("(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'vote_ban'"),
+    )
 
     VOTE_BAN = 'vote_ban'
     CHECK_USER_TAGS = 'check_user_tags'

@@ -19,7 +19,6 @@ class VoteBan(base):
 
     id = Column(Integer, primary_key=True)
     reason = Column(String)
-    old_tags = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)

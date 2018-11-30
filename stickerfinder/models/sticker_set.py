@@ -33,6 +33,7 @@ class StickerSet(base):
               postgresql_using='gin', postgresql_ops={'name': 'gin_trgm_ops'}),
         Index('sticker_title_name_gin_idx', 'title',
               postgresql_using='gin', postgresql_ops={'title': 'gin_trgm_ops'}),
+        CheckConstraint("NOT (reviewed AND NOT complete)"),
     )
 
     name = Column(String, primary_key=True)
