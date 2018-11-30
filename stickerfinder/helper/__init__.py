@@ -16,8 +16,8 @@ If you already added a pack, you probably need to tag them first (or just search
 To tag a whole pack just send me a sticker from the pack you want to tag.
 
 <b>Language:</b>
-The default language is English. Every sticker pack, which is obviously not English will be flagged as such.
-These stickers can only be found, when changing your language to "Not English".
+The default language is English. Every sticker pack, that contains language which isn't English will be flagged as such.
+These stickers can only be found, when changing your mode to "International". You can find lots of stuff in there, but it's not as good maintained as the "English" section.
 
 <b>How to tag:</b>
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
