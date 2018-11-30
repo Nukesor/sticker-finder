@@ -14,9 +14,11 @@ from sqlalchemy import (
     Boolean,
     func,
     Index,
+    CheckConstraint,
 )
 
 from stickerfinder.db import base
+from stickerfinder.sentry import sentry
 from stickerfinder.models import chat_sticker_set, Sticker, Task
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.image import preprocess_image
@@ -105,6 +107,9 @@ class StickerSet(base):
                     pass
                 except BadRequest:
                     logger.info(f'Failed to get image of f{tg_sticker.file_id}')
+                    pass
+                except BaseException:
+                    sentry.captureException()
                     pass
 
             # Create new Sticker.
