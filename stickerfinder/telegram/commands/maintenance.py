@@ -1,6 +1,6 @@
 """Maintenance related commands."""
 import time
-from sqlalchemy import func, distinct
+from sqlalchemy import distinct
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 from datetime import datetime, timedelta
@@ -25,22 +25,16 @@ from stickerfinder.models import (
 @session_wrapper(admin_only=True)
 def stats(bot, update, session, chat, user):
     """Send a help text."""
-    user_count = session.query(User) \
-        .join(User.changes) \
-        .group_by(User) \
-        .count()
+    # Users
+    user_count = session.query(User).join(User.changes).group_by(User).count()
+    banned_user_count = session.query(User).filter(User.banned.is_(True)).count()
 
-    tag_count = session.query(Tag) \
-        .filter(Tag.emoji.is_(False)) \
-        .count()
+    # Tags and emojis
+    tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
+    emoji_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
 
-    emoji_count = session.query(Tag) \
-        .filter(Tag.emoji.is_(True)) \
-        .count()
-
-    sticker_set_count = session.query(StickerSet).count()
+    # Stickers and sticker/text sticker/tag ratio
     sticker_count = session.query(Sticker).count()
-
     tagged_sticker_count = session.query(distinct(sticker_tag.c.sticker_file_id)) \
         .join(Tag, sticker_tag.c.tag_name == Tag.name) \
         .filter(Tag.emoji.is_(False)) \
@@ -50,21 +44,38 @@ def stats(bot, update, session, chat, user):
         .filter(Sticker.text.isnot(None)) \
         .count()
 
-    queries_count = session.query(InlineQuery).count()
+    # Sticker set stuff
+    sticker_set_count = session.query(StickerSet).count()
+    nsfw_set_count = session.query(StickerSet).filter(StickerSet.nsfw.is_(True)).count()
+    furry_set_count = session.query(StickerSet).filter(StickerSet.furry.is_(True)).count()
+    banned_set_count = session.query(StickerSet).filter(StickerSet.banned.is_(True)).count()
+    not_english_set_count = session.query(StickerSet).filter(StickerSet.default_language.is_(False)).count()
+
+    # Inline queries
+    total_queries_count = session.query(InlineQuery).count()
     last_day_queries_count = session.query(InlineQuery)\
         .filter(InlineQuery.created_at > datetime.now() - timedelta(days=1)) \
         .count()
 
     stats = f"""Users: {user_count}
-Tags: {tag_count}
-Emojis: {emoji_count}
+    => banned: {banned_user_count}
+
 Sticker sets: {sticker_set_count}
+    => nsfw: {nsfw_set_count}
+    => furry: {furry_set_count}
+    => banned: {banned_set_count}
+    => international: {not_english_set_count}
+
+Tags: {tag_count}
+    => emojis: {emoji_count}
+
 Stickers: {sticker_count}
-Stickers with Text: {text_sticker_count}
-Stickers with Tags: {tagged_sticker_count}
-Total queries : {queries_count}
-Queries of the last day: {last_day_queries_count}
-    """
+    => with tags: {tagged_sticker_count}
+    => with text: {text_sticker_count}
+
+Total queries : {total_queries_count}
+    => last day: {last_day_queries_count}
+"""
     call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': admin_keyboard})
 
 
