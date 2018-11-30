@@ -126,9 +126,9 @@ def check_user_tags_keyboard(task):
     # Language changing button
     change_data = f'{callback_type}:{task.id}:{CallbackResult["change_language"].value}'
     if task.is_default_language:
-        change_text = 'International'
+        change_text = 'Make International'
     else:
-        change_text = 'English'
+        change_text = 'Make English'
 
     buttons = [[
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
