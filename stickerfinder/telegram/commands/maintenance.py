@@ -1,6 +1,6 @@
 """Maintenance related commands."""
 import time
-from sqlalchemy import func
+from sqlalchemy import func, distinct
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 from datetime import datetime, timedelta
@@ -41,12 +41,9 @@ def stats(bot, update, session, chat, user):
     sticker_set_count = session.query(StickerSet).count()
     sticker_count = session.query(Sticker).count()
 
-    tag_count_select = func.count(sticker_tag.c.sticker_file_id).label('tag_count')
-    tagged_sticker_count = session.query(tag_count_select) \
-        .join(Sticker.tags) \
+    tagged_sticker_count = session.query(distinct(sticker_tag.c.sticker_file_id)) \
+        .join(Tag, sticker_tag.c.tag_name == Tag.name) \
         .filter(Tag.emoji.is_(False)) \
-        .group_by(Sticker) \
-        .having(tag_count_select > 0) \
         .count()
 
     text_sticker_count = session.query(Sticker) \
