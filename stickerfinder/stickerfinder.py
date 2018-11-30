@@ -11,7 +11,7 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
-from stickerfinder.helper import help_text
+from stickerfinder.helper import help_text, start_text
 from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
@@ -62,7 +62,7 @@ def start(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
                      {'reply_markup': admin_keyboard})
     else:
-        call_tg_func(update.message.chat, 'send_message', [help_text],
+        call_tg_func(update.message.chat, 'send_message', [start_text],
                      {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
