@@ -19,7 +19,7 @@ class User(base):
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String, unique=True)
-    default_language = Column(Boolean, default=True, nullable=False)
+    is_default_language = Column(Boolean, default=True, nullable=False)
 
     banned = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)

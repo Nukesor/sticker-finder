@@ -53,26 +53,26 @@ def maintenance_job(bot, job, session, user):
         session.add(task)
 
     # Get all users which tagged more than the configurated amount of stickers since the last user check.
-    for default_language in [True, False]:
+    for is_default_language in [True, False]:
         change_count = func.count(Change.id).label('change_count')
         user_check_candidates = session.query(User, change_count) \
             .join(User.changes) \
             .outerjoin(Change.check_task) \
             .filter(Task.id.is_(None)) \
-            .filter(Change.default_language.is_(default_language)) \
+            .filter(Change.is_default_language.is_(is_default_language)) \
             .group_by(User) \
             .having(change_count >= config.USER_CHECK_COUNT) \
             .all()
 
         for (user, _) in user_check_candidates:
             task = Task(Task.CHECK_USER_TAGS, user=user)
-            task.default_language = default_language
+            task.is_default_language = is_default_language
             session.add(task)
             session.commit()
             session.query(Change) \
                 .filter(Change.check_task_id.is_(None)) \
                 .filter(Change.user_id == user.id) \
-                .filter(Change.default_language.is_(default_language)) \
+                .filter(Change.is_default_language.is_(is_default_language)) \
                 .update({'check_task_id': task.id}, synchronize_session='fetch')
 
         session.commit()

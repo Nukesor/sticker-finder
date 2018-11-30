@@ -24,7 +24,7 @@ class Change(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     reviewed = Column(Boolean, default=False, nullable=False)
-    default_language = Column(Boolean, default=True, nullable=False)
+    is_default_language = Column(Boolean, default=True, nullable=False)
     old_tags = Column(String)
     new_tags = Column(String)
 
@@ -36,11 +36,11 @@ class Change(base):
     user = relationship("User")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, old_tags, default_language):
+    def __init__(self, user, sticker, old_tags, is_default_language):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
-        self.default_language = default_language
+        self.is_default_language = is_default_language
 
         self.old_tags = old_tags
-        self.new_tags = sticker.tags_as_text(default_language)
+        self.new_tags = sticker.tags_as_text(is_default_language)

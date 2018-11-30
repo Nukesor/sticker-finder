@@ -49,7 +49,7 @@ def stats(bot, update, session, chat, user):
     nsfw_set_count = session.query(StickerSet).filter(StickerSet.nsfw.is_(True)).count()
     furry_set_count = session.query(StickerSet).filter(StickerSet.furry.is_(True)).count()
     banned_set_count = session.query(StickerSet).filter(StickerSet.banned.is_(True)).count()
-    not_english_set_count = session.query(StickerSet).filter(StickerSet.default_language.is_(False)).count()
+    not_english_set_count = session.query(StickerSet).filter(StickerSet.is_default_language.is_(False)).count()
 
     # Inline queries
     total_queries_count = session.query(InlineQuery).count()

@@ -24,7 +24,7 @@ class Tag(base):
     )
 
     name = Column(String, primary_key=True)
-    default_language = Column(Boolean, default=True, nullable=False)
+    is_default_language = Column(Boolean, default=True, nullable=False)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -33,18 +33,18 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, emoji, default_language):
+    def __init__(self, name, emoji, is_default_language):
         """Create a new sticker."""
         self.name = name
         self.emoji = emoji
-        self.default_language = default_language
+        self.is_default_language = is_default_language
 
     @staticmethod
-    def get_or_create(session, name, emoji=False, default_language=True):
+    def get_or_create(session, name, emoji=False, is_default_language=True):
         """Get or create a new sticker."""
         tag = session.query(Tag).get(name)
         if not tag:
-            tag = Tag(name, emoji, default_language)
+            tag = Tag(name, emoji, is_default_language)
             session.add(tag)
             session.commit()
 

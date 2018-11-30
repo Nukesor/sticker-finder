@@ -50,7 +50,7 @@ def get_nsfw_ban_keyboard(sticker_set):
         fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         fur_text = 'Tag as Furry'
 
-    if sticker_set.default_language:
+    if sticker_set.is_default_language:
         language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
         language_text = 'International'
     else:
@@ -125,7 +125,7 @@ def check_user_tags_keyboard(task):
 
     # Language changing button
     change_data = f'{callback_type}:{task.id}:{CallbackResult["change_language"].value}'
-    if task.default_language:
+    if task.is_default_language:
         change_text = 'International'
     else:
         change_text = 'English'

@@ -51,7 +51,7 @@ def random_set(bot, update, session, chat, user):
     sticker_count = func.count(Sticker.file_id).label("sticker_count")
     sticker_set = session.query(StickerSet)\
         .join(StickerSet.stickers) \
-        .filter(StickerSet.default_language.is_(True)) \
+        .filter(StickerSet.is_default_language.is_(True)) \
         .filter(StickerSet.nsfw.is_(False)) \
         .filter(StickerSet.furry.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \

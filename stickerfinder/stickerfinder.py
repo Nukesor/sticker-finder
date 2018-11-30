@@ -34,8 +34,8 @@ from stickerfinder.telegram.commands import (
     random_set,
     add_sets,
     delete_set,
-    set_default_language,
-    set_not_default_language,
+    set_is_default_language,
+    set_not_is_default_language,
 )
 from stickerfinder.telegram.jobs import (
     newsfeed_job,
@@ -100,8 +100,8 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('tag_random', tag_random))
     dispatcher.add_handler(CommandHandler('random_set', random_set))
     dispatcher.add_handler(CommandHandler('cancel', cancel))
-    dispatcher.add_handler(CommandHandler('english', set_default_language))
-    dispatcher.add_handler(CommandHandler('international', set_not_default_language))
+    dispatcher.add_handler(CommandHandler('english', set_is_default_language))
+    dispatcher.add_handler(CommandHandler('international', set_not_is_default_language))
 
     # Maintenance input commands
     dispatcher.add_handler(CommandHandler('ban', ban_user))

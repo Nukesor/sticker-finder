@@ -106,13 +106,13 @@ def handle_callback_query(bot, update, session, user):
 
         # Change the language of all changes of this task.
         elif CallbackResult(action).name == 'change_language':
-            default_language = task.default_language
+            is_default_language = task.is_default_language
             change_language_of_task_changes(session, task)
             call_tg_func(query, 'answer', ['Language changed'])
 
-            first = 'international' if default_language else 'english'
-            second = 'english' if default_language else 'international'
-            command = '/international' if default_language else '/english'
+            first = 'international' if is_default_language else 'english'
+            second = 'english' if is_default_language else 'international'
+            command = '/international' if is_default_language else '/english'
             message = f'It appears you have recently tagged stickers in {first}, while being in "{second}" mode. '
             message += f'Please use {command} beforehand next time. The tags have been corrected.'
             call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
@@ -162,9 +162,9 @@ def handle_callback_query(bot, update, session, user):
     elif CallbackType(callback_type).name == 'change_set_language':
         sticker_set = session.query(StickerSet).get(payload.lower())
         if CallbackResult(action).name == 'international':
-            sticker_set.default_language = False
+            sticker_set.is_default_language = False
         elif CallbackResult(action).name == 'default':
-            sticker_set.default_language = True
+            sticker_set.is_default_language = True
 
         keyboard = get_nsfw_ban_keyboard(sticker_set)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
