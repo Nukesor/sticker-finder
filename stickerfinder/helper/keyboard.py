@@ -103,7 +103,7 @@ def get_vote_ban_keyboard(task):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_user_revert_keyboard(task):
+def check_user_tags_keyboard(task):
     """Get keyboard for the user revert task."""
     callback_type = CallbackType['check_user_tags'].value
 
@@ -138,7 +138,7 @@ def get_user_revert_keyboard(task):
             ]]
 
     # Remove next button, if the task is already finished
-    if task.reviewed:
+    if not task.reviewed:
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
         next_button = InlineKeyboardButton(text='Next', callback_data=ok_data)
         buttons[1].append(next_button)

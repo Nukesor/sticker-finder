@@ -8,7 +8,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     get_nsfw_ban_keyboard,
     get_fix_sticker_tags_keyboard,
-    get_user_revert_keyboard,
+    check_user_tags_keyboard,
     get_tag_this_set_keyboard,
 )
 from stickerfinder.helper.maintenance import (
@@ -106,7 +106,7 @@ def handle_callback_query(bot, update, session, user):
                 task.reviewed = True
                 process_task(session, tg_chat, chat)
 
-        keyboard = get_user_revert_keyboard(task)
+        keyboard = check_user_tags_keyboard(task)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
     # Handle the "Ban this set" button

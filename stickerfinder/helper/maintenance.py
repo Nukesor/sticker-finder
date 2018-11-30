@@ -7,7 +7,7 @@ from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     admin_keyboard,
-    get_user_revert_keyboard,
+    check_user_tags_keyboard,
     get_vote_ban_keyboard,
     get_nsfw_ban_keyboard,
 )
@@ -144,7 +144,7 @@ def process_task(session, tg_chat, chat, job=False):
             elif change.old_tags:
                 text.append(f'Changed tags from {change.old_tags} to None')
 
-        keyboard = get_user_revert_keyboard(task)
+        keyboard = check_user_tags_keyboard(task)
 
     elif task.type == Task.VOTE_BAN:
         # Compile task text
