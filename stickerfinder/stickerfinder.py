@@ -52,7 +52,7 @@ from stickerfinder.telegram.callback import (
     handle_callback_query,
     handle_chosen_inline_result,
 )
-from stickerfinder.telegram.inline_query import find_stickers
+from stickerfinder.telegram.inline_query import search
 
 
 @session_wrapper()
@@ -80,7 +80,7 @@ updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
                   request_kwargs={'read_timeout': 20.})
 
 # Create inline query handler
-updater.dispatcher.add_handler(InlineQueryHandler(find_stickers))
+updater.dispatcher.add_handler(InlineQueryHandler(search))
 
 dispatcher = updater.dispatcher
 # Create group message handler

@@ -6,6 +6,7 @@ start_text = """Hey. This is the Sticker Finder Bot.
 A quick introduction:
 - For search just type '@stfi_bot something I want' anywhere.
 - You can search by sticker pack name, tags, emoji and sometimes text inside the sticker.
+- Query explicitly for sticker packs! Just add "set" or "pack" to your search.
 - If you want ALL sticker packs, use /international to enable other languages than english.
 - For tagging sticker packs use /tag_set, /tag_random or the keyboard.
 - If you want 'nsfw' or 'furry' stuff, include those words in your search.
@@ -16,6 +17,7 @@ For a more detailed explanation (especially if you want to tag) use /help :)
 
 help_text = """<b>Search for stickers:</b>
 Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and pack titles and sometimes even recognized text.
+You can search explicitly for sticker packs, just add "pack" or "set" to your search.
 
 <b>Add sticker packs:</b>
 Send any sticker pack to me in a direct conversation and I'll add the whole pack.

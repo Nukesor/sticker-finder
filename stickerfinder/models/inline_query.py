@@ -16,10 +16,14 @@ from stickerfinder.config import config
 class InlineQuery(base):
     """The model for a inline search."""
 
+    SET_MODE = 'sticker_set'
+    STICKER_MODE = 'sticker'
+
     __tablename__ = 'inline_query'
 
     id = Column(BigInteger, primary_key=True)
     query = Column(String, nullable=False)
+    mode = Column(String, nullable=False, default='sticker')
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)

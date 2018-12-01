@@ -54,7 +54,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     incoming_sticker = update.message.sticker
     set_name = incoming_sticker.set_name
 
-    # The sticker is no longer associated to a stickerpack
+    # The sticker is no longer associated to a sticker set
     if set_name is None:
         call_tg_func(update.message.chat, 'send_message', args=["This sticker doesn't belong to a sticker set."])
         return
@@ -98,11 +98,11 @@ def handle_group_sticker(bot, update, session, chat, user):
     """Read all stickers.
 
     - Handle initial sticker addition.
-    - Detect whether a sticker pack is used in a chat or not.
+    - Detect whether a sticker set is used in a chat or not.
     """
     set_name = update.message.sticker.set_name
 
-    # The sticker is no longer associated to a stickerpack
+    # The sticker is no longer associated to a sticker set
     if set_name is None:
         return
 

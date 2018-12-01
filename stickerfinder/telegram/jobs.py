@@ -98,7 +98,7 @@ def scan_sticker_sets_job(bot, job, session, user):
         .order_by(Task.created_at.asc()) \
         .all()
 
-    # Send the first sticker of each new pack to all newsfeed channels
+    # Send the first sticker of each new set to all newsfeed channels
     for task in tasks:
         task.sticker_set.refresh_stickers(session, bot, chat=task.chat)
         session.commit()

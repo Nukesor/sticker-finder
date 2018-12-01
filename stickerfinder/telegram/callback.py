@@ -253,4 +253,10 @@ def handle_chosen_inline_result(bot, update, session, user):
     [search_id, file_id] = splitted
     inline_query = session.query(InlineQuery).get(search_id)
 
+    # This happens, if the user clicks on a link in sticker set search.
+    if inline_query.mode == InlineQuery.SET_MODE:
+        sticker = session.query(Sticker).get(file_id)
+        if sticker is None:
+            return
+
     inline_query.sticker_file_id = file_id
