@@ -22,7 +22,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 ## Features:
 
 - Inline query search by tags, text, emoji, stickerset name and title.
-- Dedicated search for sticker packs. Just add `pack` or `set` to your search.
+- Dedicated search for sticker packs. Just add `pack` or `set` to your search e.g. `@stfi_bot kermit set`.
 - Fuzzy searching to match similar words or typos.
 - Tagging of single stickers or whole sets.
 - NSFW and Furry filter. Use `nsfw` or `fur` tag to explicitly search for this stuff.
