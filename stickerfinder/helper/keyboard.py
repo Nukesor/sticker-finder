@@ -9,7 +9,7 @@ from stickerfinder.helper.callback import CallbackType, CallbackResult
 
 
 main_keyboard = ReplyKeyboardMarkup(
-    [['/international', '/english'],
+    [['/help', '/international', '/english'],
      ['/tag_set', '/tag_random', '/random_set']],
     one_time_keyboard=True, resize_keyboard=True,
 )
