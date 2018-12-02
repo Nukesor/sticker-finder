@@ -22,6 +22,7 @@ from stickerfinder.helper.tag import (
     handle_next,
     send_tag_messages,
     initialize_set_tagging,
+    send_tagged_count_message,
 )
 from stickerfinder.models import (
     Chat,
@@ -220,9 +221,14 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle the "Stop tagging" button
     elif CallbackType(callback_type).name == 'cancel':
-        call_tg_func(query, 'answer', ['All active commands have been canceled'])
-        call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
-                     {'reply_markup': main_keyboard})
+        # Send a message to the user, which shows how many stickers he already tagged,
+        # if the user was just tagging some stickers.
+        # Otherwise just send the normal cancel success message.
+        if not send_tagged_count_message(session, bot, user, chat):
+            call_tg_func(query, 'answer', ['All active commands have been canceled'])
+            call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
+                         {'reply_markup': main_keyboard})
+
         chat.cancel()
 
     # Handle "Fix this sticker's tags"

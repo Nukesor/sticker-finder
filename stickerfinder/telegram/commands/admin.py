@@ -1,9 +1,12 @@
 """General admin commands."""
+import time
 from telegram.ext import run_async
 
-from stickerfinder.models import User, StickerSet
+from telegram.error import BadRequest, Unauthorized
+from stickerfinder.models import User, StickerSet, Chat
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.keyboard import main_keyboard
 
 
 @run_async
@@ -89,3 +92,41 @@ def delete_set(bot, update, session, chat, user):
         return f'Sticker set {name} deleted'
 
     return f'No sticker set with name {name}'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def broadcast(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    message = update.message.text.split(' ', 1)[1].strip()
+
+    chats = session.query(Chat) \
+        .filter(Chat.type == 'private') \
+        .all()
+
+    call_tg_func(update.message.chat, 'send_message',
+                 args=[f'Sending broadcast to {len(chats)} chats.'])
+    deleted = 0
+    for chat in chats:
+        try:
+            call_tg_func(bot, 'send_message', args=[chat.id, message])
+
+        # The chat doesn't exist any longer, delete it
+        except BadRequest as e:
+            if e.message == 'Chat not found': # noqa
+                deleted += 1
+                session.delete(chat)
+                continue
+
+        # We are not allowed to contact this user.
+        except Unauthorized:
+            deleted += 1
+            session.delete(chat)
+            continue
+
+        # Sleep one second to not trigger flood prevention
+        time.sleep(1)
+
+    call_tg_func(update.message.chat, 'send_message',
+                 [f'All messages sent. Deleted {deleted} chats.'],
+                 {'reply_markup': main_keyboard})

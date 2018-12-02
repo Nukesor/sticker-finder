@@ -79,9 +79,10 @@ def handle_next(session, chat, tg_chat, user):
 
         # There are no stickers left, reset the chat and send success message.
         chat.current_sticker_set.completely_tagged = True
-        chat.cancel()
         call_tg_func(tg_chat, 'send_message', ['The full sticker set is now tagged.'],
                      {'reply_markup': main_keyboard})
+        send_tagged_count_message(session, bot, user, chat)
+        chat.cancel()
 
     # Find a random sticker with no changes
     elif chat.tagging_random_sticker:
@@ -143,6 +144,18 @@ def get_tags_from_text(text, limit=15):
     tags = list(OrderedDict.fromkeys(tags))
 
     return tags[:limit]
+
+
+def send_tagged_count_message(session, bot, user, chat):
+    """Send a user a message that displays how many stickers he already tagged."""
+    if chat.tagging_random_sticker or chat.full_sticker_set:
+        count = session.query(Sticker) \
+            .join(Sticker.changes) \
+            .filter(Change.user == user) \
+            .count()
+
+        call_tg_func(bot, 'send_message', [user.id, f'You already tagged {count} stickers. Thanks!'],
+                     {'reply_markup': main_keyboard})
 
 
 def tag_sticker(session, text, sticker, user,

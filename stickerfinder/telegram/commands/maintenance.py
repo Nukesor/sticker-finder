@@ -1,8 +1,6 @@
 """Maintenance related commands."""
-import time
 from sqlalchemy import distinct
 from telegram.ext import run_async
-from telegram.error import BadRequest, Unauthorized
 from datetime import datetime, timedelta
 
 from stickerfinder.helper.keyboard import admin_keyboard
@@ -11,7 +9,6 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import process_task
 from stickerfinder.helper.cleanup import tag_cleanup, user_cleanup
 from stickerfinder.models import (
-    Chat,
     StickerSet,
     Sticker,
     sticker_tag,
@@ -165,39 +162,3 @@ def cleanup(bot, update, session, chat, user):
 
     call_tg_func(update.message.chat, 'send_message',
                  ['Cleanup finished.'], {'reply_markup': admin_keyboard})
-
-
-@run_async
-@session_wrapper(admin_only=True)
-def broadcast(bot, update, session, chat, user):
-    """Broadcast a message to all users."""
-    message = update.message.text.split(' ', 1)[1].strip()
-
-    chats = session.query(Chat) \
-        .filter(Chat.type == 'private') \
-        .all()
-
-    call_tg_func(update.message.chat, 'send_message',
-                 args=[f'Sending broadcast to {len(chats)} chats.'])
-    deleted = 0
-    for chat in chats:
-        try:
-            call_tg_func(bot, 'send_message', args=[chat.id, message])
-
-        # The chat doesn't exist any longer, delete it
-        except BadRequest as e:
-            if e.message == 'Chat not found': # noqa
-                deleted += 1
-                session.delete(chat)
-                continue
-
-        # We are not allowed to contact this user.
-        except Unauthorized:
-            deleted += 1
-            session.delete(chat)
-            continue
-
-        # Sleep one second to not trigger flood prevention
-        time.sleep(1)
-
-    call_tg_func(update.message.chat, 'send_message', args=[f'All messages sent. Deleted {deleted} chats.'])
