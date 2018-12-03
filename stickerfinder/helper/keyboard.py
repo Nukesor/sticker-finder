@@ -52,10 +52,10 @@ def get_nsfw_ban_keyboard(sticker_set):
 
     if sticker_set.is_default_language:
         language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
-        language_text = 'International'
+        language_text = 'Make International'
     else:
         language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["default"].value}'
-        language_text = 'English'
+        language_text = 'Make English'
 
     buttons = [
         [
