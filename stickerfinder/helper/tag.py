@@ -63,7 +63,7 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
         chat.last_sticker_message_id = response.message_id
 
 
-def handle_next(session, chat, tg_chat, user):
+def handle_next(session, bot, chat, tg_chat, user):
     """Handle the /next call or the 'next' button click."""
     # We are tagging a whole sticker set. Skip the current sticker
     if chat.full_sticker_set:

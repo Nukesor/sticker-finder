@@ -36,7 +36,7 @@ def tag_random(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
     chat.cancel()
     chat.tagging_random_sticker = True
-    handle_next(session, chat, update.message.chat, user)
+    handle_next(session, bot, chat, update.message.chat, user)
 
     return
 
@@ -46,7 +46,7 @@ def tag_random(bot, update, session, chat, user):
 def skip(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
     if chat.tagging_random_sticker or chat.full_sticker_set:
-        handle_next(session, chat, update.message.chat, user)
+        handle_next(session, bot, chat, update.message.chat, user)
 
         return
 
