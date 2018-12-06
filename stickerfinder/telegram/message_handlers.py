@@ -86,8 +86,8 @@ def handle_private_sticker(bot, update, session, chat, user):
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(
             update.message.chat, 'send_message',
-            [f"Tag this specific sticker with:\n `/tag tag1 tag2`\n {sticker_tags_message}"],
-            {'reply_markup': keyboard, 'parse_mode': 'Markdown'},
+            [f'Tag this specific sticker with:\n "/tag tag1 tag2"\n {sticker_tags_message}'],
+            {'reply_markup': keyboard},
         )
 
     return
