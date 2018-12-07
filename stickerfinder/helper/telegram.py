@@ -3,7 +3,7 @@ import time
 import logging
 from telegram.error import TimedOut, NetworkError
 
-from stickerfiner.sentry import sentry
+from stickerfinder.sentry import sentry
 
 
 def call_tg_func(tg_object: object, function_name: str,
