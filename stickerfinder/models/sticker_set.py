@@ -141,6 +141,7 @@ class StickerSet(base):
             # Create a task for adding a sticker.
             # This task will be processed by a job, since adding a sticker can take quite a while
             sticker_set = StickerSet(name, None)
+            sticker_set.is_default_language = user.is_default_language
             task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat, user=user)
             session.add(sticker_set)
             session.add(task)
