@@ -1,8 +1,9 @@
 """All helper for interaction with telegram."""
 import time
 import logging
-from raven import breadcrumbs
 from telegram.error import TimedOut, NetworkError
+
+from stickerfiner.sentry import sentry
 
 
 def call_tg_func(tg_object: object, function_name: str,
@@ -25,7 +26,11 @@ def call_tg_func(tg_object: object, function_name: str,
             logger = logging.getLogger()
             logger.info(f'Got telegram exception waiting 4 secs.')
             logger.info(e)
-            breadcrumbs.record(data={'action': 'Telegram exception', 'exception': e}, category='info')
+            sentry.captureMessage(str(e), stack=True, extra={
+                function_name: function_name,
+                args: args,
+                kwargs: kwargs,
+            })
             time.sleep(4)
             _try += 1
 
