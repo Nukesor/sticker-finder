@@ -26,11 +26,7 @@ def call_tg_func(tg_object: object, function_name: str,
             logger = logging.getLogger()
             logger.info(f'Got telegram exception waiting 4 secs.')
             logger.info(e)
-            sentry.captureMessage(str(e), stack=True, extra={
-                function_name: function_name,
-                args: args,
-                kwargs: kwargs,
-            })
+            sentry.captureMessage(str(e), stack=True)
             time.sleep(4)
             _try += 1
 
