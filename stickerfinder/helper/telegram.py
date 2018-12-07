@@ -6,6 +6,7 @@ from telegram.error import TimedOut, NetworkError
 from raven import breadcrumbs
 
 from stickerfinder.sentry import sentry
+from stickerfinder.config import config
 
 
 def call_tg_func(tg_object: object, function_name: str,
@@ -31,7 +32,8 @@ def call_tg_func(tg_object: object, function_name: str,
             logger = logging.getLogger()
             logger.info(f'Got telegram exception waiting 4 secs.')
             logger.info(e)
-            sentry.captureException()
+            if config.DEBUG:
+                sentry.captureException()
             time.sleep(4)
             _try += 1
 
