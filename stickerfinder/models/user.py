@@ -9,6 +9,7 @@ from sqlalchemy import (
     func,
     String,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 
 
@@ -45,7 +46,13 @@ class User(base):
         if not user:
             user = User(tg_user.id, tg_user.username)
             session.add(user)
-            session.commit()
+            try:
+                session.commit()
+            # Handle parallel user addition
+            except IntegrityError as e:
+                user = session.query(User).get(tg_user.id)
+                if user is None:
+                    raise e
 
         # Allways update the username in case the username changed
         if tg_user.username is not None:
