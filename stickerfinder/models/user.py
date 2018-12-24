@@ -50,6 +50,7 @@ class User(base):
                 session.commit()
             # Handle parallel user addition
             except IntegrityError as e:
+                session.rollback()
                 user = session.query(User).get(tg_user.id)
                 if user is None:
                     raise e

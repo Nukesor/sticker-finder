@@ -77,7 +77,7 @@ logging.basicConfig(level=config.LOG_LEVEL,
 
 # Initialize telegram updater and dispatcher
 updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
-                  request_kwargs={'read_timeout': 20.})
+                  request_kwargs={'read_timeout': 20, 'connect_timeout': 20})
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(search))
