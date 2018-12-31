@@ -13,6 +13,7 @@ from sqlalchemy import (
     UniqueConstraint,
     CheckConstraint,
 )
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
@@ -92,7 +93,14 @@ class Chat(base):
         if not chat:
             chat = Chat(chat_id, chat_type)
             session.add(chat)
-            session.commit()
+            try:
+                session.commit()
+            # Handle parallel chat creation
+            except IntegrityError as e:
+                session.rollback()
+                chat = session.query(Chat).get(chat_id)
+                if chat is None:
+                    raise e
 
         return chat
 
