@@ -12,7 +12,7 @@ from stickerfinder.helper.keyboard import (
     get_tag_this_set_keyboard,
 )
 from stickerfinder.helper.maintenance import (
-    process_task,
+    check_maintenance_chat,
     revert_user_changes,
     undo_user_changes_revert,
     distribute_newsfeed_tasks,
@@ -60,7 +60,7 @@ def handle_callback_query(bot, update, session, user):
 
         if not task.reviewed:
             task.reviewed = True
-            process_task(session, tg_chat, chat)
+            check_maintenance_chat(session, tg_chat, chat)
 
     # Handle task vote ban callbacks
     if CallbackType(callback_type).name == 'task_vote_nsfw':
@@ -74,7 +74,7 @@ def handle_callback_query(bot, update, session, user):
 
         if not task.reviewed:
             task.reviewed = True
-            process_task(session, tg_chat, chat)
+            check_maintenance_chat(session, tg_chat, chat)
 
     # Handle task user ban callbacks
     elif CallbackType(callback_type).name == 'check_user_tags':
@@ -121,7 +121,7 @@ def handle_callback_query(bot, update, session, user):
         elif CallbackResult(action).name == 'ok':
             if not task.reviewed:
                 task.reviewed = True
-                process_task(session, tg_chat, chat)
+                check_maintenance_chat(session, tg_chat, chat)
 
         keyboard = check_user_tags_keyboard(task)
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})

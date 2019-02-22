@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import process_task
+from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
 from stickerfinder.helper.cleanup import tag_cleanup, user_cleanup
 from stickerfinder.models import (
     StickerSet,
@@ -142,15 +142,19 @@ def flag_chat(bot, update, session, chat, user):
 @session_wrapper(admin_only=True)
 def start_tasks(bot, update, session, chat, user):
     """Start the handling of tasks."""
-    if not chat.is_maintenance:
+    if not chat.is_maintenance and not chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message',
-                     ['The chat is no maintenance chat'], {'reply_markup': admin_keyboard})
+                     ['The chat is neither a maintenance nor a newsfeed chat'],
+                     {'reply_markup': admin_keyboard})
         return
 
     elif chat.current_task:
         return 'There already is a task active for this chat.'
 
-    process_task(session, update.message.chat, chat)
+    if chat.is_maintenance:
+        check_maintenance_chat(session, update.message.chat, chat)
+    elif chat.is_newsfeed:
+        check_newsfeed_chat(bot, session, chat)
 
 
 @run_async

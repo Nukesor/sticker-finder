@@ -3,7 +3,7 @@
 This telegram bot allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
 
 The inline query filters by looking at custom tags, detected text, emojis, sticker set name and title.
-There already are about 2100 searchable sticker sets with over 110k stickers. And in case the bot is missing some, you can easily add your own precious sets.
+There already are about 3100 searchable sticker sets with over 150k stickers. And in case the bot is missing some, you can easily add your own precious sets.
 
 Sticker finder is quite fast (about 0.1 sec for each search), supports custom tagging and features fuzzy searching!
 

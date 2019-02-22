@@ -35,56 +35,60 @@ def distribute_newsfeed_tasks(bot, session, chats=None):
         return
 
     for chat in chats:
-        # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
-        next_task = session.query(Task) \
-            .filter(Task.type == Task.SCAN_SET) \
-            .join(Task.sticker_set) \
-            .outerjoin(Task.processing_chat) \
-            .filter(Chat.current_task_id.is_(None)) \
-            .filter(StickerSet.complete.is_(True)) \
-            .filter(Task.reviewed.is_(False)) \
-            .order_by(Task.created_at.asc()) \
-            .limit(1) \
-            .one_or_none()
+        check_newsfeed_chat(bot, session, chat)
 
-        # No more tasks
-        if next_task is None:
-            chat.current_task = None
-            continue
 
-        # TODO: HANDLE
-        # Sticker set with zero stickers
-        if len(next_task.sticker_set.stickers) == 0:
-            continue
+def check_newsfeed_chat(bot, session, chat):
+    # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
+    next_task = session.query(Task) \
+        .filter(Task.type == Task.SCAN_SET) \
+        .join(Task.sticker_set) \
+        .outerjoin(Task.processing_chat) \
+        .filter(Chat.current_task_id.is_(None)) \
+        .filter(StickerSet.complete.is_(True)) \
+        .filter(Task.reviewed.is_(False)) \
+        .order_by(Task.created_at.asc()) \
+        .limit(1) \
+        .one_or_none()
 
-        new_set = next_task.sticker_set
+    # No more tasks
+    if next_task is None:
+        chat.current_task = None
+        return
 
-        try:
-            keyboard = get_nsfw_ban_keyboard(new_set)
-            call_tg_func(bot, 'send_sticker',
-                         [chat.id, new_set.stickers[0].file_id],
-                         {'reply_markup': keyboard})
+    # TODO: HANDLE
+    # Sticker set with zero stickers
+    if len(next_task.sticker_set.stickers) == 0:
+        return
 
-            if next_task.user is not None:
-                message = f'Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})'
-            else:
-                message = f'Set {new_set.name} added by chat: {next_task.chat.id}'
-            call_tg_func(bot, 'send_message', [chat.id, message])
+    new_set = next_task.sticker_set
 
-            chat.current_task = next_task
-            chat.current_sticker = new_set.stickers[0]
+    try:
+        keyboard = get_nsfw_ban_keyboard(new_set)
+        call_tg_func(bot, 'send_sticker',
+                     [chat.id, new_set.stickers[0].file_id],
+                     {'reply_markup': keyboard})
 
-        # A newsfeed chat has been converted to a super group.
-        # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
-        except ChatMigrated:
+        if next_task.user is not None:
+            message = f'Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})'
+        else:
+            message = f'Set {new_set.name} added by chat: {next_task.chat.id}'
+        call_tg_func(bot, 'send_message', [chat.id, message])
+
+        chat.current_task = next_task
+        chat.current_sticker = new_set.stickers[0]
+
+    # A newsfeed chat has been converted to a super group.
+    # Remove it from the newsfeed and trigger a new query of the newsfeed chats.
+    except ChatMigrated:
+        session.delete(chat)
+    except BadRequest as e:
+        if e.message == 'Chat not found': # noqa
             session.delete(chat)
-        except BadRequest as e:
-            if e.message == 'Chat not found': # noqa
-                session.delete(chat)
-            else:
-                raise e
+        else:
+            raise e
 
-        session.commit()
+    session.commit()
 
 
 def distribute_tasks(bot, session):
@@ -104,10 +108,10 @@ def distribute_tasks(bot, session):
 
             raise e
 
-        process_task(session, tg_chat, chat, job=True)
+        check_maintenance_chat(session, tg_chat, chat, job=True)
 
 
-def process_task(session, tg_chat, chat, job=False):
+def check_maintenance_chat(session, tg_chat, chat, job=False):
     """Get the next task and send it to the maintenance channel."""
     task = session.query(Task) \
         .filter(Task.reviewed.is_(False)) \
