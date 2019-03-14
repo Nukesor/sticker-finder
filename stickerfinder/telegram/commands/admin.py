@@ -162,7 +162,7 @@ def ban_sticker(bot, update, session, chat, user):
     chat.current_sticker.banned = True
     chat.current_sticker.tags = []
 
-    return 'Sticker set banned.'
+    return 'Sticker banned.'
 
 
 @run_async
@@ -171,4 +171,4 @@ def unban_sticker(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     chat.current_sticker.banned = True
 
-    return 'Sticker set unbanned.'
+    return 'Sticker unbanned.'
