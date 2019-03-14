@@ -1,8 +1,9 @@
 """General admin commands."""
 import time
+from sqlalchemy import or_
 from telegram.ext import run_async
-
 from telegram.error import BadRequest, Unauthorized
+
 from stickerfinder.models import User, StickerSet, Chat
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
@@ -51,6 +52,28 @@ def unban_user(bot, update, session, chat, user):
         return f'User {name_to_unban} unbanned'
     else:
         return 'Unknown username'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def make_admin(bot, update, session, chat, user):
+    """Send a help text."""
+    identifier = update.message.text.split(' ', 1)[1].lower()
+
+    try:
+        identifier = int(identifier)
+
+        admin = session.query(User).get(identifier)
+    except ValueError:
+        admin = session.query(User) \
+            .filter(User.username == identifier) \
+            .one_or_none()
+
+    if admin is None:
+        return f'No known user with this name or id.'
+
+    admin.admin = True
+    return 'User is now admin'
 
 
 @run_async
@@ -130,3 +153,22 @@ def broadcast(bot, update, session, chat, user):
     call_tg_func(update.message.chat, 'send_message',
                  [f'All messages sent. Deleted {deleted} chats.'],
                  {'reply_markup': main_keyboard})
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def ban_sticker(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    chat.current_sticker.banned = True
+    chat.current_sticker.tags = []
+
+    return 'Sticker set banned.'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def unban_sticker(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    chat.current_sticker.banned = True
+
+    return 'Sticker set unbanned.'

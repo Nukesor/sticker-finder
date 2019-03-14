@@ -52,7 +52,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, is_default_language, s
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
         .join(Tag) \
-        .filter(or_(Tag.is_default_language == is_default_language, Tag.is_default_language == True)) \
+        .filter(or_(Tag.is_default_language == is_default_language, Tag.is_default_language.is_(True))) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -84,18 +84,19 @@ def get_strict_matching_query(session, tags, nsfw, furry, is_default_language, s
     intermediate_query = intermediate_query \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .join(Sticker.sticker_set) \
+        .filter(Sticker.banned.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.is_default_language == is_default_language, StickerSet.is_default_language == True)) \
+        .filter(or_(StickerSet.is_default_language == is_default_language, StickerSet.is_default_language.is_(True))) \
         .subquery('strict_intermediate')
 
     if sticker_set:
         matching_stickers = session.query(
             intermediate_query.c.file_id,
             intermediate_query.c.name,
-            intermediate_query.c.score
+            intermediate_query.c.score,
         )
     else:
         matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score)
@@ -115,7 +116,7 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, is_default_lang
     for tag in tags:
         tag_query = session.query(Tag.name.label('tag_name'), func.similarity(Tag.name, tag).label('tag_similarity')) \
             .filter(func.similarity(Tag.name, tag) >= threshold) \
-            .filter(or_(Tag.is_default_language == is_default_language, Tag.is_default_language == True))
+            .filter(or_(Tag.is_default_language == is_default_language, Tag.is_default_language.is_(True)))
         matching_tags.append(tag_query)
 
     # Union all fuzzy matched tags
@@ -166,12 +167,13 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, is_default_lang
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set) \
+        .filter(Sticker.banned.is_(False)) \
         .filter(strict_subquery.c.file_id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
         .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.is_default_language == is_default_language, StickerSet.is_default_language == True)) \
+        .filter(or_(StickerSet.is_default_language == is_default_language, StickerSet.is_default_language.is_(True))) \
         .subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw

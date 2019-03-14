@@ -79,9 +79,12 @@ When you are updating from a previous version do a `alembic upgrade head` instea
 ## Dev commands
 This is just for people hosting a bot and those with `admin` permissions:
 
-    /ban [name|id] Ban a user
-    /unban [name|id] Unban a user
+    /ban Ban the last sticker posted in this chat.
+    /unban Ban the last sticker posted in this chat.
+    /ban_user [name|id] Ban a user
+    /unban_user [name|id] Unban a user
     /tasks Start to process tasks in a maintenance chat
+    /make_admin Make another user admin
 
     /delete_set Completely delete a set
     /add_set Add multiple sets at once by set_name

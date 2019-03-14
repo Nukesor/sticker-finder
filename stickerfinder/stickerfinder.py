@@ -11,14 +11,17 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
-from stickerfinder.helper import help_text, start_text
+from stickerfinder.helper import help_text, admin_help_text, start_text
 from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.telegram.commands import (
     broadcast,
+    ban_sticker,
+    unban_sticker,
     ban_user,
     unban_user,
+    make_admin,
     vote_ban_set,
     flag_chat,
     start_tasks,
@@ -66,10 +69,15 @@ def start(bot, update, session, chat, user):
                      {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
-def send_help_text(bot, update):
+@session_wrapper()
+def send_help_text(bot, update, session, chat, user):
     """Send a help text."""
-    call_tg_func(update.message.chat, 'send_message', [help_text],
-                 {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
+    if user.admin:
+        call_tg_func(update.message.chat, 'send_message', [admin_help_text],
+                     {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
+    else:
+        call_tg_func(update.message.chat, 'send_message', [help_text],
+                     {'reply_markup': main_keyboard, 'parse_mode': 'HTML'})
 
 
 logging.basicConfig(level=config.LOG_LEVEL,
@@ -104,12 +112,15 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('international', set_not_is_default_language))
 
     # Maintenance input commands
-    dispatcher.add_handler(CommandHandler('ban', ban_user))
-    dispatcher.add_handler(CommandHandler('unban', unban_user))
+    dispatcher.add_handler(CommandHandler('ban', ban_sticker))
+    dispatcher.add_handler(CommandHandler('unban', unban_sticker))
+    dispatcher.add_handler(CommandHandler('ban_user', ban_user))
+    dispatcher.add_handler(CommandHandler('unban_user', unban_user))
     dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
     dispatcher.add_handler(CommandHandler('add_sets', add_sets))
     dispatcher.add_handler(CommandHandler('delete_set', delete_set))
     dispatcher.add_handler(CommandHandler('broadcast', broadcast))
+    dispatcher.add_handler(CommandHandler('make_admin', make_admin))
 
     # Maintenance Button commands
     dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))

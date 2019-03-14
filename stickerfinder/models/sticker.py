@@ -43,6 +43,7 @@ class Sticker(base):
 
     file_id = Column(String, primary_key=True)
     text = Column(String)
+    banned = Column(String, server_default='FALSE', default=False, nullable=False)
     original_emojis = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)

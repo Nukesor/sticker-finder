@@ -15,6 +15,27 @@ For a more detailed explanation (especially if you want to tag) use /help :)
 """
 
 
+admin_help_text = """Commands available to admins:
+
+/ban Ban the last sticker posted in this chat.
+/unban Ban the last sticker posted in this chat.
+/ban_user [name|id] Ban a user
+/unban_user [name|id] Unban a user
+/make_admin Make another user admin
+/tasks Start to process tasks in a maintenance chat
+
+/delete_set Completely delete a set
+/add_set Add multiple sets at once by set_name
+
+/toggle_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
+
+/stats Get some statistics
+/refresh Refresh all stickerpacks.
+/refresh_ocr Refresh all stickerpacks including ocr.
+/broadcast Send the message after this command to all users.
+"""
+
+
 help_text = """<b>Search for stickers:</b>
 Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and pack titles and sometimes even recognized text.
 You can also explicitly search for sticker packs. Just add "pack" or "set" to your search e.g. `@stfi_bot kermit set`
