@@ -1,13 +1,3 @@
-"""Class for correcting/shrinking stickeres."""
+"""Class for correcting/shrinking stickers."""
 
-corrections = {
-    'face': [
-        (set(['face', 'palm']), 'facepalm')
-    ],
-    'sponge': [
-        (set(['sponge', 'bob']), 'spongebob')
-    ],
-    'team': [
-        (set(['team', 'fortress']), 'team_fortress')
-    ],
-}
+ignored_characters = set(['\n', ',', '.', '!', '?', "'"])

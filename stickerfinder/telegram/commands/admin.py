@@ -1,6 +1,5 @@
 """General admin commands."""
 import time
-from sqlalchemy import or_
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 

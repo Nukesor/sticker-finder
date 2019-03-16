@@ -107,5 +107,3 @@ reward_messages = {
 }
 
 blacklist = set([])
-
-ignored_characters = set(['\n', ',', '.', '!', '?'])

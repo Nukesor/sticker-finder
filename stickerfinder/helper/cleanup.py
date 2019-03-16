@@ -1,5 +1,5 @@
 """Some functions to cleanup the database."""
-from stickerfinder.helper import ignored_characters
+from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.models import (

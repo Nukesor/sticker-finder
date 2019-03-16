@@ -4,6 +4,7 @@ from collections import OrderedDict
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.keyboard import (
     main_keyboard,
     get_tagging_keyboard,
@@ -12,7 +13,6 @@ from stickerfinder.helper.keyboard import (
 from stickerfinder.helper import (
     tag_text,
     blacklist,
-    ignored_characters,
     reward_messages,
 )
 from stickerfinder.models import (
