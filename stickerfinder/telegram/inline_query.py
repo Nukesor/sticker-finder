@@ -113,7 +113,7 @@ def search_stickers(session, update, user, query, tags, nsfw, furry,
     if False:
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint(offset_incoming) # noqa
+        print(offset, fuzzy_offset) # noqa
         pprint.pprint(matching_stickers) # noqa
 
     # Create a result list of max 50 cached sticker objects
@@ -162,7 +162,7 @@ def search_sticker_sets(session, update, user, query, tags, nsfw, furry,
             title=sticker_set.title,
             description=sticker_set.name,
             url=url,
-            input_message_content=input_message_content
+            input_message_content=input_message_content,
         ))
 
         for index in range(0, 5):
@@ -234,13 +234,12 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     """Get all matching stickers and query duration for given criteria and offset."""
     # Measure the db query time
     start = datetime.now()
-    is_default_language = user.is_default_language
 
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
     if fuzzy_offset is None:
-        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, is_default_language)
+        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, user)
     # Get the fuzzy matching sticker, if there are no more strictly matching stickers
     # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
@@ -249,7 +248,7 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
         # Directly jump to fuzzy search
         if fuzzy_offset is None:
             fuzzy_offset = 0
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, is_default_language)
+        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, user)
 
     end = datetime.now()
 
@@ -271,10 +270,9 @@ def get_matching_sticker_sets(session, user, query, tags, nsfw, furry, offset):
     """Get all matching stickers as well as the query duration for given criteria and offset."""
     # Measure the db query time
     start = datetime.now()
-    is_default_language = user.is_default_language
 
     # Get strict matching stickers
-    matching_stickers = get_strict_matching_sticker_sets(session, tags, nsfw, furry, offset, is_default_language)
+    matching_stickers = get_strict_matching_sticker_sets(session, tags, nsfw, furry, offset, user)
 
     end = datetime.now()
 
