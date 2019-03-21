@@ -45,7 +45,8 @@ class StickerUsage(base):
         self.sticker = sticker
         self.usage_count = 0
 
-    def get_or_create(self, user, sticker, session):
+    @staticmethod
+    def get_or_create(session, user, sticker):
         """Get an existing StickerUsage or create a new one."""
         sticker_usage = session.query(StickerUsage).get([user, sticker])
 
