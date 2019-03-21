@@ -267,5 +267,5 @@ def handle_chosen_inline_result(bot, update, session, user):
 
     inline_query.sticker_file_id = file_id
 
-    sticker_usage = StickerUsage.get_or_create(session, user, sticker)
+    sticker_usage = StickerUsage.get_or_create(session, inline_query.user, sticker)
     sticker_usage.usage_count += 1

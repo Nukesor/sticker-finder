@@ -48,7 +48,7 @@ class StickerUsage(base):
     @staticmethod
     def get_or_create(session, user, sticker):
         """Get an existing StickerUsage or create a new one."""
-        sticker_usage = session.query(StickerUsage).get([user, sticker])
+        sticker_usage = session.query(StickerUsage).get([sticker.file_id, user.id])
 
         if sticker_usage is None:
             sticker_usage = StickerUsage(user, sticker)
