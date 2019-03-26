@@ -10,6 +10,19 @@ from stickerfinder.models import (
 )
 
 
+def get_favorite_stickers(session, offset, user):
+    """Get the most used stickers of a user."""
+    favorite_stickers = session.query(Sticker.file_id, StickerUsage.usage_count) \
+        .join(StickerUsage) \
+        .filter(StickerUsage.user == user) \
+        .order_by(StickerUsage.usage_count.desc()) \
+        .offset(offset) \
+        .limit(50) \
+        .all()
+
+    return favorite_stickers
+
+
 def get_strict_matching_stickers(session, tags, nsfw, furry, offset, user):
     """Query all strictly matching stickers for given tags."""
     matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, user)
@@ -112,7 +125,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=Fals
     score_with_usage = score_with_usage.label('score')
     matching_stickers_with_usage = session.query(matching_stickers.c.file_id, score_with_usage, matching_stickers.c.name) \
         .outerjoin(StickerUsage, matching_stickers.c.file_id == StickerUsage.sticker_file_id) \
-        .filter(StickerUsage.user_id == user.id) \
+        .filter(or_(StickerUsage.user_id == user.id, StickerUsage.user_id.is_(None))) \
         .order_by(score_with_usage.desc(), matching_stickers.c.name, matching_stickers.c.file_id) \
 
     return matching_stickers_with_usage

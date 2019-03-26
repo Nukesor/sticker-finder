@@ -18,6 +18,7 @@ from stickerfinder.models import (
     InlineQueryRequest,
 )
 from stickerfinder.helper.inline_query import (
+    get_favorite_stickers,
     get_fuzzy_matching_stickers,
     get_strict_matching_stickers,
     get_strict_matching_sticker_sets,
@@ -41,13 +42,6 @@ def search(bot, update, session, user):
     # Get tags
     query = update.inline_query.query
     tags = get_tags_from_text(update.inline_query.query, limit=5)
-
-    # Return early, if we have no tags
-    if len(tags) == 0:
-        update.inline_query.answer([], cache_time=300, is_personal=True,
-                                   switch_pm_text="Just type what you're looking for :)",
-                                   switch_pm_parameter='inline')
-        return
 
     offset_incoming = update.inline_query.offset
     # If the offset is 'done' there are no more stickers for this query.
@@ -238,17 +232,20 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
-    if fuzzy_offset is None:
-        matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, user)
-    # Get the fuzzy matching sticker, if there are no more strictly matching stickers
-    # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
-
-    if fuzzy_offset is not None or len(matching_stickers) == 0:
-        # We have no strict search results in the first search iteration.
-        # Directly jump to fuzzy search
+    if len(tags) == 0:
+        matching_stickers = get_favorite_stickers(session, offset, user)
+    else:
         if fuzzy_offset is None:
-            fuzzy_offset = 0
-        fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, user)
+            matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, user)
+        # Get the fuzzy matching sticker, if there are no more strictly matching stickers
+        # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
+
+        if fuzzy_offset is not None or len(matching_stickers) == 0:
+            # We have no strict search results in the first search iteration.
+            # Directly jump to fuzzy search
+            if fuzzy_offset is None:
+                fuzzy_offset = 0
+            fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, user)
 
     end = datetime.now()
 
