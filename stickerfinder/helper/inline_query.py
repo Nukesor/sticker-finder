@@ -120,7 +120,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=Fals
     # Afterwards we order by the newly calculated count.
     #
     # We also order by the name of the set and the file_id to get a deterministic sorting in the search.
-    score_with_usage = StickerUsage.usage_count * 0.25
+    score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
     score_with_usage = score_with_usage + matching_stickers.c.score
     score_with_usage = score_with_usage.label('score')
     matching_stickers_with_usage = session.query(matching_stickers.c.file_id, score_with_usage, matching_stickers.c.name) \

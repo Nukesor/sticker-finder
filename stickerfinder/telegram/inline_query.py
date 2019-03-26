@@ -107,7 +107,7 @@ def search_stickers(session, update, user, query, tags, nsfw, furry,
     if False:
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
-        print(offset, fuzzy_offset) # noqa
+        pprint.pprint({"offset": offset, "fuzzy_offset": fuzzy_offset}) # noqa
         pprint.pprint(matching_stickers) # noqa
 
     # Create a result list of max 50 cached sticker objects
