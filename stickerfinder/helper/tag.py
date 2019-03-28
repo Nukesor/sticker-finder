@@ -132,7 +132,7 @@ def get_tags_from_text(text, limit=15):
 
     # Clean the text
     for ignored in ignored_characters:
-        text = text.replace(ignored, ' ')
+        text = text.replace(ignored, '')
 
     # Split and strip
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
