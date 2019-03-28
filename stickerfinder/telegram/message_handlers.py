@@ -3,14 +3,14 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
+from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag import (
     handle_next,
     tag_sticker,
     initialize_set_tagging,
     current_sticker_tags_message,
 )
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.keyboard import (
     get_tag_this_set_keyboard,
     get_nsfw_ban_keyboard,

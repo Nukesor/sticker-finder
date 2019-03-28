@@ -18,9 +18,9 @@ from stickerfinder.helper.telegram import call_tg_func
 
 
 def hidden_session_wrapper(check_ban=False, admin_only=False):
-    """Create a session and handle some preprocessing for a update/job."""
+    """Create a session, handle permissions and exceptions."""
     def real_decorator(func):
-        """Create a database session and handle exceptions."""
+        """Parametrized decorator closure."""
         @wraps(func)
         def wrapper(bot, update):
             session = get_session()
@@ -35,12 +35,10 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 if str(e) == 'Message is not modified': # noqa
-                    print(e)
                     return
                 # It took to long to send the inline query response.
                 # Probably due to slow network on client side.
                 elif str(e) == 'Query_id_invalid': # noqa
-                    print(e)
                     return
 
                 traceback.print_exc()
@@ -62,9 +60,9 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
 
 def session_wrapper(send_message=True, check_ban=False,
                     admin_only=False, private=False):
-    """Create a session and handle some preprocessing for a update/job."""
+    """Create a session, handle permissions, handle exceptions and prepare some entities."""
     def real_decorator(func):
-        """Create a database session and handle exceptions."""
+        """Parametrized decorator closure."""
         @wraps(func)
         def wrapper(bot, update):
             session = get_session()
@@ -90,17 +88,13 @@ def session_wrapper(send_message=True, check_ban=False,
 
                 session.commit()
             except BadRequest as e:
-                # An update for a reply keyboard has failed (Probably due to button spam)
-                if str(e) == 'Message is not modified': # noqa
-                    print(e)
-                    return
                 # We are on dev db or a user deleted a chat.
                 if str(e) == 'Chat not found': # noqa
-                    print(e)
                     session.delete(chat)
 
                 traceback.print_exc()
                 sentry.captureException()
+
             # A user banned the bot
             except Unauthorized:
                 session.delete(chat)
@@ -112,8 +106,7 @@ def session_wrapper(send_message=True, check_ban=False,
                 return
 
             # Ignore network related errors
-            except (TimedOut, NetworkError) as e:
-                print(e)
+            except (TimedOut, NetworkError):
                 pass
 
             except BaseException:
@@ -134,11 +127,11 @@ def get_user(session, update):
     """Get the user from the update."""
     user = None
     # Check user permissions
-    if get_user and hasattr(update, 'message') and update.message:
+    if hasattr(update, 'message') and update.message:
         user = User.get_or_create(session, update.message.from_user)
-    elif get_user and hasattr(update, 'inline_query') and update.inline_query:
+    elif hasattr(update, 'inline_query') and update.inline_query:
         user = User.get_or_create(session, update.inline_query.from_user)
-    elif get_user and hasattr(update, 'callback_query') and update.callback_query:
+    elif hasattr(update, 'callback_query') and update.callback_query:
         user = User.get_or_create(session, update.callback_query.from_user)
 
     return user
