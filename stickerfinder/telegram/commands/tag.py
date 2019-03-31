@@ -6,16 +6,6 @@ from stickerfinder.helper.tag import handle_next, tag_sticker
 
 
 @run_async
-@session_wrapper(check_ban=True, private=True)
-def tag_set(bot, update, session, chat, user):
-    """Initialize tagging of a whole set."""
-    chat.cancel()
-    chat.expecting_sticker_set = True
-
-    return 'Please send me a sticker from the set.'
-
-
-@run_async
 @session_wrapper(check_ban=True)
 def tag_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""

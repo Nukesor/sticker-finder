@@ -8,7 +8,7 @@ A quick introduction:
 - You can search by sticker pack name, tags, emoji and sometimes text inside the sticker.
 - Query explicitly for sticker packs! Just add "set" or "pack" to your search e.g. "@stfi_bot kermit set".
 - If you want non-english sticker packs, use /international to enable other languages than english.
-- For tagging sticker packs use /tag_set, /tag_random or the keyboard.
+- For tagging sticker packs just send me a sticker from the pack.
 - If you want 'nsfw' or 'furry' stuff, include those words in your search.
 
 For a more detailed explanation (especially if you want to tag) use /help :)

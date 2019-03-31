@@ -40,11 +40,10 @@ class Chat(base):
     __tablename__ = 'chat'
     __table_args__ = (
         CheckConstraint("""
-(expecting_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
-        (tagging_random_sticker IS TRUE AND expecting_sticker_set IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
-        (fix_single_sticker IS TRUE AND tagging_random_sticker IS FALSE AND expecting_sticker_set IS FALSE AND full_sticker_set IS FALSE) OR \
-        (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE) \
-        (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE)
+        (tagging_random_sticker IS TRUE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
+        (fix_single_sticker IS TRUE AND tagging_random_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
+        (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE) OR \
+        (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE)
         """),
     )
 
@@ -58,7 +57,6 @@ class Chat(base):
 
     # Tagging process related flags and data
     tagging_random_sticker = Column(Boolean, default=False, nullable=False)
-    expecting_sticker_set = Column(Boolean, nullable=False, default=False)
     full_sticker_set = Column(Boolean, nullable=False, default=False)
     fix_single_sticker = Column(Boolean, nullable=False, default=False)
     last_sticker_message_id = Column(BigInteger)
@@ -107,7 +105,6 @@ class Chat(base):
     def cancel(self):
         """Cancel all interactions."""
         self.tagging_random_sticker = False
-        self.expecting_sticker_set = False
         self.full_sticker_set = False
         self.fix_single_sticker = False
         self.last_sticker_message_id = None

@@ -27,7 +27,6 @@ from stickerfinder.telegram.commands import (
     start_tasks,
     tag_single,
     tag_random,
-    tag_set,
     cleanup,
     skip,
     cancel,
@@ -104,7 +103,6 @@ if not config.LEECHER:
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', send_help_text))
-    dispatcher.add_handler(CommandHandler('tag_set', tag_set))
     dispatcher.add_handler(CommandHandler('tag_random', tag_random))
     dispatcher.add_handler(CommandHandler('random_set', random_set))
     dispatcher.add_handler(CommandHandler('cancel', cancel))

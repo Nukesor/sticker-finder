@@ -155,14 +155,17 @@ def get_tag_this_set_keyboard(set_name):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_tagging_keyboard():
+def get_tagging_keyboard(chat):
     """Get tagging keyboard."""
-    next_data = f'{CallbackType["next"].value}:0:0'
-    cancel_data = f'{CallbackType["cancel"].value}:0:0'
-    buttons = [[
-        InlineKeyboardButton(text='Stop tagging', callback_data=cancel_data),
-        InlineKeyboardButton(text='Skip this sticker', callback_data=next_data),
-    ]]
+    if chat.tagging_random_sticker or chat.full_sticker_set:
+        next_data = f'{CallbackType["next"].value}:0:0'
+        cancel_data = f'{CallbackType["cancel"].value}:0:0'
+        buttons = [[
+            InlineKeyboardButton(text='Stop tagging', callback_data=cancel_data),
+            InlineKeyboardButton(text='Skip this sticker', callback_data=next_data),
+        ]]
+    else:
+        return None
 
     return InlineKeyboardMarkup(buttons)
 

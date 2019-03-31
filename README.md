@@ -37,7 +37,6 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
     /help       Display help
     /tag [tags] Tag the last sticker posted in this chat
-    /tag_set    Start to tag a whole set
     /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     /random_set Get a random sticker set.
     /skip       Skip the current sticker
@@ -66,7 +65,6 @@ When you are updating from a previous version do a `alembic upgrade head` instea
 ## Botfather commands
 
     help - Display help
-    tag_set - Start to tag a whole set
     tag - Tag the last sticker posted in this chat
     tag_random - Get a random sticker for tagging. Thanks for doing this :)!
     random_set - The bot sends you a random sticker set.

@@ -46,7 +46,7 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
     message = current_sticker_tags_message(chat.current_sticker, user, send_set_info=send_set_info)
-    keyboard = get_tagging_keyboard()
+    keyboard = get_tagging_keyboard(chat)
 
     if not message:
         response = call_tg_func(tg_chat, 'send_sticker',
@@ -117,7 +117,6 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
         return "Sticker set {name} is currently being added."
 
     # Chat now expects an incoming tag for the next sticker
-    chat.expecting_sticker_set = False
     chat.full_sticker_set = True
     chat.current_sticker_set = sticker_set
     chat.current_sticker = sticker_set.stickers[0]
