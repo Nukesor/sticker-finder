@@ -66,21 +66,23 @@ def handle_private_sticker(bot, update, session, chat, user):
 
         return
 
-    elif not chat.full_sticker_set and not chat.tagging_random_sticker:
+    else:
         # Notify if they are still in a tagging process
         if chat.full_sticker_set or chat.tagging_random_sticker:
             # TODO: Update the keyboard of the last sticker to: `Continue here`
+            chat.cancel()
             pass
 
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
+        chat.fix_single_sticker = True
 
         sticker_tags_message = current_sticker_tags_message(sticker, user)
         # Send inline keyboard to allow fast tagging of the sticker's set
         keyboard = get_tag_this_set_keyboard(set_name)
         call_tg_func(
             update.message.chat, 'send_message',
-            [f'Just send the new tags for this sticker. \n {sticker_tags_message}'],
+            [f'Just send the new tags for this sticker.\n{sticker_tags_message}'],
             {'reply_markup': keyboard},
         )
 
