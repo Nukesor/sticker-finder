@@ -1,6 +1,6 @@
 """Sticker set related commands."""
 from telegram.ext import run_async
-from sqlalchemy import func, or_
+from sqlalchemy import func
 
 from stickerfinder.helper.keyboard import main_keyboard
 from stickerfinder.helper.session import session_wrapper
@@ -9,7 +9,6 @@ from stickerfinder.models import (
     VoteBan,
     StickerSet,
     Sticker,
-    Task,
 )
 
 

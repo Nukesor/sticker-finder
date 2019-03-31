@@ -80,13 +80,11 @@ def session_wrapper(send_message=True, check_ban=False,
 
                 response = func(bot, update, session, chat, user)
 
+                session.commit()
                 # Respond to user
                 if hasattr(update, 'message') and response is not None:
-                    session.commit()
                     call_tg_func(update.message.chat, 'send_message', args=[response])
-                    return
 
-                session.commit()
             except BadRequest as e:
                 # We are on dev db or a user deleted a chat.
                 if str(e) == 'Chat not found': # noqa
@@ -98,12 +96,10 @@ def session_wrapper(send_message=True, check_ban=False,
             # A user banned the bot
             except Unauthorized:
                 session.delete(chat)
-                return
 
             # A group chat has been converted to a super group.
             except ChatMigrated:
                 session.delete(chat)
-                return
 
             # Ignore network related errors
             except (TimedOut, NetworkError):
@@ -118,6 +114,7 @@ def session_wrapper(send_message=True, check_ban=False,
                                  args=[error_text])
             finally:
                 session.close()
+
         return wrapper
 
     return real_decorator
