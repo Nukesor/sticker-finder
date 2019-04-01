@@ -6,7 +6,7 @@ from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
 
 # Set system path, so alembic is capable of finding the stickerfinder module
-parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
+parent_dir = os.path.abspath(os.path.join(os.getcwd()))
 sys.path.append(parent_dir)
 
 from stickerfinder.db import base # noqa
