@@ -14,7 +14,7 @@ def get_favorite_stickers(session, offset, user):
     """Get the most used stickers of a user."""
     favorite_stickers = session.query(StickerUsage.sticker_file_id, StickerUsage.usage_count) \
         .filter(StickerUsage.user == user) \
-        .order_by(StickerUsage.usage_count.desc()) \
+        .order_by(StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc()) \
         .offset(offset) \
         .limit(50) \
         .all()
