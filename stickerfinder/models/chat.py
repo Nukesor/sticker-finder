@@ -52,9 +52,6 @@ class Chat(base):
 
     # Tagging process related flags and data
     tag_mode = Column(String)
-    tagging_random_sticker = Column(Boolean, default=False, nullable=False)
-    full_sticker_set = Column(Boolean, nullable=False, default=False)
-    fix_single_sticker = Column(Boolean, nullable=False, default=False)
     last_sticker_message_id = Column(BigInteger)
 
     # ForeignKeys
