@@ -15,4 +15,4 @@ def cancel(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message', ['All running commands are canceled'],
                      {'reply_markup': keyboard})
 
-    chat.cancel()
+    chat.cancel(bot)

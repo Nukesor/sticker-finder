@@ -2,6 +2,7 @@
 from telegram.ext import run_async
 
 from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.tag import handle_next, tag_sticker
 
 
@@ -24,8 +25,8 @@ def tag_single(bot, update, session, chat, user):
 @session_wrapper(check_ban=True, private=True)
 def tag_random(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
-    chat.cancel()
-    chat.tagging_random_sticker = True
+    chat.cancel(bot)
+    chat.tag_mode = TagMode.RANDOM
     handle_next(session, bot, chat, update.message.chat, user)
 
     return
@@ -35,7 +36,7 @@ def tag_random(bot, update, session, chat, user):
 @session_wrapper(check_ban=True, private=True)
 def skip(bot, update, session, chat, user):
     """Initialize tagging of a whole set."""
-    if chat.tagging_random_sticker or chat.full_sticker_set:
+    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
         handle_next(session, bot, chat, update.message.chat, user)
 
         return

@@ -23,6 +23,7 @@ from stickerfinder.telegram.callback_handlers import (
     handle_cancel_tagging,
     handle_tag_next,
     handle_fix_sticker_tags,
+    handle_continue_tagging_set,
 )
 
 
@@ -73,6 +74,8 @@ def handle_callback_query(bot, update, session, user):
 
     elif CallbackType(callback_type).name == 'tag_set':
         initialize_set_tagging(bot, tg_chat, session, payload, chat, user)
+    elif CallbackType(callback_type).name == 'continue_tagging':
+        handle_continue_tagging_set(session, bot, payload, user, chat, tg_chat)
 
     return
 

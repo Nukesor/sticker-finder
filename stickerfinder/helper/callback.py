@@ -24,6 +24,8 @@ class CallbackType(Enum):
     tag_set = 13
     newsfeed_next_set = 14
 
+    continue_tagging = 50
+
 
 @unique
 class CallbackResult(Enum):

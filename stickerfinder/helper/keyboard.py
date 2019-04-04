@@ -6,6 +6,7 @@ from telegram import (
 )
 
 from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.tag_mode import TagMode
 
 
 main_keyboard = ReplyKeyboardMarkup(
@@ -157,7 +158,7 @@ def get_tag_this_set_keyboard(set_name):
 
 def get_tagging_keyboard(chat):
     """Get tagging keyboard."""
-    if chat.tagging_random_sticker or chat.full_sticker_set:
+    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
         next_data = f'{CallbackType["next"].value}:0:0'
         cancel_data = f'{CallbackType["cancel"].value}:0:0'
         buttons = [[
@@ -175,5 +176,14 @@ def get_fix_sticker_tags_keyboard(file_id):
     edit_again_data = f'{CallbackType["edit_sticker"].value}:{file_id}:0'
     buttons = [[InlineKeyboardButton(
         text="Fix this sticker's tags", callback_data=edit_again_data)]]
+
+    return InlineKeyboardMarkup(buttons)
+
+
+def get_continue_tagging_keyboard(file_id):
+    """Fix the tags of this current sticker."""
+    continue_tagging_data = f'{CallbackType["continue_tagging"].value}:{file_id}:0'
+    buttons = [[InlineKeyboardButton(
+        text="Continue tagging this sticker set", callback_data=continue_tagging_data)]]
 
     return InlineKeyboardMarkup(buttons)

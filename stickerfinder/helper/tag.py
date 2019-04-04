@@ -5,6 +5,7 @@ from collections import OrderedDict
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.corrections import ignored_characters
+from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.keyboard import (
     main_keyboard,
     get_tagging_keyboard,
@@ -21,7 +22,6 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
-
 
 def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
@@ -66,9 +66,9 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
 def handle_next(session, bot, chat, tg_chat, user):
     """Handle the /next call or the 'next' button click."""
     # We are tagging a whole sticker set. Skip the current sticker
-    if chat.full_sticker_set:
+    if chat.tag_mode == TagMode.STICKER_SET:
         # Check there is a next sticker
-        stickers = chat.current_sticker_set.stickers
+        stickers = chat.current_sticker.sticker_set.stickers
         for index, sticker in enumerate(stickers):
             if sticker == chat.current_sticker and index+1 < len(stickers):
                 # We found the next sticker. Send the messages and return
@@ -78,14 +78,14 @@ def handle_next(session, bot, chat, tg_chat, user):
                 return
 
         # There are no stickers left, reset the chat and send success message.
-        chat.current_sticker_set.completely_tagged = True
+        chat.current_sticker.sticker_set.completely_tagged = True
         call_tg_func(tg_chat, 'send_message', ['The full sticker set is now tagged.'],
                      {'reply_markup': main_keyboard})
         send_tagged_count_message(session, bot, user, chat)
-        chat.cancel()
+        chat.cancel(bot)
 
     # Find a random sticker with no changes
-    elif chat.tagging_random_sticker:
+    elif chat.tag_mode == TagMode.RANDOM:
         sticker = session.query(Sticker) \
             .outerjoin(Sticker.changes) \
             .join(Sticker.sticker_set) \
@@ -103,7 +103,7 @@ def handle_next(session, bot, chat, tg_chat, user):
             call_tg_func(tg_chat, 'send_message',
                          ['It looks like all stickers are already tagged :).'],
                          {'reply_markup': main_keyboard})
-            chat.cancel()
+            chat.cancel(bot)
 
         # Found a sticker. Send the messages
         chat.current_sticker = sticker
@@ -117,8 +117,7 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
         return "Sticker set {name} is currently being added."
 
     # Chat now expects an incoming tag for the next sticker
-    chat.full_sticker_set = True
-    chat.current_sticker_set = sticker_set
+    chat.tag_mode = TagMode.STICKER_SET
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(tg_chat, 'send_message', [tag_text])
@@ -147,7 +146,7 @@ def get_tags_from_text(text, limit=15):
 
 def send_tagged_count_message(session, bot, user, chat):
     """Send a user a message that displays how many stickers he already tagged."""
-    if chat.tagging_random_sticker or chat.full_sticker_set:
+    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
         count = session.query(Sticker) \
             .join(Sticker.changes) \
             .filter(Change.user == user) \
@@ -164,7 +163,6 @@ def tag_sticker(session, text, sticker, user,
     # Remove the /tag command
     if text.startswith('/tag'):
         text = text.split(' ')[1:]
-        call_tg_func(tg_chat, 'send_message', ["You don't need to add the /tag command ;)"])
 
     incoming_tags = get_tags_from_text(text)
     is_default_language = user.is_default_language and sticker.sticker_set.is_default_language
@@ -225,6 +223,3 @@ def tag_sticker(session, text, sticker, user,
         call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
                      [tg_chat.id, chat.last_sticker_message_id],
                      {'reply_markup': keyboard})
-
-        # Reset last sticker message id
-        chat.last_sticker_message_id = None

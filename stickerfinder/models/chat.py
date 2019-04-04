@@ -11,11 +11,14 @@ from sqlalchemy import (
     Table,
     ForeignKey,
     UniqueConstraint,
-    CheckConstraint,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+
+from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.helper.keyboard import get_continue_tagging_keyboard
 
 
 chat_sticker_set = Table(
@@ -38,14 +41,6 @@ class Chat(base):
     """The model for a chat."""
 
     __tablename__ = 'chat'
-    __table_args__ = (
-        CheckConstraint("""
-        (tagging_random_sticker IS TRUE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
-        (fix_single_sticker IS TRUE AND tagging_random_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
-        (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE) OR \
-        (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE)
-        """),
-    )
 
     id = Column(BigInteger, primary_key=True)
     type = Column(String)
@@ -56,6 +51,7 @@ class Chat(base):
     is_maintenance = Column(Boolean, default=False, nullable=False)
 
     # Tagging process related flags and data
+    tag_mode = Column(String)
     tagging_random_sticker = Column(Boolean, default=False, nullable=False)
     full_sticker_set = Column(Boolean, nullable=False, default=False)
     fix_single_sticker = Column(Boolean, nullable=False, default=False)
@@ -64,14 +60,10 @@ class Chat(base):
     # ForeignKeys
     current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id', ondelete='cascade'), index=True)
     current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
-    current_sticker_set_name = Column(String, ForeignKey('sticker_set.name',
-                                                         onupdate='cascade',
-                                                         ondelete='set null'), index=True)
 
     # Relationships
     current_task = relationship("Task", foreign_keys='Chat.current_task_id')
     current_sticker = relationship("Sticker")
-    current_sticker_set = relationship("StickerSet")
 
     tasks = relationship("Task", foreign_keys='Task.chat_id')
     sticker_sets = relationship(
@@ -102,13 +94,20 @@ class Chat(base):
 
         return chat
 
-    def cancel(self):
+    def cancel(self, bot):
         """Cancel all interactions."""
-        self.tagging_random_sticker = False
-        self.full_sticker_set = False
-        self.fix_single_sticker = False
-        self.last_sticker_message_id = None
+        self.cancel_tagging(bot)
 
         self.current_task = None
-        self.current_sticker = None
         self.current_sticker_set = None
+
+    def cancel_tagging(self, bot):
+        """Cancel the tagging process."""
+        if self.tag_mode == TagMode.STICKER_SET:
+            keyboard = get_continue_tagging_keyboard(self.current_sticker.file_id)
+            call_tg_func(bot, 'edit_message_reply_markup',
+                         [self.id, self.last_sticker_message_id],
+                         {'reply_markup': keyboard})
+
+        self.tag_mode = None
+        self.last_sticker_message_id = None

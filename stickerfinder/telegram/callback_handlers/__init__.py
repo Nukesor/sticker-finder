@@ -12,4 +12,5 @@ from .tagging import ( # noqa
     handle_cancel_tagging,
     handle_tag_next,
     handle_fix_sticker_tags,
+    handle_continue_tagging_set,
 )  

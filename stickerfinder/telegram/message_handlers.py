@@ -5,10 +5,10 @@ from stickerfinder.models import (
 )
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
+from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.tag import (
     handle_next,
     tag_sticker,
-    initialize_set_tagging,
     current_sticker_tags_message,
 )
 from stickerfinder.helper.keyboard import (
@@ -21,7 +21,7 @@ from stickerfinder.helper.keyboard import (
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
-    if chat.full_sticker_set:
+    if chat.tag_mode == TagMode.STICKER_SET:
         # Try to tag the sticker. Return early if it didn't work.
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat=chat)
@@ -29,18 +29,18 @@ def handle_private_text(bot, update, session, chat, user):
         session.commit()
         handle_next(session, bot, chat, update.message.chat, user)
 
-    elif chat.tagging_random_sticker:
+    elif chat.tag_mode == TagMode.RANDOM:
         # Try to tag the sticker. Return early if it didn't work.
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat)
 
         session.commit()
         handle_next(session, bot, chat, update.message.chat, user)
-    elif chat.fix_single_sticker:
+    elif chat.tag_mode == TagMode.SINGLE_STICKER:
         tag_sticker(session, update.message.text, chat.current_sticker,
                     user, update.message.chat, chat)
 
-        chat.cancel()
+        chat.cancel(bot)
         return 'Sticker tags adjusted.'
 
 
@@ -68,14 +68,14 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     else:
         # Notify if they are still in a tagging process
-        if chat.full_sticker_set or chat.tagging_random_sticker:
+        if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
             # TODO: Update the keyboard of the last sticker to: `Continue here`
-            chat.cancel()
+            chat.cancel(bot)
             pass
 
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
         chat.current_sticker = sticker
-        chat.fix_single_sticker = True
+        chat.tag_mode = TagMode.SINGLE_STICKER
 
         sticker_tags_message = current_sticker_tags_message(sticker, user)
         # Send inline keyboard to allow fast tagging of the sticker's set

@@ -8,6 +8,7 @@ from stickerfinder.helper.tag import (
 )
 
 from stickerfinder.models import Sticker
+from stickerfinder.helper.tag_mode import TagMode
 
 
 def handle_tag_next(session, bot, user, query, chat, tg_chat):
@@ -30,13 +31,24 @@ def handle_cancel_tagging(session, bot, user, query, chat, tg_chat):
     call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
                  {'reply_markup': main_keyboard})
 
-    chat.cancel()
+    chat.cancel(bot)
 
 
-def handle_fix_sticker_tags(session, payload, user, query, chat, tg_chat):
+def handle_fix_sticker_tags(session, payload, user, chat, tg_chat):
     """Handle the `Fix this stickers tags` button."""
     sticker = session.query(Sticker).get(payload)
     chat.current_sticker = sticker
-    if not chat.full_sticker_set and not chat.tagging_random_sticker:
-        chat.fix_single_sticker = True
+    if chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]:
+        chat.tag_mode = TagMode.SINGLE_STICKER
+    send_tag_messages(chat, tg_chat, user)
+
+
+def handle_continue_tagging_set(session, bot, payload, user, chat, tg_chat):
+    """Handle the `continue tagging` button to enter a previous tagging session at the same point."""
+    chat.cancel(bot)
+
+    chat.tag_mode = TagMode.STICKER_SET
+    sticker = session.query(Sticker).get(payload)
+    chat.current_sticker = sticker
+
     send_tag_messages(chat, tg_chat, user)
