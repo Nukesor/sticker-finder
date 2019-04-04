@@ -70,7 +70,7 @@ def handle_callback_query(bot, update, session, user):
     elif CallbackType(callback_type).name == 'cancel':
         handle_cancel_tagging(session, bot, user, query, chat, tg_chat)
     elif CallbackType(callback_type).name == 'edit_sticker':
-        handle_fix_sticker_tags(session, payload, user, query, chat, tg_chat)
+        handle_fix_sticker_tags(session, payload, user, chat, tg_chat)
 
     elif CallbackType(callback_type).name == 'tag_set':
         initialize_set_tagging(bot, tg_chat, session, payload, chat, user)

@@ -69,11 +69,16 @@ def handle_private_sticker(bot, update, session, chat, user):
     else:
         # Notify if they are still in a tagging process
         if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
-            # TODO: Update the keyboard of the last sticker to: `Continue here`
             chat.cancel(bot)
             pass
 
         sticker = session.query(Sticker).get(incoming_sticker.file_id)
+        if sticker is None:
+            call_tg_func(update.message.chat, 'send_message',
+                         args=[f"I don't know this specific sticker yet. I'll just trigger a rescan of this set. Please wait a minute and try again."])
+            sticker_set.refresh_stickers(session, bot)
+            return
+
         chat.current_sticker = sticker
         chat.tag_mode = TagMode.SINGLE_STICKER
 

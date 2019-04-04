@@ -45,6 +45,7 @@ class Chat(base):
     id = Column(BigInteger, primary_key=True)
     type = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Maintenance and chat flags
     is_newsfeed = Column(Boolean, default=False, nullable=False)
@@ -56,7 +57,7 @@ class Chat(base):
 
     # ForeignKeys
     current_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id', ondelete='cascade'), index=True)
-    current_sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
+    current_sticker_file_id = Column(String, ForeignKey('sticker.file_id', ondelete='SET NULL'), index=True)
 
     # Relationships
     current_task = relationship("Task", foreign_keys='Chat.current_task_id')

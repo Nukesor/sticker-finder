@@ -23,6 +23,7 @@ from stickerfinder.models import (
     StickerSet,
 )
 
+
 def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
     # Check if both user and sticker set are using the default language

@@ -4,3 +4,4 @@ from .sticker_set import * # noqa
 from .admin import * # noqa
 from .chat import * # noqa
 from .user import * # noqa
+from .usage import * # noqa

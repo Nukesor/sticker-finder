@@ -36,6 +36,7 @@ from stickerfinder.telegram.commands import (
     random_set,
     add_sets,
     delete_set,
+    forget_set,
     set_is_default_language,
     set_not_is_default_language,
 )
@@ -99,6 +100,7 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('tag', tag_single))
     dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
     dispatcher.add_handler(CommandHandler('skip', skip))
+    dispatcher.add_handler(CommandHandler('forget_set', forget_set))
 
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))
