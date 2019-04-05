@@ -144,10 +144,10 @@ def handle_edited_messages(bot, update, session, chat, user):
         .filter(Change.message_id == message.message_id) \
         .order_by(Change.created_at.desc()) \
         .limit(1) \
-        .one()
+        .one_or_none()
 
     if change is None:
-        return
+        return "I can only edit on new tag messages."
 
     tag_sticker(
         session,
