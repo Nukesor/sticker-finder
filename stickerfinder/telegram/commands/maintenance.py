@@ -27,8 +27,22 @@ from stickerfinder.models import (
 def stats(bot, update, session, chat, user):
     """Send a help text."""
     # Users
-    user_count = session.query(User).join(User.inline_queries).group_by(User).count()
-    banned_user_count = session.query(User).filter(User.banned.is_(True)).count()
+
+    one_month_old = datetime.now() - timedelta(days=30)
+    month_user_count = session.query(User) \
+        .join(User.inline_queries) \
+        .filter(InlineQuery.created_at > one_month_old) \
+        .group_by(User) \
+        .count()
+
+    one_week_old = datetime.now() - timedelta(days=7)
+    week_user_count = session.query(User) \
+        .join(User.inline_queries) \
+        .filter(InlineQuery.created_at > one_week_old) \
+        .group_by(User) \
+        .count()
+    total_user_count = session.query(User).join(User.inline_queries).group_by(User).count()
+
 
     # Tags and emojis
     tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
@@ -58,8 +72,10 @@ def stats(bot, update, session, chat, user):
         .filter(InlineQuery.created_at > datetime.now() - timedelta(days=1)) \
         .count()
 
-    stats = f"""Users: {user_count}
-    => banned: {banned_user_count}
+    stats = f"""Users:
+    => last week: {week_user_count}
+    => last month: {month_user_count}
+    => total: {total_user_count}
 
 Sticker sets: {sticker_set_count}
     => nsfw: {nsfw_set_count}
