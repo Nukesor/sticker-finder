@@ -21,7 +21,8 @@ def tag_single(bot, update, session, chat, user):
             text,
             chat.current_sticker,
             user,
-            chat=update.message.chat,
+            update.message.chat,
+            chat=chat,
             message_id=update.message.message_id,
         )
 

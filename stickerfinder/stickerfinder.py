@@ -142,7 +142,7 @@ if not config.LEECHER:
     dispatcher.add_handler(
         MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
     dispatcher.add_handler(
-        MessageHandler(Filters.text & Filters.private & (~Filters.update.edited_message), handle_private_text))
+        MessageHandler(Filters.text & Filters.private & (~Filters.update.edited_message) & (~Filters.reply), handle_private_text))
     dispatcher.add_handler(
         MessageHandler(Filters.update.edited_message, handle_edited_messages))
 
