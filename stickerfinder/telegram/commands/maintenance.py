@@ -7,7 +7,11 @@ from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
-from stickerfinder.helper.cleanup import tag_cleanup, user_cleanup
+from stickerfinder.helper.cleanup import (
+    tag_cleanup,
+    user_cleanup,
+    inline_query_cleanup,
+)
 from stickerfinder.models import (
     StickerSet,
     Sticker,
@@ -23,7 +27,7 @@ from stickerfinder.models import (
 def stats(bot, update, session, chat, user):
     """Send a help text."""
     # Users
-    user_count = session.query(User).join(User.changes).group_by(User).count()
+    user_count = session.query(User).join(User.inline_queries).group_by(User).count()
     banned_user_count = session.query(User).filter(User.banned.is_(True)).count()
 
     # Tags and emojis
@@ -163,6 +167,8 @@ def cleanup(bot, update, session, chat, user):
     """Triggering a one time conversion from text changes to tags."""
     tag_cleanup(session, update)
     user_cleanup(session, update)
+    threshold = datetime.strptime('Jan 1 2000', '%b %d %Y')
+    inline_query_cleanup(session, update, threshold=threshold)
 
     call_tg_func(update.message.chat, 'send_message',
                  ['Cleanup finished.'], {'reply_markup': admin_keyboard})

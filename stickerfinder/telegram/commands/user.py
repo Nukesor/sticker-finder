@@ -6,7 +6,7 @@ from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper(check_ban=True, private=True)
 def set_is_default_language(bot, update, session, chat, user):
     """Change the language of the user to the default langage."""
     user.is_default_language = True
@@ -17,7 +17,7 @@ def set_is_default_language(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper(check_ban=True, private=True)
 def set_not_is_default_language(bot, update, session, chat, user):
     """Change the language of the user to the non default langage."""
     user.is_default_language = False

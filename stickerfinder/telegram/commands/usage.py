@@ -6,7 +6,7 @@ from stickerfinder.models import StickerUsage, Sticker
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper(check_ban=True, private=True)
 def forget_set(bot, update, session, chat, user):
     """Forget every usage of the set of the previously posted sticker."""
     if chat.current_sticker is None:
