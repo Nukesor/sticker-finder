@@ -157,6 +157,7 @@ def handle_edited_messages(bot, update, session, chat, user):
         message.chat,
         chat=chat,
         message_id=message.message_id,
+        single_sticker=True,
     )
 
     return 'Sticker tags edited.'
