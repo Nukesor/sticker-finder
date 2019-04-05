@@ -1,16 +1,24 @@
 """Some static stuff or helper functions for sticker finder bot."""
 
 
-start_text = """Hey. This is the Sticker Finder Bot.
+start_text = """Hey. This is Sticker Finder Bot.
 
-A quick introduction:
-- For search just type '@stfi_bot something I want' anywhere.
-- You can search by sticker pack name, tags, emoji and sometimes text inside the sticker.
-- Query explicitly for sticker packs! Just add "set" or "pack" to your search e.g. "@stfi_bot kermit set".
-- If you want non-english sticker packs, use /international to enable other languages than english.
-- For tagging sticker packs just send me a sticker from the pack.
-- If you want 'nsfw' or 'furry' stuff, include those words in your search.
+*Sticker search:*
+just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
 
+*Sticker pack search:*
+Just add "set" or "pack" to your search e.g. `@stfi_bot kermit set`.
+
+*Languages:*
+If you want non-english sticker packs, use /international to enable other languages than english.
+
+*Tagging:*
+For tagging sticker packs just send me a sticker from the pack.
+
+*Explicit content:*
+If you want `nsfw` or `furry` stuff, include those words in your search.
+
+*Help:*
 For a more detailed explanation (especially if you want to tag) use /help :)
 """
 
@@ -19,70 +27,74 @@ admin_help_text = """Commands available to admins:
 
 /ban Ban the last sticker posted in this chat.
 /unban Ban the last sticker posted in this chat.
-/ban_user [name|id] Ban a user
-/unban_user [name|id] Unban a user
-/make_admin Make another user admin
+/ban\_user [name|id] Ban a user
+/unban\_user [name|id] Unban a user
+/make\_admin Make another user admin
 /tasks Start to process tasks in a maintenance chat
 
-/delete_set Completely delete a set
-/add_set Add multiple sets at once by set_name
+/delete\_set Completely delete a set
+/add\_set Add multiple sets at once by set\_name
 
-/toggle_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
+/toggle\_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
 
 /stats Get some statistics
 /refresh Refresh all stickerpacks.
-/refresh_ocr Refresh all stickerpacks including ocr.
+/refresh\_ocr Refresh all stickerpacks including ocr.
 /broadcast Send the message after this command to all users.
 """
 
 
-help_text = """<b>Search for stickers:</b>
-Start typing @stfi_bot in any chat. You can search for stickers by keywords, emojis and pack titles and sometimes even recognized text.
-You can also explicitly search for sticker packs. Just add "pack" or "set" to your search e.g. `@stfi_bot kermit set`
+help_text = """*Sticker search:*
+Start typing @stfi\_bot in any chat. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
 
-<b>Add sticker packs:</b>
-Send any sticker pack to me in a direct conversation and I'll add the whole pack.
-The bot will tell you if I don't know this pack yet and you will get a notification when the sticker pack has been processed and reviewed.
+*Sticker pack search:*
+Just add `set` or `pack` to your search e.g. `@stfi_bot kermit set`.
+
+*Add sticker packs:*
+*DISCLAIMER:* If you add a pack, it will be available to *ALL* users.
+
+Send any sticker to me in a direct conversation and I'll add the whole pack. The bot will tell you if it doesn't know this pack yet and you will get a notification when the sticker pack has been processed and accepted by us.
+Since we need to review every single pack manually, it can take quite a while to review all new sticker packs (sometimes over 100 on a single day). Please bear with us.
 If the bot is added to a group chat, it will automatically add all stickers posted in this chat!
-It can take quite a while to review all new sticker packs, so please bear with me.
-<b>DISCLAIMER:</b> If you add a pack, it will be available to <b>ALL</b> users.
 
-<b>Can't find a sticker?</b>
-If you already added a pack, you probably need to tag them first (or just search by the pack name).
+
+*Can't find a sticker?*
+If you already added a pack, you probably need to tag stickers first (or just search by the pack name).
 To tag a whole pack just send me a sticker from the pack you want to tag.
 
-<b>Language:</b>
+*Language:*
 The default language is English. Every sticker pack, that contains language which isn't English will be flagged as such.
-These stickers can only be found, when changing your mode to "International". You can find lots of stuff in there, but it's not as good maintained as the "English" section.
+These stickers can only be found, when changing your mode to /international. You can find lots of stuff in there, but it's not as good maintained as the /english section.
 
-<b>How to tag:</b>
-Just try to describe the sticker as good as possible and add the text of the sticker: e.g. <i>"obi wan star wars hello there"</i>
+*How to tag:*
+Just try to describe the sticker as good as possible and add the text of the sticker: e.g. `obi wan star wars hello there`
 If there already are tags on a sticker, you'll overwrite all existing tags.
-<b>Please</b> only tag in English, when you're in the English mode. If you tag in any other language, please use the international mode.
+When you're in the English mode, *PLEASE* only tag in English. If you want to tag in another language, please use the international mode.
 
-<b>Tagging a single sticker:</b>
-/tag allows to tag the last sticker posted in a chat e.g. <i>"/tag obi wan star wars hello there"</i>
-This is great for ad hoc tagging of single stickers in group chats, but I need to be in the chat for this to work.
+*Tagging a single sticker:*
+/tag allows to tag the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
+Anyway you can also tag any other sticker by just replying to it with `/tag ...`.
+This is great for ad hoc tagging of single stickers in group chats, but the bot needs to be in the chat for this to work.
 
-<b>Want to help?</b>
-Tag some stickers :)! Just type /tag_random in a direct conversation with me.
+*Want to help?*
+Tag some stickers :)! Tag your favorite sticker packs or just type /tag\_random in a direct conversation with the bot.
 
-<b>NSFW & Sticker Ban:</b>
-I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with nsfw and can only be found when using the nsfw tag.
-In case I miss any, you can use the /vote_ban command to make me look at it again (Use it for both nsfw and ban).
+*NSFW & Sticker Ban:*
+I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with `nsfw` and can only be found when addingi `nsfw` to your search.
+In case I miss any, you can use the /vote\_ban command to make me look at it again (Use it for both nsfw and ban).
 Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
-<b>User Ban:</b>
+*User Ban:*
 If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker pack to gain popularity, you will get banned.
-You'll also get banned if you don't repeatedly tag in other languages while being in the "English" mode and vica versa.
+You'll also get banned if you repeatedly tag in other languages while being in /english mode.
 When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted.
 
-<b>Candy:</b>
+*Candy:*
 I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
 But don't expect this functionality to work reliably!
 
-In case you encounter any bugs or you just want to look at the code:
-https://github.com/Nukesor/sticker-finder
+In case you encounter any bugs or you just want to look at the code, feel free to check out my repository:
+[Sticker Finder on Github](https://github.com/Nukesor/sticker-finder)
 """
 
 tag_text = """Now please send me tags for each sticker I'll send you.
