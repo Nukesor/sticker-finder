@@ -76,10 +76,10 @@ def start(bot, update, session, chat, user):
 @session_wrapper()
 def send_help_text(bot, update, session, chat, user):
     """Send a help text."""
-    if not user.admin:
+    if user.admin:
         call_tg_func(update.message.chat, 'send_message', [admin_help_text],
                      {'reply_markup': main_keyboard, 'parse_mode': 'Markdown'})
-    else:
+    elif not user.admin:
         call_tg_func(update.message.chat, 'send_message', [help_text],
                      {'reply_markup': main_keyboard, 'parse_mode': 'Markdown'})
 
