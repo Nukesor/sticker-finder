@@ -3,7 +3,7 @@ import time
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 
-from stickerfinder.models import User, StickerSet, Chat
+from stickerfinder.models import User, StickerSet, Chat, Sticker
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import main_keyboard
@@ -171,3 +171,11 @@ def unban_sticker(bot, update, session, chat, user):
     chat.current_sticker.banned = True
 
     return 'Sticker unbanned.'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def show_sticker(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    file_id = update.message.text.split(' ', 1)[1].strip()
+    call_tg_func(update.message.chat, 'send_sticker', args=[file_id])

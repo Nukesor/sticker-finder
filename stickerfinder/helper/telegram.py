@@ -28,6 +28,11 @@ def call_tg_func(tg_object: object, function_name: str,
             return retrieved_object
 
         except (TimedOut, NetworkError) as e:
+            # Can't update message. just raise it
+            if str(e) == 'Message to edit not found' or \
+               str(e) == 'Message is not modified': # noqa
+                raise e
+
             breadcrumbs.record(data={'action': f'Exception: {datetime.now()}'}, category='info')
             logger = logging.getLogger()
             logger.info(f'Got telegram exception waiting 4 secs.')

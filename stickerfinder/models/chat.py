@@ -1,6 +1,5 @@
 """The sqlite model for a chat."""
-from stickerfinder.db import base
-
+import logging
 from sqlalchemy import (
     Boolean,
     Column,
@@ -12,10 +11,12 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
+from telegram.error import BadRequest
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
+from stickerfinder.db import base
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.keyboard import get_continue_tagging_keyboard
@@ -103,9 +104,18 @@ class Chat(base):
         """Cancel the tagging process."""
         if self.tag_mode == TagMode.STICKER_SET:
             keyboard = get_continue_tagging_keyboard(self.current_sticker.file_id)
-            call_tg_func(bot, 'edit_message_reply_markup',
-                         [self.id, self.last_sticker_message_id],
-                         {'reply_markup': keyboard})
+            try:
+                call_tg_func(bot, 'edit_message_reply_markup',
+                             [self.id, self.last_sticker_message_id],
+                             {'reply_markup': keyboard})
+            except BadRequest as e:
+                # An update for a reply keyboard has failed (Probably due to button spam)
+                logger = logging.getLogger()
+                if str(e) == 'Message to edit not found':
+                    logger.info('Message to edit has been deleted.')
+                    pass
+                else:
+                    raise e
 
         self.tag_mode = None
         self.last_sticker_message_id = None

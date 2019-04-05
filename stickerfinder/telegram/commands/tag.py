@@ -24,6 +24,7 @@ def tag_single(bot, update, session, chat, user):
             update.message.chat,
             chat=chat,
             message_id=update.message.message_id,
+            single_sticker=True,
         )
 
         return 'Sticker tags changed.'

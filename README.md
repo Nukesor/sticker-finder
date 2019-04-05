@@ -43,6 +43,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /cancel     Cancel all current tag actions
     /english    Only english sticker sets and tags
     /international Get sticker sets from all all languages.
+    /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
 
 
 ## Installation and starting:
@@ -79,18 +80,19 @@ When you are updating from a previous version do a `alembic upgrade head` instea
 This is just for people hosting a bot and those with `admin` permissions:
 
     /ban Ban the last sticker posted in this chat.
-    /unban Ban the last sticker posted in this chat.
+    /unban Unban the last sticker posted in this chat.
     /ban_user [name|id] Ban a user
     /unban_user [name|id] Unban a user
     /tasks Start to process tasks in a maintenance chat
-    /make_admin Make another user admin
+    /make_admin [name|id] Make another user admin
 
-    /delete_set Completely delete a set
-    /add_set Add multiple sets at once by set_name
+    /delete_set [name] Completely delete a set
+    /show [file_id]` Command sends the corresponding sticker for the given Id
+    /add_set [names...] Add multiple sets at once by `set_name` separated by newline
 
     /toggle_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
 
     /stats Get some statistics
     /refresh Refresh all stickerpacks.
     /refresh_ocr Refresh all stickerpacks including ocr.
-    /broadcast Send the message after this command to all users.
+    /broadcast [message] Send the message after this command to all users.
