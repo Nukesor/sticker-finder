@@ -131,7 +131,9 @@ def broadcast(bot, update, session, chat, user):
     deleted = 0
     for chat in chats:
         try:
-            call_tg_func(bot, 'send_message', args=[chat.id, message])
+            call_tg_func(bot, 'send_message',
+                         [chat.id, message],
+                         {'parse_mode': 'Markdown'})
 
         # The chat doesn't exist any longer, delete it
         except BadRequest as e:
@@ -152,6 +154,17 @@ def broadcast(bot, update, session, chat, user):
     call_tg_func(update.message.chat, 'send_message',
                  [f'All messages sent. Deleted {deleted} chats.'],
                  {'reply_markup': main_keyboard})
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def test_broadcast(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    message = update.message.text.split(' ', 1)[1].strip()
+
+    call_tg_func(bot, 'send_message',
+                 [chat.id, message],
+                 {'parse_mode': 'Markdown'})
 
 
 @run_async

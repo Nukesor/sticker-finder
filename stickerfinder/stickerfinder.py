@@ -17,6 +17,7 @@ from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.telegram.commands import (
     broadcast,
+    test_broadcast,
     ban_sticker,
     unban_sticker,
     ban_user,
@@ -123,6 +124,7 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('add_sets', add_sets))
     dispatcher.add_handler(CommandHandler('delete_set', delete_set))
     dispatcher.add_handler(CommandHandler('broadcast', broadcast))
+    dispatcher.add_handler(CommandHandler('test_broadcast', test_broadcast))
     dispatcher.add_handler(CommandHandler('make_admin', make_admin))
     dispatcher.add_handler(CommandHandler('show', show_sticker))
 
