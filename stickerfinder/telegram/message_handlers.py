@@ -147,7 +147,7 @@ def handle_edited_messages(bot, update, session, chat, user):
         .one_or_none()
 
     if change is None:
-        return "I can only edit on new tag messages."
+        return
 
     tag_sticker(
         session,
