@@ -41,7 +41,9 @@ class Task(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
-    chat_id = Column(BigInteger, ForeignKey('chat.id'), index=True)
+    chat_id = Column(BigInteger, ForeignKey('chat.id',
+                                            onupdate='cascade',
+                                            ondelete='cascade'), index=True)
     sticker_set_name = Column(String, ForeignKey('sticker_set.name',
                                                  onupdate='cascade',
                                                  ondelete='cascade'), index=True)

@@ -157,8 +157,8 @@ def send_tagged_count_message(session, bot, user, chat):
                      {'reply_markup': main_keyboard})
 
 
-def tag_sticker(session, text, sticker, user,
-                tg_chat, chat=None, keep_old=False):
+def tag_sticker(session, text, sticker, user, tg_chat,
+                chat=None, message_id=None, keep_old=False):
     """Tag a single sticker."""
     text = text.lower()
     # Remove the /tag command
@@ -214,7 +214,8 @@ def tag_sticker(session, text, sticker, user,
 
         # Create a change for logging
         if old_tags_as_text != sticker.tags_as_text(is_default_language):
-            change = Change(user, sticker, old_tags_as_text, is_default_language)
+            change = Change(user, sticker, old_tags_as_text, is_default_language,
+                            chat=chat, message_id=message_id)
             session.add(change)
 
     session.commit()

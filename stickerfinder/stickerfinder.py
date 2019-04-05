@@ -50,12 +50,14 @@ from stickerfinder.telegram.message_handlers import (
     handle_private_text,
     handle_private_sticker,
     handle_group_sticker,
+    handle_edited_messages,
 )
 from stickerfinder.telegram.callback import (
     handle_callback_query,
     handle_chosen_inline_result,
 )
 from stickerfinder.telegram.inline_query import search
+from stickerfinder.telegram.error_handler import error_callback
 
 
 @session_wrapper()
@@ -84,7 +86,7 @@ logging.basicConfig(level=config.LOG_LEVEL,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Initialize telegram updater and dispatcher
-updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT,
+updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT, use_context=True,
                   request_kwargs={'read_timeout': 20, 'connect_timeout': 20})
 
 # Create inline query handler
@@ -140,8 +142,13 @@ if not config.LEECHER:
     dispatcher.add_handler(
         MessageHandler(Filters.sticker & Filters.private, handle_private_sticker))
     dispatcher.add_handler(
-        MessageHandler(Filters.text & Filters.private, handle_private_text))
+        MessageHandler(Filters.text & Filters.private & (~Filters.update.edited_message), handle_private_text))
+    dispatcher.add_handler(
+        MessageHandler(Filters.update.edited_message, handle_edited_messages))
 
     # Inline callback handler
     dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
     dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
+
+    # Error handling
+    dispatcher.add_error_handler(error_callback)

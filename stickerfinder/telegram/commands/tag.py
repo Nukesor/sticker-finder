@@ -16,7 +16,14 @@ def tag_single(bot, update, session, chat, user):
         if text.strip() == '':
             return 'You need to add some tags to the /tag command. E.g. "/tag meme prequel obi wan"'
 
-        tag_sticker(session, text, chat.current_sticker, user, update.message.chat)
+        tag_sticker(
+            session,
+            text,
+            chat.current_sticker,
+            user,
+            chat=update.message.chat,
+            message_id=update.message.message_id,
+        )
 
         return 'Sticker tags changed.'
 

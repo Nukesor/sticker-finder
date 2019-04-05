@@ -27,20 +27,28 @@ class Change(base):
     is_default_language = Column(Boolean, default=True, nullable=False)
     old_tags = Column(String)
     new_tags = Column(String)
+    message_id = Column(BigInteger)
 
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
     check_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id'), index=True)
     sticker_file_id = Column(String, ForeignKey('sticker.file_id', ondelete='cascade'), index=True)
+    chat_id = Column(BigInteger, ForeignKey('chat.id',
+                                            onupdate='cascade',
+                                            ondelete='cascade'), index=True)
 
-    check_task = relationship("Task")
+    chat = relationship("Chat")
     user = relationship("User")
+    check_task = relationship("Task")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, old_tags, is_default_language):
+    def __init__(self, user, sticker, old_tags, is_default_language,
+                 chat=None, message_id=None):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
         self.is_default_language = is_default_language
-
         self.old_tags = old_tags
         self.new_tags = sticker.tags_as_text(is_default_language)
+
+        self.chat = chat
+        self.message_id = message_id

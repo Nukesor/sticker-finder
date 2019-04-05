@@ -1,5 +1,6 @@
 """Message handler functions."""
 from stickerfinder.models import (
+    Change,
     Sticker,
     StickerSet,
 )
@@ -21,24 +22,29 @@ from stickerfinder.helper.keyboard import (
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
-    if chat.tag_mode == TagMode.STICKER_SET:
+    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
         # Try to tag the sticker. Return early if it didn't work.
-        tag_sticker(session, update.message.text, chat.current_sticker,
-                    user, update.message.chat, chat=chat)
+        tag_sticker(
+            session,
+            update.message.text,
+            chat.current_sticker,
+            user,
+            update.message.chat,
+            chat=chat,
+            message_id=update.message.message_id)
 
         session.commit()
         handle_next(session, bot, chat, update.message.chat, user)
 
-    elif chat.tag_mode == TagMode.RANDOM:
-        # Try to tag the sticker. Return early if it didn't work.
-        tag_sticker(session, update.message.text, chat.current_sticker,
-                    user, update.message.chat, chat)
-
-        session.commit()
-        handle_next(session, bot, chat, update.message.chat, user)
     elif chat.tag_mode == TagMode.SINGLE_STICKER:
-        tag_sticker(session, update.message.text, chat.current_sticker,
-                    user, update.message.chat, chat)
+        tag_sticker(
+            session,
+            update.message.text,
+            chat.current_sticker,
+            user,
+            update.message.chat,
+            chat=chat,
+            message_id=update.message.message_id)
 
         chat.cancel(bot)
         return 'Sticker tags adjusted.'
@@ -125,3 +131,32 @@ def handle_group_sticker(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
 
     return
+
+
+@session_wrapper(check_ban=True)
+def handle_edited_messages(bot, update, session, chat, user):
+    """Read edited messages and check whether the user corrected some tags."""
+    message = update.edited_message
+
+    # Try to find a Change with this message
+    change = session.query(Change) \
+        .filter(Change.chat == chat) \
+        .filter(Change.message_id == message.message_id) \
+        .order_by(Change.created_at.desc()) \
+        .limit(1) \
+        .one()
+
+    if change is None:
+        return
+
+    tag_sticker(
+        session,
+        message.text,
+        change.sticker,
+        user,
+        message.chat,
+        chat=chat,
+        message_id=message.message_id,
+    )
+
+    return 'Sticker tags edited.'

@@ -3,7 +3,7 @@ from telegram.ext import run_async
 from sqlalchemy import func, and_
 
 from stickerfinder.config import config
-from stickerfinder.helper.session import hidden_session_wrapper
+from stickerfinder.helper.session import job_session_wrapper
 from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfeed_tasks
 from stickerfinder.models import (
     Change,
@@ -15,18 +15,18 @@ from stickerfinder.models import (
 
 
 @run_async
-@hidden_session_wrapper()
-def newsfeed_job(bot, job, session, user):
+@job_session_wrapper()
+def newsfeed_job(context, session):
     """Send all new sticker to the newsfeed chats."""
     # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
-    distribute_newsfeed_tasks(bot, session)
+    distribute_newsfeed_tasks(context.bot, session)
 
     return
 
 
 @run_async
-@hidden_session_wrapper()
-def maintenance_job(bot, job, session, user):
+@job_session_wrapper()
+def maintenance_job(context, session):
     """Create new maintenance tasks.
 
     - Check for stickers to ban (via VoteBan)
@@ -79,17 +79,17 @@ def maintenance_job(bot, job, session, user):
 
 
 @run_async
-@hidden_session_wrapper()
-def distribute_tasks_job(bot, job, session, user):
+@job_session_wrapper()
+def distribute_tasks_job(context, session):
     """Distribute open tasks to maintenance channels."""
-    distribute_tasks(bot, session)
+    distribute_tasks(context.bot, session)
 
 
 @run_async
-@hidden_session_wrapper()
-def scan_sticker_sets_job(bot, job, session, user):
+@job_session_wrapper()
+def scan_sticker_sets_job(context, session):
     """Send all new sticker to the newsfeed chats."""
-    job.enabled = False
+    context.job.enabled = False
     tasks = session.query(Task) \
         .filter(Task.type == Task.SCAN_SET) \
         .join(Task.sticker_set) \
@@ -100,8 +100,8 @@ def scan_sticker_sets_job(bot, job, session, user):
 
     # Send the first sticker of each new set to all newsfeed channels
     for task in tasks:
-        task.sticker_set.refresh_stickers(session, bot, chat=task.chat)
+        task.sticker_set.refresh_stickers(session, context.bot, chat=task.chat)
         session.commit()
 
-    job.enabled = True
+    context.job.enabled = True
     return
