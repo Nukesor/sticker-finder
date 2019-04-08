@@ -77,29 +77,41 @@ def get_nsfw_ban_keyboard(sticker_set):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_vote_ban_keyboard(task):
+def get_report_keyboard(task):
     """Get keyboard for the vote ban task."""
-    ban_type = CallbackType['task_vote_ban'].value
-    nsfw_type = CallbackType['task_vote_nsfw'].value
+    ban_type = CallbackType['report_ban'].value
+    nsfw_type = CallbackType['report_nsfw'].value
+    furry_type = CallbackType['report_furry'].value
     # Set task callback data
     if task.sticker_set.banned:
-        ban_data_ok = f'{ban_type}:{task.id}:{CallbackResult["ok"].value}'
-        ban_text_ok = 'Unban set'
+        ban_data = f'{ban_type}:{task.id}:{CallbackResult["ok"].value}'
+        ban_text = 'Unban set'
     else:
-        ban_data_ban = f'{ban_type}:{task.id}:{CallbackResult["ban"].value}'
-        ban_text_ban = 'Ban set'
+        ban_data = f'{ban_type}:{task.id}:{CallbackResult["ban"].value}'
+        ban_text = 'Ban set'
 
     if task.sticker_set.nsfw:
-        nsfw_data_ok = f'{nsfw_type}:{task.id}:{CallbackResult["ok"].value}'
-        nsfw_text_ok = 'Unban set'
+        nsfw_data = f'{nsfw_type}:{task.id}:{CallbackResult["ok"].value}'
+        nsfw_text = 'No NSFW'
     else:
-        nsfw_data_ban = f'{nsfw_type}:{task.id}:{CallbackResult["ban"].value}'
-        nsfw_text_ban = 'Ban set'
+        nsfw_data = f'{nsfw_type}:{task.id}:{CallbackResult["ban"].value}'
+        nsfw_text = 'NSFW'
 
-    buttons = [[InlineKeyboardButton(text=ban_text_ok, callback_data=ban_data_ok),
-                InlineKeyboardButton(text=ban_text_ban, callback_data=ban_data_ban)],
-               [InlineKeyboardButton(text=nsfw_text_ok, callback_data=nsfw_data_ok),
-                InlineKeyboardButton(text=nsfw_text_ban, callback_data=nsfw_data_ban)]]
+    if task.sticker_set.furry:
+        furry_data = f'{furry_type}:{task.id}:{CallbackResult["ok"].value}'
+        furry_text = 'Not furry'
+    else:
+        furry_data = f'{furry_type}:{task.id}:{CallbackResult["ban"].value}'
+        furry_text = 'Furry'
+
+    buttons = [[InlineKeyboardButton(text=ban_text, callback_data=ban_data),
+                InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data)],
+               [InlineKeyboardButton(text=furry_text, callback_data=furry_data)]]
+
+    if not task.reviewed:
+        next_type = CallbackType['report_next'].value
+        next_data = f'{next_type}:{task.id}:{CallbackResult["ok"].value}'
+        buttons[1].append(InlineKeyboardButton(text='Next', callback_data=next_data))
 
     return InlineKeyboardMarkup(buttons)
 

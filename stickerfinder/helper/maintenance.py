@@ -8,7 +8,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
     admin_keyboard,
     check_user_tags_keyboard,
-    get_vote_ban_keyboard,
+    get_report_keyboard,
     get_nsfw_ban_keyboard,
 )
 from stickerfinder.models import (
@@ -117,7 +117,7 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         .filter(Task.reviewed.is_(False)) \
         .filter(Task.type.in_([
             Task.CHECK_USER_TAGS,
-            Task.VOTE_BAN,
+            Task.REPORT,
         ])) \
         .order_by(Task.created_at.asc()) \
         .limit(1) \
@@ -150,13 +150,13 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
 
         keyboard = check_user_tags_keyboard(task)
 
-    elif task.type == Task.VOTE_BAN:
+    elif task.type == Task.REPORT:
         # Compile task text
         text = ['Ban sticker set? \n']
-        for ban in task.sticker_set.vote_bans:
+        for ban in task.sticker_set.reports:
             text.append(ban.reason)
 
-        keyboard = get_vote_ban_keyboard(task)
+        keyboard = get_report_keyboard(task)
 
         # Send first sticker of the set
         call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])

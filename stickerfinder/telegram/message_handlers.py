@@ -121,7 +121,7 @@ def handle_group_sticker(bot, update, session, chat, user):
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
 
-    # Set the send sticker to the current sticker for tagging or vote_ban.
+    # Set the send sticker to the current sticker for tagging or report.
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
 

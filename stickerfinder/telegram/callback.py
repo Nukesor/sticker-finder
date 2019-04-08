@@ -12,8 +12,10 @@ from stickerfinder.models import (
 )
 
 from stickerfinder.telegram.callback_handlers import (
-    handle_vote_ban_set,
-    handle_vote_nsfw_set,
+    handle_report_ban,
+    handle_report_nsfw,
+    handle_report_furry,
+    handle_report_next,
     handle_check_user,
     handle_ban_set,
     handle_nsfw_set,
@@ -43,10 +45,14 @@ def handle_callback_query(bot, update, session, user):
     tg_chat = query.message.chat
 
     # Handle user vote task (ban/nsfw)
-    if CallbackType(callback_type).name == 'task_vote_ban':
-        handle_vote_nsfw_set(session, action, query, payload, chat, tg_chat)
-    elif CallbackType(callback_type).name == 'task_vote_nsfw':
-        handle_vote_ban_set(session, action, query, payload, chat, tg_chat)
+    if CallbackType(callback_type).name == 'report_ban':
+        handle_report_ban(session, action, query, payload, chat, tg_chat)
+    elif CallbackType(callback_type).name == 'report_nsfw':
+        handle_report_nsfw(session, action, query, payload, chat, tg_chat)
+    elif CallbackType(callback_type).name == 'report_furry':
+        handle_report_furry(session, action, query, payload, chat, tg_chat)
+    elif CallbackType(callback_type).name == 'report_next':
+        handle_report_next(session, action, query, payload, chat, tg_chat)
 
     # Handle check-user-task callbacks
     elif CallbackType(callback_type).name == 'check_user_tags':

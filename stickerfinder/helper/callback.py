@@ -10,7 +10,7 @@ class CallbackType(Enum):
     """A class representing callback types."""
 
     task_user_ban = 1
-    task_vote_ban = 2
+    task_report = 2
     check_user_tags = 3
     ban_set = 4
     nsfw_set = 5
@@ -25,6 +25,11 @@ class CallbackType(Enum):
     newsfeed_next_set = 14
 
     continue_tagging = 50
+
+    report_ban = 60
+    report_nsfw = 61
+    report_furry = 62
+    report_next = 63
 
 
 @unique

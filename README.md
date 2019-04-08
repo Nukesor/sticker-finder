@@ -29,7 +29,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 - NSFW and Furry filter. Use `nsfw` or `fur` tag to explicitly search for this stuff.
 - Sticker set addition in direct conversations or when the bot is added to groups.
 - Random tagging of stickers if you're bored.
-- `/vote_ban [reason]` for inappropriate sticker sets.
+- `/report [reason]` Report a sticker set for some reason.
 - A minimalistic mode for groups that don't want user interaction (I already host one with the name [@stfil_bot](https://t.me/stfil_bot)).
 
 
@@ -70,7 +70,7 @@ When you are updating from a previous version do a `alembic upgrade head` instea
     tag_random - Get a random sticker for tagging. Thanks for doing this :)!
     random_set - The bot sends you a random sticker set.
     skip - Skip the current sticker
-    vote_ban - Vote to ban the sticker set of the last sticker in the chat.
+    report - Report something regarding the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
     english - Only english sticker sets and tags
     international - Get sticker sets from all all languages.

@@ -33,7 +33,7 @@ class Config:
 
     # Job parameter
     USER_CHECK_COUNT = 200
-    VOTE_BAN_COUNT = 1
+    REPORT_COUNT = 1
 
 
 config = Config()

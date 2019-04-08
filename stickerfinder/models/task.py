@@ -24,11 +24,11 @@ class Task(base):
     __table_args__ = (
         CheckConstraint("(type = 'check_user_tags' AND is_default_language IS NOT NULL AND \
                          user_id IS NOT NULL) OR type != 'check_user_tags'"),
-        CheckConstraint("(type = 'vote_ban' AND user_id IS NOT NULL) OR type != 'vote_ban'"),
-        CheckConstraint("(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'vote_ban'"),
+        CheckConstraint("(type = 'report' AND user_id IS NOT NULL) OR type != 'report'"),
+        CheckConstraint("(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'report'"),
     )
 
-    VOTE_BAN = 'vote_ban'
+    REPORT = 'report'
     CHECK_USER_TAGS = 'check_user_tags'
     SCAN_SET = 'scan_set'
 

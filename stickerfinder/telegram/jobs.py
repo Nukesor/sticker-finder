@@ -8,7 +8,7 @@ from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfe
 from stickerfinder.models import (
     Change,
     StickerSet,
-    VoteBan,
+    Report,
     User,
     Task,
 )
@@ -29,26 +29,26 @@ def newsfeed_job(context, session):
 def maintenance_job(context, session):
     """Create new maintenance tasks.
 
-    - Check for stickers to ban (via VoteBan)
+    - Check for stickers to ban (via Report)
     - Check for users to be checked
     """
     tasks = []
     # Get all StickerSets with at least 5 vote bans and no existing Task
-    vote_ban_count = func.count(VoteBan.id).label('vote_ban_count')
-    vote_ban_candidates = session.query(StickerSet, vote_ban_count) \
-        .join(StickerSet.vote_bans) \
+    report_count = func.count(Report.id).label('report_count')
+    report_candidates = session.query(StickerSet, report_count) \
+        .join(StickerSet.reports) \
         .outerjoin(Task, and_(
             StickerSet.name == Task.sticker_set_name,
-            Task.type == Task.VOTE_BAN,
+            Task.type == Task.REPORT,
         )) \
         .filter(Task.id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .group_by(StickerSet) \
-        .having(vote_ban_count >= config.VOTE_BAN_COUNT) \
+        .having(report_count >= config.REPORT_COUNT) \
         .all()
 
-    for (sticker_set, _) in vote_ban_candidates:
-        task = Task(Task.VOTE_BAN, sticker_set=sticker_set)
+    for (sticker_set, _) in report_candidates:
+        task = Task(Task.REPORT, sticker_set=sticker_set)
         tasks.append(task)
         session.add(task)
 

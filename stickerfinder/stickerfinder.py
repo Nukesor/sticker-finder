@@ -23,7 +23,7 @@ from stickerfinder.telegram.commands import (
     ban_user,
     unban_user,
     make_admin,
-    vote_ban_set,
+    report_set,
     flag_chat,
     start_tasks,
     tag_single,
@@ -102,7 +102,7 @@ dispatcher.add_handler(
 if not config.LEECHER:
     # Input commands
     dispatcher.add_handler(CommandHandler('tag', tag_single))
-    dispatcher.add_handler(CommandHandler('vote_ban', vote_ban_set))
+    dispatcher.add_handler(CommandHandler('report', report_set))
     dispatcher.add_handler(CommandHandler('skip', skip))
     dispatcher.add_handler(CommandHandler('forget_set', forget_set))
 

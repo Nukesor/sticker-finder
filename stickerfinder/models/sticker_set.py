@@ -53,7 +53,7 @@ class StickerSet(base):
     reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
-    vote_bans = relationship("VoteBan", order_by="desc(VoteBan.created_at)")
+    reports = relationship("Report", order_by="desc(Report.created_at)")
     tasks = relationship("Task")
     chats = relationship(
         "Chat",

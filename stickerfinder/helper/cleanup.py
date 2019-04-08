@@ -69,7 +69,7 @@ def user_cleanup(session, update, send_message=True):
     for user in all_users:
         if len(user.changes) == 0 \
                 and len(user.tasks) == 0 \
-                and len(user.vote_bans) == 0 \
+                and len(user.reports) == 0 \
                 and len(user.inline_queries) == 0 \
                 and user.banned is False \
                 and user.reverted is False \

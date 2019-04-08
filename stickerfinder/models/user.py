@@ -30,7 +30,7 @@ class User(base):
 
     changes = relationship('Change')
     tasks = relationship('Task')
-    vote_bans = relationship('VoteBan')
+    reports = relationship('Report')
     inline_queries = relationship('InlineQuery', order_by="asc(InlineQuery.created_at)")
 
     def __init__(self, user_id, username):
