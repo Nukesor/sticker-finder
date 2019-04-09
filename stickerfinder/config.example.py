@@ -1,6 +1,5 @@
 """Config values for stickerfinder."""
 import logging
-from datetime import timedelta
 
 
 class Config:
@@ -8,7 +7,7 @@ class Config:
 
     # Get your telegram api-key from @botfather
     TELEGRAM_API_KEY = None
-    SQL_URI = 'sqlite:///stickerfinder.db'
+    SQL_URI = "postgres://localhost/stickerfinder"
     SENTRY_TOKEN = None
     LOG_LEVEL = logging.INFO
 

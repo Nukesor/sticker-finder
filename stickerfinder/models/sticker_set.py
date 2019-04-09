@@ -84,10 +84,6 @@ class StickerSet(base):
             sticker = session.query(Sticker).get(tg_sticker.file_id)
             text = None
             if sticker is None or refresh_ocr:
-                # Download the image for text recognition
-                # This sometimes fail. Thereby we implement a retry
-                # If the retry failes 5 times, we ignore the image
-                text = None
                 try:
                     # Get Image and preprocess it
                     tg_file = call_tg_func(tg_sticker, 'get_file')
@@ -98,8 +94,10 @@ class StickerSet(base):
                     # Extract text
                     text = image_to_string(image).strip().lower()
 
-                    # Only allow chars
+                    # Only allow chars and remove multiple spaces to single spaces
                     text = re.sub('[^a-zA-Z\ ]+', '', text)
+                    text = re.sub(' +', ' ', text)
+                    text = text.strip()
                     if text == '':
                         text = None
 
