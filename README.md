@@ -48,20 +48,20 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
 ## Installation and starting:
 
-Clone the repository: 
+1. You will need to install `poetry` to install all dependencies.
+2. Clone the repository: 
 
-    % git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
+        % git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
 
-Now copy the `stickerfinder/config.example.py` to `stickerfinder/config.py` and adjust all necessary values.
-Finally execute following commands to install all dependencies and to start the bot:
+3. Now copy the `stickerfinder/config.example.py` to `stickerfinder/config.py` and adjust all necessary values.
+4. Finally execute following commands to install all dependencies and to start the bot:
 
-    % make
-    % ./venv/bin/activate
-    % ./initdb.py
-    % ./main.py
+    % poetry install
+    % poetry run initdb.py
+    % poetry run main.py
 
+5. When you are updating from a previous version just execute `poetry run alembic upgrade head`.
 
-When you are updating from a previous version do a `alembic upgrade head` instead of `./initdb.py`. `./initdb.py` always wipes your db.
 
 ## Botfather commands
 
