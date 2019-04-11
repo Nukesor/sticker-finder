@@ -15,12 +15,12 @@ from stickerfinder.models import (
 @run_async
 @session_wrapper(check_ban=True, private=True)
 def report_set(bot, update, session, chat, user):
-    """Vote ban the set of the last sticker send to this chat."""
+    """Report the set of the last sticker send to this chat."""
     if chat.current_sticker:
         # Remove the /report command
         text = update.message.text.split(' ', 1)
         if len(text) == 1 or text[1].strip() == '':
-            return "Please add reason for your vote ban (/report offensive pic)"
+            return "Please add reason for your report (/report offensive pic)"
 
         reason = text[1].strip()
 
@@ -32,15 +32,15 @@ def report_set(bot, update, session, chat, user):
             .one_or_none()
 
         if exists:
-            return "You already voted to ban this sticker set."
+            return "You already reported this sticker set."
 
         report = Report(user, sticker_set, reason)
         session.add(report)
 
-        return f"You voted to ban StickerSet {sticker_set.title} because of {reason}."
+        return f"You reported this set {sticker_set.title} because of {reason}."
     else:
-        return """There has no sticker been posted in this chat yet.
-Please send the sticker first before you use "/report"."""
+        return """There is no sticker in this chat history yet.
+Please send the sticker first before you use /report."""
 
 
 @run_async

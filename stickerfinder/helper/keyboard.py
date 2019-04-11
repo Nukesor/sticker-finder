@@ -78,7 +78,7 @@ def get_nsfw_ban_keyboard(sticker_set):
 
 
 def get_report_keyboard(task):
-    """Get keyboard for the vote ban task."""
+    """Get keyboard for the report task."""
     ban_type = CallbackType['report_ban'].value
     nsfw_type = CallbackType['report_nsfw'].value
     furry_type = CallbackType['report_furry'].value

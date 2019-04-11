@@ -44,7 +44,7 @@ def handle_callback_query(bot, update, session, user):
     chat = session.query(Chat).get(query.message.chat.id)
     tg_chat = query.message.chat
 
-    # Handle user vote task (ban/nsfw)
+    # Handle user report stuff
     if CallbackType(callback_type).name == 'report_ban':
         handle_report_ban(session, action, query, payload, chat, tg_chat)
     elif CallbackType(callback_type).name == 'report_nsfw':

@@ -13,7 +13,7 @@ from stickerfinder.db import base
 
 
 class Report(base):
-    """The model for a vote ban."""
+    """The model for a report."""
 
     __tablename__ = 'report'
 

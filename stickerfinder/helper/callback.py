@@ -14,7 +14,6 @@ class CallbackType(Enum):
     check_user_tags = 3
     ban_set = 4
     nsfw_set = 5
-    task_vote_nsfw = 6
     fur_set = 7
     change_set_language = 8
 

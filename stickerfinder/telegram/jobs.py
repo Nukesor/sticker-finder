@@ -33,7 +33,7 @@ def maintenance_job(context, session):
     - Check for users to be checked
     """
     tasks = []
-    # Get all StickerSets with at least 5 vote bans and no existing Task
+    # Get all StickerSets with a report and no existing Task
     report_count = func.count(Report.id).label('report_count')
     report_candidates = session.query(StickerSet, report_count) \
         .join(StickerSet.reports) \

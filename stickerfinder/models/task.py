@@ -18,7 +18,7 @@ from stickerfinder.db import base
 
 
 class Task(base):
-    """The model for a vote ban."""
+    """The model for a task."""
 
     __tablename__ = 'task'
     __table_args__ = (
