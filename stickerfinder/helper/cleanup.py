@@ -1,5 +1,4 @@
 """Some functions to cleanup the database."""
-import logging
 from datetime import datetime, timedelta
 
 from stickerfinder.helper.corrections import ignored_characters
@@ -8,15 +7,23 @@ from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.models import (
     Tag,
     User,
+    InlineQuery,
 )
 
 
-def tag_cleanup(session, update, send_message=True):
+def full_cleanup(session, inline_query_threshold, update=None):
+    """Execute all cleanup functions."""
+    tag_cleanup(session, update=update)
+    user_cleanup(session, update=update)
+    inline_query_cleanup(session, update=update, threshold=inline_query_threshold)
+
+
+def tag_cleanup(session, update=None):
     """Do some cleanup tasks for tags."""
     from stickerfinder.helper import blacklist
     all_tags = session.query(Tag).all()
 
-    if send_message:
+    if update is not None:
         call_tg_func(update.message.chat, 'send_message', [f'Found {len(all_tags)} tags'])
 
     removed = 0
@@ -51,18 +58,18 @@ def tag_cleanup(session, update, send_message=True):
             else:
                 tag.name = new_name
 
-    if send_message:
+    if update is not None:
         call_tg_func(
             update.message.chat, 'send_message',
             [f'Tag cleanup finished. Removed {removed} tags. Corrected {corrected} tags.'],
             {'reply_markup': admin_keyboard})
 
 
-def user_cleanup(session, update, send_message=True):
+def user_cleanup(session, update):
     """Do some cleanup tasks for users."""
     all_users = session.query(User).all()
 
-    if send_message:
+    if update is not None:
         call_tg_func(update.message.chat, 'send_message', [f'Found {len(all_users)} users'])
 
     deleted = 0
@@ -78,21 +85,22 @@ def user_cleanup(session, update, send_message=True):
             deleted += 1
             session.delete(user)
 
-    if send_message:
+    if update is not None:
         call_tg_func(update.message.chat, 'send_message',
                      [f'User cleanup finished. {deleted} user deleted.'],
                      {'reply_markup': admin_keyboard})
 
 
-def inline_query_cleanup(session, update, send_message=True, threshold=None):
+def inline_query_cleanup(session, update, threshold=None):
     """Cleanup duplicated inlinei queries (slow users typing etc.)."""
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
 
-    logger = logging.getLogger()
-
     overall_deleted = 0
     all_users = session.query(User).all()
+
+    if update is not None:
+        call_tg_func(update.message.chat, 'send_message', ['Starting to clean inline queries.'])
 
     # Start deleting.
     # Since we might need to iterate over everything multiple times to catch all duplicates
@@ -100,11 +108,16 @@ def inline_query_cleanup(session, update, send_message=True, threshold=None):
     while True:
         deleted = 0
         for user in all_users:
-            for index, inline_query in enumerate(user.inline_queries):
+            inline_queries = session.query(InlineQuery) \
+                .filter(InlineQuery.user == user) \
+                .filter(InlineQuery.created_at >= threshold) \
+                .all()
+
+            for index, inline_query in enumerate(inline_queries):
                 if inline_query.sticker_file_id or inline_query.created_at < threshold:
                     continue
 
-                if len(user.inline_queries) <= index+1:
+                if len(inline_queries) <= index+1:
                     continue
 
                 next_inline_query = user.inline_queries[index+1]
@@ -121,5 +134,5 @@ def inline_query_cleanup(session, update, send_message=True, threshold=None):
         if deleted == 0:
             break
 
-    if send_message:
+    if update is not None:
         call_tg_func(update.message.chat, 'send_message', [f'Deleted {overall_deleted} inline queries.'])

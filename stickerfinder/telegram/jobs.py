@@ -1,10 +1,12 @@
 """Telegram job tasks."""
 from telegram.ext import run_async
 from sqlalchemy import func, and_
+from datetime import datetime, timedelta
 
 from stickerfinder.config import config
 from stickerfinder.helper.session import job_session_wrapper
 from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfeed_tasks
+from stickerfinder.helper.cleanup import full_cleanup
 from stickerfinder.models import (
     Change,
     StickerSet,
@@ -104,4 +106,14 @@ def scan_sticker_sets_job(context, session):
         session.commit()
 
     context.job.enabled = True
+    return
+
+
+@run_async
+@job_session_wrapper()
+def cleanup_job(context, session):
+    """Send all new sticker to the newsfeed chats."""
+    threshold = datetime.now() - timedelta(hours=3)
+    full_cleanup(session, threshold)
+
     return

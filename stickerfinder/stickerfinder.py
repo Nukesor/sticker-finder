@@ -43,6 +43,7 @@ from stickerfinder.telegram.commands import (
     show_sticker,
 )
 from stickerfinder.telegram.jobs import (
+    cleanup_job,
     newsfeed_job,
     maintenance_job,
     scan_sticker_sets_job,
@@ -136,11 +137,14 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('stats', stats))
 
     # Regular tasks
+    hour = 60*60
+    minute = 6
     job_queue = updater.job_queue
-    job_queue.run_repeating(newsfeed_job, interval=60*5, first=0, name='Process newsfeed')
-    job_queue.run_repeating(maintenance_job, interval=60*60*24, first=0, name='Create new maintenance tasks')
+    job_queue.run_repeating(newsfeed_job, interval=minute*5, first=0, name='Process newsfeed')
+    job_queue.run_repeating(maintenance_job, interval=hour*2, first=0, name='Create new maintenance tasks')
     job_queue.run_repeating(scan_sticker_sets_job, interval=10, first=0, name='Scan new sticker sets')
-    job_queue.run_repeating(distribute_tasks_job, interval=60, first=0, name='Distribute new tasks')
+    job_queue.run_repeating(distribute_tasks_job, interval=minute, first=0, name='Distribute new tasks')
+    job_queue.run_repeating(cleanup_job, interval=hour*2, first=0, name='Perform some database cleanup tasks')
 
     # Create private message handler
     dispatcher.add_handler(

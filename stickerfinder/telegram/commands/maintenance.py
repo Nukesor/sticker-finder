@@ -7,11 +7,7 @@ from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
-from stickerfinder.helper.cleanup import (
-    tag_cleanup,
-    user_cleanup,
-    inline_query_cleanup,
-)
+from stickerfinder.helper.cleanup import full_cleanup
 from stickerfinder.models import (
     StickerSet,
     Sticker,
@@ -181,10 +177,8 @@ def start_tasks(bot, update, session, chat, user):
 @session_wrapper(admin_only=True)
 def cleanup(bot, update, session, chat, user):
     """Triggering a one time conversion from text changes to tags."""
-    tag_cleanup(session, update)
-    user_cleanup(session, update)
     threshold = datetime.strptime('Jan 1 2000', '%b %d %Y')
-    inline_query_cleanup(session, update, threshold=threshold)
+    full_cleanup(session, threshold, update=update)
 
     call_tg_func(update.message.chat, 'send_message',
                  ['Cleanup finished.'], {'reply_markup': admin_keyboard})
