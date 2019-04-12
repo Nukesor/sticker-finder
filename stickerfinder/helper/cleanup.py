@@ -110,11 +110,13 @@ def inline_query_cleanup(session, update, threshold=None):
         for user in all_users:
             inline_queries = session.query(InlineQuery) \
                 .filter(InlineQuery.user == user) \
+                .filter(InlineQuery.sticker_file_id.is_(None)) \
                 .filter(InlineQuery.created_at >= threshold) \
+                .order_by(InlineQuery.created_at.asc()) \
                 .all()
 
             for index, inline_query in enumerate(inline_queries):
-                if inline_query.sticker_file_id or inline_query.created_at < threshold:
+                if len(inline_query.query.strip()) == 0:
                     continue
 
                 if len(inline_queries) <= index+1:
