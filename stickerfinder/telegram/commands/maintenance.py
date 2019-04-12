@@ -41,7 +41,7 @@ def stats(bot, update, session, chat, user):
 
     # Tags and emojis
     tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
-    emoji_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
+    emoji_count = session.query(Tag).filter(Tag.emoji.is_(True)).count()
 
     # Stickers and sticker/text sticker/tag ratio
     sticker_count = session.query(Sticker).count()
