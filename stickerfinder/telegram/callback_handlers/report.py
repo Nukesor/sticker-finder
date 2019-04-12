@@ -68,4 +68,3 @@ def handle_report_next(session, action, query, payload, chat, tg_chat):
         call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
     except: # noqa
         return
-
