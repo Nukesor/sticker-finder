@@ -59,4 +59,3 @@ def downgrade():
         (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE) OR \
         (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE)
     """)
-
