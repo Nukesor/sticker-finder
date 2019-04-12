@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 
 import os
 import sys
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
 # Set system path, so alembic is capable of finding the stickerfinder module
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
