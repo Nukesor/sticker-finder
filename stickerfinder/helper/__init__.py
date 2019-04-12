@@ -34,7 +34,8 @@ admin_help_text = """Commands available to admins:
 
 /delete\_set Completely delete a set
 /add\_set Add multiple sets at once by set\_name
-/show [file_id] Show the sticker for this file id
+/show\_sticker [file_id] Show the sticker for this file id
+/show\_id Show the fild_id of the sticker you replied to
 
 /toggle\_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
 

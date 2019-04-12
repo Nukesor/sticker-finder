@@ -100,6 +100,7 @@ def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=Fals
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .join(Sticker.sticker_set) \
         .filter(Sticker.banned.is_(False)) \
+        .filter(StickerSet.deleted.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
@@ -193,6 +194,7 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user):
         .join(Sticker.sticker_set) \
         .filter(Sticker.banned.is_(False)) \
         .filter(strict_subquery.c.file_id.is_(None)) \
+        .filter(StickerSet.deleted.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \

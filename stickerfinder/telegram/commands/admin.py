@@ -165,30 +165,3 @@ def test_broadcast(bot, update, session, chat, user):
     call_tg_func(bot, 'send_message',
                  [chat.id, message],
                  {'parse_mode': 'Markdown'})
-
-
-@run_async
-@session_wrapper(admin_only=True)
-def ban_sticker(bot, update, session, chat, user):
-    """Broadcast a message to all users."""
-    chat.current_sticker.banned = True
-    chat.current_sticker.tags = []
-
-    return 'Sticker banned.'
-
-
-@run_async
-@session_wrapper(admin_only=True)
-def unban_sticker(bot, update, session, chat, user):
-    """Broadcast a message to all users."""
-    chat.current_sticker.banned = True
-
-    return 'Sticker unbanned.'
-
-
-@run_async
-@session_wrapper(admin_only=True)
-def show_sticker(bot, update, session, chat, user):
-    """Broadcast a message to all users."""
-    file_id = update.message.text.split(' ', 1)[1].strip()
-    call_tg_func(update.message.chat, 'send_sticker', args=[file_id])

@@ -41,6 +41,7 @@ from stickerfinder.telegram.commands import (
     set_is_default_language,
     set_not_is_default_language,
     show_sticker,
+    show_sticker_file_id,
 )
 from stickerfinder.telegram.jobs import (
     cleanup_job,
@@ -127,7 +128,8 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('broadcast', broadcast))
     dispatcher.add_handler(CommandHandler('test_broadcast', test_broadcast))
     dispatcher.add_handler(CommandHandler('make_admin', make_admin))
-    dispatcher.add_handler(CommandHandler('show', show_sticker))
+    dispatcher.add_handler(CommandHandler('show_sticker', show_sticker))
+    dispatcher.add_handler(CommandHandler('show_id', show_sticker_file_id))
 
     # Maintenance Button commands
     dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
