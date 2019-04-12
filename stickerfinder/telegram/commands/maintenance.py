@@ -40,7 +40,11 @@ def stats(bot, update, session, chat, user):
     total_user_count = session.query(User).join(User.inline_queries).group_by(User).count()
 
     # Tags and emojis
-    tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
+    unique_tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
+    total_tag_count = session.query(sticker_tag.c.sticker_file_id) \
+        .join(Tag, sticker_tag.c.tag_name == Tag.name) \
+        .filter(Tag.emoji.is_(False)) \
+        .count()
     emoji_count = session.query(Tag).filter(Tag.emoji.is_(True)).count()
 
     # Stickers and sticker/text sticker/tag ratio
@@ -72,18 +76,22 @@ def stats(bot, update, session, chat, user):
     => last month: {month_user_count}
     => total: {total_user_count}
 
-Sticker sets: {sticker_set_count}
+Tags:
+    => total: {total_tag_count}
+    => unique: {unique_tag_count}
+    => emojis: {emoji_count}
+
+Stickers:
+    => total: {sticker_count}
+    => with tags: {tagged_sticker_count}
+    => with text: {text_sticker_count}
+
+Sticker sets:
+    => total: {sticker_set_count}
     => nsfw: {nsfw_set_count}
     => furry: {furry_set_count}
     => banned: {banned_set_count}
     => international: {not_english_set_count}
-
-Tags: {tag_count}
-    => emojis: {emoji_count}
-
-Stickers: {sticker_count}
-    => with tags: {tagged_sticker_count}
-    => with text: {text_sticker_count}
 
 Total queries : {total_queries_count}
     => last day: {last_day_queries_count}
