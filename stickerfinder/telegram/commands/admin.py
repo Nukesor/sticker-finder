@@ -3,7 +3,7 @@ import time
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 
-from stickerfinder.models import User, StickerSet, Chat, Sticker
+from stickerfinder.models import User, StickerSet, Chat
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import main_keyboard

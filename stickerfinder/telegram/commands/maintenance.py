@@ -39,7 +39,6 @@ def stats(bot, update, session, chat, user):
         .count()
     total_user_count = session.query(User).join(User.inline_queries).group_by(User).count()
 
-
     # Tags and emojis
     tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
     emoji_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()

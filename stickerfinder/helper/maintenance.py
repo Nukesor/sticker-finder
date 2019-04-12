@@ -123,9 +123,8 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         .limit(1) \
         .one_or_none()
 
-    chat.current_task = task
-
     if task is None:
+        chat.current_task = None
         # Don't send messages if we are calling this from a job.
         if job:
             return
@@ -135,6 +134,8 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
                      {'reply_markup': admin_keyboard})
 
         return
+
+    chat.current_task = task
 
     if task.type == Task.CHECK_USER_TAGS:
         changes = task.checking_changes
