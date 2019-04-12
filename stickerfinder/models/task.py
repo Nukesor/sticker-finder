@@ -1,15 +1,17 @@
 """The sqlite model for a task."""
 from uuid import uuid4
 from sqlalchemy import (
-    BigInteger,
-    Boolean,
     Column,
     func,
+    ForeignKey,
+    CheckConstraint,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    Boolean,
     DateTime,
     Integer,
     String,
-    ForeignKey,
-    CheckConstraint,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID

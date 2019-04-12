@@ -1,16 +1,18 @@
 """The sqlite model for a user."""
-from stickerfinder.db import base
-
 from sqlalchemy import (
-    BigInteger,
     Boolean,
     Column,
-    DateTime,
     func,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    DateTime,
     String,
 )
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
+
+from stickerfinder.db import base
 
 
 class User(base):

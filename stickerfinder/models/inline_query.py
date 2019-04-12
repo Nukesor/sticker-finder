@@ -1,12 +1,14 @@
 """The sqlite model for a inline search."""
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
-    BigInteger,
     Column,
-    DateTime,
     func,
-    String,
     ForeignKey,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    DateTime,
+    String,
 )
 
 from stickerfinder.db import base

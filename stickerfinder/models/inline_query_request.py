@@ -1,14 +1,16 @@
 """The sqlite model for a inline query request."""
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
-    BigInteger,
     Column,
-    DateTime,
-    Interval,
     func,
-    String,
     ForeignKey,
     UniqueConstraint,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    DateTime,
+    Interval,
+    String,
 )
 
 from stickerfinder.db import base

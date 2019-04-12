@@ -8,13 +8,15 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
 from telegram.error import BadRequest, TimedOut
 from sqlalchemy import (
+    CheckConstraint,
     Column,
-    String,
-    DateTime,
-    Boolean,
     func,
     Index,
-    CheckConstraint,
+)
+from sqlalchemy.types import (
+    Boolean,
+    DateTime,
+    String,
 )
 
 from stickerfinder.db import base

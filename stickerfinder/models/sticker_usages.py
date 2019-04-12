@@ -1,12 +1,14 @@
 """The sqlite model for a sticker."""
 from sqlalchemy import (
-    BigInteger,
-    Integer,
     Column,
-    DateTime,
     func,
-    String,
     ForeignKey,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    DateTime,
+    Integer,
+    String,
 )
 from sqlalchemy.orm import relationship
 

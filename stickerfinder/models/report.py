@@ -1,11 +1,13 @@
 """The sqlite model for a change."""
 from sqlalchemy import (
     Column,
+    ForeignKey,
     func,
+)
+from sqlalchemy.types import (
     DateTime,
     Integer,
     String,
-    ForeignKey,
 )
 from sqlalchemy.orm import relationship
 

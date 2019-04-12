@@ -1,14 +1,16 @@
 """The sqlite model for a sticker."""
 from sqlalchemy import (
     Column,
+    ForeignKey,
+    func,
+    Index,
+    Table,
+    UniqueConstraint,
+)
+from sqlalchemy.types import (
     Boolean,
     DateTime,
-    func,
     String,
-    Table,
-    ForeignKey,
-    Index,
-    UniqueConstraint,
 )
 from sqlalchemy.orm import relationship
 

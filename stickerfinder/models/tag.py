@@ -1,13 +1,14 @@
 """The sqlite model for a tag."""
 from sqlalchemy import (
-    Boolean,
     Column,
-    String,
-    DateTime,
     func,
     Index,
 )
-
+from sqlalchemy.types import (
+    Boolean,
+    DateTime,
+    String,
+)
 from sqlalchemy.orm import relationship
 
 from stickerfinder.db import base

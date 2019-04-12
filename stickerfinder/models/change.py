@@ -1,18 +1,36 @@
 """The sqlite model for a change."""
 from sqlalchemy.orm import relationship
 from sqlalchemy import (
+    Column,
+    func,
+    ForeignKey,
+    Table,
+)
+from sqlalchemy.types import (
     BigInteger,
     Boolean,
-    Column,
     DateTime,
-    func,
     Integer,
     String,
-    ForeignKey,
 )
 from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
+
+
+changed_tags = Table(
+    'changed_tags', base.metadata,
+    Column('change_id',
+           Integer,
+           ForeignKey('change.id', ondelete='cascade',
+                      onupdate='cascade', deferrable=True),
+           index=True),
+    Column('tag_name',
+           String,
+           ForeignKey('tag.name', ondelete='cascade',
+                      onupdate='cascade', deferrable=True),
+           index=True),
+)
 
 
 class Change(base):

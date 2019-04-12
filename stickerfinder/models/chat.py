@@ -1,15 +1,17 @@
 """The sqlite model for a chat."""
 import logging
 from sqlalchemy import (
-    Boolean,
     Column,
-    DateTime,
     func,
-    BigInteger,
-    String,
     Table,
     ForeignKey,
     UniqueConstraint,
+)
+from sqlalchemy.types import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    String,
 )
 from telegram.error import BadRequest
 from sqlalchemy.exc import IntegrityError
