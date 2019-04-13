@@ -54,7 +54,7 @@ class Task(base):
     chat = relationship('Chat', foreign_keys='Task.chat_id', back_populates='tasks')
     processing_chat = relationship('Chat', foreign_keys='Chat.current_task_id', back_populates='current_task')
     sticker_set = relationship('StickerSet')
-    checking_changes = relationship('Change', order_by="desc(Change.created_at)")
+    changes_to_check = relationship('Change', order_by="desc(Change.created_at)")
 
     def __init__(self, task_type, user=None, sticker_set=None, chat=None):
         """Create a new change."""

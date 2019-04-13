@@ -88,3 +88,13 @@ class Change(base):
 
         self.chat = chat
         self.message_id = message_id
+
+    def added_tags_as_text(self):
+        """Compile the added tags to a comma seperated string."""
+        names = [tag.name for tag in self.added_tags]
+        return ', '.join(names)
+
+    def removed_tags_as_text(self):
+        """Compile the added tags to a comma seperated string."""
+        names = [tag.name for tag in self.removed_tags]
+        return ', '.join(names)
