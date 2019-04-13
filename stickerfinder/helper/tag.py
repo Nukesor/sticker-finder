@@ -142,6 +142,9 @@ def get_tags_from_text(text, limit=15):
     # Deduplicate tags
     tags = list(OrderedDict.fromkeys(tags))
 
+    # Clean the tags from unwanted words
+    tags = [tag for tag in tags if tag not in blacklist]
+
     return tags[:limit]
 
 
@@ -158,21 +161,24 @@ def send_tagged_count_message(session, bot, user, chat):
 
 
 def tag_sticker(session, text, sticker, user, tg_chat,
-                chat=None, message_id=None, keep_old=False, single_sticker=False):
+                chat=None, message_id=None, replace=False, single_sticker=False):
     """Tag a single sticker."""
     text = text.lower()
     # Remove the /tag command
     if text.startswith('/tag'):
         text = text.split(' ')[1:]
 
-    incoming_tags = get_tags_from_text(text)
-    is_default_language = user.is_default_language and sticker.sticker_set.is_default_language
+    # Extract all texts from message and clean/filter them
+    raw_tags = get_tags_from_text(text)
+
+    # No tags, early return
+    if len(raw_tags) == 0:
+        return
 
     # Only use the first few tags. This should prevent abuse from tag spammers.
-    incoming_tags = incoming_tags[:15]
-    # Clean the tags from unwanted words
-    incoming_tags = [tag for tag in incoming_tags if tag not in blacklist]
+    raw_tags = raw_tags[:10]
 
+    # Inform us if the user managed to hit a special count of changes
     if len(user.changes) in reward_messages:
         reward = reward_messages[len(user.changes)]
         call_tg_func(tg_chat, 'send_message', [reward])
@@ -184,43 +190,50 @@ def tag_sticker(session, text, sticker, user, tg_chat,
                 'changes': len(user.changes),
             },
         )
-    if len(incoming_tags) > 0:
-        # Initialize the new tags array with the tags don't have the current language setting.
-        tags = [tag for tag in sticker.tags if tag.is_default_language is not is_default_language]
-        for incoming_tag in incoming_tags:
-            tag = session.query(Tag).get(incoming_tag)
-            if tag is None:
-                tag = Tag(incoming_tag, False, is_default_language)
 
-            if tag not in tags:
-                tags.append(tag)
-            session.add(tag)
+    existing_tags = [tag for tag in sticker.tags
+                     if tag.is_default_language is user.is_default_language or tag.emoji]
 
-        # Keep old sticker tags if they are emojis and not in the new tags set
-        for tag in sticker.tags:
-            if tag.name in sticker.original_emojis and tag not in tags:
-                tags.append(tag)
+    # List of tags that are newly added to this sticker
+    new_tags = []
+    # List of all new tags (raw_tags, but with resolved entities)
+    # We need this, if we want to replace all tags
+    incoming_tags = []
 
-        # Get the old tags for tracking
-        old_tags_as_text = sticker.tags_as_text(is_default_language)
+    # Initialize the new tags array with the tags don't have the current language setting.
+    for raw_tag in raw_tags:
+        incoming_tag = Tag.get_or_create(session, raw_tag, user.is_default_language, False)
+        incoming_tags.append(incoming_tag)
 
-        if keep_old:
-            for tag in tags:
-                if tag not in sticker.tags:
-                    sticker.tags.append(tag)
-        else:
-            # Remove replace old tags
-            sticker.tags = tags
+        # Add the tag to the list of new tags, if it doesn't exist on this sticker yet
+        if incoming_tag not in existing_tags:
+            new_tags.append(incoming_tag)
 
-        # Create a change for logging
-        if old_tags_as_text != sticker.tags_as_text(is_default_language):
-            change = Change(user, sticker, old_tags_as_text, is_default_language,
-                            chat=chat, message_id=message_id)
-            session.add(change)
+    # We got no new tags
+    if len(new_tags) == 0:
+        return
+
+    # List of removed tags. This is only used, if we actually replace the sticker's tags
+
+    removed_tags = []
+    # Remove replace old tags
+    if replace:
+        removed_tags = [tag for tag in sticker.tags if tag not in incoming_tags]
+        sticker.tags = incoming_tags
+    else:
+        for new_tag in new_tags:
+            sticker.tags.append(new_tag)
+
+    # Create a change for logging
+    change = Change(user, sticker, user.is_default_language,
+                    new_tags, removed_tags,
+                    chat=chat, message_id=message_id)
+    session.add(change)
 
     session.commit()
+
+    # Change the inline keyboard to allow fast fixing of the sticker's tags
     if not single_sticker and chat and chat.last_sticker_message_id:
-        # Change the inline keyboard to allow fast fixing of the sticker's tags
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
                      [tg_chat.id, chat.last_sticker_message_id],

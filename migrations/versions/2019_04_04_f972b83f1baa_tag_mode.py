@@ -15,7 +15,7 @@ from sqlalchemy.orm.session import Session
 parent_dir = os.path.abspath(os.path.join(os.getcwd()))
 sys.path.append(parent_dir)
 from stickerfinder.models import Chat # noqa
-from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.helper.tag_mode import TagMode # noqa
 
 # revision identifiers, used by Alembic.
 revision = 'f972b83f1baa'

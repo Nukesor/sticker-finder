@@ -25,7 +25,7 @@ class Tag(base):
     )
 
     name = Column(String, primary_key=True)
-    is_default_language = Column(Boolean, default=True, nullable=False)
+    is_default_language = Column(Boolean, default=True, nullable=False, primary_key=True)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -34,35 +34,26 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, emoji, is_default_language):
+    def __init__(self, name, is_default_language, emoji):
         """Create a new sticker."""
         self.name = name
-        self.emoji = emoji
         self.is_default_language = is_default_language
+        self.emoji = emoji
 
     @staticmethod
-    def get_or_create(session, name, emoji=False, is_default_language=True):
+    def get_or_create(session, name, is_default_language, emoji=False):
         """Get or create a new sticker."""
-        tag = session.query(Tag).get(name)
-        if not tag:
-            tag = Tag(name, emoji, is_default_language)
+        tag = session.query(Tag).get([name, is_default_language])
+
+        # If this is supposed to be an emoji, but it doesn't exist yet,
+        # check whether it somehow became an non default language tag.
+        # All emojis should be default language tags
+        if tag is None and emoji and not is_default_language:
+            tag = session.query(Tag).get([name, False])
+
+        if tag is None:
+            tag = Tag(name, is_default_language, emoji)
             session.add(tag)
             session.commit()
 
-        # Keep until db is updated
-        if emoji:
-            tag.emoji = emoji
-
         return tag
-
-    @staticmethod
-    def remove_unused_tags(session):
-        """Remove all currently unused tags."""
-        from stickerfinder.models import Sticker
-        tags = session.query(Tag) \
-            .outerjoin(Tag.stickers) \
-            .filter(Sticker.file_id.is_(None)) \
-            .all()
-
-        for tag in tags:
-            session.delete(tag)

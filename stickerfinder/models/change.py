@@ -4,6 +4,7 @@ from sqlalchemy import (
     Column,
     func,
     ForeignKey,
+    ForeignKeyConstraint,
     Table,
 )
 from sqlalchemy.types import (
@@ -18,18 +19,31 @@ from sqlalchemy.dialects.postgresql import UUID
 from stickerfinder.db import base
 
 
-changed_tags = Table(
-    'changed_tags', base.metadata,
+change_added_tags = Table(
+    'change_added_tags', base.metadata,
     Column('change_id',
            Integer,
            ForeignKey('change.id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
-    Column('tag_name',
-           String,
-           ForeignKey('tag.name', ondelete='cascade',
+    Column('tag_name', String, index=True),
+    Column('tag_is_default_language', Boolean),
+    ForeignKeyConstraint(['tag_name', 'tag_is_default_language'],
+                         ['tag.name', 'tag.is_default_language'],
+                         ondelete='cascade', onupdate='cascade', deferrable=True),
+)
+change_removed_tags = Table(
+    'change_removed_tags', base.metadata,
+    Column('change_id',
+           Integer,
+           ForeignKey('change.id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
+    Column('tag_name', String, index=True),
+    Column('tag_is_default_language', Boolean),
+    ForeignKeyConstraint(['tag_name', 'tag_is_default_language'],
+                         ['tag.name', 'tag.is_default_language'],
+                         ondelete='cascade', onupdate='cascade', deferrable=True),
 )
 
 
@@ -54,19 +68,23 @@ class Change(base):
                                             onupdate='cascade',
                                             ondelete='cascade'), index=True)
 
+    added_tags = relationship("Tag", secondary=change_added_tags)
+    removed_tags = relationship("Tag", secondary=change_removed_tags)
     chat = relationship("Chat")
     user = relationship("User")
     check_task = relationship("Task")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, old_tags, is_default_language,
+    def __init__(self, user, sticker, is_default_language,
+                 added_tags, removed_tags,
                  chat=None, message_id=None):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
         self.is_default_language = is_default_language
-        self.old_tags = old_tags
-        self.new_tags = sticker.tags_as_text(is_default_language)
+
+        self.added_tags = added_tags
+        self.removed_tags = removed_tags
 
         self.chat = chat
         self.message_id = message_id

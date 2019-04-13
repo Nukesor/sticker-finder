@@ -2,6 +2,7 @@
 from sqlalchemy import (
     Column,
     ForeignKey,
+    ForeignKeyConstraint,
     func,
     Index,
     Table,
@@ -24,11 +25,11 @@ sticker_tag = Table(
            ForeignKey('sticker.file_id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
-    Column('tag_name',
-           String,
-           ForeignKey('tag.name', ondelete='cascade',
-                      onupdate='cascade', deferrable=True),
-           index=True),
+    Column('tag_name', String, index=True),
+    Column('tag_is_default_language', Boolean),
+    ForeignKeyConstraint(['tag_name', 'tag_is_default_language'],
+                         ['tag.name', 'tag.is_default_language'],
+                         ondelete='cascade', onupdate='cascade', deferrable=True),
     UniqueConstraint('sticker_file_id', 'tag_name'),
     Index('sticker_tag_tag_name_idx', 'tag_name',
           postgresql_using='gin', postgresql_ops={'tag_name': 'gin_trgm_ops'}),
@@ -89,11 +90,10 @@ class Sticker(base):
 
         return None
 
-    def add_emojis(self, session, emojis):
+    def add_emojis(self, session, raw_emojis):
         """Add tags for every emoji in the incoming string."""
         from stickerfinder.models import Tag
-        self.original_emojis = emojis
-        for emoji in emojis:
-            tag = Tag.get_or_create(session, emoji, emoji=True, is_default_language=True)
-            if tag not in self.tags:
-                self.tags.append(tag)
+        for raw_emoji in raw_emojis:
+            emoji = Tag.get_or_create(session, raw_emoji, True, True)
+            if emoji not in self.tags:
+                self.tags.append(emoji)
