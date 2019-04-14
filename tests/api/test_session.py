@@ -1,17 +1,19 @@
-"""Module tests."""
+"""Test the session test setup."""
 from stickerfinder.models import User
+from tests.factories import user_factory
 
 
 def test_correct_session_handling(session, user):
     """User is created correctly."""
     assert user.username == 'testuser'
 
-    second_user = User(5, 'testuser2')
-    session.add(second_user)
-    session.commit()
+    second_user = user_factory(session, 5, 'testuser2')
 
-    first_user = session.query(User).get(1)
+    first_user = session.query(User).get(2)
     assert first_user is not None
+
+    second_user = session.query(User).get(5)
+    assert second_user is not None
 
     session.delete(first_user)
     session.commit()
