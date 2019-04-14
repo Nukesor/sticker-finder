@@ -10,6 +10,6 @@ if not database_exists(db_url):
     create_database(db_url)
 
     with engine.connect() as con:
-        con.execute('CREATE EXTENSION pg_trgm;')
+        con.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm;')
 
     base.metadata.create_all()

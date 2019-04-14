@@ -71,12 +71,12 @@ These stickers can only be found, when changing your mode to /international. You
 
 *How to tag:*
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. `obi wan star wars hello there`
-If there already are tags on a sticker, you'll overwrite all existing tags.
+If there already are tags on a sticker, you'll add new tags to the existing ones, unless you use the `/replace [tags]` command.
 When you're in the English mode, *PLEASE* only tag in English. If you want to tag in another language, please use the international mode.
 
 *Tagging a single sticker:*
-/tag allows to tag the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
-Anyway you can also tag any other sticker by just replying to it with `/tag ...`.
+/tag [tags] allows to tag the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
+Anyway you can also tag any other sticker by just replying to it with `/tag [tags]`.
 This is great for ad hoc tagging of single stickers in group chats, but the bot needs to be in the chat for this to work.
 
 *Want to help?*

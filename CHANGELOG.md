@@ -1,8 +1,14 @@
-v1.0.1
+v1.1.0
+
+
+**Features**
+- Tags will now be added to the existing tags, instead of replacing the old ones.
+- Replacing tags can be done by using `/replace [tags]`
 
 
 **Admin/Maintenance additions**
 - /test\_broadcast function to preview a broadcast text.
+- I ADDED TESTS :3
 
 
 #v1.0.0

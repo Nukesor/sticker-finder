@@ -45,7 +45,8 @@ class Task(base):
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
     chat_id = Column(BigInteger, ForeignKey('chat.id',
                                             onupdate='cascade',
-                                            ondelete='cascade'), index=True)
+                                            ondelete='cascade',
+                                            name='task_chat_id_fkey'), index=True)
     sticker_set_name = Column(String, ForeignKey('sticker_set.name',
                                                  onupdate='cascade',
                                                  ondelete='cascade'), index=True)

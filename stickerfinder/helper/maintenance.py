@@ -256,4 +256,3 @@ def undo_user_changes_revert(session, user):
     user.reverted = False
 
     session.commit()
-
