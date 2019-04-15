@@ -56,6 +56,15 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
             except BaseException:
                 traceback.print_exc()
                 sentry.captureException()
+            # A user banned the bot Just ignore this.
+            # This probably happens due to sending a message during maintenance work
+            except Unauthorized:
+                pass
+
+            # Raise all telegram errors and let the generic error_callback handle it
+            except TelegramError as e:
+                raise e
+
             finally:
                 session.close()
         return wrapper
@@ -102,6 +111,10 @@ def session_wrapper(send_message=True, check_ban=False,
             # A group chat has been converted to a super group.
             except ChatMigrated:
                 session.delete(chat)
+
+            # Raise all telegram errors and let the generic error_callback handle it
+            except TelegramError as e:
+                raise e
 
             except BaseException:
                 traceback.print_exc()
