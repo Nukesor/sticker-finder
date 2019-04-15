@@ -187,7 +187,8 @@ def change_language_of_task_changes(session, task):
         for change in changes:
             # Change the language of the added tags.
             for tag in change.added_tags:
-                tag.is_default_language = not task.is_default_language
+                if not tag.emoji:
+                    tag.is_default_language = not task.is_default_language
 
             # Change the language for the change
             change.is_default_language = not task.is_default_language
