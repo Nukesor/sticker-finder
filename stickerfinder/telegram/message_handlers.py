@@ -29,7 +29,7 @@ def handle_private_text(bot, update, session, chat, user):
             update.message.text,
             chat.current_sticker,
             user,
-            update.message.chat,
+            tg_chat=update.message.chat,
             chat=chat,
             message_id=update.message.message_id)
 
@@ -42,7 +42,7 @@ def handle_private_text(bot, update, session, chat, user):
             update.message.text,
             chat.current_sticker,
             user,
-            update.message.chat,
+            tg_chat=update.message.chat,
             chat=chat,
             message_id=update.message.message_id)
 
@@ -154,7 +154,7 @@ def handle_edited_messages(bot, update, session, chat, user):
         message.text,
         change.sticker,
         user,
-        message.chat,
+        tg_chat=message.chat,
         chat=chat,
         message_id=message.message_id,
         single_sticker=True,
