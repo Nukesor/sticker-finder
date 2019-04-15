@@ -160,8 +160,10 @@ def send_tagged_count_message(session, bot, user, chat):
                      {'reply_markup': main_keyboard})
 
 
-def tag_sticker(session, text, sticker, user, tg_chat,
-                chat=None, message_id=None, replace=False, single_sticker=False):
+def tag_sticker(session, text, sticker, user,
+                tg_chat=None,
+                chat=None, message_id=None,
+                replace=False, single_sticker=False):
     """Tag a single sticker."""
     text = text.lower()
     # Remove the /tag command
@@ -179,7 +181,7 @@ def tag_sticker(session, text, sticker, user, tg_chat,
     raw_tags = raw_tags[:10]
 
     # Inform us if the user managed to hit a special count of changes
-    if len(user.changes) in reward_messages:
+    if tg_chat and len(user.changes) in reward_messages:
         reward = reward_messages[len(user.changes)]
         call_tg_func(tg_chat, 'send_message', [reward])
 
@@ -233,7 +235,7 @@ def tag_sticker(session, text, sticker, user, tg_chat,
     session.commit()
 
     # Change the inline keyboard to allow fast fixing of the sticker's tags
-    if not single_sticker and chat and chat.last_sticker_message_id:
+    if tg_chat and chat and not single_sticker and chat.last_sticker_message_id:
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
         call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
                      [tg_chat.id, chat.last_sticker_message_id],

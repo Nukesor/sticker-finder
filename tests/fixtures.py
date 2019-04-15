@@ -2,7 +2,8 @@
 import pytest
 from tests.factories import user_factory
 
-from stickerfinder.models import StickerSet, Sticker, Tag, Change
+from stickerfinder.helper.tag import tag_sticker
+from stickerfinder.models import StickerSet, Sticker
 
 
 @pytest.fixture(scope='function')
@@ -41,10 +42,4 @@ def tags(session, sticker_set, user):
     """Create tags for all stickers."""
     for sticker in sticker_set.stickers:
         # Create a new tag for each sticker
-        new_tag_1 = Tag(f'Tag1_{sticker.file_id}', True, False)
-        session.add(new_tag_1)
-        sticker.tags.append(new_tag_1)
-
-        # Create change
-        change = Change(user, sticker, True, [new_tag_1], [])
-        session.add(change)
+        tag_sticker(session, f'tag_{sticker.file_id}', sticker, user)
