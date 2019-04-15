@@ -139,7 +139,7 @@ def get_tags_from_text(text, limit=15):
 
     # Remove telegram links accidentally added by selecting a set in a set-search mode while tagging.
     tags = [tag for tag in tags if 'telegramme' not in tag]
-    # Remove tags accidentally added while using an inline bot
+    # Remove tags accidentally added while using an inline bots
     if len(tags) > 0 and original_text.startswith('@') and 'bot' in tags[0]:
         tags.pop(0)
 

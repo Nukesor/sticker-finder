@@ -40,16 +40,8 @@ def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
 
     # Change the language of all changes of this task.
     elif CallbackResult(action).name == 'change_language':
-        is_default_language = task.is_default_language
         change_language_of_task_changes(session, task)
         call_tg_func(query, 'answer', ['Language changed'])
-
-        first = 'international' if is_default_language else 'english'
-        second = 'english' if is_default_language else 'international'
-        command = '/international' if is_default_language else '/english'
-        message = f'It appears you have recently tagged stickers in {first}, while being in {second} mode. '
-        message += f'Please use {command} beforehand next time. The tags have been corrected.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
 
     elif CallbackResult(action).name == 'ok':
         if not task.reviewed:
