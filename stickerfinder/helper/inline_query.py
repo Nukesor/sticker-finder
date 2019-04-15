@@ -153,13 +153,20 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user):
     # Union all fuzzy matched tags
     if len(matching_tags) > 1:
         matching_tags = matching_tags[0].union(*matching_tags[1:])
+        matching_tags = matching_tags.subquery('matching_tags')
+
+        # Due to using a union, we need to use another column name as below
+        tag_name_column = matching_tags.c.sticker_tag_tag_name.label('tag_name')
     else:
         matching_tags = matching_tags[0]
-    matching_tags = matching_tags.subquery('matching_tags')
+        matching_tags = matching_tags.subquery('matching_tags')
+
+        # Normal single tag search column
+        tag_name_column = matching_tags.c.tag_name.label('tag_name')
 
     # Group all matching tags to get the max score of the best matching searched tag.
-    fuzzy_subquery = session.query(matching_tags.c.tag_name, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
-        .group_by(matching_tags.c.tag_name) \
+    fuzzy_subquery = session.query(tag_name_column, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
+        .group_by(tag_name_column) \
         .subquery()
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
