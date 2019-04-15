@@ -17,8 +17,9 @@ def error_callback(update, context):
     except (TimedOut, NetworkError):
         pass
     except BadRequest as e:
-        # An update for a reply keyboard has failed (Probably due to button spam)
-        if str(e) == 'Message is not modified': # noqa
+        # An update for a reply keyboard has failed
+        # (probably due to button spam since the message already has been updated)
+        if 'Message is not modified' in str(e): # noqa
             return
         # It took to long to send the inline query response.
         # Probably due to slow network on client side.
