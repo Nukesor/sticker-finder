@@ -3,6 +3,7 @@ from sqlalchemy import distinct
 from telegram.ext import run_async
 from datetime import datetime, timedelta
 
+from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.keyboard import admin_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
@@ -120,7 +121,7 @@ def refresh_sticker_sets(bot, update, session, chat, user):
 
     count = 0
     for sticker_set in sticker_sets:
-        sticker_set.refresh_stickers(session, bot)
+        refresh_stickers(session, sticker_set, bot)
         count += 1
         if count % 1000 == 0:
             progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
@@ -140,7 +141,7 @@ def refresh_ocr(bot, update, session, chat, user):
 
     count = 0
     for sticker_set in sticker_sets:
-        sticker_set.refresh_stickers(session, bot, refresh_ocr=True)
+        refresh_stickers(session, sticker_set, bot, refresh_ocr=True)
         count += 1
         if count % 200 == 0:
             progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'

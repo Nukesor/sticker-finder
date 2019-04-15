@@ -28,7 +28,6 @@ def sticker_set(session, admin):
 
     for file_id in range(0, 10):
         sticker = Sticker(str(file_id))
-        sticker.original_emojis = ''
         session.add(sticker)
         sticker_set.stickers.append(sticker)
 

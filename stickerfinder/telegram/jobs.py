@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from stickerfinder.config import config
 from stickerfinder.helper.session import job_session_wrapper
+from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfeed_tasks
 from stickerfinder.helper.cleanup import full_cleanup
 from stickerfinder.models import (
@@ -102,7 +103,7 @@ def scan_sticker_sets_job(context, session):
 
     # Send the first sticker of each new set to all newsfeed channels
     for task in tasks:
-        task.sticker_set.refresh_stickers(session, context.bot, chat=task.chat)
+        refresh_stickers(session, task.sticker_set, context.bot, chat=task.chat)
         session.commit()
 
     context.job.enabled = True

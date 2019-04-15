@@ -4,6 +4,7 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
+from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag_mode import TagMode
@@ -82,7 +83,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         if sticker is None:
             call_tg_func(update.message.chat, 'send_message',
                          args=[f"I don't know this specific sticker yet. I'll just trigger a rescan of this set. Please wait a minute and try again."])
-            sticker_set.refresh_stickers(session, bot)
+            refresh_stickers(session, sticker_set, bot)
             return
 
         chat.current_sticker = sticker

@@ -225,6 +225,9 @@ def tag_sticker(session, text, sticker, user,
     removed_tags = []
     # Remove replace old tags
     if replace:
+        # Merge the original emojis, since they should always be present on a sticker
+        incoming_tags = incoming_tags + sticker.original_emojis
+        # Find out, which stickers have been removed
         removed_tags = [tag for tag in sticker.tags if tag not in incoming_tags]
         sticker.tags = incoming_tags
     else:
@@ -245,3 +248,15 @@ def tag_sticker(session, text, sticker, user,
         call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
                      [tg_chat.id, chat.last_sticker_message_id],
                      {'reply_markup': keyboard})
+
+
+def add_original_emojis(session, sticker, raw_emojis):
+    """Add the original emojis to the sticker's tags and to the original_emoji relationship."""
+    for raw_emoji in raw_emojis:
+        emoji = Tag.get_or_create(session, raw_emoji, True, True)
+
+        if emoji not in sticker.tags:
+            sticker.tags.append(emoji)
+
+        if emoji not in sticker.original_emojis:
+            sticker.original_emojis.append(emoji)

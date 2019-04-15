@@ -36,6 +36,23 @@ sticker_tag = Table(
 )
 
 
+sticker_original_emoji = Table(
+    'sticker_original_emojis', base.metadata,
+    Column('sticker_file_id',
+           String,
+           ForeignKey('sticker.file_id', ondelete='cascade',
+                      onupdate='cascade', deferrable=True,
+                      name='sticker_original_emojis_sticker_file_id_fkey'),
+               index=True),
+    Column('emoji', String,
+           ForeignKey('tag.name', ondelete='cascade',
+                      onupdate='cascade', deferrable=True,
+                      name='sticker_original_emojis_tag_name_fkey'),
+           index=True),
+    UniqueConstraint('sticker_file_id', 'emoji')
+)
+
+
 class Sticker(base):
     """The model for a sticker."""
 
@@ -48,7 +65,6 @@ class Sticker(base):
     file_id = Column(String, primary_key=True)
     text = Column(String)
     banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
-    original_emojis = Column(String, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
 
@@ -62,6 +78,7 @@ class Sticker(base):
         "Tag",
         secondary=sticker_tag,
         back_populates="stickers")
+    original_emojis = relationship("Tag", secondary=sticker_original_emoji)
 
     def __init__(self, file_id):
         """Create a new sticker."""
@@ -89,12 +106,3 @@ class Sticker(base):
                 return change
 
         return None
-
-    def add_emojis(self, session, raw_emojis):
-        """Add tags for every emoji in the incoming string."""
-        from stickerfinder.models import Tag
-        self.original_emojis = raw_emojis
-        for raw_emoji in raw_emojis:
-            emoji = Tag.get_or_create(session, raw_emoji, True, True)
-            if emoji not in self.tags:
-                self.tags.append(emoji)
