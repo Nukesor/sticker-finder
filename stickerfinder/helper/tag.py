@@ -194,11 +194,6 @@ def tag_sticker(session, text, sticker, user,
             },
         )
 
-    existing_tags = [tag for tag in sticker.tags
-                     if tag.is_default_language is user.is_default_language
-                     or tag.is_default_language
-                     or tag.emoji]
-
     # List of tags that are newly added to this sticker
     new_tags = []
     # List of all new tags (raw_tags, but with resolved entities)
@@ -211,11 +206,12 @@ def tag_sticker(session, text, sticker, user,
         incoming_tags.append(incoming_tag)
 
         # Add the tag to the list of new tags, if it doesn't exist on this sticker yet
-        if incoming_tag not in existing_tags:
+        if incoming_tag not in sticker.tags:
             new_tags.append(incoming_tag)
 
     # We got no new tags
     if len(new_tags) == 0:
+        session.commit()
         return
 
     # List of removed tags. This is only used, if we actually replace the sticker's tags

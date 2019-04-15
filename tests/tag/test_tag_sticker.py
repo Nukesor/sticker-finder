@@ -1,6 +1,8 @@
 """Test the session test setup."""
-from stickerfinder.helper.tag import tag_sticker
 from tests.helper import assert_sticker_contains_tags
+
+from stickerfinder.models import Tag
+from stickerfinder.helper.tag import tag_sticker
 
 
 def test_add_tags(session, user, sticker_set):
@@ -46,18 +48,22 @@ def test_replace_sticker_tags(session, user, sticker_set, tags):
     assert len(user.changes) == len(sticker_set.stickers) * 2
 
 
-def test_add_duplicate_sticker_tags_in_other_language(session, user, sticker_set, tags):
+def test_add_duplicate_sticker_tags_in_other_language(session, user, sticker_set):
     """Test replacing tags of a sticker."""
+    # User should tag in not default language first
     user.is_default_language = False
-    for sticker in sticker_set.stickers:
-        # Replace the existing tag
-        tag_sticker(session, f'tag_{sticker.file_id}', sticker, user, replace=True)
+    sticker = sticker_set.stickers[0]
+    # Add international tag
+    tag_sticker(session, 'language_test_tag', sticker, user, replace=True)
 
     session.commit()
 
-    # Ensure the tag has been replaced
-    for sticker in sticker_set.stickers:
-        assert len(sticker.tags) == 1
-        assert sticker.tags[0].name == f'tag_{sticker.file_id}'
+    tag = session.query(Tag).get('language_test_tag')
+    assert not tag.is_default_language
 
-    assert len(user.changes) == len(sticker_set.stickers)
+    # Add same tag to sticker, but this time in default language
+    user.is_default_language = True
+    tag_sticker(session, 'language_test_tag', sticker, user, replace=True)
+
+    assert tag.is_default_language
+    assert len(user.changes) == 1

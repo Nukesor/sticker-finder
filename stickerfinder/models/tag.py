@@ -46,10 +46,14 @@ class Tag(base):
         tag = session.query(Tag).get(name)
 
         # Make a tag an emoji, if somebody added it as a normal tag before
-        if emoji:
+        if tag and emoji:
             tag.emoji = True
             if tag.is_default_language is False:
                 tag.is_default_language = True
+
+        # If somebody tagged didn't tag in default language, but the thag should be, fix it.
+        if tag and is_default_language and not tag.is_default_language:
+            tag.is_default_language = True
 
         if tag is None:
             tag = Tag(name, is_default_language, emoji)
