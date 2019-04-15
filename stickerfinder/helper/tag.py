@@ -195,7 +195,9 @@ def tag_sticker(session, text, sticker, user,
         )
 
     existing_tags = [tag for tag in sticker.tags
-                     if tag.is_default_language is user.is_default_language or tag.emoji]
+                     if tag.is_default_language is user.is_default_language
+                     or tag.is_default_language
+                     or tag.emoji]
 
     # List of tags that are newly added to this sticker
     new_tags = []

@@ -25,7 +25,7 @@ class Tag(base):
     )
 
     name = Column(String, primary_key=True)
-    is_default_language = Column(Boolean, default=True, nullable=False, primary_key=True)
+    is_default_language = Column(Boolean, default=True, nullable=False)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -43,13 +43,13 @@ class Tag(base):
     @staticmethod
     def get_or_create(session, name, is_default_language, emoji=False):
         """Get or create a new sticker."""
-        tag = session.query(Tag).get([name, is_default_language])
+        tag = session.query(Tag).get(name)
 
-        # If this is supposed to be an emoji, but it doesn't exist yet,
-        # check whether it somehow became an non default language tag.
-        # All emojis should be default language tags
-        if tag is None and emoji and not is_default_language:
-            tag = session.query(Tag).get([name, False])
+        # Make a tag an emoji, if somebody added it as a normal tag before
+        if emoji:
+            tag.emoji = True
+            if tag.is_default_language is False:
+                tag.is_default_language = True
 
         if tag is None:
             tag = Tag(name, is_default_language, emoji)

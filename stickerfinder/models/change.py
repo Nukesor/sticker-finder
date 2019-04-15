@@ -26,11 +26,12 @@ change_added_tags = Table(
            ForeignKey('change.id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
-    Column('tag_name', String, index=True),
+    Column('tag_name', String,
+           ForeignKey('tag.name', ondelete='cascade',
+                      onupdate='cascade', deferrable=True,
+                      name='change_added_tags_tag_name_fkey'),
+           index=True),
     Column('tag_is_default_language', Boolean),
-    ForeignKeyConstraint(['tag_name', 'tag_is_default_language'],
-                         ['tag.name', 'tag.is_default_language'],
-                         ondelete='cascade', onupdate='cascade', deferrable=True),
 )
 change_removed_tags = Table(
     'change_removed_tags', base.metadata,
@@ -39,11 +40,12 @@ change_removed_tags = Table(
            ForeignKey('change.id', ondelete='cascade',
                       onupdate='cascade', deferrable=True),
            index=True),
-    Column('tag_name', String, index=True),
+    Column('tag_name', String,
+           ForeignKey('tag.name', ondelete='cascade',
+                      onupdate='cascade', deferrable=True,
+                      name='change_removed_tags_tag_name_fkey'),
+           index=True),
     Column('tag_is_default_language', Boolean),
-    ForeignKeyConstraint(['tag_name', 'tag_is_default_language'],
-                         ['tag.name', 'tag.is_default_language'],
-                         ondelete='cascade', onupdate='cascade', deferrable=True),
 )
 
 

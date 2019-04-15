@@ -6,6 +6,7 @@ from stickerfinder.models import (
     StickerSet,
     StickerUsage,
     sticker_tag,
+    Tag,
 )
 
 
@@ -65,8 +66,9 @@ def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=Fals
     """Get the query for strict tag matching."""
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
-        .filter(or_(sticker_tag.c.tag_is_default_language == user.is_default_language,
-                    sticker_tag.c.tag_is_default_language.is_(True))) \
+        .join(Tag, sticker_tag.c.tag_name == Tag.name) \
+        .filter(or_(Tag.is_default_language == user.is_default_language,
+                    Tag.is_default_language.is_(True))) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -138,11 +140,14 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user):
     # Create a query for each tag, which fuzzy matches all tags and computes the distance
     matching_tags = []
     for tag in tags:
-        tag_query = session.query(sticker_tag.c.tag_name,
-                                  func.similarity(sticker_tag.c.tag_name, tag).label('tag_similarity')) \
+        tag_query = session.query(
+            sticker_tag.c.tag_name,
+            func.similarity(sticker_tag.c.tag_name, tag).label('tag_similarity')
+        ) \
+            .join(Tag, sticker_tag.c.tag_name == Tag.name) \
             .filter(func.similarity(sticker_tag.c.tag_name, tag) >= threshold) \
-            .filter(or_(sticker_tag.c.tag_is_default_language == user.is_default_language,
-                        sticker_tag.c.tag_is_default_language.is_(True)))
+            .filter(or_(Tag.is_default_language == user.is_default_language,
+                        Tag.is_default_language.is_(True)))
         matching_tags.append(tag_query)
 
     # Union all fuzzy matched tags

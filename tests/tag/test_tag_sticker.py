@@ -44,3 +44,20 @@ def test_replace_sticker_tags(session, user, sticker_set, tags):
         assert sticker.tags[0].name == f'new_tag_{sticker.file_id}'
 
     assert len(user.changes) == len(sticker_set.stickers) * 2
+
+
+def test_add_duplicate_sticker_tags_in_other_language(session, user, sticker_set, tags):
+    """Test replacing tags of a sticker."""
+    user.is_default_language = False
+    for sticker in sticker_set.stickers:
+        # Replace the existing tag
+        tag_sticker(session, f'tag_{sticker.file_id}', sticker, user, replace=True)
+
+    session.commit()
+
+    # Ensure the tag has been replaced
+    for sticker in sticker_set.stickers:
+        assert len(sticker.tags) == 1
+        assert sticker.tags[0].name == f'tag_{sticker.file_id}'
+
+    assert len(user.changes) == len(sticker_set.stickers)

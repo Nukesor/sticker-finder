@@ -36,7 +36,8 @@ def upgrade():
         sa.ForeignKeyConstraint(
             ['tag_name', 'tag_is_default_language'],
             ['tag.name', 'tag.is_default_language'],
-            onupdate='cascade', ondelete='cascade', deferrable=True)
+            onupdate='cascade', ondelete='cascade', deferrable=True,
+        )
     )
     op.create_index(op.f('ix_change_added_tags_change_id'), 'change_added_tags', ['change_id'], unique=False)
     op.create_index(op.f('ix_change_added_tags_tag_name'), 'change_added_tags', ['tag_name'], unique=False)
