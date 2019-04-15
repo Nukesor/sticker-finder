@@ -4,7 +4,7 @@ from telegram.error import (
     BadRequest,
     NetworkError,
     TimedOut,
-    TelegramError,
+    Unauthorized,
 )
 
 from stickerfinder.sentry import sentry
@@ -28,7 +28,11 @@ def error_callback(update, context):
 
         traceback.print_exc()
         sentry.captureException()
+    # A user banned the bot Just ignore this.
+    # This probably happens due to sending a message during maintenance work
+    except Unauthorized:
+        pass
 
-    except TelegramError:
+    except BaseException:
         traceback.print_exc()
         sentry.captureException()

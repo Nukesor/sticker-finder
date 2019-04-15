@@ -26,11 +26,6 @@ def job_session_wrapper(check_ban=False, admin_only=False):
                 func(context, session)
 
                 session.commit()
-            except TelegramError as e:
-                raise e
-            except BaseException:
-                traceback.print_exc()
-                sentry.captureException()
             finally:
                 session.close()
         return wrapper
@@ -53,18 +48,7 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
                 func(context.bot, update, session, user)
 
                 session.commit()
-            except BaseException:
-                traceback.print_exc()
-                sentry.captureException()
-            # A user banned the bot Just ignore this.
-            # This probably happens due to sending a message during maintenance work
-            except Unauthorized:
-                pass
-
             # Raise all telegram errors and let the generic error_callback handle it
-            except TelegramError as e:
-                raise e
-
             finally:
                 session.close()
         return wrapper
@@ -116,13 +100,12 @@ def session_wrapper(send_message=True, check_ban=False,
             except TelegramError as e:
                 raise e
 
-            except BaseException:
-                traceback.print_exc()
-                sentry.captureException()
+            except BaseException as e:
                 if send_message:
                     session.close()
                     call_tg_func(message.chat, 'send_message',
                                  args=[error_text])
+                raise e
             finally:
                 session.close()
 
