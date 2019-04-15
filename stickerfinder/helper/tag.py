@@ -135,6 +135,7 @@ def get_tags_from_text(text, limit=15):
 
     # Split and strip
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+    tags = [tag for tag in tags if 'telegramme' not in tag]
 
     # Remove hashtags
     tags = [tag[1:] if tag.startswith('#') else tag for tag in tags]
