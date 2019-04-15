@@ -40,9 +40,16 @@ def stats(bot, update, session, chat, user):
     total_user_count = session.query(User).join(User.inline_queries).group_by(User).count()
 
     # Tags and emojis
-    unique_tag_count = session.query(Tag).filter(Tag.emoji.is_(False)).count()
     total_tag_count = session.query(sticker_tag.c.sticker_file_id) \
         .join(Tag, sticker_tag.c.tag_name == Tag.name) \
+        .filter(Tag.emoji.is_(False)) \
+        .count()
+    english_tag_count = session.query(Tag) \
+        .filter(Tag.is_default_language.is_(True)) \
+        .filter(Tag.emoji.is_(False)) \
+        .count()
+    international_tag_count = session.query(Tag) \
+        .filter(Tag.is_default_language.is_(False)) \
         .filter(Tag.emoji.is_(False)) \
         .count()
     emoji_count = session.query(Tag).filter(Tag.emoji.is_(True)).count()
@@ -78,7 +85,8 @@ def stats(bot, update, session, chat, user):
 
 Tags:
     => total: {total_tag_count}
-    => unique: {unique_tag_count}
+    => english: {english_tag_count}
+    => international: {international_tag_count}
     => emojis: {emoji_count}
 
 Stickers:
