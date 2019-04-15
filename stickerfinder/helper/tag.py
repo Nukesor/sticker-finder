@@ -127,6 +127,7 @@ def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
 
 def get_tags_from_text(text, limit=15):
     """Extract and clean tags from incoming string."""
+    original_text = text
     text = text.lower().strip()
 
     # Clean the text
@@ -135,7 +136,12 @@ def get_tags_from_text(text, limit=15):
 
     # Split and strip
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+
+    # Remove telegram links accidentally added by selecting a set in a set-search mode while tagging.
     tags = [tag for tag in tags if 'telegramme' not in tag]
+    # Remove tags accidentally added while using an inline bot
+    if len(tags) > 0 and original_text.startswith('@') and 'bot' in tags[0]:
+        tags.pop(0)
 
     # Remove hashtags
     tags = [tag[1:] if tag.startswith('#') else tag for tag in tags]

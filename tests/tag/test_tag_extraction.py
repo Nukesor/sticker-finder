@@ -7,3 +7,10 @@ def test_ignore_telegramme_links():
     tag_text = 'https://telegram.me/addstickers/cheloidesmemestash3'
 
     assert len(get_tags_from_text(tag_text)) == 0
+
+
+def test_ignore_bot_tags():
+    """Ignore accidentally tagging with pack link, when choosing a telegram sticker pack from search."""
+    tag_text = '@stfi_bot'
+
+    assert len(get_tags_from_text(tag_text)) == 0
