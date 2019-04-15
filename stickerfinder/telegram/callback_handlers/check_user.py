@@ -22,8 +22,6 @@ def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
     if CallbackResult(action).name == 'ban':
         task.user.banned = True
         call_tg_func(query, 'answer', ['User banned'])
-        message = f'Your tagging activity seemed malicious. You have been banned.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
     elif CallbackResult(action).name == 'unban':
         task.user.banned = False
         call_tg_func(query, 'answer', ['User ban reverted'])
@@ -34,14 +32,10 @@ def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
     elif CallbackResult(action).name == 'revert':
         task.reverted = True
         revert_user_changes(session, task.user)
-        message = f'Your tagging activity seemed malicious. All of your tags have been reverted.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
         call_tg_func(query, 'answer', ['All user changes reverted'])
     elif CallbackResult(action).name == 'undo_revert':
         task.reverted = False
         undo_user_changes_revert(session, task.user)
-        message = f'All of your tags have been restored.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
         call_tg_func(query, 'answer', ['User changes revert undone'])
 
     # Change the language of all changes of this task.
@@ -53,7 +47,7 @@ def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
         first = 'international' if is_default_language else 'english'
         second = 'english' if is_default_language else 'international'
         command = '/international' if is_default_language else '/english'
-        message = f'It appears you have recently tagged stickers in {first}, while being in "{second}" mode. '
+        message = f'It appears you have recently tagged stickers in {first}, while being in {second} mode. '
         message += f'Please use {command} beforehand next time. The tags have been corrected.'
         call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
 
