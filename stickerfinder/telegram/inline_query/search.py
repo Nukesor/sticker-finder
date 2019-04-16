@@ -122,6 +122,8 @@ def get_matching_stickers(session, context):
         # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
         if context.fuzzy_offset is not None or len(matching_stickers) == 0:
+            if len(matching_stickers) == 0:
+                context.fuzzy_offset = 0
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search
             fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, context)

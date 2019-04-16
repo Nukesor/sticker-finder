@@ -38,7 +38,7 @@ def get_strict_matching_stickers(session, context):
 def get_fuzzy_matching_stickers(session, context):
     """Get fuzzy matching stickers."""
     matching_stickers = get_fuzzy_matching_query(session, context) \
-        .offset(context.offset) \
+        .offset(context.fuzzy_offset) \
         .limit(50) \
         .all()
 
@@ -226,7 +226,7 @@ def get_fuzzy_matching_query(session, context):
         .subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
-    matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score) \
+    matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score, intermediate_query.c.title) \
         .filter(or_(intermediate_query.c.score > 0, nsfw, furry)) \
         .order_by(intermediate_query.c.score.desc(), intermediate_query.c.title, intermediate_query.c.file_id) \
 

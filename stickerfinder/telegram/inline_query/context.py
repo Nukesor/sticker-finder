@@ -22,6 +22,14 @@ class Context():
         self.fuzzy_offset = None
         self.extract_info_from_offset(offset_payload)
 
+    def __str__(self):
+        """Debug string for class."""
+        text = f'Context: {self.query}, {self.mode}'
+        text += f'\nTags {self.tags}'
+        text += f'\nOffsets: {self.offset}, {self.fuzzy_offset}'
+        text += f'\nnsfw, furry: {self.nsfw}, {self.furry}'
+        return text
+
     def extract_info_from_offset(self, offset):
         """Extract all important information from the incoming offset payload."""
         # First incoming request, set the offset to 0
