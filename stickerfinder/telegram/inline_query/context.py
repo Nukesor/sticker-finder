@@ -29,7 +29,7 @@ class Context():
         # Extract query_id, offset and possibly fuzzy_offset. They are sepparated by `:`
         else:
             splitted = offset.split(':')
-            self.query_id = int(splitted[0])
+            self.inline_query_id = int(splitted[0])
             self.offset = int(splitted[1])
 
             # It appears, we found all strictly matching stickers. Thereby we also got a fuzzy offset.

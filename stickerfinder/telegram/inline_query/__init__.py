@@ -50,6 +50,7 @@ def search(bot, update, session, user):
 
     # Create a new inline query or get the respective existing one, if we are working with an offset.
     inline_query = InlineQuery.get_or_create(session, context.inline_query_id, context.query, user)
+    context.inline_query_id = inline_query.id
 
     if context.mode == Context.SET_MODE:
         inline_query.mode = InlineQuery.SET_MODE
@@ -74,6 +75,6 @@ def search(bot, update, session, user):
         for tag in ['pack', 'set']:
             if tag in tags:
                 tags.remove(tag)
-        search_sticker_sets(session, update, context, inline_query, inline_query_request)
+        search_sticker_sets(session, update, context, inline_query_request)
     else:
-        search_stickers(session, update, context, inline_query, inline_query_request)
+        search_stickers(session, update, context, inline_query_request)

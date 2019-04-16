@@ -20,13 +20,13 @@ from .sql_query import (
 )
 
 
-def search_stickers(session, update, context, inline_query, inline_query_request):
+def search_stickers(session, update, context, inline_query_request):
     """Execute the normal sticker search."""
     # Get all matching stickers
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
 
     # Calculate the next offset. 'done' means there are no more results.
-    next_offset = get_next_offset(context, inline_query, matching_stickers, fuzzy_matching_stickers)
+    next_offset = get_next_offset(context, matching_stickers, fuzzy_matching_stickers)
 
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
@@ -44,7 +44,7 @@ def search_stickers(session, update, context, inline_query, inline_query_request
     results = []
     for file_id in matching_stickers:
         results.append(InlineQueryResultCachedSticker(
-            f'{inline_query.id}:{file_id[0]}', sticker_file_id=file_id[0]))
+            f'{context.inline_query_id}:{file_id[0]}', sticker_file_id=file_id[0]))
 
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
@@ -56,13 +56,13 @@ def search_stickers(session, update, context, inline_query, inline_query_request
                  })
 
 
-def search_sticker_sets(session, update, context, inline_query, inline_query_request):
+def search_sticker_sets(session, update, context, inline_query_request):
     """Query sticker sets."""
     # Get all matching stickers
     matching_sets, duration = get_matching_sticker_sets(session, context)
 
     # Calculate the next offset. 'done' means there are no more results.
-    next_offset = get_next_set_offset(context, inline_query, matching_sets)
+    next_offset = get_next_set_offset(context, matching_sets)
 
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
@@ -81,7 +81,7 @@ def search_sticker_sets(session, update, context, inline_query, inline_query_req
         url = f'https://telegram.me/addstickers/{sticker_set.name}'
         input_message_content = InputTextMessageContent(url)
         results.append(InlineQueryResultArticle(
-            f'{inline_query.id}:{sticker_set.name}',
+            f'{context.inline_query_id}:{sticker_set.name}',
             title=sticker_set.title,
             description=sticker_set.name,
             url=url,
@@ -92,7 +92,7 @@ def search_sticker_sets(session, update, context, inline_query, inline_query_req
             if index < len(sticker_set.stickers):
                 file_id = sticker_set.stickers[index].file_id
                 results.append(InlineQueryResultCachedSticker(
-                    f'{inline_query.id}:{file_id}', sticker_file_id=file_id))
+                    f'{context.inline_query_id}:{file_id}', sticker_file_id=file_id))
 
     call_tg_func(update.inline_query, 'answer', args=[results],
                  kwargs={
