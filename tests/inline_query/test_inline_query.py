@@ -95,6 +95,12 @@ def test_combined_sticker_search(session, strict_inline_search, user):
     """Test fuzzy search for stickers."""
     context = Context('roflcpter unique_other', '', user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
+    # Context properties have been properly set
+    assert context.switched_to_fuzzy
+    assert context.limit == 10
+    assert context.offset == 0
+
+    # Sticker result counts are correct
     assert len(matching_stickers) == 40
     assert len(fuzzy_matching_stickers) == 10
 
@@ -108,4 +114,4 @@ def test_combined_sticker_search(session, strict_inline_search, user):
     for i, result in enumerate(fuzzy_matching_stickers):
         i += 40
         assert result[0] == f'sticker_{i}'
-        assert round(result[1], 2) == 0.80
+        assert round(result[1], 2) == 0.62

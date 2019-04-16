@@ -22,6 +22,9 @@ class Context():
         self.fuzzy_offset = None
         self.extract_info_from_offset(offset_payload)
 
+        self.switched_to_fuzzy = False
+        self.limit = 0
+
     def __str__(self):
         """Debug string for class."""
         text = f'Context: {self.query}, {self.mode}'
@@ -59,3 +62,9 @@ class Context():
                     self.tags.remove(tag)
         elif len(self.tags) == 0:
             self.mode = Context.FAVORITE_MODE
+
+    def switch_to_fuzzy(self, limit):
+        """We didn't get enough strict results and switched to fuzzy search."""
+        self.switched_to_fuzzy = True
+        self.fuzzy_offset = 0
+        self.limit = limit

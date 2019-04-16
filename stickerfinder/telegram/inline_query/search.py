@@ -118,12 +118,15 @@ def get_matching_stickers(session, context):
     else:
         if context.fuzzy_offset is None:
             matching_stickers = get_strict_matching_stickers(session, context)
-        # Get the fuzzy matching sticker, if there are no more strictly matching stickers
-        # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
-        if context.fuzzy_offset is not None or len(matching_stickers) == 0:
-            if len(matching_stickers) == 0:
-                context.fuzzy_offset = 0
+        # Get the fuzzy matching sticker, if there are no more strictly matching stickers
+        # We also know that we should be using fuzzy search, if the fuzzy offset is defined in the context
+        if context.fuzzy_offset is not None or len(matching_stickers) <= 50:
+            # We couldn't find enough strict matching stickers. Get the rest from fuzzy search.
+            # Set the switched_to_fuzzy flag in the context object to signal, that it's ok to have less
+            # than 50 results in the next_offset creation
+            if len(matching_stickers) <= 50:
+                context.switch_to_fuzzy(50 - len(matching_stickers))
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search
             fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, context)

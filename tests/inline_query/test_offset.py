@@ -48,7 +48,7 @@ def test_get_strict_finished_offset(user):
     matching_stickers = range(0, 10)
 
     next_offset = get_next_offset(context, matching_stickers, [])
-    assert next_offset == '123:60:0'
+    assert next_offset == 'done'
 
 
 def test_get_next_fuzzy_offset(user):
@@ -59,6 +59,17 @@ def test_get_next_fuzzy_offset(user):
 
     next_offset = get_next_offset(context, matching_stickers, fuzzy_matching_stickers)
     assert next_offset == '123:60:100'
+
+
+def test_switched_to_fuzzy_offset(user):
+    """We didn't get enough strict results and switched to fuzzy."""
+    context = Context('test',  '123:50', user)
+    matching_stickers = range(0, 40)
+    fuzzy_matching_stickers = range(0, 10)
+    context.switch_to_fuzzy(10)
+
+    next_offset = get_next_offset(context, matching_stickers, fuzzy_matching_stickers)
+    assert next_offset == '123:90:10'
 
 
 def test_done_offset(user):

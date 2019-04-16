@@ -12,13 +12,14 @@ from stickerfinder.models import (
 
 def get_favorite_stickers(session, context):
     """Get the most used stickers of a user."""
+    limit = context.limit if context.limit else 50
     favorite_stickers = session.query(StickerUsage.sticker_file_id, StickerUsage.usage_count) \
         .join(Sticker) \
         .filter(StickerUsage.user == context.user) \
         .filter(Sticker.banned.is_(False)) \
         .order_by(StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc()) \
         .offset(context.offset) \
-        .limit(50) \
+        .limit(limit) \
         .all()
 
     return favorite_stickers
@@ -28,8 +29,9 @@ def get_strict_matching_stickers(session, context):
     """Query all strictly matching stickers for given tags."""
     matching_stickers = get_strict_matching_query(session, context)
 
+    limit = context.limit if context.limit else 50
     matching_stickers = matching_stickers.offset(context.offset) \
-        .limit(50) \
+        .limit(limit) \
         .all()
 
     return matching_stickers
@@ -37,9 +39,10 @@ def get_strict_matching_stickers(session, context):
 
 def get_fuzzy_matching_stickers(session, context):
     """Get fuzzy matching stickers."""
+    limit = context.limit if context.limit else 50
     matching_stickers = get_fuzzy_matching_query(session, context) \
         .offset(context.fuzzy_offset) \
-        .limit(50) \
+        .limit(limit) \
         .all()
 
     return matching_stickers
