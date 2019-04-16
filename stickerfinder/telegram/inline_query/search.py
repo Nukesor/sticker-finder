@@ -8,6 +8,7 @@ from telegram import (
 
 from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
+from .context import Context
 from .offset import (
     get_next_offset,
     get_next_set_offset,
@@ -112,7 +113,7 @@ def get_matching_stickers(session, context):
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
-    if len(context.tags) == 0:
+    if context.mode == Context.FAVORITE_MODE:
         matching_stickers = get_favorite_stickers(session, context)
     else:
         if context.fuzzy_offset is None:

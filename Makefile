@@ -11,4 +11,4 @@ run:
 
 .PHONY: test
 test:
-	poetry run python main.py
+	poetry run pytest

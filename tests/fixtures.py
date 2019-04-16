@@ -1,9 +1,9 @@
 """Database test fixtures."""
 import pytest
-from tests.factories import user_factory
+from tests.factories import user_factory, sticker_set_factory
 
 from stickerfinder.helper.tag import tag_sticker
-from stickerfinder.models import StickerSet, Sticker
+from stickerfinder.models import Sticker
 
 
 @pytest.fixture(scope='function')
@@ -21,19 +21,12 @@ def admin(session):
 @pytest.fixture(scope='function')
 def sticker_set(session, admin):
     """Create a user."""
-    sticker_set = StickerSet('test_set', [])
-    sticker_set.complete = True
-    sticker_set.reviewed = True
-    session.add(sticker_set)
-
+    stickers = []
     for file_id in range(0, 10):
         sticker = Sticker(str(file_id))
-        session.add(sticker)
-        sticker_set.stickers.append(sticker)
+        stickers.append(sticker)
 
-    session.commit()
-
-    return sticker_set
+    return sticker_set_factory(session, 'test_set', stickers)
 
 
 @pytest.fixture(scope='function')
