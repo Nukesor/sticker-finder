@@ -56,7 +56,7 @@ from stickerfinder.telegram.message_handlers import (
     handle_group_sticker,
     handle_edited_messages,
 )
-from stickerfinder.telegram.callback import (
+from stickerfinder.telegram.callback_handlers import (
     handle_callback_query,
     handle_chosen_inline_result,
 )
