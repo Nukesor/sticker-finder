@@ -10,44 +10,44 @@ from stickerfinder.models import (
 )
 
 
-def get_favorite_stickers(session, offset, user):
+def get_favorite_stickers(session, context):
     """Get the most used stickers of a user."""
     favorite_stickers = session.query(StickerUsage.sticker_file_id, StickerUsage.usage_count) \
         .join(Sticker) \
-        .filter(StickerUsage.user == user) \
+        .filter(StickerUsage.user == context.user) \
         .filter(Sticker.banned.is_(False)) \
         .order_by(StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc()) \
-        .offset(offset) \
+        .offset(context.offset) \
         .limit(50) \
         .all()
 
     return favorite_stickers
 
 
-def get_strict_matching_stickers(session, tags, nsfw, furry, offset, user):
+def get_strict_matching_stickers(session, context):
     """Query all strictly matching stickers for given tags."""
-    matching_stickers = get_strict_matching_query(session, tags, nsfw, furry, user)
+    matching_stickers = get_strict_matching_query(session, context)
 
-    matching_stickers = matching_stickers.offset(offset) \
+    matching_stickers = matching_stickers.offset(context.offset) \
         .limit(50) \
         .all()
 
     return matching_stickers
 
 
-def get_fuzzy_matching_stickers(session, tags, nsfw, furry, offset, user):
+def get_fuzzy_matching_stickers(session, context):
     """Get fuzzy matching stickers."""
-    matching_stickers = get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user) \
-        .offset(offset) \
+    matching_stickers = get_fuzzy_matching_query(session, context) \
+        .offset(context.offset) \
         .limit(50) \
         .all()
 
     return matching_stickers
 
 
-def get_strict_matching_sticker_sets(session, tags, nsfw, furry, offset, user):
+def get_strict_matching_sticker_sets(session, context):
     """Get all sticker sets by accumulated score for strict search."""
-    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=True) \
+    strict_subquery = get_strict_matching_query(session, context, sticker_set=True) \
         .subquery('strict_sticker_subq')
 
     score = func.sum(strict_subquery.c.score).label('score')
@@ -56,14 +56,19 @@ def get_strict_matching_sticker_sets(session, tags, nsfw, furry, offset, user):
         .group_by(StickerSet) \
         .order_by(score.desc()) \
         .limit(8) \
-        .offset(offset) \
+        .offset(context.offset) \
         .all()
 
     return matching_sets
 
 
-def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=False):
+def get_strict_matching_query(session, context, sticker_set=False):
     """Get the query for strict tag matching."""
+    user = context.user
+    tags = context.tags
+    nsfw = context.nsfw
+    furry = context.furry
+
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
         .join(Tag, sticker_tag.c.tag_name == Tag.name) \
@@ -134,8 +139,13 @@ def get_strict_matching_query(session, tags, nsfw, furry, user, sticker_set=Fals
     return matching_stickers_with_usage
 
 
-def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user):
+def get_fuzzy_matching_query(session, context):
     """Query all fuzzy matching stickers."""
+    user = context.user
+    tags = context.tags
+    nsfw = context.nsfw
+    furry = context.furry
+
     threshold = 0.3
     # Create a query for each tag, which fuzzy matches all tags and computes the distance
     matching_tags = []
@@ -196,7 +206,7 @@ def get_fuzzy_matching_query(session, tags, nsfw, furry, offset, user):
     score = score.label('score')
 
     # Query all strict matching results to exclude them.
-    strict_subquery = get_strict_matching_query(session, tags, nsfw, furry, user) \
+    strict_subquery = get_strict_matching_query(session, context) \
         .subquery('strict_subquery')
 
     # Compute the score for all stickers and filter nsfw stuff

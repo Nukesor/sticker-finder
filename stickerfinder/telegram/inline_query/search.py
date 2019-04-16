@@ -20,15 +20,13 @@ from .sql_query import (
 )
 
 
-def search_stickers(session, update, user, query, tags, nsfw, furry,
-                    offset, fuzzy_offset, inline_query, inline_query_request):
+def search_stickers(session, update, context, inline_query, inline_query_request):
     """Execute the normal sticker search."""
     # Get all matching stickers
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
-        session, user, query, tags, nsfw, furry, offset, fuzzy_offset)
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
 
     # Calculate the next offset. 'done' means there are no more results.
-    next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
+    next_offset = get_next_offset(context, inline_query, matching_stickers, fuzzy_matching_stickers)
 
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
@@ -39,7 +37,7 @@ def search_stickers(session, update, user, query, tags, nsfw, furry,
     if False:
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint({"offset": offset, "fuzzy_offset": fuzzy_offset}) # noqa
+        pprint.pprint({"offset": offset, "fuzzy_offset": context.fuzzy_offset}) # noqa
         pprint.pprint(matching_stickers) # noqa
 
     # Create a result list of max 50 cached sticker objects
@@ -58,14 +56,13 @@ def search_stickers(session, update, user, query, tags, nsfw, furry,
                  })
 
 
-def search_sticker_sets(session, update, user, query, tags, nsfw, furry,
-                        offset, inline_query, inline_query_request):
+def search_sticker_sets(session, update, context, inline_query, inline_query_request):
     """Query sticker sets."""
     # Get all matching stickers
-    matching_sticker_sets, duration = get_matching_sticker_sets(session, user, query, tags, nsfw, furry, offset)
+    matching_sets, duration = get_matching_sticker_sets(session, context)
 
     # Calculate the next offset. 'done' means there are no more results.
-    next_offset = get_next_set_offset(inline_query, matching_sticker_sets, offset)
+    next_offset = get_next_set_offset(context, inline_query, matching_sets)
 
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
@@ -75,11 +72,11 @@ def search_sticker_sets(session, update, user, query, tags, nsfw, furry,
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
         pprint.pprint(offset) # noqa
-        pprint.pprint(matching_sticker_sets) # noqa
+        pprint.pprint(matching_sets) # noqa
 
     # Create a result list of max 50 cached sticker objects
     results = []
-    for sticker_set in matching_sticker_sets:
+    for sticker_set in matching_sets:
         sticker_set = sticker_set[0]
         url = f'https://telegram.me/addstickers/{sticker_set.name}'
         input_message_content = InputTextMessageContent(url)
@@ -107,7 +104,7 @@ def search_sticker_sets(session, update, user, query, tags, nsfw, furry,
                  })
 
 
-def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy_offset):
+def get_matching_stickers(session, context):
     """Get all matching stickers and query duration for given criteria and offset."""
     # Measure the db query time
     start = datetime.now()
@@ -115,18 +112,18 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     # Get exactly matching stickers and fuzzy matching stickers
     matching_stickers = []
     fuzzy_matching_stickers = []
-    if len(tags) == 0:
-        matching_stickers = get_favorite_stickers(session, offset, user)
+    if len(context.tags) == 0:
+        matching_stickers = get_favorite_stickers(session, context)
     else:
-        if fuzzy_offset is None:
-            matching_stickers = get_strict_matching_stickers(session, tags, nsfw, furry, offset, user)
+        if context.fuzzy_offset is None:
+            matching_stickers = get_strict_matching_stickers(session, context)
         # Get the fuzzy matching sticker, if there are no more strictly matching stickers
         # We know that we should be using fuzzy search, if the fuzzy offset is defined in the offset_incoming payload
 
-        if fuzzy_offset is not None or len(matching_stickers) == 0:
+        if context.fuzzy_offset is not None or len(matching_stickers) == 0:
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search
-            fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, user)
+            fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, context)
 
     end = datetime.now()
 
@@ -136,7 +133,7 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     if duration.seconds >= 9:
         sentry.captureMessage(f'Query took too long.', level='info',
                               extra={
-                                  'query': query,
+                                  'query': context.query,
                                   'duration': duration,
                                   'results': len(matching_stickers),
                               })
@@ -144,13 +141,13 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
     return matching_stickers, fuzzy_matching_stickers, duration
 
 
-def get_matching_sticker_sets(session, user, query, tags, nsfw, furry, offset):
+def get_matching_sticker_sets(session, context):
     """Get all matching stickers as well as the query duration for given criteria and offset."""
     # Measure the db query time
     start = datetime.now()
 
     # Get strict matching stickers
-    matching_stickers = get_strict_matching_sticker_sets(session, tags, nsfw, furry, offset, user)
+    matching_stickers = get_strict_matching_sticker_sets(session, context)
 
     end = datetime.now()
 
@@ -160,7 +157,7 @@ def get_matching_sticker_sets(session, user, query, tags, nsfw, furry, offset):
     if duration.seconds >= 9:
         sentry.captureMessage(f'Query took too long.', level='info',
                               extra={
-                                  'query': query,
+                                  'query': context.query,
                                   'duration': duration,
                                   'results': len(matching_stickers),
                               })
