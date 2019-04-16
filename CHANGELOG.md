@@ -4,6 +4,8 @@ v1.1.0
 **Features**
 - Tags will now be added to the existing tags, instead of replacing the old ones.
 - Replacing tags can be done by using `/replace [tags]`
+- If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of in the next query.
+- Favorites are now implemented for nsfw and furry stuff as well
 
 
 **Admin/Maintenance additions**

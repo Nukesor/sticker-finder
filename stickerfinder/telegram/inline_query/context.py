@@ -50,17 +50,21 @@ class Context():
 
     def determine_special_search(self):
         """Check whether we should enter a special search mode."""
-        # Handle special tags
+        # Handle nsfw mode
         self.nsfw = 'nsfw' in self.tags
+        # Handle furry mode
         self.furry = 'fur' in self.tags or 'furry' in self.tags
 
         # Switch to set mode
         if 'set' in self.tags or 'pack' in self.tags:
             self.mode = Context.STICKER_SET_MODE
-            for tag in ['pack', 'set']:
-                if tag in self.tags:
-                    self.tags.remove(tag)
-        elif len(self.tags) == 0:
+
+        # Clean tags from special keywords
+        keywords = ['pack', 'set', 'furry', 'fur', 'nsfw']
+        self.tags = [tag for tag in self.tags if tag not in keywords]
+
+        # Check whether we should enter favorite mode
+        if len(self.tags) == 0:
             self.mode = Context.FAVORITE_MODE
 
     def switch_to_fuzzy(self, limit):

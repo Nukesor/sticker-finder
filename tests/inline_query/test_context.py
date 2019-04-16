@@ -18,12 +18,26 @@ def test_favorite_search(user):
 
 
 def test_special_flag_search(user):
-    """A simple normal search should result in default values on the context object."""
-    context = Context('nsfw fur test', '', user)
+    """A search with special keywords should result in a special search."""
+    context = Context('nsfw fur furry test', '', user)
 
     assert context.mode == Context.STICKER_MODE
     assert context.nsfw is True
     assert context.furry is True
+
+    assert len(context.tags) == 1
+    assert context.tags[0] == 'test'
+
+
+def test_special_flag_favorite_search(user):
+    """A special search without any additional keywords results in a favorite search."""
+    context = Context('nsfw fur furry', '', user)
+
+    assert context.mode == Context.FAVORITE_MODE
+    assert context.nsfw is True
+    assert context.furry is True
+
+    assert len(context.tags) == 0
 
 
 def test_sticker_set_search(user):

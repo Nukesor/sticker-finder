@@ -143,19 +143,19 @@ def test_no_combined_on_full_strict(session, strict_inline_search, user):
     assert len(fuzzy_matching_stickers) == 0
 
 
-#def test_nsfw_search(session, strict_inline_search, user):
-#    """Test fuzzy search for stickers."""
-#    context = Context('nsfw porn', '', user)
-#    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-#
-#    sticker_set = strict_inline_search[0]
-#    sticker_set.nsfw = True
-#
-#    # Add specific sticker to tag
-#    sticker = sticker_set.stickers[0]
-#    tag = Tag.get_or_create(session, 'porn', True, False)
-#    sticker.tags.append(tag)
-#    session.commit()
-#
-#    assert len(matching_stickers) == 1
-#    assert matching_stickers[0][0] == sticker.file_id
+def test_nsfw_search(session, strict_inline_search, user):
+    """Test nsfw search for stickers."""
+    context = Context('nsfw porn roflcopter', '', user)
+
+    sticker_set = strict_inline_search[0]
+    sticker_set.nsfw = True
+
+    # Add specific sticker to tag
+    sticker = sticker_set.stickers[0]
+    tag = Tag.get_or_create(session, 'porn', True, False)
+    sticker.tags.append(tag)
+    session.commit()
+
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
+    assert len(matching_stickers) == 1
+    assert matching_stickers[0][0] == sticker.file_id

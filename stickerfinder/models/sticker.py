@@ -43,7 +43,7 @@ sticker_original_emoji = Table(
            ForeignKey('sticker.file_id', ondelete='cascade',
                       onupdate='cascade', deferrable=True,
                       name='sticker_original_emojis_sticker_file_id_fkey'),
-               index=True),
+           index=True),
     Column('emoji', String,
            ForeignKey('tag.name', ondelete='cascade',
                       onupdate='cascade', deferrable=True,

@@ -15,8 +15,12 @@ def get_favorite_stickers(session, context):
     limit = context.limit if context.limit else 50
     favorite_stickers = session.query(StickerUsage.sticker_file_id, StickerUsage.usage_count) \
         .join(Sticker) \
+        .join(Sticker.sticker_set) \
         .filter(StickerUsage.user == context.user) \
         .filter(Sticker.banned.is_(False)) \
+        .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.nsfw.is_(context.nsfw)) \
+        .filter(StickerSet.furry.is_(context.furry)) \
         .order_by(StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc()) \
         .offset(context.offset) \
         .limit(limit) \
@@ -123,7 +127,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
         intermediate_query.c.name,
         intermediate_query.c.score,
         ) \
-        .filter(or_(intermediate_query.c.score > 0, nsfw, furry)) \
+        .filter(or_(intermediate_query.c.score > 0)) \
         .subquery('matching_stickers')
 
     # We got all stickers that are matching to the tags/sticker set names, but now we want to include the usage pattern of the user

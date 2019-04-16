@@ -32,10 +32,6 @@ def search_stickers(session, update, context, inline_query_request):
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
 
-    print('rofl')
-    print(len(matching_stickers))
-    print(len(fuzzy_matching_stickers))
-    print('lol')
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
     # Stuff for debugging, since I need that all the time
