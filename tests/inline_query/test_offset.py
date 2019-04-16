@@ -1,9 +1,13 @@
 """Offset payload creation tests."""
 from stickerfinder.models import InlineQuery
-from stickerfinder.telegram.inline_query import extract_info_from_offset, get_next_offset
+from stickerfinder.telegram.inline_query.offset import (
+    extract_info_from_offset,
+    get_next_offset,
+    get_next_set_offset,
+)
 
 
-def test_empty_offset():
+def test_extract_empty_offset():
     """Empyt offset should result in normal offset 0."""
     offset, fuzzy_offset, query_id = extract_info_from_offset('')
     assert query_id is None
@@ -11,7 +15,7 @@ def test_empty_offset():
     assert fuzzy_offset is None
 
 
-def test_strict_offset():
+def test_extract_strict_offset():
     """Extract data from an normal offset payload."""
     offset, fuzzy_offset, query_id = extract_info_from_offset('15235:50')
     assert query_id == 15235
@@ -19,7 +23,7 @@ def test_strict_offset():
     assert fuzzy_offset is None
 
 
-def test_fuzzy_offset():
+def test_extract_fuzzy_offset():
     """Extract data from an fuzzy offset payload."""
     offset, fuzzy_offset, query_id = extract_info_from_offset('15235:100:0')
     assert query_id == 15235
@@ -74,4 +78,28 @@ def test_done_offset(user):
     fuzzy_offset = 50
 
     next_offset = get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset)
+    assert next_offset == 'done'
+
+
+def test_get_next_set_offset(user):
+    """Create a new set offset payload."""
+    inline_query = InlineQuery('test', user)
+    inline_query.id = 123
+
+    offset = 0
+    matching_sets = range(0, 8)
+    next_offset = get_next_set_offset(inline_query, matching_sets, offset)
+    
+    assert next_offset == '123:8'
+
+
+def test_done_set_offset(user):
+    """Create a new set offset payload."""
+    inline_query = InlineQuery('test', user)
+    inline_query.id = 123
+
+    offset = 0
+    matching_set = range(0, 4)
+    next_offset = get_next_set_offset(inline_query, matching_set, offset)
+
     assert next_offset == 'done'
