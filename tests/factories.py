@@ -26,7 +26,7 @@ def sticker_set_factory(session, name, stickers=None, tags=None):
     return sticker_set
 
 
-def sticker_factory(session, file_id, tag_names=None, default_language=False):
+def sticker_factory(session, file_id, tag_names=None, default_language=True):
     """Create a sticker and eventually add tags."""
     sticker = Sticker(file_id)
     if tag_names:

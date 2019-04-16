@@ -106,7 +106,7 @@ def search_sticker_sets(session, update, context, inline_query_request):
 
 
 def get_matching_stickers(session, context):
-    """Get all matching stickers and query duration for given criteria and offset."""
+    """Get all matching stickers and the query duration."""
     # Measure the db query time
     start = datetime.now()
 
@@ -143,7 +143,7 @@ def get_matching_stickers(session, context):
 
 
 def get_matching_sticker_sets(session, context):
-    """Get all matching stickers as well as the query duration for given criteria and offset."""
+    """Get all matching stickers and the query duration."""
     # Measure the db query time
     start = datetime.now()
 

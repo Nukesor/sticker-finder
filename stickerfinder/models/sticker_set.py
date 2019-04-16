@@ -58,6 +58,10 @@ class StickerSet(base):
         self.name = name
         self.stickers = []
 
+    def __str__(self):
+        """Debug string for class."""
+        return f'StickerSet: {self.title} ({self.name}) \nStickers: {len(self.stickers)}'
+
     @staticmethod
     def get_or_create(session, name, chat, user):
         """Get or create a new sticker set."""

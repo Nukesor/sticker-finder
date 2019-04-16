@@ -1,11 +1,56 @@
 """Test inline query logic."""
-from tests.factories import sticker_set_factory, sticker_factory
+import pytest
+
+from stickerfinder.telegram.inline_query.context import Context
+from stickerfinder.telegram.inline_query.search import (
+    get_matching_stickers,
+    get_matching_sticker_sets,
+)
 
 
-def test_strict_inline_query(session):
-    """Add new tags to a sticker."""
-    stickers = []
-    for i in range(0, 40):
-        stickers.append(sticker_factory(session, f'sticker_{i}', ['testtag']))
+@pytest.mark.parametrize('query,score', [('testtag', 1), ('awesome dumb', 0.75)])
+def test_strict_sticker_search_set_order(session, strict_inline_search, user, query, score):
+    """Test correct sticker set sorting order."""
+    # Simple search which should get nearly all stickers from both sets
+    context = Context(query, '', user)
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
+    assert len(matching_stickers) == 50
+    assert len(fuzzy_matching_stickers) == 0
+    for i, result in enumerate(matching_stickers):
+        # The stickers are firstly sorted by:
+        # 1. score
+        # 2. StickerSet.name
+        # 3. Sticker.file_id
+        #
+        # Thereby we expect the `a_dumb_shit` set first (20 results), since the scores are the same
+        # for both sets, but this set's name is higher in order.
+        if i <= 20:
+            assert result[0] == f'sticker_{i+40}'
+            assert result[1] == score
+            assert result[2] == 'a_dumb_shit'
+        # Next we get the second set in order of the file_ids
+        elif i > 20:
+            # We need to subtract 21, since we now start to count file_ids from 0
+            i = i-21
+            # Also do this little workaround to prevent fucky number sorting here as well
+            if i < 10:
+                i = f'0{i}'
+            assert result[0] == f'sticker_{i}'
+            assert result[1] == score
+            assert result[2] == 'z_mega_awesome'
 
-    sticker_set = sticker_set_factory(session, 'cool_megaawesome_pack lol', stickers)
+
+def test_strict_sticker_search_set_score(session, strict_inline_search, user):
+    """Test correct score calculation for sticker set titles and tags."""
+    # Simple search which should get nearly all stickers from both sets
+    context = Context('awesome', '', user)
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
+    assert len(matching_stickers) == 40
+    assert len(fuzzy_matching_stickers) == 0
+    for i, result in enumerate(matching_stickers):
+        # Also do this little workaround to prevent fucky number sorting here as well
+        if i < 10:
+            i = f'0{i}'
+        assert result[0] == f'sticker_{i}'
+        assert result[1] == 0.75
+        assert result[2] == 'z_mega_awesome'

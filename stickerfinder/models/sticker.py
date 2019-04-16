@@ -84,6 +84,10 @@ class Sticker(base):
         """Create a new sticker."""
         self.file_id = file_id
 
+    def __str__(self):
+        """Debug string for class."""
+        return f'Sticker {self.file_id} with {self.tags_as_text(True)}'
+
     def tags_as_text(self, is_default_language):
         """Return tag names as single string."""
         tags = [tag.name for tag in self.tags if tag.is_default_language == is_default_language and not tag.emoji]
