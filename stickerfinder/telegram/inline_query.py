@@ -184,10 +184,9 @@ def extract_info_from_offset(offset_incoming):
     # First incoming request, set the offset to 0
     if offset_incoming == '':
         offset = 0
-
     else:
         splitted = offset_incoming.split(':')
-        query_id = splitted[0]
+        query_id = int(splitted[0])
         offset = int(splitted[1])
         # We already found all strictly matching stickers. Thereby we also got a fuzzy offset
         if len(splitted) > 2:
@@ -199,10 +198,10 @@ def extract_info_from_offset(offset_incoming):
 def get_next_offset(inline_query, matching_stickers, offset, fuzzy_matching_stickers, fuzzy_offset):
     """Get the offset for the next query."""
     # Set the next offset. If already proposed all matching stickers, set the offset to 'done'
-    if len(matching_stickers) == 50 and fuzzy_offset is None:
+    if fuzzy_offset is None and len(matching_stickers) == 50:
         return f'{inline_query.id}:{offset + 50}'
     # Check whether we are done.
-    elif len(fuzzy_matching_stickers) < 50 and fuzzy_offset is not None:
+    elif fuzzy_offset is not None and len(fuzzy_matching_stickers) < 50:
         return 'done'
     # We reached the end of the strictly matching stickers. Mark the next query for fuzzy searching
     else:
@@ -243,8 +242,6 @@ def get_matching_stickers(session, user, query, tags, nsfw, furry, offset, fuzzy
         if fuzzy_offset is not None or len(matching_stickers) == 0:
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search
-            if fuzzy_offset is None:
-                fuzzy_offset = 0
             fuzzy_matching_stickers = get_fuzzy_matching_stickers(session, tags, nsfw, furry, fuzzy_offset, user)
 
     end = datetime.now()

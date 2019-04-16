@@ -8,7 +8,8 @@ v1.1.0
 
 **Admin/Maintenance additions**
 - /test\_broadcast function to preview a broadcast text.
-- I finally added testing :3
+- I finally added testing :3 
+- Add a LOT of tests
 - Lots of bug/behaviour fixes and adjustments
 
 

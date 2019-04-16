@@ -1,4 +1,6 @@
 """Test emoji handling."""
+from tests.helper import assert_sticker_contains_tags
+
 from stickerfinder.models import Tag
 from stickerfinder.helper.tag import tag_sticker, add_original_emojis
 
@@ -7,14 +9,14 @@ def test_original_emoji_stays_on_replace(session, user, sticker_set):
     """Original emojis will remain if tags are added in replace mode."""
     sticker = sticker_set.stickers[0]
     # Add an original emoji tag to the sticker
-    tag = Tag('emoji', True, True)
+    tag = Tag('😲', True, True)
     sticker.tags.append(tag)
     sticker.original_emojis.append(tag)
     session.commit()
 
     # Now tag the sticker in replace mode
     tag_sticker(session, 'new_tag', sticker, user, replace=True)
-
+    assert_sticker_contains_tags(sticker, ['new_tag', '😲'])
     assert len(sticker.tags) == 2
     assert sticker.original_emojis[0] in sticker.tags
 
