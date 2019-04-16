@@ -49,9 +49,9 @@ def strict_inline_search(session):
         sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'unique_other'])
         sticker_set_1.stickers.append(sticker)
 
-    # Create a second set with 10 stickers, each having one tag `testtag` as well
+    # Create a second set with 20 stickers, each having one tag `testtag` as well
     sticker_set_2 = sticker_set_factory(session, 'a_dumb_shit')
-    for i in range(40, 61):
+    for i in range(40, 60):
         sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'roflcopter'])
         sticker_set_2.stickers.append(sticker)
     session.commit()
@@ -63,3 +63,5 @@ def strict_inline_search(session):
 #    print(sticker_set_2)
 #    for sticker in sticker_set_2.stickers:
 #        print(sticker)
+
+    return [sticker_set_1, sticker_set_2]

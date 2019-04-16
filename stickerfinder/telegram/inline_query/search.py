@@ -32,6 +32,10 @@ def search_stickers(session, update, context, inline_query_request):
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
 
+    print('rofl')
+    print(len(matching_stickers))
+    print(len(fuzzy_matching_stickers))
+    print('lol')
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
     # Stuff for debugging, since I need that all the time
@@ -121,11 +125,11 @@ def get_matching_stickers(session, context):
 
         # Get the fuzzy matching sticker, if there are no more strictly matching stickers
         # We also know that we should be using fuzzy search, if the fuzzy offset is defined in the context
-        if context.fuzzy_offset is not None or len(matching_stickers) <= 50:
+        if context.fuzzy_offset is not None or len(matching_stickers) < 50:
             # We couldn't find enough strict matching stickers. Get the rest from fuzzy search.
             # Set the switched_to_fuzzy flag in the context object to signal, that it's ok to have less
             # than 50 results in the next_offset creation
-            if len(matching_stickers) <= 50:
+            if len(matching_stickers) < 50:
                 context.switch_to_fuzzy(50 - len(matching_stickers))
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search

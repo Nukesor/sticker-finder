@@ -23,7 +23,7 @@ class Context():
         self.extract_info_from_offset(offset_payload)
 
         self.switched_to_fuzzy = False
-        self.limit = 0
+        self.limit = None
 
     def __str__(self):
         """Debug string for class."""
