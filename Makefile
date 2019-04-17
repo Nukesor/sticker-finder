@@ -1,5 +1,5 @@
 .PHONY: default
-default: install
+default: run
 
 .PHONY: install
 install:

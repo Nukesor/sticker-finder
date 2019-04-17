@@ -28,6 +28,7 @@ from stickerfinder.telegram.commands import (
     start_tasks,
     tag_single,
     tag_random,
+    replace_single,
     cleanup,
     skip,
     cancel,
@@ -104,6 +105,7 @@ dispatcher.add_handler(
 if not config.LEECHER:
     # Input commands
     dispatcher.add_handler(CommandHandler('tag', tag_single))
+    dispatcher.add_handler(CommandHandler('replace', replace_single))
     dispatcher.add_handler(CommandHandler('report', report_set))
     dispatcher.add_handler(CommandHandler('skip', skip))
     dispatcher.add_handler(CommandHandler('forget_set', forget_set))
