@@ -17,7 +17,7 @@ main_keyboard = ReplyKeyboardMarkup(
 
 
 admin_keyboard = ReplyKeyboardMarkup(
-    [['/cancel', '/tasks'],
+    [['toggle_deluxe', '/cancel', '/tasks'],
      ['/stats', '/refresh', '/cleanup']],
     resize_keyboard=True, one_time_keyboard=True)
 
