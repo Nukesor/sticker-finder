@@ -3,6 +3,7 @@ import time
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 
+from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
@@ -58,6 +59,9 @@ def unban_user(bot, update, session, chat, user):
 def make_admin(bot, update, session, chat, user):
     """Send a help text."""
     identifier = update.message.text.split(' ', 1)[1].lower()
+
+    if user.username != config.ADMIN.lower():
+        return 'You need to be the super admin ;)'
 
     try:
         identifier = int(identifier)
