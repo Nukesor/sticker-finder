@@ -38,6 +38,7 @@ class StickerSet(base):
     banned = Column(Boolean, default=False, nullable=False)
     nsfw = Column(Boolean, default=False, nullable=False)
     furry = Column(Boolean, default=False, nullable=False)
+    deluxe = Column(Boolean, default=False, nullable=False)
 
     # Metadata
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

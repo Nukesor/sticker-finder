@@ -115,7 +115,8 @@ class Chat(base):
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 logger = logging.getLogger()
-                if str(e) == 'Message to edit not found':
+                if 'Message to edit not found' in str(e) or \
+                        'Message is not modified' in str(e):
                     logger.info('Message to edit has been deleted.')
                     pass
                 else:

@@ -11,7 +11,7 @@ from stickerfinder.helper.tag_mode import TagMode
 
 main_keyboard = ReplyKeyboardMarkup(
     [['/help', '/international', '/english'],
-     ['/tag_set', '/tag_random', '/random_set']],
+     ['/tag_random', '/random_set']],
     one_time_keyboard=True, resize_keyboard=True,
 )
 
@@ -29,6 +29,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     fur_type = CallbackType["fur_set"].value
     language_type = CallbackType["change_set_language"].value
     next_type = CallbackType["newsfeed_next_set"].value
+    deluxe_type = CallbackType["deluxe_set"].value
 
     if sticker_set.nsfw:
         nsfw_data = f'{nsfw_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
@@ -58,6 +59,13 @@ def get_nsfw_ban_keyboard(sticker_set):
         language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["default"].value}'
         language_text = 'Make English'
 
+    if sticker_set.deluxe:
+        deluxe_data = f'{deluxe_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
+        deluxe_text = 'Revert Deluxe Tag'
+    else:
+        deluxe_data = f'{deluxe_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
+        deluxe_text = 'Tag as Deluxe'
+
     buttons = [
         [
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
@@ -67,12 +75,15 @@ def get_nsfw_ban_keyboard(sticker_set):
             InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
             InlineKeyboardButton(text=language_text, callback_data=language_data),
         ],
+        [
+            InlineKeyboardButton(text=deluxe_text, callback_data=deluxe_data),
+        ],
     ]
 
     if not sticker_set.reviewed:
         next_data = f'{next_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         button = InlineKeyboardButton(text='Next', callback_data=next_data)
-        buttons.append([button])
+        buttons[2].append(button)
 
     return InlineKeyboardMarkup(buttons)
 
@@ -159,13 +170,23 @@ def check_user_tags_keyboard(task):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_tag_this_set_keyboard(set_name):
+def get_tag_this_set_keyboard(sticker_set, user):
     """Button for tagging a specific set."""
-    tag_set_data = f'{CallbackType["tag_set"].value}:{set_name}:0'
-    buttons = [[InlineKeyboardButton(
-        text="Tag this sticker set.", callback_data=tag_set_data)]]
+    tag_set_data = f'{CallbackType["tag_set"].value}:{sticker_set.name}:0'
+    buttons = []
 
-    return InlineKeyboardMarkup(buttons)
+    if user.admin:
+        action = CallbackResult["ok"].value
+        text = 'Tag as deluxe'
+        if sticker_set.deluxe:
+            action = CallbackResult["ban"].value
+            text = 'Revert deluxe tag'
+        deluxe_data = f'{CallbackType["deluxe_set_user_chat"].value}:{sticker_set.name}:{action}'
+        buttons.append(InlineKeyboardButton(text=text, callback_data=deluxe_data))
+
+    buttons.append(InlineKeyboardButton(text="Tag this set.", callback_data=tag_set_data))
+
+    return InlineKeyboardMarkup([buttons])
 
 
 def get_tagging_keyboard(chat):

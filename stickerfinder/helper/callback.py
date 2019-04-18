@@ -16,12 +16,15 @@ class CallbackType(Enum):
     nsfw_set = 5
     fur_set = 7
     change_set_language = 8
+    deluxe_set = 9
 
     next = 10
     cancel = 11
     edit_sticker = 12
     tag_set = 13
     newsfeed_next_set = 14
+
+    deluxe_set_user_chat = 20
 
     continue_tagging = 50
 

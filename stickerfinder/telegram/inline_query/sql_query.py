@@ -117,9 +117,17 @@ def get_strict_matching_query(session, context, sticker_set=False):
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
-        .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.is_default_language == user.is_default_language, StickerSet.is_default_language.is_(True))) \
-        .subquery('strict_intermediate')
+        .filter(StickerSet.furry.is_(furry))
+
+    # Only query default language
+    if user.is_default_language:
+        intermediate_query = intermediate_query.filter(StickerSet.is_default_language.is_(True))
+
+    # Only query deluxe
+    if user.deluxe:
+        intermediate_query = intermediate_query.filter(StickerSet.deluxe.is_(True))
+
+    intermediate_query = intermediate_query.subquery('strict_intermediate')
 
     # Now filter stickers with wrong score. Ignore the score threshold when searching for nsfw
     matching_stickers = session.query(
@@ -228,9 +236,17 @@ def get_fuzzy_matching_query(session, context):
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
         .filter(StickerSet.nsfw.is_(nsfw)) \
-        .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(StickerSet.is_default_language == user.is_default_language, StickerSet.is_default_language.is_(True))) \
-        .subquery('fuzzy_intermediate')
+        .filter(StickerSet.furry.is_(furry))
+
+    # Only query default language sticker sets
+    if user.is_default_language:
+        intermediate_query = intermediate_query.filter(StickerSet.is_default_language.is_(True))
+
+    # Only query deluxe sticker sets
+    if user.deluxe:
+        intermediate_query = intermediate_query.filter(StickerSet.deluxe.is_(True))
+
+    intermediate_query = intermediate_query.subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
     matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score, intermediate_query.c.title) \

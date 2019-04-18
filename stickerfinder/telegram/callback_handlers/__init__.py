@@ -23,14 +23,17 @@ from .newsfeed import (
     handle_nsfw_set,
     handle_fur_set,
     handle_change_set_language,
+    handle_deluxe_set,
     handle_next_newsfeed_set,
 )
-
 from .tagging import (
     handle_cancel_tagging,
     handle_tag_next,
     handle_fix_sticker_tags,
     handle_continue_tagging_set,
+)
+from .sticker_set import (
+    handle_deluxe_set_user_chat,
 )
 
 
@@ -72,8 +75,10 @@ def handle_callback_query(bot, update, session, user):
         handle_fur_set(session, action, query, payload, chat, tg_chat)
     elif CallbackType(callback_type).name == 'change_set_language':
         handle_change_set_language(session, action, query, payload, chat, tg_chat)
+    elif CallbackType(callback_type).name == 'deluxe_set':
+        handle_deluxe_set(session, action, query, payload, chat, tg_chat)
     elif CallbackType(callback_type).name == 'newsfeed_next_set':
-        handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat)
+        handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat, user)
 
     # Handle sticker tagging buttons
     elif CallbackType(callback_type).name == 'next':
@@ -87,6 +92,10 @@ def handle_callback_query(bot, update, session, user):
         initialize_set_tagging(bot, tg_chat, session, payload, chat, user)
     elif CallbackType(callback_type).name == 'continue_tagging':
         handle_continue_tagging_set(session, bot, payload, user, chat, tg_chat)
+
+    # Handle other user buttons
+    elif CallbackType(callback_type).name == 'deluxe_set_user_chat':
+        handle_deluxe_set_user_chat(session, bot, action, query, payload, user)
 
     return
 

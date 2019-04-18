@@ -185,7 +185,8 @@ def start_tasks(bot, update, session, chat, user):
 
     if chat.is_maintenance:
         check_maintenance_chat(session, update.message.chat, chat)
-    elif chat.is_newsfeed:
+
+    if chat.is_newsfeed:
         check_newsfeed_chat(bot, session, chat)
 
 

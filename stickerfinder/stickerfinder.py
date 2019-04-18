@@ -41,6 +41,7 @@ from stickerfinder.telegram.commands import (
     forget_set,
     set_is_default_language,
     set_not_is_default_language,
+    deluxe_user,
     show_sticker,
     show_sticker_file_id,
 )
@@ -118,6 +119,7 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('cancel', cancel))
     dispatcher.add_handler(CommandHandler('english', set_is_default_language))
     dispatcher.add_handler(CommandHandler('international', set_not_is_default_language))
+    dispatcher.add_handler(CommandHandler('toggle_deluxe', deluxe_user))
 
     # Maintenance input commands
     dispatcher.add_handler(CommandHandler('ban', ban_sticker))

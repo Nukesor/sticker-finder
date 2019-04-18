@@ -20,11 +20,6 @@ If you want `nsfw` or `furry` stuff, include those words in your search.
 
 *Help:*
 For a more detailed explanation (especially if you want to tag) use /help :)
-
-*Group:*
-Join the [Sticker Finder group](https://t.me/sticker_finder_bot)!
-Just join, talk about stuff and use the bot.
-It's pretty new, but I'll occasionally ask people about some stuff I want to implement.
 """
 
 
@@ -97,14 +92,13 @@ If you just Spam `asdf` while tagging or if you add hundreds of tags to your own
 You'll also get banned if you repeatedly tag in other languages while being in /english mode.
 When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted.
 
+*Deluxe mode:*
+A selected and well curated (and well tagged) collection of sticker packs are marked as `deluxe`.
+With /toggle\_deluxe you can decide whether you want to see all sticker packs or only this specific well maintained subset of sticker packs.
+
 *Candy:*
 I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
 But don't expect this functotionality to work reliably!
-
-*Group:*
-Join the [Sticker Finder group](https://t.me/sticker_finder_bot)!
-Just join, talk about stuff and use the bot.
-It's pretty new, but I'll occasionally ask people about some stuff I want to implement.
 
 In case you encounter any bugs or you just want to look at the code, feel free to check out my repository:
 [Sticker Finder on Github](https://github.com/Nukesor/sticker-finder)

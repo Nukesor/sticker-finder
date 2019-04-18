@@ -43,6 +43,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /cancel     Cancel all current tag actions
     /english    Only english sticker sets and tags
     /international Get sticker sets from all all languages.
+    /toggle_deluxe Only get the very best sticker packs. (Restricts the search drastically)
     /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
 
 
@@ -74,6 +75,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     cancel - Cancel all current actions.
     english - Only english sticker sets and tags
     international - Get sticker sets from all all languages.
+    toggle_deluxe - Only get the very best sticker packs. (Restricts the search drastically)
 
 
 ## Dev commands

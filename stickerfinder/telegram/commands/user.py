@@ -25,3 +25,16 @@ def set_not_is_default_language(bot, update, session, chat, user):
     keyboard = admin_keyboard if chat.is_maintenance else main_keyboard
     text = "Your tags will now be marked as not english and you will see sticker sets with non-english content."
     call_tg_func(update.message.chat, 'send_message', [text], {'reply_markup': keyboard})
+
+
+@run_async
+@session_wrapper(check_ban=True, private=True)
+def deluxe_user(bot, update, session, chat, user):
+    """Change the language of the user to the non default langage."""
+    user.deluxe = not user.deluxe
+    if user.deluxe:
+        text = f"You will only see sticker sets marked as deluxe now."
+    else:
+        text = f"You will now see sticker sets again."
+    keyboard = admin_keyboard if chat.is_maintenance else main_keyboard
+    call_tg_func(update.message.chat, 'send_message', [text], {'reply_markup': keyboard})

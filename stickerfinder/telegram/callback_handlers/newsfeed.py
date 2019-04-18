@@ -46,6 +46,18 @@ def handle_fur_set(session, action, query, payload, chat, tg_chat):
     call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
 
+def handle_deluxe_set(session, action, query, payload, chat, tg_chat):
+    """Handle the deluxe button in newsfeed chats."""
+    sticker_set = session.query(StickerSet).get(payload)
+    if CallbackResult(action).name == 'ok':
+        sticker_set.deluxe = True
+    elif CallbackResult(action).name == 'ban':
+        sticker_set.deluxe = False
+
+    keyboard = get_nsfw_ban_keyboard(sticker_set)
+    call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+
+
 def handle_change_set_language(session, action, query, payload, chat, tg_chat):
     """Handle the change language button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(payload.lower())
@@ -58,7 +70,7 @@ def handle_change_set_language(session, action, query, payload, chat, tg_chat):
     call_tg_func(query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
 
-def handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat):
+def handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat, user):
     """Handle the next button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(payload.lower())
     task = session.query(Task) \
@@ -88,7 +100,7 @@ def handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat
                 call_tg_func(bot, 'send_message', [task.chat.id, f'Stickerset {sticker_set.name} has been banned.'])
 
             else:
-                keyboard = get_tag_this_set_keyboard(sticker_set.name)
+                keyboard = get_tag_this_set_keyboard(sticker_set, user)
                 message = f'Stickerset {sticker_set.name} has been added.'
                 if sticker_set.nsfw or sticker_set.furry:
                     message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
