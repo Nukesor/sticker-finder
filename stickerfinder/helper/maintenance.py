@@ -1,4 +1,5 @@
 """Helper functions for maintenance."""
+from sqlalchemy import func
 from telegram.error import BadRequest, ChatMigrated
 
 from stickerfinder.helper.text import split_text
@@ -59,6 +60,13 @@ def check_newsfeed_chat(bot, session, chat):
 
     new_set = next_task.sticker_set
 
+    task_count = session.query(func.count(Task.id)) \
+        .filter(Task.type == Task.SCAN_SET) \
+        .filter(Task.reviewed.is_(False)) \
+        .one()
+
+    task_count = task_count[0]
+
     # Add the keyboard for managing this specific sticker set.
     try:
         keyboard = get_nsfw_ban_keyboard(new_set)
@@ -66,10 +74,13 @@ def check_newsfeed_chat(bot, session, chat):
                      [chat.id, new_set.stickers[0].file_id],
                      {'reply_markup': keyboard})
 
-        if next_task.user is not None:
+        if next_task.chat.type == 'private':
             message = f'Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})'
         else:
             message = f'Set {new_set.name} added by chat: {next_task.chat.id}'
+        if task_count > 1:
+            message += f'\n{task_count - 1} sets remaining.'
+
         call_tg_func(bot, 'send_message', [chat.id, message])
 
         chat.current_task = next_task
