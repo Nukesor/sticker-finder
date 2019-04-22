@@ -110,7 +110,6 @@ def inline_query_cleanup(session, update, threshold=None):
         for user in all_users:
             inline_queries = session.query(InlineQuery) \
                 .filter(InlineQuery.user == user) \
-                .filter(InlineQuery.sticker_file_id.is_(None)) \
                 .filter(InlineQuery.created_at >= threshold) \
                 .order_by(InlineQuery.created_at.asc()) \
                 .all()
@@ -119,11 +118,49 @@ def inline_query_cleanup(session, update, threshold=None):
                 if len(inline_query.query.strip()) == 0:
                     continue
 
+                if inline_query.sticker_file_id is not None:
+                    continue
+
                 if len(inline_queries) <= index+1:
                     continue
 
                 next_inline_query = user.inline_queries[index+1]
                 distance = next_inline_query.created_at - inline_query.created_at
+                if inline_query.query in next_inline_query.query and \
+                        distance < timedelta(seconds=5):
+                    deleted += 1
+                    overall_deleted += 1
+                    session.delete(inline_query)
+
+            session.commit()
+
+        # Exit condition. nothing got deleted in this iteration
+        if deleted == 0:
+            break
+
+    # Now do it the other way around as well.
+    # Users tend to search for something and then slowly delete the words
+    while True:
+        deleted = 0
+        for user in all_users:
+            inline_queries = session.query(InlineQuery) \
+                .filter(InlineQuery.user == user) \
+                .filter(InlineQuery.created_at >= threshold) \
+                .order_by(InlineQuery.created_at.desc()) \
+                .all()
+
+            for index, inline_query in enumerate(inline_queries):
+                if len(inline_query.query.strip()) == 0:
+                    continue
+
+                if inline_query.sticker_file_id is not None:
+                    continue
+
+                if len(inline_queries) <= index+1:
+                    continue
+
+                next_inline_query = user.inline_queries[index+1]
+                distance = inline_query.created_at - next_inline_query.created_at
                 if inline_query.query in next_inline_query.query and \
                         distance < timedelta(seconds=5):
                     deleted += 1
