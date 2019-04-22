@@ -1,11 +1,14 @@
-v1.1.0
+# v1.1.0
 
 
 **Features**
 - Tags will now be added to the existing tags, instead of replacing the old ones.
 - Replacing tags can be done by using `/replace [tags]`
-- If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of in the next query.
-- Favorites are now implemented for nsfw and furry stuff as well
+- Fixed the issue causing rapid incremental updates in the first bulk of stickers. (If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of waiting for the next query).
+- The favorites view is now implemented for nsfw and furry stuff as well. (Just type nothing)
+- /deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
+    You can now choose to only see this carefully curated set of stickers with the /deluxe command.
+    If you want to see everything again, just type /deluxe again.
 
 
 **Admin/Maintenance additions**
@@ -15,7 +18,7 @@ v1.1.0
 - Lots of bug/behaviour fixes and adjustments
 
 
-#v1.0.0
+# v1.0.0
 
 **Personal favorites:**
 - Just typing @stfi\_bot will now show you your all time favorite stickers ordered by frequency of use.
