@@ -56,6 +56,8 @@ def check_newsfeed_chat(bot, session, chat):
     # TODO: HANDLE
     # Sticker set with zero stickers
     if len(next_task.sticker_set.stickers) == 0:
+        session.delete(next_task.sticker_set)
+        session.delete(next_task)
         return
 
     new_set = next_task.sticker_set
