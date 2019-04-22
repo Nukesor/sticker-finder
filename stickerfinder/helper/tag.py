@@ -87,7 +87,7 @@ def handle_next(session, bot, chat, tg_chat, user):
 
     # Find a random sticker with no changes
     elif chat.tag_mode == TagMode.RANDOM:
-        sticker = session.query(Sticker) \
+        base_query = session.query(Sticker) \
             .outerjoin(Sticker.changes) \
             .join(Sticker.sticker_set) \
             .filter(Change.id.is_(None)) \
@@ -95,9 +95,18 @@ def handle_next(session, bot, chat, tg_chat, user):
             .filter(StickerSet.banned.is_(False)) \
             .filter(StickerSet.nsfw.is_(False)) \
             .filter(StickerSet.furry.is_(False)) \
+
+        # Let the users tag the deluxe sticker set first.
+        # If there are no more deluxe sets, just tag another random sticker.
+        sticker = base_query.filter(StickerSet.deluxe.is_(True)) \
             .order_by(func.random()) \
             .limit(1) \
             .one_or_none()
+        if sticker is None:
+            sticker = base_query \
+                .order_by(func.random()) \
+                .limit(1) \
+                .one_or_none()
 
         # No stickers for tagging left :)
         if not sticker:

@@ -9,6 +9,7 @@
 - /deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
     You can now choose to only see this carefully curated set of stickers with the /deluxe command.
     If you want to see everything again, just type /deluxe again.
+- /tag_random will now prioritize deluxe sets.
 
 
 **Admin/Maintenance additions**
