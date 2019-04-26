@@ -10,7 +10,7 @@ just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji 
 Just add "set" or "pack" to your search e.g. `@stfi_bot kermit set`.
 
 *Languages:*
-If you want non-english sticker packs, use /international to enable other languages than english.
+If you want non-English sticker packs, use /international to enable other languages than English.
 
 *Tagging:*
 For tagging sticker packs just send me a sticker from the pack.
@@ -69,21 +69,21 @@ To tag a whole pack just send me a sticker from the pack you want to tag.
 The default language is English. Every sticker pack, that contains language which isn't English will be flagged as such.
 These stickers can only be found, when changing your mode to /international. You can find lots of stuff in there, but it's not as good maintained as the /english section.
 
-*How to tag:*
+*Tagging 101:*
 Just try to describe the sticker as good as possible and add the text of the sticker: e.g. `obi wan star wars hello there`
 If there already are tags on a sticker, you'll add new tags to the existing ones, unless you use the `/replace [tags]` command.
 When you're in the English mode, *PLEASE* only tag in English. If you want to tag in another language, please use the international mode.
 
 *Tagging a single sticker:*
-/tag [tags] allows to tag the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
-Anyway you can also tag any other sticker by just replying to it with `/tag [tags]`.
+/tag [tags] allows tagging the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
+Anyway, you can also tag any other sticker by just replying to it with `/tag [tags]`.
 This is great for ad hoc tagging of single stickers in group chats, but the bot needs to be in the chat for this to work.
 
 *Want to help?*
 Tag some stickers :)! Tag your favorite sticker packs or just type /tag\_random in a direct conversation with the bot.
 
 *NSFW & Sticker Ban:*
-I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with `nsfw` and can only be found when addingi `nsfw` to your search.
+I'm trying to detect and flag/ban inappropriate stickers. Nude stickers and alike will be tagged with `nsfw` and can only be found when adding the word `nsfw` to your search.
 In case I miss any, you can use the /report command to make me look at it again.
 Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 
@@ -93,12 +93,12 @@ You'll also get banned if you repeatedly tag in other languages while being in /
 When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted.
 
 *Deluxe mode:*
-A selected and well curated (and well tagged) collection of sticker packs are marked as `deluxe`.
+A selected and well-curated (and well tagged) collection of sticker packs are marked as `deluxe`.
 With /toggle\_deluxe you can decide whether you want to see all sticker packs or only this specific well maintained subset of sticker packs.
 
 *Candy:*
 I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
-But don't expect this functotionality to work reliably!
+But don't expect this functionality to work reliably!
 
 In case you encounter any bugs or you just want to look at the code, feel free to check out my repository:
 [Sticker Finder on Github](https://github.com/Nukesor/sticker-finder)

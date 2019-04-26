@@ -8,7 +8,7 @@ There already are about 3100 searchable sticker sets with over 150k stickers. An
 Sticker finder is quite fast (about 0.1 sec for each search), supports custom tagging and features fuzzy searching!
 
 There are several ways to conveniently tag stickers: You can tag either in a direct telegram conversation or on the fly in any other chat.
-I even perform a basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
+I even perform basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
 
 And in case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
 
@@ -21,8 +21,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
 ## Features:
 
-- Inline query search by tags, text, emoji, stickerset name and title.
-- Dedicated search for sticker packs. Just add `pack` or `set` to your search e.g. `@stfi_bot kermit set`.
+- Inline query search by tags, text, emoji, sticker set name and title.
+- A dedicated search for sticker packs. Just add `pack` or `set` to your search e.g. `@stfi_bot kermit set`.
 - Fuzzy searching to match similar words or typos.
 - Individual search results (If you use a sticker often you will see it on top.)
 - Tagging of single stickers or whole sets.
