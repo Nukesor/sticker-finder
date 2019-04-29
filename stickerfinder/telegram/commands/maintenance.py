@@ -68,6 +68,13 @@ def stats(bot, update, session, chat, user):
 
     # Sticker set stuff
     sticker_set_count = session.query(StickerSet).count()
+    normal_set_count = session.query(StickerSet) \
+        .filter(StickerSet.nsfw.is_(False)) \
+        .filter(StickerSet.furry.is_(False)) \
+        .filter(StickerSet.banned.is_(False)) \
+        .filter(StickerSet.is_default_language.is_(True)) \
+        .count()
+    deluxe_set_count = session.query(StickerSet).filter(StickerSet.deluxe.is_(True)).count()
     nsfw_set_count = session.query(StickerSet).filter(StickerSet.nsfw.is_(True)).count()
     furry_set_count = session.query(StickerSet).filter(StickerSet.furry.is_(True)).count()
     banned_set_count = session.query(StickerSet).filter(StickerSet.banned.is_(True)).count()
@@ -97,6 +104,8 @@ Stickers:
 
 Sticker sets:
     => total: {sticker_set_count}
+    => normal: {normal_set_count}
+    => deluxe: {deluxe_set_count}
     => nsfw: {nsfw_set_count}
     => furry: {furry_set_count}
     => banned: {banned_set_count}
