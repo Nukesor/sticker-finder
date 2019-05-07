@@ -139,6 +139,14 @@ def get_tags_from_text(text, limit=15):
     original_text = text
     text = text.lower().strip()
 
+    # Remove the /tag command
+    if text.startswith('/tag'):
+        text = text[4:]
+
+    # Remove #request tag
+    if text.startswith('#request'):
+        text = text[8:]
+
     # Clean the text
     for ignored in ignored_characters:
         text = text.replace(ignored, '')
@@ -151,9 +159,6 @@ def get_tags_from_text(text, limit=15):
     # Remove tags accidentally added while using an inline bots
     if len(tags) > 0 and original_text.startswith('@') and 'bot' in tags[0]:
         tags.pop(0)
-
-    # Remove hashtags
-    tags = [tag[1:] if tag.startswith('#') else tag for tag in tags]
 
     # Deduplicate tags
     tags = list(OrderedDict.fromkeys(tags))
@@ -181,11 +186,6 @@ def tag_sticker(session, text, sticker, user,
                 chat=None, message_id=None,
                 replace=False, single_sticker=False):
     """Tag a single sticker."""
-    text = text.lower()
-    # Remove the /tag command
-    if text.startswith('/tag'):
-        text = text.split(' ')[1:]
-
     # Extract all texts from message and clean/filter them
     raw_tags = get_tags_from_text(text)
 
@@ -269,3 +269,14 @@ def add_original_emojis(session, sticker, raw_emojis):
 
         if emoji not in sticker.original_emojis:
             sticker.original_emojis.append(emoji)
+
+
+def handle_request_reply(sticker, update, session, chat, user):
+    """Handle group request stickers."""
+    if update.message.reply_to_message is None:
+        return
+
+    tags_message = update.message.reply_to_message.text
+    if tags_message.startswith('#request'):
+        tag_sticker(session, tags_message, sticker, user,
+                    chat=chat, single_sticker=True)

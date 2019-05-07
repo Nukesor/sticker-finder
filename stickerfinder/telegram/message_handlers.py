@@ -12,6 +12,7 @@ from stickerfinder.helper.tag import (
     handle_next,
     tag_sticker,
     current_sticker_tags_message,
+    handle_request_reply,
 )
 from stickerfinder.helper.keyboard import (
     get_tag_this_set_keyboard,
@@ -125,6 +126,9 @@ def handle_group_sticker(bot, update, session, chat, user):
     # Set the send sticker to the current sticker for tagging or report.
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
+
+    # Handle replies to #request messages and tag those stickers with the request tags
+    handle_request_reply(sticker, update, session, chat, user)
 
     if chat.is_maintenance or chat.is_newsfeed:
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'

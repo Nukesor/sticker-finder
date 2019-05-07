@@ -2,14 +2,21 @@
 
 
 **Features**
-- Tags will now be added to the existing tags, instead of replacing the old ones.
-- Replacing tags can be done by using `/replace [tags]`
-- Fixed the issue causing rapid incremental updates in the first bulk of stickers. (If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of waiting for the next query).
-- The favorites view is now implemented for nsfw and furry stuff as well. (Just type nothing)
+
+__Deluxe Mode__
 - /deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
     You can now choose to only see this carefully curated set of stickers with the /deluxe command.
     If you want to see everything again, just type /deluxe again.
 - /tag_random will now prioritize deluxe sets.
+
+__Bug fixes__
+- Fixed the issue causing rapid incremental updates in the first bulk of stickers. (If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of waiting for the next query).
+
+__Other Stuff__
+- The favorites view is now implemented for nsfw and furry stuff as well. (Just type nothing)
+- Tags will now be added to the existing tags, instead of replacing the old ones.
+- Replacing tags can be done by using `/replace [tags]`
+- If stickers are replying to a e.g. `#request some tags` message, the respective stickers are tagged with the request tags.
 
 
 **Admin/Maintenance additions**
