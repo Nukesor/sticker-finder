@@ -56,12 +56,4 @@ def strict_inline_search(session):
         sticker_set_2.stickers.append(sticker)
     session.commit()
 
-#    # Debugg stuff
-#    print(sticker_set_1)
-#    for sticker in sticker_set_1.stickers:
-#        print(sticker)
-#    print(sticker_set_2)
-#    for sticker in sticker_set_2.stickers:
-#        print(sticker)
-
     return [sticker_set_1, sticker_set_2]

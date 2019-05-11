@@ -11,6 +11,7 @@ __Deluxe Mode__
 
 __Bug fixes__
 - Fixed the issue causing rapid incremental updates in the first bulk of stickers. (If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of waiting for the next query).
+- Fix a bug, where stickers showed up at the end of the search, if they have been used by other people, but not by yourself
 
 __Other Stuff__
 - The favorites view is now implemented for nsfw and furry stuff as well. (Just type nothing)

@@ -32,14 +32,17 @@ def search_stickers(session, update, context, inline_query_request):
     inline_query_request.duration = duration
     inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
 
-    matching_stickers = matching_stickers + fuzzy_matching_stickers
-
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint({"offset": offset, "fuzzy_offset": context.fuzzy_offset}) # noqa
+        pprint.pprint({"offset": context.offset, "fuzzy_offset": context.fuzzy_offset}) # noqa
+        pprint.pprint(f'Normal matching (Count: {len(matching_stickers)})::') # noqa
         pprint.pprint(matching_stickers) # noqa
+        pprint.pprint(f'Fuzzy matching (Count: {len(fuzzy_matching_stickers)}):') # noqa
+        pprint.pprint(fuzzy_matching_stickers) # noqa
+
+    matching_stickers = matching_stickers + fuzzy_matching_stickers
 
     # Create a result list of max 50 cached sticker objects
     results = []
@@ -72,7 +75,7 @@ def search_sticker_sets(session, update, context, inline_query_request):
     if False:
         import pprint
         pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint(offset) # noqa
+        pprint.pprint(context.offset) # noqa
         pprint.pprint(matching_sets) # noqa
 
     # Create a result list of max 50 cached sticker objects

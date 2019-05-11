@@ -1,5 +1,5 @@
 """Query composition for inline search."""
-from sqlalchemy import func, case, cast, Numeric, or_
+from sqlalchemy import func, case, cast, Numeric, or_, and_
 
 from stickerfinder.models import (
     Sticker,
@@ -70,7 +70,16 @@ def get_strict_matching_sticker_sets(session, context):
 
 
 def get_strict_matching_query(session, context, sticker_set=False):
-    """Get the query for strict tag matching."""
+    """Get the query for strict tag matching.
+
+    The stickers are sorted by score, StickerSet.name and Sticker.file_id in this respective order.
+
+    Score is calculated like this:
+    + 1 for each exactly matching tag
+    + 0.75 if a tag is contained in StickerSet name or title
+    + 0.4 if tag is contained in OCR text
+    + 0.25 for each usage of a specific sticker (Only applied to stickers that match at least one of the above criteria)
+    """
     user = context.user
     tags = context.tags
     nsfw = context.nsfw
@@ -145,17 +154,28 @@ def get_strict_matching_query(session, context, sticker_set=False):
     # We also order by the name of the set and the file_id to get a deterministic sorting in the search.
     score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
     score_with_usage = score_with_usage + matching_stickers.c.score
-    score_with_usage = score_with_usage.label('score')
+    score_with_usage = score_with_usage.label('score_with_usage')
     matching_stickers_with_usage = session.query(matching_stickers.c.file_id, score_with_usage, matching_stickers.c.name) \
-        .outerjoin(StickerUsage, matching_stickers.c.file_id == StickerUsage.sticker_file_id) \
-        .filter(or_(StickerUsage.user_id == user.id, StickerUsage.user_id.is_(None))) \
+        .outerjoin(StickerUsage, and_(
+            matching_stickers.c.file_id == StickerUsage.sticker_file_id,
+            StickerUsage.user_id == user.id
+        )) \
         .order_by(score_with_usage.desc(), matching_stickers.c.name, matching_stickers.c.file_id) \
 
     return matching_stickers_with_usage
 
 
 def get_fuzzy_matching_query(session, context):
-    """Query all fuzzy matching stickers."""
+    """Get the query for fuzzy tag matching.
+
+    All stickers that have been found in strict search are excluded via left outer join.
+    The stickers are sorted by score, StickerSet.name and Sticker.file_id in this respective order.
+
+    Score is calculated like this:
+    + 'similarity_value' (0-1) for each similar tags
+    + 'similarity_value' (0-1) 0.75 if a similar tag is contained in StickerSet name or title
+    + 0.3 if text similar to a tag found in OCR text
+    """
     user = context.user
     tags = context.tags
     nsfw = context.nsfw
@@ -226,7 +246,7 @@ def get_fuzzy_matching_query(session, context):
 
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
-    intermediate_query = session.query(Sticker.file_id, StickerSet.title, score) \
+    intermediate_query = session.query(Sticker.file_id, StickerSet.name, score) \
         .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set) \
@@ -249,8 +269,8 @@ def get_fuzzy_matching_query(session, context):
     intermediate_query = intermediate_query.subquery('fuzzy_intermediate')
 
     # Now filter and sort by the score. Ignore the score threshold when searching for nsfw
-    matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score, intermediate_query.c.title) \
+    matching_stickers = session.query(intermediate_query.c.file_id, intermediate_query.c.score, intermediate_query.c.name) \
         .filter(or_(intermediate_query.c.score > 0, nsfw, furry)) \
-        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.title, intermediate_query.c.file_id) \
+        .order_by(intermediate_query.c.score.desc(), intermediate_query.c.name, intermediate_query.c.file_id) \
 
     return matching_stickers
