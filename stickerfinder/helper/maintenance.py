@@ -1,6 +1,6 @@
 """Helper functions for maintenance."""
 from sqlalchemy import func
-from telegram.error import BadRequest, ChatMigrated
+from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
@@ -117,7 +117,11 @@ def distribute_tasks(bot, session):
 
             raise e
 
-        check_maintenance_chat(session, tg_chat, chat, job=True)
+        try:
+            check_maintenance_chat(session, tg_chat, chat, job=True)
+        except (Unauthorized, ChatMigrated):
+            session.delete(chat)
+            session.commit()
 
 
 def check_maintenance_chat(session, tg_chat, chat, job=False):
