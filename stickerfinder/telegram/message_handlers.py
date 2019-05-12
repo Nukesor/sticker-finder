@@ -128,7 +128,8 @@ def handle_group_sticker(bot, update, session, chat, user):
     chat.current_sticker = sticker
 
     # Handle replies to #request messages and tag those stickers with the request tags
-    handle_request_reply(sticker, update, session, chat, user)
+    # Not a good idea. The request responses sind too
+    # handle_request_reply(sticker, update, session, chat, user)
 
     if chat.is_maintenance or chat.is_newsfeed:
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
