@@ -3,6 +3,7 @@ from stickerfinder.models import (
     Change,
     Sticker,
     StickerSet,
+    ProposedTags,
 )
 from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.telegram import call_tg_func
@@ -115,6 +116,9 @@ def handle_group_sticker(bot, update, session, chat, user):
     if set_name is None:
         return
 
+    # Handle replies to #request messages and tag those stickers with the request tags
+    handle_request_reply(update.message.sticker.file_id, update, session, chat, user)
+
     # Check if we know this sticker set. Early return if we don't
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.complete is False:
@@ -126,10 +130,6 @@ def handle_group_sticker(bot, update, session, chat, user):
     # Set the send sticker to the current sticker for tagging or report.
     sticker = session.query(Sticker).get(update.message.sticker.file_id)
     chat.current_sticker = sticker
-
-    # Handle replies to #request messages and tag those stickers with the request tags
-    # Not a good idea. The request responses sind too
-    # handle_request_reply(sticker, update, session, chat, user)
 
     if chat.is_maintenance or chat.is_newsfeed:
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'

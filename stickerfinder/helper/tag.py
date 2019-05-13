@@ -21,6 +21,7 @@ from stickerfinder.models import (
     Tag,
     Sticker,
     StickerSet,
+    ProposedTags,
 )
 
 
@@ -271,12 +272,13 @@ def add_original_emojis(session, sticker, raw_emojis):
             sticker.original_emojis.append(emoji)
 
 
-def handle_request_reply(sticker, update, session, chat, user):
+def handle_request_reply(file_id, update, session, chat, user):
     """Handle group request stickers."""
     if update.message.reply_to_message is None:
         return
 
     tags_message = update.message.reply_to_message.text
     if tags_message.startswith('#request'):
-        tag_sticker(session, tags_message, sticker, user,
-                    chat=chat, single_sticker=True)
+        proposed_tags = ProposedTags(tags_message, file_id, user, chat)
+        session.add(proposed_tags)
+        session.commit()

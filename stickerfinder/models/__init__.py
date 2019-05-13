@@ -9,3 +9,4 @@ from stickerfinder.models.report import Report # noqa
 from stickerfinder.models.inline_query import InlineQuery # noqa
 from stickerfinder.models.inline_query_request import InlineQueryRequest # noqa
 from stickerfinder.models.sticker_usages import StickerUsage # noqa
+from stickerfinder.models.proposed_tags import ProposedTags # noqa
