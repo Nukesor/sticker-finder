@@ -29,14 +29,13 @@ class ProposedTags(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)
-    sticker_file_id = Column(String, ForeignKey('sticker.file_id'), index=True)
+    sticker_file_id = Column(String, index=True)
     chat_id = Column(BigInteger, ForeignKey('chat.id',
                                             onupdate='cascade',
                                             ondelete='cascade',
                                             name='proposed_tags_chat_id_fkey'), index=True)
 
     user = relationship("User")
-    sticker = relationship("Sticker")
     chat = relationship('Chat')
 
     def __init__(self, tags, file_id, user, chat):
