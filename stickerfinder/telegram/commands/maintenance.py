@@ -9,6 +9,8 @@ from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
 from stickerfinder.helper.cleanup import full_cleanup
+from stickerfinder.helper.plot import send_plots
+
 from stickerfinder.models import (
     StickerSet,
     Sticker,
@@ -208,3 +210,17 @@ def cleanup(bot, update, session, chat, user):
 
     call_tg_func(update.message.chat, 'send_message',
                  ['Cleanup finished.'], {'reply_markup': admin_keyboard})
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def plot_statistics(bot, update, session, chat, user):
+    """Plot interesting statistics."""
+    send_plots(bot, update, session, chat, user, 'send_photo')
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def plot_files(bot, update, session, chat, user):
+    """Plot interesting statistics."""
+    send_plots(bot, update, session, chat, user, 'send_document')

@@ -44,6 +44,8 @@ from stickerfinder.telegram.commands import (
     deluxe_user,
     show_sticker,
     show_sticker_file_id,
+    plot_statistics,
+    plot_files,
 )
 from stickerfinder.telegram.jobs import (
     cleanup_job,
@@ -135,12 +137,14 @@ if not config.LEECHER:
     dispatcher.add_handler(CommandHandler('show_sticker', show_sticker))
     dispatcher.add_handler(CommandHandler('show_id', show_sticker_file_id))
 
-    # Maintenance Button commands
+    # Maintenance commands
     dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
     dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
     dispatcher.add_handler(CommandHandler('cleanup', cleanup))
     dispatcher.add_handler(CommandHandler('tasks', start_tasks))
     dispatcher.add_handler(CommandHandler('stats', stats))
+    dispatcher.add_handler(CommandHandler('plot', plot_statistics))
+    dispatcher.add_handler(CommandHandler('plot_files', plot_files))
 
     # Regular tasks
     minute = 60
