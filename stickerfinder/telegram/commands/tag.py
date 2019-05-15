@@ -38,8 +38,8 @@ def tag_single(bot, update, session, chat, user):
 def replace_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     if chat.current_sticker:
-        # Remove the /tag command
-        text = update.message.text[4:]
+        # Remove the /replace command
+        text = update.message.text[8:]
         if text.strip() == '':
             return 'You need to add some tags to the /replace command. E.g. "/replace meme prequel obi wan"'
 
