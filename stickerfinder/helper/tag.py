@@ -195,7 +195,10 @@ def tag_sticker(session, text, sticker, user,
         return
 
     # Only use the first few tags. This should prevent abuse from tag spammers.
-    raw_tags = raw_tags[:10]
+    if len(raw_tags) > 10:
+        raw_tags = raw_tags[:10]
+        call_tg_func(tg_chat, 'send_message',
+                     ["Please don't send that many tags. Try to describe everything as brief as possible."])
 
     # Inform us if the user managed to hit a special count of changes
     if tg_chat and len(user.changes) in reward_messages:
