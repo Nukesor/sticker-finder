@@ -78,6 +78,7 @@ def user_cleanup(session, update):
                 and len(user.tasks) == 0 \
                 and len(user.reports) == 0 \
                 and len(user.inline_queries) == 0 \
+                and len(user.proposed_tags) == 0 \
                 and user.banned is False \
                 and user.reverted is False \
                 and user.admin is False \

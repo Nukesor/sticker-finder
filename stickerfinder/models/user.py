@@ -35,6 +35,7 @@ class User(base):
     tasks = relationship('Task')
     reports = relationship('Report')
     inline_queries = relationship('InlineQuery', order_by="asc(InlineQuery.created_at)")
+    proposed_tags = relationship('ProposedTags')
 
     def __init__(self, user_id, username):
         """Create a new user."""
