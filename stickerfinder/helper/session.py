@@ -26,6 +26,9 @@ def job_session_wrapper(check_ban=False, admin_only=False):
                 func(context, session)
 
                 session.commit()
+            except BaseException:
+                traceback.print_exc()
+                sentry.captureException()
             finally:
                 session.close()
         return wrapper
