@@ -78,6 +78,7 @@ When you're in the English mode, *PLEASE* only tag in English. If you want to ta
 /tag [tags] allows tagging the last sticker posted in a chat e.g. `/tag obi wan star wars hello there`.
 Anyway, you can also tag any other sticker by just replying to it with `/tag [tags]`.
 This is great for ad hoc tagging of single stickers in group chats, but the bot needs to be in the chat for this to work.
+Replying to stickers also works for the /replace command
 
 *Want to help?*
 Tag some stickers :)! Tag your favorite sticker packs or just type /tag\_random in a direct conversation with the bot.

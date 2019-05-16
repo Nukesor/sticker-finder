@@ -3,22 +3,24 @@
 
 **Features**
 
-__Deluxe Mode__
-- /deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
-    You can now choose to only see this carefully curated set of stickers with the /deluxe command.
-    If you want to see everything again, just type /deluxe again.
-- /tag_random will now prioritize deluxe sets.
-
 __Bug fixes__
+- Replying to a sticker with `/tag [tags...]` now actually works
 - Fixed the issue causing rapid incremental updates in the first bulk of stickers. (If not enough stickers are found in strict search, fuzzy search will be performed immediately instead of waiting for the next query).
 - Fix a bug, where stickers showed up at the end of the search, if they have been used by other people, but not by yourself
 
 __Other Stuff__
 - The favorites view is now implemented for nsfw and furry stuff as well. (Just type nothing)
-- Tags will now be added to the existing tags, instead of replacing the old ones.
+- Tags will now be added to the existing tags, instead of replacing the old ones
 - Replacing tags can be done by using `/replace [tags]`
-- If stickers are replying to a e.g. `#request some tags` message, the respective stickers are tagged with the request tags.
+- You can reply to a sticker with `/replace [tags...]` and replace those tags
+- If a sticker is replied to a request message (in a group chat) e.g. `#request kermit` or simply `#kermit`, the respective stickers will be tagged with the request's tags (after being reviewed by me). This feature is mainly for [StickersChat](t.me/stickersChat)
 
+__Deluxe Mode__
+- deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
+    You can now choose to only see this carefully curated set of stickers with the /toggle_deluxe command.
+    If you want to see everything again, just type /deluxe again.
+    (This mode will take some time to become really good, since we need to look at all of the 4000 sticker packs again -.-)
+- /tag_random will now prioritize deluxe sets.
 
 **Admin/Maintenance additions**
 - /test\_broadcast function to preview a broadcast text.

@@ -32,7 +32,7 @@ def current_sticker_tags_message(sticker, user, send_set_info=False):
 
     language = 'english' if is_default_language else 'international'
     if sticker.has_tags_for_language(is_default_language):
-        message = f'Current {language} tags are: \n {sticker.tags_as_text(is_default_language)}'
+        message = f'Current {language} tags are: \n{sticker.tags_as_text(is_default_language)}'
     else:
         return f'There are no {language} tags for this sticker'
 
