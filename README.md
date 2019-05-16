@@ -1,5 +1,8 @@
 # Sticker Finder ([@stfi_bot](https://t.me/stfi_bot))
 
+[![Paypal](https://github.com/Nukesor/images/blob/master/paypal-donate-blue.svg)](https://www.paypal.me/arnebeer/)
+[![Patreon](https://github.com/Nukesor/images/blob/master/patreon-donate-blue.svg)](https://www.patreon.com/nukesor)
+
 This telegram bot allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
 
 The inline query filters by looking at custom tags, detected text, emojis, sticker set name and title.
