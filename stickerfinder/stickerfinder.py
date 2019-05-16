@@ -11,10 +11,15 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
-from stickerfinder.helper import help_text, admin_help_text, start_text
-from stickerfinder.helper.keyboard import main_keyboard, admin_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper import (
+    start_text,
+    help_text,
+    donations_text,
+    admin_help_text,
+)
 from stickerfinder.telegram.commands import (
     broadcast,
     test_broadcast,
@@ -73,10 +78,10 @@ def start(bot, update, session, chat, user):
     """Send a help text."""
     if chat.is_maintenance or chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
-                     {'reply_markup': admin_keyboard})
+                     {'reply_markup': get_main_keyboard(admin=True)})
     else:
         call_tg_func(update.message.chat, 'send_message', [start_text],
-                     {'reply_markup': main_keyboard, 'parse_mode': 'Markdown'})
+                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
 
 
 @session_wrapper()
@@ -84,10 +89,17 @@ def send_help_text(bot, update, session, chat, user):
     """Send a help text."""
     if user.admin:
         call_tg_func(update.message.chat, 'send_message', [admin_help_text],
-                     {'reply_markup': main_keyboard, 'parse_mode': 'Markdown'})
+                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
     elif not user.admin:
         call_tg_func(update.message.chat, 'send_message', [help_text],
-                     {'reply_markup': main_keyboard, 'parse_mode': 'Markdown'})
+                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
+
+
+@session_wrapper()
+def send_donation_text(bot, update, session, chat, user):
+    """Send the donation text."""
+    call_tg_func(update.message.chat, 'send_message', [donations_text],
+                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
 
 
 logging.basicConfig(level=config.LOG_LEVEL,
@@ -116,6 +128,7 @@ if not config.LEECHER:
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', send_help_text))
+    dispatcher.add_handler(CommandHandler('donations', send_donation_text))
     dispatcher.add_handler(CommandHandler('tag_random', tag_random))
     dispatcher.add_handler(CommandHandler('random_set', random_set))
     dispatcher.add_handler(CommandHandler('cancel', cancel))

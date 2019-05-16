@@ -8,14 +8,14 @@ from stickerfinder.helper.maintenance import (
     change_language_of_task_changes,
 )
 from stickerfinder.helper.keyboard import (
-    main_keyboard,
+    get_main_keyboard,
     check_user_tags_keyboard,
 )
 
 from stickerfinder.models import Task
 
 
-def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
+def handle_check_user(session, bot, action, query, payload, chat, tg_chat, user):
     """Handle all actions from the check_user task."""
     task = session.query(Task).get(payload)
     # Ban the user
@@ -26,7 +26,7 @@ def handle_check_user(session, bot, action, query, payload, chat, tg_chat):
         task.user.banned = False
         call_tg_func(query, 'answer', ['User ban reverted'])
         message = f'Your ban has been lifted.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': main_keyboard})
+        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': get_main_keyboard(task.user)})
 
     # Revert user changes
     elif CallbackResult(action).name == 'revert':

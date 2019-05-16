@@ -9,17 +9,29 @@ from stickerfinder.helper.callback import CallbackType, CallbackResult
 from stickerfinder.helper.tag_mode import TagMode
 
 
-main_keyboard = ReplyKeyboardMarkup(
-    [['/help', '/international', '/english'],
-     ['/tag_random', '/random_set']],
-    one_time_keyboard=True, resize_keyboard=True,
-)
+def get_main_keyboard(user=None, admin=False):
+    """Get the main keyboard for the current user."""
+    if admin:
+        keyboard = ReplyKeyboardMarkup(
+            [
+                ['toggle_deluxe', '/cancel', '/tasks'],
+                ['/stats', '/refresh', '/cleanup'],
+            ],
+            resize_keyboard=True, one_time_keyboard=True
+        )
+    else:
+        buttons = [
+            ['/tag_random', '/random_set'],
+            ['/donations', '/help'],
+        ]
+        if user.is_default_language:
+            buttons[1].append('/international')
+        else:
+            buttons[1].append('/english')
 
+        keyboard = ReplyKeyboardMarkup(buttons, one_time_keyboard=True, resize_keyboard=True)
 
-admin_keyboard = ReplyKeyboardMarkup(
-    [['toggle_deluxe', '/cancel', '/tasks'],
-     ['/stats', '/refresh', '/cleanup']],
-    resize_keyboard=True, one_time_keyboard=True)
+    return keyboard
 
 
 def get_nsfw_ban_keyboard(sticker_set):

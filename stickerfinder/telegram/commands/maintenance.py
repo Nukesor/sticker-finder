@@ -4,7 +4,7 @@ from telegram.ext import run_async
 from datetime import datetime, timedelta
 
 from stickerfinder.helper.sticker_set import refresh_stickers
-from stickerfinder.helper.keyboard import admin_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
@@ -26,7 +26,6 @@ from stickerfinder.models import (
 def stats(bot, update, session, chat, user):
     """Send a help text."""
     # Users
-
     one_month_old = datetime.now() - timedelta(days=30)
     month_user_count = session.query(User) \
         .join(User.inline_queries) \
@@ -116,7 +115,7 @@ Sticker sets:
 Total queries : {total_queries_count}
     => last day: {last_day_queries_count}
 """
-    call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': admin_keyboard})
+    call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': get_main_keyboard(admin=True)})
 
 
 @run_async
@@ -139,7 +138,7 @@ def refresh_sticker_sets(bot, update, session, chat, user):
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     call_tg_func(update.message.chat, 'send_message',
-                 ['All sticker sets are refreshed.'], {'reply_markup': admin_keyboard})
+                 ['All sticker sets are refreshed.'], {'reply_markup': get_main_keyboard(admin=True)})
 
 
 @run_async
@@ -159,7 +158,7 @@ def refresh_ocr(bot, update, session, chat, user):
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 
     call_tg_func(update.message.chat, 'send_message',
-                 ['All sticker sets are refreshed.'], {'reply_markup': admin_keyboard})
+                 ['All sticker sets are refreshed.'], {'reply_markup': get_main_keyboard(admin=True)})
 
 
 @run_async
@@ -188,7 +187,7 @@ def start_tasks(bot, update, session, chat, user):
     if not chat.is_maintenance and not chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message',
                      ['The chat is neither a maintenance nor a newsfeed chat'],
-                     {'reply_markup': admin_keyboard})
+                     {'reply_markup': get_main_keyboard(admin=True)})
         return
 
     elif chat.current_task:
@@ -209,7 +208,7 @@ def cleanup(bot, update, session, chat, user):
     full_cleanup(session, threshold, update=update)
 
     call_tg_func(update.message.chat, 'send_message',
-                 ['Cleanup finished.'], {'reply_markup': admin_keyboard})
+                 ['Cleanup finished.'], {'reply_markup': get_main_keyboard(admin=True)})
 
 
 @run_async

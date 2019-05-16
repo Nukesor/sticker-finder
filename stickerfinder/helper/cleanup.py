@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import admin_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.models import (
     Tag,
     User,
@@ -62,7 +62,8 @@ def tag_cleanup(session, update=None):
         call_tg_func(
             update.message.chat, 'send_message',
             [f'Tag cleanup finished. Removed {removed} tags. Corrected {corrected} tags.'],
-            {'reply_markup': admin_keyboard})
+            {'reply_markup': get_main_keyboard(admin=True)},
+        )
 
 
 def user_cleanup(session, update):
@@ -87,9 +88,11 @@ def user_cleanup(session, update):
             session.delete(user)
 
     if update is not None:
-        call_tg_func(update.message.chat, 'send_message',
-                     [f'User cleanup finished. {deleted} user deleted.'],
-                     {'reply_markup': admin_keyboard})
+        call_tg_func(
+            update.message.chat, 'send_message',
+            [f'User cleanup finished. {deleted} user deleted.'],
+            {'reply_markup': get_main_keyboard(admin=True)},
+        )
 
 
 def inline_query_cleanup(session, update, threshold=None):

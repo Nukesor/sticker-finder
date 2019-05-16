@@ -1,6 +1,6 @@
 """Module for handling tagging callback buttons."""
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import main_keyboard, get_fix_sticker_tags_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard, get_fix_sticker_tags_keyboard
 from stickerfinder.helper.tag import (
     send_tagged_count_message,
     handle_next,
@@ -29,7 +29,7 @@ def handle_cancel_tagging(session, bot, user, query, chat, tg_chat):
         call_tg_func(query, 'answer', ['All active commands have been canceled'])
 
     call_tg_func(tg_chat, 'send_message', ['All running commands are canceled'],
-                 {'reply_markup': main_keyboard})
+                 {'reply_markup': get_main_keyboard(user)})
 
     chat.cancel(bot)
 

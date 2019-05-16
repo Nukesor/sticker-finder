@@ -5,7 +5,7 @@ from telegram.error import BadRequest, ChatMigrated, Unauthorized
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import (
-    admin_keyboard,
+    get_main_keyboard,
     check_user_tags_keyboard,
     get_report_keyboard,
     get_nsfw_ban_keyboard,
@@ -144,7 +144,7 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
 
         call_tg_func(tg_chat, 'send_message',
                      ['There are no more tasks for processing.'],
-                     {'reply_markup': admin_keyboard})
+                     {'reply_markup': get_main_keyboard(admin=True)})
 
         return
 

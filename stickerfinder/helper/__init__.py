@@ -20,6 +20,11 @@ If you want `nsfw` or `furry` stuff, include those words in your search.
 
 *Help:*
 For a more detailed explanation (especially if you want to tag) use /help :)
+
+*Donate:*
+The whole project is for free, open-source on [Github](https://github.com/Nukesor/sticker-finder) and I'm paying for the server from my own money.
+I really appreciate any help I can get!
+Find me on [Patreon](https://www.patreon.com/nukesor) and [Paypal](https://www.paypal.me/arnebeer). For more info just press /donations.
 """
 
 
@@ -44,6 +49,25 @@ admin_help_text = """Commands available to admins:
 /refresh Refresh all stickerpacks.
 /refresh\_ocr Refresh all stickerpacks including ocr.
 /broadcast Send the message after this command to all users.
+"""
+
+donations_text = """
+Hello there!
+
+My name is Arne Beer (@Nukesor) and I'm the sole developer of the Sticker Finder.
+
+Working on Sticker Finder is a lot of fun and I'm looking forward to make this the best Sticker Bot ever! (even if it's exhausting to meet everyone's expectations from time to time 😄)
+
+All the coding for this project is done in my leisure time and for free.
+The project is non-profit, open-source on [Github](https://github.com/Nukesor/sticker-finder) and hosted on a server I'm renting from my own money.
+On a normal day I review about 20-50 new sticker packs, and 50+ tags from you out there 😉.
+Additionally I constantly try to develop new features to make the Sticker Finder better and faster, which usually takes up to a few hours a week.
+
+I really appreciate anything that helps me out and that keeps me and my server running ☺️.
+
+Find me on [Patreon](https://www.patreon.com/nukesor) and [Paypal](https://www.paypal.me/arnebeer).
+
+Have great day!
 """
 
 

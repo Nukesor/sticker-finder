@@ -2,7 +2,7 @@
 from telegram.ext import run_async
 from sqlalchemy import func
 
-from stickerfinder.helper.keyboard import main_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import (
@@ -64,4 +64,4 @@ def random_set(bot, update, session, chat, user):
         chat.current_sticker = sticker_set.stickers[0]
         call_tg_func(update.message.chat, 'send_sticker',
                      args=[sticker_set.stickers[0].file_id],
-                     kwargs={'reply_markup': main_keyboard})
+                     kwargs={'reply_markup': get_main_keyboard(user)})

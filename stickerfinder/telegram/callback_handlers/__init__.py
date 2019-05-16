@@ -64,7 +64,7 @@ def handle_callback_query(bot, update, session, user):
 
     # Handle check-user-task callbacks
     elif CallbackType(callback_type).name == 'check_user_tags':
-        handle_check_user(session, bot, action, query, payload, chat, tg_chat)
+        handle_check_user(session, bot, action, query, payload, chat, tg_chat, user)
 
     # Handle the buttons in the newsfeed channel
     elif CallbackType(callback_type).name == 'ban_set':

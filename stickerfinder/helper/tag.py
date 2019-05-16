@@ -7,7 +7,7 @@ from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.keyboard import (
-    main_keyboard,
+    get_main_keyboard,
     get_tagging_keyboard,
     get_fix_sticker_tags_keyboard,
 )
@@ -82,7 +82,7 @@ def handle_next(session, bot, chat, tg_chat, user):
         # There are no stickers left, reset the chat and send success message.
         chat.current_sticker.sticker_set.completely_tagged = True
         call_tg_func(tg_chat, 'send_message', ['The full sticker set is now tagged.'],
-                     {'reply_markup': main_keyboard})
+                     {'reply_markup': get_main_keyboard(user)})
         send_tagged_count_message(session, bot, user, chat)
         chat.cancel(bot)
 
@@ -113,7 +113,7 @@ def handle_next(session, bot, chat, tg_chat, user):
         if not sticker:
             call_tg_func(tg_chat, 'send_message',
                          ['It looks like all stickers are already tagged :).'],
-                         {'reply_markup': main_keyboard})
+                         {'reply_markup': get_main_keyboard(user)})
             chat.cancel(bot)
 
         # Found a sticker. Send the messages
@@ -179,7 +179,7 @@ def send_tagged_count_message(session, bot, user, chat):
             .count()
 
         call_tg_func(bot, 'send_message', [user.id, f'You already tagged {count} stickers. Thanks!'],
-                     {'reply_markup': main_keyboard})
+                     {'reply_markup': get_main_keyboard(user)})
 
 
 def tag_sticker(session, text, sticker, user,

@@ -7,7 +7,7 @@ from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import main_keyboard
+from stickerfinder.helper.keyboard import get_main_keyboard
 
 
 @run_async
@@ -157,7 +157,7 @@ def broadcast(bot, update, session, chat, user):
 
     call_tg_func(update.message.chat, 'send_message',
                  [f'All messages sent. Deleted {deleted} chats.'],
-                 {'reply_markup': main_keyboard})
+                 {'reply_markup': get_main_keyboard(user)})
 
 
 @run_async

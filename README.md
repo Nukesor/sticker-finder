@@ -39,7 +39,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 ## Available commands:
 
     /help       Display help
-    /tag [tags] Tag the last sticker posted in this chat
+    /tag [tags] Tag the last sticker posted in this chat or the sticker you replied to
+    /replace [tags] Replace the tags of the last sticker posted in this chat or the sticker you replied to
     /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
     /random_set Get a random sticker set.
     /skip       Skip the current sticker
@@ -70,7 +71,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 ## Botfather commands
 
     help - Display help
-    tag - Tag the last sticker posted in this chat
+    tag - Tag the last sticker posted in this chat or the sticker you replied to
+    replace - Replace the tags of the last sticker posted in this chat or the sticker you replied to
     tag_random - Get a random sticker for tagging. Thanks for doing this :)!
     random_set - The bot sends you a random sticker set.
     skip - Skip the current sticker
@@ -79,6 +81,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     english - Only english sticker sets and tags
     international - Get sticker sets from all all languages.
     toggle_deluxe - Only get the very best sticker packs. (Restricts the search drastically)
+    forget_set - Forget all usages of a sticker pack.
+    donations - Show information on donations
 
 
 ## Dev commands
