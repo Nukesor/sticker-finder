@@ -121,7 +121,7 @@ def handle_next(session, bot, chat, tg_chat, user):
         send_tag_messages(chat, tg_chat, user, send_set_info=True)
 
 
-def initialize_set_tagging(bot, tg_chat, session, name, chat, user):
+def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
     """Initialize the set tag functionality of a chat."""
     sticker_set = StickerSet.get_or_create(session, name, chat, user)
     if sticker_set.complete is False:

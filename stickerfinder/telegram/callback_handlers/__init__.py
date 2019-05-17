@@ -2,8 +2,8 @@
 from telegram.ext import run_async
 
 from stickerfinder.helper.session import hidden_session_wrapper
-from stickerfinder.helper.callback import CallbackType
 from stickerfinder.helper.tag import initialize_set_tagging
+from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
     Chat,
     InlineQuery,
@@ -37,65 +37,77 @@ from .sticker_set import (
 )
 
 
+class CallbackContext():
+    """Contains all important information for handling with callbacks."""
+
+    def __init__(self, session, query, user):
+        """Create a new CallbackContext from a query."""
+        self.query = query
+        self.user = user
+        data = self.query.data
+
+        # Extract the callback type, task id
+        data = data.split(':')
+        self.callback_type = int(data[0])
+        self.payload = data[1]
+        self.action = int(data[2])
+
+        # Get chat entity and telegram chat
+        self.chat = session.query(Chat).get(self.query.message.chat.id)
+        self.tg_chat = self.query.message.chat
+
+
 @run_async
 @hidden_session_wrapper()
 def handle_callback_query(bot, update, session, user):
     """Handle callback queries from inline keyboards."""
-    query = update.callback_query
-    data = query.data
-
-    # Extract the callback type, task id
-    [callback_type, payload, action] = data.split(':')
-    callback_type = int(callback_type)
-    action = int(action)
-
-    chat = session.query(Chat).get(query.message.chat.id)
-    tg_chat = query.message.chat
+    context = CallbackContext(session, update.callback_query, user)
+    callback_type = context.callback_type
 
     # Handle user report stuff
     if CallbackType(callback_type).name == 'report_ban':
-        handle_report_ban(session, action, query, payload, chat, tg_chat)
+        handle_report_ban(session, context)
     elif CallbackType(callback_type).name == 'report_nsfw':
-        handle_report_nsfw(session, action, query, payload, chat, tg_chat)
+        handle_report_nsfw(session, context)
     elif CallbackType(callback_type).name == 'report_furry':
-        handle_report_furry(session, action, query, payload, chat, tg_chat)
+        handle_report_furry(session, context)
     elif CallbackType(callback_type).name == 'report_next':
-        handle_report_next(session, action, query, payload, chat, tg_chat)
+        handle_report_next(session, context)
 
     # Handle check-user-task callbacks
     elif CallbackType(callback_type).name == 'check_user_tags':
-        handle_check_user(session, bot, action, query, payload, chat, tg_chat, user)
+        handle_check_user(session, bot, context)
 
     # Handle the buttons in the newsfeed channel
     elif CallbackType(callback_type).name == 'ban_set':
-        handle_ban_set(session, action, query, payload, chat, tg_chat)
+        handle_ban_set(session, context)
     elif CallbackType(callback_type).name == 'nsfw_set':
-        handle_nsfw_set(session, action, query, payload, chat, tg_chat)
+        handle_nsfw_set(session, context)
     elif CallbackType(callback_type).name == 'fur_set':
-        handle_fur_set(session, action, query, payload, chat, tg_chat)
+        handle_fur_set(session, context)
     elif CallbackType(callback_type).name == 'change_set_language':
-        handle_change_set_language(session, action, query, payload, chat, tg_chat)
+        handle_change_set_language(session, context)
     elif CallbackType(callback_type).name == 'deluxe_set':
-        handle_deluxe_set(session, action, query, payload, chat, tg_chat)
+        handle_deluxe_set(session, context)
     elif CallbackType(callback_type).name == 'newsfeed_next_set':
-        handle_next_newsfeed_set(session, bot, action, query, payload, chat, tg_chat, user)
+        handle_next_newsfeed_set(session, bot, context)
 
     # Handle sticker tagging buttons
     elif CallbackType(callback_type).name == 'next':
-        handle_tag_next(session, bot, user, query, chat, tg_chat)
+        handle_tag_next(session, bot, context)
     elif CallbackType(callback_type).name == 'cancel':
-        handle_cancel_tagging(session, bot, user, query, chat, tg_chat)
+        handle_cancel_tagging(session, bot, context)
     elif CallbackType(callback_type).name == 'edit_sticker':
-        handle_fix_sticker_tags(session, payload, user, chat, tg_chat)
+        handle_fix_sticker_tags(session, context)
 
     elif CallbackType(callback_type).name == 'tag_set':
-        initialize_set_tagging(bot, tg_chat, session, payload, chat, user)
+        initialize_set_tagging(session, bot, context.tg_chat, context.payload, context.chat, user)
     elif CallbackType(callback_type).name == 'continue_tagging':
-        handle_continue_tagging_set(session, bot, payload, user, chat, tg_chat)
+        handle_continue_tagging_set(session, bot, context)
 
     # Handle other user buttons
     elif CallbackType(callback_type).name == 'deluxe_set_user_chat':
-        handle_deluxe_set_user_chat(session, bot, action, query, payload, user)
+        handle_deluxe_set_user_chat(session, bot, context)
 
     return
 
