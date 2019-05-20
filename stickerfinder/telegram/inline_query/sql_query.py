@@ -57,7 +57,7 @@ def get_strict_matching_sticker_sets(session, context):
     strict_subquery = get_strict_matching_query(session, context, sticker_set=True) \
         .subquery('strict_sticker_subq')
 
-    score = func.sum(strict_subquery.c.score).label('score')
+    score = func.sum(strict_subquery.c.score_with_usage).label('score')
     matching_sets = session.query(StickerSet, score) \
         .join(strict_subquery, StickerSet.name == strict_subquery.c.name) \
         .group_by(StickerSet) \
