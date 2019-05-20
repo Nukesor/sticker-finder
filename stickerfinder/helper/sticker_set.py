@@ -81,7 +81,7 @@ def extract_text(tg_sticker):
     except BadRequest:
         logger.info(f'Failed to get image of f{tg_sticker.file_id}')
         pass
-    except BaseException:
+    except:
         sentry.captureException()
         pass
 

@@ -104,12 +104,12 @@ def session_wrapper(send_message=True, check_ban=False,
             except TelegramError as e:
                 raise e
 
-            except BaseException as e:
+            except:
                 if send_message:
                     session.close()
                     call_tg_func(message.chat, 'send_message',
                                  args=[error_text])
-                raise e
+                raise
             finally:
                 session.close()
 

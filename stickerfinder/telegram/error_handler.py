@@ -29,6 +29,6 @@ def error_callback(update, context):
     except Unauthorized:
         pass
 
-    except BaseException:
+    except:
         traceback.print_exc()
         sentry.captureException()
