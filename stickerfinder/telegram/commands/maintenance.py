@@ -133,7 +133,7 @@ def refresh_sticker_sets(bot, update, session, chat, user):
     for sticker_set in sticker_sets:
         refresh_stickers(session, sticker_set, bot)
         count += 1
-        if count % 1000 == 0:
+        if count % 500 == 0:
             progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
             call_tg_func(update.message.chat, 'send_message', args=[progress])
 

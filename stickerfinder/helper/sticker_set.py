@@ -20,7 +20,8 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     try:
         tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[sticker_set.name])
     except BadRequest as e:
-        if e.message == 'Stickerset_invalid': # noqa
+        if e.message == 'Stickerset_invalid' or \
+                e.message == 'Requested data is inaccessible':
             sticker_set.deleted = True
             return
 
