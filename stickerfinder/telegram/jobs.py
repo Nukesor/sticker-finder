@@ -71,12 +71,15 @@ def maintenance_job(context, session):
             task = Task(Task.CHECK_USER_TAGS, user=user)
             task.is_default_language = is_default_language
             session.add(task)
-            session.commit()
-            session.query(Change) \
+
+            changes = session.query(Change) \
                 .filter(Change.check_task_id.is_(None)) \
                 .filter(Change.user_id == user.id) \
                 .filter(Change.is_default_language.is_(is_default_language)) \
-                .update({'check_task_id': task.id}, synchronize_session='fetch')
+                .all()
+
+            task.changes_to_check = changes
+            session.commit()
 
         session.commit()
 
