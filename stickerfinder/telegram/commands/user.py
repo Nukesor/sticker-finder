@@ -11,7 +11,7 @@ def set_is_default_language(bot, update, session, chat, user):
     """Change the language of the user to the default langage."""
     user.is_default_language = True
 
-    keyboard = get_main_keyboard(admin=True) if chat.is_maintenance else get_main_keyboard(user)
+    keyboard = get_main_keyboard(user)
     text = "Your tags will now be marked as english and you won't see any sticker sets with non-english content."
     call_tg_func(update.message.chat, 'send_message', [text], {'reply_markup': keyboard})
 
@@ -22,7 +22,7 @@ def set_not_is_default_language(bot, update, session, chat, user):
     """Change the language of the user to the non default langage."""
     user.is_default_language = False
 
-    keyboard = get_main_keyboard(admin=True) if chat.is_maintenance else get_main_keyboard(user)
+    keyboard = get_main_keyboard(user)
     text = "Your tags will now be marked as not english and you will see sticker sets with non-english content."
     call_tg_func(update.message.chat, 'send_message', [text], {'reply_markup': keyboard})
 
@@ -30,11 +30,24 @@ def set_not_is_default_language(bot, update, session, chat, user):
 @run_async
 @session_wrapper(check_ban=True, private=True)
 def deluxe_user(bot, update, session, chat, user):
-    """Change the language of the user to the non default langage."""
-    user.deluxe = not user.deluxe
+    """Limit the result set of a user's search to deluxe stickers."""
     if user.deluxe:
-        text = f"You will only see sticker sets marked as deluxe now."
-    else:
-        text = f"You will now see sticker sets again."
-    keyboard = get_main_keyboard(admin=True) if chat.is_maintenance else get_main_keyboard(user)
-    call_tg_func(update.message.chat, 'send_message', [text], {'reply_markup': keyboard})
+        return "You're already opt in for deluxe sticker packs."
+
+    user.deluxe = True
+    call_tg_func(update.message.chat, 'send_message',
+                 ["You will now only see deluxe sticker sets."],
+                 {'reply_markup': get_main_keyboard(user)})
+
+
+@run_async
+@session_wrapper(check_ban=True, private=True)
+def undeluxe_user(bot, update, session, chat, user):
+    """Change the language of the user to the non default langage."""
+    if not user.deluxe:
+        return "You're already opt out of deluxe sticker packs."
+
+    user.deluxe = False
+    call_tg_func(update.message.chat, 'send_message'
+                 ["You will now see all sticker sets again."],
+                 {'reply_markup': get_main_keyboard(user)})

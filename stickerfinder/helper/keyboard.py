@@ -21,9 +21,16 @@ def get_main_keyboard(user=None, admin=False):
         )
     else:
         buttons = [
-            ['/tag_random', '/random_set'],
+            ['/highscore', '/tag_random'],
             ['/donations', '/help'],
         ]
+        # Deluxe button
+        if user.deluxe:
+            buttons[0].insert(0, '/undeluxe')
+        else:
+            buttons[0].insert(0, '/deluxe')
+
+        # Language button
         if user.is_default_language:
             buttons[1].append('/international')
         else:
