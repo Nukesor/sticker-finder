@@ -64,11 +64,13 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 3. Now copy the `stickerfinder/config.example.py` to `stickerfinder/config.py` and adjust all necessary values.
 4. Finally execute following commands to install all dependencies and to start the bot:
 
-    % poetry install
-    % poetry run initdb.py
-    % poetry run main.py
+        % poetry install
+        % poetry run initdb.py
+        % poetry run main.py
 
-5. When you are updating from a previous version just execute `poetry run alembic upgrade head`.
+5. If you plan to keep up to date, you need to set the current alemibic revision manually.
+Get the latest revision with `poetry run alembic history` and change the current head to the newest revision with `poetry run alembic stamp <revision>`.
+6. Now you can just execute `poetry run alembic upgrade head`, whenever you are updating from a previous version.
 
 
 ## Botfather commands
