@@ -42,6 +42,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 ## Available commands:
 
     /help       Display help
+    /donations  Show information for donations
     /tag [tags] Tag the last sticker posted in this chat or the sticker you replied to
     /replace [tags] Replace the tags of the last sticker posted in this chat or the sticker you replied to
     /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
@@ -52,6 +53,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /international Get sticker sets from all all languages.
     /toggle_deluxe Only get the very best sticker packs. (Restricts the search drastically)
     /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
+    /admin_help       Display admin help
 
 
 ## Installation and starting:
@@ -76,6 +78,7 @@ Get the latest revision with `poetry run alembic history` and change the current
 ## Botfather commands
 
     help - Display help
+    donations - Show information for donations
     tag - Tag the last sticker posted in this chat or the sticker you replied to
     replace - Replace the tags of the last sticker posted in this chat or the sticker you replied to
     tag_random - Get a random sticker for tagging. Thanks for doing this :)!
@@ -87,7 +90,7 @@ Get the latest revision with `poetry run alembic history` and change the current
     international - Get sticker sets from all all languages.
     toggle_deluxe - Only get the very best sticker packs. (Restricts the search drastically)
     forget_set - Forget all usages of a sticker pack.
-    donations - Show information on donations
+    help - Display admin help
 
 
 ## Dev commands

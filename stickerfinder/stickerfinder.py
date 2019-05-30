@@ -76,7 +76,7 @@ from stickerfinder.telegram.error_handler import error_callback
 
 @session_wrapper()
 def start(bot, update, session, chat, user):
-    """Send a help text."""
+    """Send the start text."""
     if chat.is_maintenance or chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
                      {'reply_markup': get_main_keyboard(admin=True)})
@@ -87,13 +87,16 @@ def start(bot, update, session, chat, user):
 
 @session_wrapper()
 def send_help_text(bot, update, session, chat, user):
-    """Send a help text."""
-    if user.admin:
-        call_tg_func(update.message.chat, 'send_message', [admin_help_text],
-                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-    elif not user.admin:
-        call_tg_func(update.message.chat, 'send_message', [help_text],
-                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
+    """Send the help text."""
+    call_tg_func(update.message.chat, 'send_message', [help_text],
+                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
+
+
+@session_wrapper(admin_only=True)
+def send_admin_help_text(bot, update, session, chat, user):
+    """Send the admin help text."""
+    call_tg_func(update.message.chat, 'send_message', [admin_help_text],
+                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
 
 
 @session_wrapper()
@@ -129,6 +132,7 @@ if not config.LEECHER:
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', send_help_text))
+    dispatcher.add_handler(CommandHandler('admin_help', send_admin_help_text))
     dispatcher.add_handler(CommandHandler('donations', send_donation_text))
     dispatcher.add_handler(CommandHandler('tag_random', tag_random))
     dispatcher.add_handler(CommandHandler('random_set', random_set))

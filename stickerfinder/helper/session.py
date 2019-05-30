@@ -53,6 +53,13 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
 
                 session.commit()
             # Raise all telegram errors and let the generic error_callback handle it
+            except TelegramError as e:
+                raise e
+            # Handle all not telegram relatated exceptions
+            except BaseException:
+                traceback.print_exc()
+                sentry.captureException()
+
             finally:
                 session.close()
         return wrapper
@@ -104,7 +111,10 @@ def session_wrapper(send_message=True, check_ban=False,
             except TelegramError as e:
                 raise e
 
-            except:
+            # Handle all not telegram relatated exceptions
+            except BaseException:
+                traceback.print_exc()
+                sentry.captureException()
                 if send_message:
                     session.close()
                     call_tg_func(message.chat, 'send_message',

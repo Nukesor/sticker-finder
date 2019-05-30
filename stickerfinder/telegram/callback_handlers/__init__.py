@@ -51,6 +51,7 @@ class CallbackContext():
         self.callback_type = int(data[0])
         self.payload = data[1]
         self.action = int(data[2])
+        self.callback_name = CallbackType(self.callback_type).name
 
         # Get chat entity and telegram chat
         self.chat = session.query(Chat).get(self.query.message.chat.id)
@@ -62,51 +63,50 @@ class CallbackContext():
 def handle_callback_query(bot, update, session, user):
     """Handle callback queries from inline keyboards."""
     context = CallbackContext(session, update.callback_query, user)
-    callback_type = context.callback_type
 
     # Handle user report stuff
-    if CallbackType(callback_type).name == 'report_ban':
+    if context.callback_name == 'report_ban':
         handle_report_ban(session, context)
-    elif CallbackType(callback_type).name == 'report_nsfw':
+    elif context.callback_name == 'report_nsfw':
         handle_report_nsfw(session, context)
-    elif CallbackType(callback_type).name == 'report_furry':
+    elif context.callback_name == 'report_furry':
         handle_report_furry(session, context)
-    elif CallbackType(callback_type).name == 'report_next':
+    elif context.callback_name == 'report_next':
         handle_report_next(session, context)
 
     # Handle check-user-task callbacks
-    elif CallbackType(callback_type).name == 'check_user_tags':
+    elif context.callback_name == 'check_user_tags':
         handle_check_user(session, bot, context)
 
     # Handle the buttons in the newsfeed channel
-    elif CallbackType(callback_type).name == 'ban_set':
+    elif context.callback_name == 'ban_set':
         handle_ban_set(session, context)
-    elif CallbackType(callback_type).name == 'nsfw_set':
+    elif context.callback_name == 'nsfw_set':
         handle_nsfw_set(session, context)
-    elif CallbackType(callback_type).name == 'fur_set':
+    elif context.callback_name == 'fur_set':
         handle_fur_set(session, context)
-    elif CallbackType(callback_type).name == 'change_set_language':
+    elif context.callback_name == 'change_set_language':
         handle_change_set_language(session, context)
-    elif CallbackType(callback_type).name == 'deluxe_set':
+    elif context.callback_name == 'deluxe_set':
         handle_deluxe_set(session, context)
-    elif CallbackType(callback_type).name == 'newsfeed_next_set':
+    elif context.callback_name == 'newsfeed_next_set':
         handle_next_newsfeed_set(session, bot, context)
 
     # Handle sticker tagging buttons
-    elif CallbackType(callback_type).name == 'next':
+    elif context.callback_name == 'next':
         handle_tag_next(session, bot, context)
-    elif CallbackType(callback_type).name == 'cancel':
+    elif context.callback_name == 'cancel':
         handle_cancel_tagging(session, bot, context)
-    elif CallbackType(callback_type).name == 'edit_sticker':
+    elif context.callback_name == 'edit_sticker':
         handle_fix_sticker_tags(session, context)
 
-    elif CallbackType(callback_type).name == 'tag_set':
+    elif context.callback_name == 'tag_set':
         initialize_set_tagging(session, bot, context.tg_chat, context.payload, context.chat, user)
-    elif CallbackType(callback_type).name == 'continue_tagging':
+    elif context.callback_name == 'continue_tagging':
         handle_continue_tagging_set(session, bot, context)
 
     # Handle other user buttons
-    elif CallbackType(callback_type).name == 'deluxe_set_user_chat':
+    elif context.callback_name == 'deluxe_set_user_chat':
         handle_deluxe_set_user_chat(session, bot, context)
 
     return
