@@ -119,7 +119,7 @@ When you're banned, you can't use the inline search any longer and all of your c
 
 *Deluxe mode:*
 A selected and well-curated (and well tagged) collection of sticker packs are marked as `deluxe`.
-With /toggle\_deluxe you can decide whether you want to see all sticker packs or only this specific well maintained subset of sticker packs.
+With /deluxe and /undeluxe you can decide whether you want to see all sticker packs or only this specific well maintained subset of sticker packs.
 
 *Candy:*
 I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
