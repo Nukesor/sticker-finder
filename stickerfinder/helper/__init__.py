@@ -1,7 +1,7 @@
 """Some static stuff or helper functions for sticker finder bot."""
 
 
-start_text = """Hey. This is Sticker Finder Bot.
+start_text = """Hey. I'm
 
 *Sticker search:*
 just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
@@ -19,9 +19,9 @@ For tagging sticker packs just send me a sticker from the pack.
 If you want `nsfw` or `furry` stuff, include those words in your search.
 
 *Help:*
-For a more detailed explanation (especially if you want to tag) use /help :)
+For a more detailed explanation (especially if you want to tag) check out the /help :)
 
-*Donate:*
+*Donations:*
 The whole project is for free, open-source on [Github](https://github.com/Nukesor/sticker-finder) and I'm paying for the server from my own money.
 I really appreciate any help I can get!
 Find me on [Patreon](https://www.patreon.com/nukesor) and [Paypal](https://www.paypal.me/arnebeer). For more info just press /donations.
