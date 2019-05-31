@@ -281,6 +281,9 @@ def handle_request_reply(file_id, update, session, chat, user):
         return
 
     tags_message = update.message.reply_to_message.text
+    if tags_message:
+        return
+
     if tags_message.lower().startswith('#') or tags_message.lower().startswith('request'):
         proposed_tags = ProposedTags(tags_message, file_id, user, chat)
         session.add(proposed_tags)

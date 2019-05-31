@@ -48,6 +48,6 @@ def undeluxe_user(bot, update, session, chat, user):
         return "You're already opt out of deluxe sticker packs."
 
     user.deluxe = False
-    call_tg_func(update.message.chat, 'send_message'
+    call_tg_func(update.message.chat, 'send_message',
                  ["You will now see all sticker sets again."],
                  {'reply_markup': get_main_keyboard(user)})
