@@ -208,7 +208,8 @@ def tag_sticker(session, text, sticker, user,
         sentry.captureMessage(
             f'User hit {len(user.changes)} changes!', level='info',
             extra={
-                'user': user,
+                'user': user.username,
+                'user_id': user.id,
                 'changes': len(user.changes),
             },
         )

@@ -21,7 +21,7 @@ class User(base):
     __tablename__ = 'user'
 
     id = Column(BigInteger, primary_key=True)
-    username = Column(String, unique=True)
+    username = Column(String)
     is_default_language = Column(Boolean, default=True, nullable=False)
     deluxe = Column(Boolean, default=False, nullable=False)
 
