@@ -57,18 +57,23 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
 
 
 ## Installation and starting:
+**This bot is developed for Linux.**
 
-1. You will need to install `poetry` to install all dependencies.
-2. Clone the repository: 
+Windows isn't tested, but it shouldn't be too hard to make it compatible. Feel free to create a PR.
+
+Dependencies: 
+- `poetry` to manage and install dependencies.
+- Stickerfinder uses postgres by default. Make sure the user has write/read rights. (This can be changed, by changing the SQLURI in the configuration file.)
+
+1. Clone the repository: 
 
         % git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
-
-3. Now copy the `stickerfinder/config.example.py` to `stickerfinder/config.py` and adjust all necessary values.
-4. Finally execute following commands to install all dependencies and to start the bot:
+2. Execute following commands to install all dependencies and to initialize the database:
 
         % poetry install
         % poetry run initdb.py
-        % poetry run main.py
+3. Either start the stickerfinder once or copy the `stickerfinder.toml` manually to `~/.config/stickerfinder.toml` and adjust all necessary values.
+4. Start the bot `poetry run main.py`
 
 5. If you plan to keep up to date, you need to set the current alemibic revision manually.
 Get the latest revision with `poetry run alembic history` and change the current head to the newest revision with `poetry run alembic stamp <revision>`.
