@@ -60,7 +60,7 @@ def make_admin(bot, update, session, chat, user):
     """Send a help text."""
     identifier = update.message.text.split(' ', 1)[1].lower()
 
-    if user.username != config.ADMIN.lower():
+    if user.username != config['telegram']['admin'].lower():
         return 'You need to be the super admin ;)'
 
     try:

@@ -47,7 +47,7 @@ def maintenance_job(context, session):
         .filter(Task.id.is_(None)) \
         .filter(StickerSet.banned.is_(False)) \
         .group_by(StickerSet) \
-        .having(report_count >= config.REPORT_COUNT) \
+        .having(report_count >= config['job']['report_count']) \
         .all()
 
     for (sticker_set, _) in report_candidates:
@@ -64,7 +64,7 @@ def maintenance_job(context, session):
             .filter(Task.id.is_(None)) \
             .filter(Change.is_default_language.is_(is_default_language)) \
             .group_by(User) \
-            .having(change_count >= config.USER_CHECK_COUNT) \
+            .having(change_count >= config['job']['user_check_count']) \
             .all()
 
         for (user, _) in user_check_candidates:

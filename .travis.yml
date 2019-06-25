@@ -10,5 +10,5 @@ install:
 
 before_script:
   - psql -c 'create database stickerfinder_test;' -U postgres
-  - cp stickerfinder/config.travis.py stickerfinder/config.py
+  - cp travis_stickerfinder.toml ~/.config/stickerfinder.toml
 script: poetry run pytest

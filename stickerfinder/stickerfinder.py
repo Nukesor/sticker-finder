@@ -1,4 +1,4 @@
-"""A bot which checks if there is a new record in the server section of hetzner."""
+"""A bot for stickers."""
 import logging
 from telegram.ext import (
     Filters,
@@ -106,22 +106,26 @@ def send_donation_text(bot, update, session, chat, user):
                  {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
 
 
-logging.basicConfig(level=config.LOG_LEVEL,
+logging.basicConfig(level=config['logging']['log_level'],
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
 # Initialize telegram updater and dispatcher
-updater = Updater(token=config.TELEGRAM_API_KEY, workers=config.WORKER_COUNT, use_context=True,
-                  request_kwargs={'read_timeout': 20, 'connect_timeout': 20})
+updater = Updater(
+    token=config['telegram']['api_key'],
+    workers=config['telegram']['worker_count'],
+    use_context=True,
+    request_kwargs={'read_timeout': 20, 'connect_timeout': 20}
+)
+dispatcher = updater.dispatcher
 
 # Create inline query handler
 updater.dispatcher.add_handler(InlineQueryHandler(search))
 
-dispatcher = updater.dispatcher
 # Create group message handler
 dispatcher.add_handler(
     MessageHandler(Filters.sticker & Filters.group, handle_group_sticker))
 
-if not config.LEECHER:
+if not config['mode']['leecher']:
     # Input commands
     dispatcher.add_handler(CommandHandler('tag', tag_single))
     dispatcher.add_handler(CommandHandler('replace', replace_single))

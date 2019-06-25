@@ -160,7 +160,7 @@ def is_allowed(user, update, chat=None, admin_only=False,
 
     # Check for admin permissions.
     if admin_only and user and not user.admin \
-            and user.username != config.ADMIN.lower():
+            and user.username != config['telegram']['admin'].lower():
         call_tg_func(update.message.chat, 'send_message',
                      ['You are not authorized for this command.'])
         return False

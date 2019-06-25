@@ -40,7 +40,7 @@ class InlineQuery(base):
         """Create a new change."""
         self.query = query
         self.user = user
-        self.bot = config.BOT_NAME
+        self.bot = config['telegram']['bot_name']
 
     @staticmethod
     def get_or_create(session, query_id, query, user):
