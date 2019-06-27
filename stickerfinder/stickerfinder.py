@@ -11,15 +11,6 @@ from telegram.ext import (
 )
 
 from stickerfinder.config import config
-from stickerfinder.helper.keyboard import get_main_keyboard
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper import (
-    start_text,
-    help_text,
-    donations_text,
-    admin_help_text,
-)
 from stickerfinder.telegram.commands import (
     broadcast,
     test_broadcast,
@@ -53,6 +44,12 @@ from stickerfinder.telegram.commands import (
     plot_statistics,
     plot_files,
 )
+from stickerfinder.telegram.commands import (
+    start,
+    send_help_text,
+    send_admin_help_text,
+    send_donation_text,
+)
 from stickerfinder.telegram.jobs import (
     cleanup_job,
     newsfeed_job,
@@ -72,38 +69,6 @@ from stickerfinder.telegram.callback_handlers import (
 )
 from stickerfinder.telegram.inline_query import search
 from stickerfinder.telegram.error_handler import error_callback
-
-
-@session_wrapper()
-def start(bot, update, session, chat, user):
-    """Send the start text."""
-    if chat.is_maintenance or chat.is_newsfeed:
-        call_tg_func(update.message.chat, 'send_message', ['Hello there'],
-                     {'reply_markup': get_main_keyboard(admin=True)})
-    else:
-        call_tg_func(update.message.chat, 'send_message', [start_text],
-                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-
-
-@session_wrapper()
-def send_help_text(bot, update, session, chat, user):
-    """Send the help text."""
-    call_tg_func(update.message.chat, 'send_message', [help_text],
-                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-
-
-@session_wrapper(admin_only=True)
-def send_admin_help_text(bot, update, session, chat, user):
-    """Send the admin help text."""
-    call_tg_func(update.message.chat, 'send_message', [admin_help_text],
-                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-
-
-@session_wrapper()
-def send_donation_text(bot, update, session, chat, user):
-    """Send the donation text."""
-    call_tg_func(update.message.chat, 'send_message', [donations_text],
-                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
 
 
 logging.basicConfig(level=config['logging']['log_level'],

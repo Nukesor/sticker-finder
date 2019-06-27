@@ -1,7 +1,7 @@
 """Some static stuff or helper functions for sticker finder bot."""
 
 
-start_text = """Hey. I'm
+start_text = """Hey!
 
 *Sticker search:*
 just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
@@ -56,12 +56,14 @@ Hello there!
 
 My name is Arne Beer (@Nukesor) and I'm the sole developer of the Sticker Finder.
 
-Working on Sticker Finder is a lot of fun and I'm looking forward to make this the best Sticker Bot ever! (even if it's exhausting to meet everyone's expectations from time to time 😄)
+StickerFinder was created due to the lack of a nice sticker bot which allowed community driven tagging of stickers.
 
-All the coding for this project is done in my leisure time and for free.
+I really like the idea of giving the community the power to create a huge and usable sticker library and I hope that this project will become one of the best and most used Sticker Bots out there!
+
+Every line of code in this project was written in my leisure time and is completely for free.
 The project is non-profit, open-source on [Github](https://github.com/Nukesor/sticker-finder) and hosted on a server I'm renting from my own money.
-On a normal day I review about 20-50 new sticker packs, and 50+ tags from you out there 😉.
-Additionally I constantly try to develop new features to make the Sticker Finder better and faster, which usually takes up to a few hours a week.
+
+Right now I usually invest between 2-10 hours a week into developing and maintaining my projects and I would love to get some support, since I'm doing this in a large part for you out there.
 
 I really appreciate anything that helps me out and that keeps me and my server running ☺️.
 

@@ -6,3 +6,4 @@ from .chat import * # noqa
 from .user import * # noqa
 from .usage import * # noqa
 from .sticker import * # noqa
+from .misc import * # noqa
