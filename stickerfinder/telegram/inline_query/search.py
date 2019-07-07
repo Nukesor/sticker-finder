@@ -128,7 +128,7 @@ def get_matching_stickers(session, context):
             # We couldn't find enough strict matching stickers. Get the rest from fuzzy search.
             # Set the switched_to_fuzzy flag in the context object to signal, that it's ok to have less
             # than 50 results in the next_offset creation
-            if len(matching_stickers) < 50:
+            if len(matching_stickers) < 50 and context.fuzzy_offset is None:
                 context.switch_to_fuzzy(50 - len(matching_stickers))
             # We have no strict search results in the first search iteration.
             # Directly jump to fuzzy search
