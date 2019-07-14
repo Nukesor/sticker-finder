@@ -14,8 +14,6 @@ def error_callback(update, context):
     """Handle generic errors from telegram."""
     try:
         raise context.error
-    except (TimedOut, NetworkError):
-        pass
     except BadRequest as e:
         # It took to long to send the inline query response.
         # Probably due to slow network on client side.
@@ -29,6 +27,8 @@ def error_callback(update, context):
     except Unauthorized:
         pass
 
+    except (TimedOut, NetworkError):
+        pass
     except:
         traceback.print_exc()
         sentry.captureException()
