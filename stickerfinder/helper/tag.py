@@ -230,7 +230,7 @@ def tag_sticker(session, text, sticker, user,
             new_tags.append(incoming_tag)
 
     # We got no new tags
-    if len(new_tags) == 0:
+    if len(new_tags) == 0 and replace is False:
         session.commit()
         return
 
