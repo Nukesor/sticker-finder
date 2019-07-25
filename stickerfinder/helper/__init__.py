@@ -20,6 +20,7 @@ If you want `nsfw` or `furry` stuff, include those words in your search.
 
 *Help:*
 For a more detailed explanation (especially if you want to tag) check out the /help :)
+If you still have questions, stop by my [support group](https://t.me/nukesors_projects).
 
 *Donations:*
 The whole project is for free, open-source on [Github](https://github.com/Nukesor/sticker-finder) and I'm paying for the server from my own money.
@@ -68,6 +69,7 @@ Right now I usually invest between 2-10 hours a week into developing and maintai
 I really appreciate anything that helps me out and that keeps me and my server running ☺️.
 
 Find me on [Patreon](https://www.patreon.com/nukesor) and [Paypal](https://www.paypal.me/arnebeer).
+If you have any questions, stop by my [support group](https://t.me/nukesors_projects).
 
 Have great day!
 """
@@ -85,7 +87,6 @@ Just add `set` or `pack` to your search e.g. `@stfi_bot kermit set`.
 Send any sticker to me in a direct conversation and I'll add the whole pack. The bot will tell you if it doesn't know this pack yet and you will get a notification when the sticker pack has been processed and accepted by us.
 Since we need to review every single pack manually, it can take quite a while to review all new sticker packs (sometimes over 100 on a single day). Please bear with us.
 If the bot is added to a group chat, it will automatically add all stickers posted in this chat!
-
 
 *Can't find a sticker?*
 If you already added a pack, you probably need to tag stickers first (or just search by the pack name).
@@ -127,8 +128,7 @@ With /deluxe and /undeluxe you can decide whether you want to see all sticker pa
 I also try to detect text in stickers. Even though this turns out to be quite ambitious, it works really well in some cases.
 But don't expect this functionality to work reliably!
 
-In case you encounter any bugs or you just want to look at the code, feel free to check out my repository:
-[Sticker Finder on Github](https://github.com/Nukesor/sticker-finder)
+In case you encounter any bugs or you just want to look at the code, feel free to check out my repository [Sticker Finder on Github](https://github.com/Nukesor/sticker-finder) or stop by my [support group](https://t.me/nukesors_projects).
 """
 
 tag_text = """Now please send me tags for each sticker I'll send you.
