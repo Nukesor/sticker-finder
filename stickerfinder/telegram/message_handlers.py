@@ -120,8 +120,8 @@ def handle_group_sticker(bot, update, session, chat, user):
     handle_request_reply(update.message.sticker.file_id, update, session, chat, user)
 
     # Check if we know this sticker set. Early return if we don't
-    sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
-    if sticker_set.complete is False:
+    sticker_set = session.query(StickerSet).get(set_name)
+    if sticker_set is None:
         return
 
     if sticker_set not in chat.sticker_sets:
