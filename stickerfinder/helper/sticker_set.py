@@ -27,6 +27,12 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
         raise e
 
+    for sticker in sticker_set.stickers:
+        tg_sticker = bot.get_file(sticker.file_id)
+        if tg_sticker.file_id != sticker.file_id:
+            print(f'old: {sticker.file_id}, new: {tg_sticker.file_id}')
+            sticker.file_id = tg_sticker.file_id
+
     for tg_sticker in tg_sticker_set.stickers:
         # Ignore already existing stickers if we don't need to rescan images
         sticker = session.query(Sticker).get(tg_sticker.file_id)

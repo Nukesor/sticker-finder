@@ -66,7 +66,9 @@ class Change(base):
     user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
     check_task_id = Column(UUID(as_uuid=True), ForeignKey('task.id',
                                                           ondelete='SET NULL'), index=True)
-    sticker_file_id = Column(String, ForeignKey('sticker.file_id', ondelete='cascade'), index=True)
+    sticker_file_id = Column(String, ForeignKey('sticker.file_id',
+                                                onupdate='cascade',
+                                                ondelete='cascade'), index=True)
     chat_id = Column(BigInteger, ForeignKey('chat.id',
                                             onupdate='cascade',
                                             ondelete='cascade'), index=True)
