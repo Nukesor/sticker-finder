@@ -43,6 +43,7 @@ from stickerfinder.telegram.commands import (
     show_sticker_file_id,
     plot_statistics,
     plot_files,
+    fix_stuff,
 )
 from stickerfinder.telegram.commands import (
     start,
@@ -133,6 +134,7 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('stats', stats))
     dispatcher.add_handler(CommandHandler('plot', plot_statistics))
     dispatcher.add_handler(CommandHandler('plot_files', plot_files))
+    dispatcher.add_handler(CommandHandler('fix', fix_stuff))
 
     # Regular tasks
     minute = 60

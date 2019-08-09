@@ -4,7 +4,7 @@ from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 
 from stickerfinder.config import config
-from stickerfinder.models import User, StickerSet, Chat
+from stickerfinder.models import User, StickerSet, Chat, Sticker
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.keyboard import get_main_keyboard
@@ -141,7 +141,7 @@ def broadcast(bot, update, session, chat, user):
 
         # The chat doesn't exist any longer, delete it
         except BadRequest as e:
-            if e.message == 'Chat not found': # noqa
+            if e.message == 'Chat not found':  # noqa
                 deleted += 1
                 session.delete(chat)
                 continue
@@ -169,3 +169,44 @@ def test_broadcast(bot, update, session, chat, user):
     call_tg_func(bot, 'send_message',
                  [chat.id, message],
                  {'parse_mode': 'Markdown'})
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def fix_stuff(bot, update, session, chat, user):
+    """Entry point for quick fixes."""
+    call_tg_func(bot, 'send_message', [chat.id, 'starting to fix'])
+
+    stickers = session.query(Sticker) \
+        .filter(Sticker.sticker_set_name.is_(None)) \
+        .all()
+
+    count = 0
+    print(f'found {len(stickers)}')
+    for sticker in stickers:
+        count += 1
+        if count % 100 == 0:
+            print(f'fixed {count}')
+
+        try:
+            tg_sticker = bot.get_file(sticker.file_id)
+        except BadRequest as e:
+            if e.message == 'Wrong file id':
+                session.delete(sticker)
+                continue
+
+        # File id changed
+        if tg_sticker.file_id != sticker.file_id:
+            new_sticker = session.query(Sticker).get(tg_sticker.file_id)
+            if new_sticker is not None:
+                sticker.sticker_set = new_sticker.sticker_set
+            else:
+                session.delete(sticker)
+
+        # Sticker set got deleted
+        else:
+            session.delete(sticker)
+
+    session.commit()
+
+    call_tg_func(bot, 'send_message', [chat.id, 'Fixing done'])
