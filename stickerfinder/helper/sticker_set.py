@@ -33,7 +33,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     for sticker in sticker_set.stickers:
         try:
             tg_sticker = bot.get_file(sticker.file_id)
-        except BadRequest:
+        except BadRequest as e:
             if e.message == 'Wrong file id':
                 session.delete(sticker)
             continue
