@@ -68,7 +68,16 @@ def tag_cleanup(session, update=None):
 
 def user_cleanup(session, update):
     """Do some cleanup tasks for users."""
-    all_users = session.query(User).all()
+    all_users = session.query(User) \
+        .filter(User.reverted.is_(False)) \
+        .filter(User.admin.is_(False)) \
+        .filter(User.authorized.is_(False)) \
+        .filter(User.banned.is_(False)) \
+        .filter(~User.tasks.any()) \
+        .filter(~User.reports.any()) \
+        .filter(~User.inline_queries.any()) \
+        .filter(~User.proposed_tags.any()) \
+        .all()
 
     if update is not None:
         call_tg_func(update.message.chat, 'send_message', [f'Found {len(all_users)} users'])
@@ -79,11 +88,7 @@ def user_cleanup(session, update):
                 and len(user.tasks) == 0 \
                 and len(user.reports) == 0 \
                 and len(user.inline_queries) == 0 \
-                and len(user.proposed_tags) == 0 \
-                and user.banned is False \
-                and user.reverted is False \
-                and user.admin is False \
-                and user.authorized is False:
+                and len(user.proposed_tags) == 0:
             deleted += 1
             session.delete(user)
 
@@ -96,12 +101,15 @@ def user_cleanup(session, update):
 
 
 def inline_query_cleanup(session, update, threshold=None):
-    """Cleanup duplicated inlinei queries (slow users typing etc.)."""
+    """Cleanup duplicated inline queries (slow users typing etc.)."""
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
 
     overall_deleted = 0
-    all_users = session.query(User).all()
+    all_users = session.query(User) \
+        .join(User.inline_queries) \
+        .filter(InlineQuery.created_at >= threshold) \
+        .all()
 
     if update is not None:
         call_tg_func(update.message.chat, 'send_message', ['Starting to clean inline queries.'])
