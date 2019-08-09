@@ -15,11 +15,11 @@ def call_tg_func(tg_object: object, function_name: str,
 
     We need to handle those calls in case we get rate limited.
     """
-    _try = 0
-    tries = 2
+    current_try = 1
+    tries = 4
     exception = None
 
-    while _try < tries:
+    while current_try < tries:
         try:
             args = args if args else []
             kwargs = kwargs if kwargs else {}
@@ -33,14 +33,16 @@ def call_tg_func(tg_object: object, function_name: str,
                     'Message is not modified' in str(e):
                 raise e
 
+            timeout = 2 * current_try
             breadcrumbs.record(data={'action': f'Exception: {datetime.now()}'}, category='info')
             logger = logging.getLogger()
-            logger.info(f'Got telegram exception waiting 4 secs.')
-            logger.info(e)
+            logger.info(f'Try {current_try}: Got telegram exception waiting {timeout} secs.')
+            logger.info(e.message)
+
             if config['logging']['debug']:
                 sentry.captureException()
-            time.sleep(4)
-            _try += 1
+            time.sleep(timeout)
+            current_try += 1
 
             exception = e
             pass
