@@ -39,7 +39,7 @@ admin_help_text = """Commands available to admins:
 /tasks Start to process tasks in a maintenance chat
 
 /delete\_set Completely delete a set
-/add\_set Add multiple sets at once by set\_name
+/add\_set Add multiple sets at once by /set\_name
 /show\_sticker [file_id] Show the sticker for this file id
 /show\_id Show the fild_id of the sticker you replied to
 

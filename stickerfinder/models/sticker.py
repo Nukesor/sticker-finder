@@ -71,13 +71,19 @@ class Sticker(base):
     sticker_set_name = Column(String, ForeignKey('sticker_set.name',
                                                  onupdate='cascade',
                                                  ondelete='cascade'), index=True)
+
+    # Many-to-One
     sticker_set = relationship("StickerSet", back_populates="stickers")
 
+    # One-to-Many
     changes = relationship("Change", order_by="desc(Change.created_at)")
+    usages = relationship("StickerUsage", cascade="save-update, merge, delete, delete-orphan")
     tags = relationship(
         "Tag",
         secondary=sticker_tag,
         back_populates="stickers")
+
+    # Many-to-Many
     original_emojis = relationship("Tag", secondary=sticker_original_emoji)
 
     def __init__(self, file_id):

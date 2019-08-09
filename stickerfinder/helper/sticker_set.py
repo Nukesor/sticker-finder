@@ -27,11 +27,18 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
         raise e
 
+    # Sometimes file ids in telegram seem to randomly change
+    # If this has already happened, merge the two stickers (backup replay)
+    # otherwise, change the file id to the new one
     for sticker in sticker_set.stickers:
         tg_sticker = bot.get_file(sticker.file_id)
         if tg_sticker.file_id != sticker.file_id:
-            print(f'old: {sticker.file_id}, new: {tg_sticker.file_id}')
+            new_sticker = session.query(Sticker).get(tg_sticker.file_id)
+            if new_sticker is not None:
+                merge_sticker(session, sticker, new_sticker)
+
             sticker.file_id = tg_sticker.file_id
+            session.commit()
 
     for tg_sticker in tg_sticker_set.stickers:
         # Ignore already existing stickers if we don't need to rescan images
@@ -57,6 +64,34 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     sticker_set.title = tg_sticker_set.title.lower()
     sticker_set.stickers = stickers
     sticker_set.complete = True
+    session.commit()
+
+
+def merge_sticker(session, sticker, new_sticker):
+    """Merge two identical stickers with different file ids."""
+    # Merge new tags into old sticker
+    for tag in new_sticker.tags:
+        if tag not in sticker.tags:
+            sticker.tags.append(tag)
+
+    # Merge usages
+    for new_usage in new_sticker.usages:
+        # Check if we find a usage from the old sticker
+        found_equivalent = False
+        for usage in sticker.usages:
+            if usage.user == new_usage.user:
+                usage.usage_count += new_usage.usage_count
+                found_equivalent = True
+                break
+
+        # Point usage to old sticker before we update the file id.
+        # Otherwise it would be deleted by cascade or there would
+        # be a unique constraint violation
+        if not found_equivalent:
+            new_usage.sticker_file_id = sticker.file_id
+            session.commit()
+
+    session.delete(new_sticker)
     session.commit()
 
 
