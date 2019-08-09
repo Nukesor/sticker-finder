@@ -31,7 +31,13 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     # If this has already happened, merge the two stickers (backup replay)
     # otherwise, change the file id to the new one
     for sticker in sticker_set.stickers:
-        tg_sticker = bot.get_file(sticker.file_id)
+        try:
+            tg_sticker = bot.get_file(sticker.file_id)
+        except BadRequest:
+            if e.message == 'Wrong file id':
+                session.delete(sticker)
+            continue
+
         if tg_sticker.file_id != sticker.file_id:
             new_sticker = session.query(Sticker).get(tg_sticker.file_id)
             if new_sticker is not None:
