@@ -32,7 +32,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     # otherwise, change the file id to the new one
     for sticker in sticker_set.stickers:
         try:
-            tg_sticker = bot.get_file(sticker.file_id)
+            tg_sticker = call_tg_func(bot, 'get_file', args=[sticker.file_id])
         except BadRequest as e:
             if e.message == 'Wrong file id':
                 session.delete(sticker)
