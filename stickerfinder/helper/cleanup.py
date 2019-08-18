@@ -90,7 +90,7 @@ def inline_query_cleanup(session, update, threshold=None):
     """Cleanup duplicated inline queries (slow users typing etc.)."""
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
-    time_between_searches = timedelta(seconds=10)
+    time_between_searches = timedelta(seconds=20)
 
     if update is not None:
         call_tg_func(update.message.chat, 'send_message', ['Starting to clean inline queries.'])
