@@ -1,4 +1,6 @@
 """Some functions to cleanup the database."""
+from sqlalchemy import or_
+from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 
 from stickerfinder.helper.corrections import ignored_characters
@@ -56,42 +58,31 @@ def tag_cleanup(session, update=None):
     if update is not None:
         call_tg_func(
             update.message.chat, 'send_message',
-            [f'Tag cleanup finished. Removed {removed} tags. Corrected {corrected} tags.'],
-            {'reply_markup': get_main_keyboard(admin=True)},
+            [f'Removed {removed}\nCorrected: {corrected}'],
         )
 
 
 def user_cleanup(session, update):
     """Do some cleanup tasks for users."""
-    all_users = session.query(User) \
+    before = session.query(User).count()
+    session.query(User) \
         .filter(User.reverted.is_(False)) \
         .filter(User.admin.is_(False)) \
         .filter(User.authorized.is_(False)) \
         .filter(User.banned.is_(False)) \
+        .filter(~User.changes.any()) \
         .filter(~User.tasks.any()) \
         .filter(~User.reports.any()) \
         .filter(~User.inline_queries.any()) \
         .filter(~User.proposed_tags.any()) \
-        .all()
+        .delete(synchronize_session=False)
 
-    if update is not None:
-        call_tg_func(update.message.chat, 'send_message', [f'Found {len(all_users)} users'])
-
-    deleted = 0
-    for user in all_users:
-        if len(user.changes) == 0 \
-                and len(user.tasks) == 0 \
-                and len(user.reports) == 0 \
-                and len(user.inline_queries) == 0 \
-                and len(user.proposed_tags) == 0:
-            deleted += 1
-            session.delete(user)
-
+    after = session.query(User).count()
+    deleted = before - after
     if update is not None:
         call_tg_func(
             update.message.chat, 'send_message',
-            [f'User cleanup finished. {deleted} user deleted.'],
-            {'reply_markup': get_main_keyboard(admin=True)},
+            [f'User cleanup: {deleted} user deleted.'],
         )
 
 
@@ -99,90 +90,42 @@ def inline_query_cleanup(session, update, threshold=None):
     """Cleanup duplicated inline queries (slow users typing etc.)."""
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
-
     time_between_searches = timedelta(seconds=10)
-
-    overall_deleted = 0
-    all_users = session.query(User) \
-        .join(User.inline_queries) \
-        .filter(InlineQuery.created_at >= threshold) \
-        .all()
 
     if update is not None:
         call_tg_func(update.message.chat, 'send_message', ['Starting to clean inline queries.'])
 
-    # Start deleting.
-    # Since we might need to iterate over everything multiple times to catch all duplicates
-    # we need to execute the whole process until no more messages get deleted.
-    while True:
-        deleted = 0
-        for user in all_users:
-            inline_queries = session.query(InlineQuery) \
-                .filter(InlineQuery.user == user) \
-                .filter(InlineQuery.created_at >= threshold) \
-                .order_by(InlineQuery.created_at.asc()) \
-                .all()
+    # Get the current total count to get the amount of deleted inline queries
+    count_before = session.query(InlineQuery.id) \
+        .filter(InlineQuery.created_at >= threshold) \
+        .count()
 
-            for index, inline_query in enumerate(inline_queries):
-                if inline_query.sticker_file_id is not None:
-                    continue
+    query_alias = aliased(InlineQuery)
 
-                if len(inline_queries) <= index + 1:
-                    continue
+    # Delete all inline queries, which were created during typing.
+    exists_subquery = session.query(query_alias.id) \
+        .filter(InlineQuery.user_id == query_alias.user_id) \
+        .filter(InlineQuery.created_at < query_alias.created_at) \
+        .filter((query_alias.created_at - InlineQuery.created_at) <= time_between_searches) \
+        .filter(or_(
+            InlineQuery.query == query_alias.query,
+            query_alias.query.ilike(InlineQuery.query + '%'),
+            InlineQuery.query.ilike(query_alias.query + '%'),
+        ))\
+        .exists()
 
-                next_inline_query = inline_queries[index + 1]
-                time_distance = next_inline_query.created_at - inline_query.created_at
+    # Actually delete inline queries
+    session.query(InlineQuery) \
+        .filter(exists_subquery) \
+        .filter(InlineQuery.created_at >= threshold) \
+        .filter(InlineQuery.sticker_file_id.is_(None)) \
+        .delete(synchronize_session=False)
 
-                if time_distance < time_between_searches:
-                    if next_inline_query.query.startswith(inline_query.query) or \
-                            next_inline_query.query == inline_query.query:
-                        deleted += 1
-                        overall_deleted += 1
-                        session.delete(inline_query)
+    # Count the deleted stickers
+    count_after = session.query(InlineQuery.id) \
+        .filter(InlineQuery.created_at >= threshold) \
+        .count()
 
-            session.commit()
-
-        # Exit condition. nothing got deleted in this iteration
-        if deleted == 0:
-            break
-
-    # Now do it the other way around as well.
-    # Users tend to search for something and then slowly delete the words
-    while True:
-        deleted = 0
-        for user in all_users:
-            inline_queries = session.query(InlineQuery) \
-                .filter(InlineQuery.user == user) \
-                .filter(InlineQuery.created_at >= threshold) \
-                .order_by(InlineQuery.created_at.desc()) \
-                .all()
-
-            for index, inline_query in enumerate(inline_queries):
-                # Break, if it's the last query in the list
-                if len(inline_queries) <= index + 1:
-                    break
-
-                # Look at the next inline_query (previous in the timeline)
-                # If it has a sticker_file_id, ignore it and continue
-                next_inline_query = inline_queries[index + 1]
-                if next_inline_query.sticker_file_id is not None:
-                    continue
-
-                # If the next (previous in timeline) inline_query is longer than the current one,
-                # the user deleted characters from their search
-                time_distance = inline_query.created_at - next_inline_query.created_at
-                if time_distance < time_between_searches:
-                    if next_inline_query.query.startswith(inline_query.query) or \
-                            next_inline_query.query == inline_query.query:
-                        deleted += 1
-                        overall_deleted += 1
-                        session.delete(next_inline_query)
-
-            session.commit()
-
-        # Exit condition. nothing got deleted in this iteration
-        if deleted == 0:
-            break
-
+    deleted = count_before - count_after
     if update is not None:
-        call_tg_func(update.message.chat, 'send_message', [f'Deleted {overall_deleted} inline queries.'])
+        call_tg_func(update.message.chat, 'send_message', [f'Deleted {deleted} inline queries.'])
