@@ -43,11 +43,6 @@ def tag_cleanup(session, update=None):
                 new_name = new_name.replace(char, '')
                 corrected += 0
 
-        # Remove hash tags
-        if new_name.startswith('#'):
-            new_name = new_name[1:]
-            corrected += 0
-
         # If the new tag with removed chars already exists in the db, remove the old tag.
         # Otherwise just update the tag name
         if new_name != tag.name:
@@ -105,6 +100,8 @@ def inline_query_cleanup(session, update, threshold=None):
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
 
+    time_between_searches = timedelta(seconds=10)
+
     overall_deleted = 0
     all_users = session.query(User) \
         .join(User.inline_queries) \
@@ -127,22 +124,21 @@ def inline_query_cleanup(session, update, threshold=None):
                 .all()
 
             for index, inline_query in enumerate(inline_queries):
-                if len(inline_query.query.strip()) == 0:
-                    continue
-
                 if inline_query.sticker_file_id is not None:
                     continue
 
-                if len(inline_queries) <= index+1:
+                if len(inline_queries) <= index + 1:
                     continue
 
-                next_inline_query = user.inline_queries[index+1]
-                distance = next_inline_query.created_at - inline_query.created_at
-                if inline_query.query in next_inline_query.query and \
-                        distance < timedelta(seconds=5):
-                    deleted += 1
-                    overall_deleted += 1
-                    session.delete(inline_query)
+                next_inline_query = inline_queries[index + 1]
+                time_distance = next_inline_query.created_at - inline_query.created_at
+
+                if time_distance < time_between_searches:
+                    if next_inline_query.query.startswith(inline_query.query) or \
+                            next_inline_query.query == inline_query.query:
+                        deleted += 1
+                        overall_deleted += 1
+                        session.delete(inline_query)
 
             session.commit()
 
@@ -162,22 +158,25 @@ def inline_query_cleanup(session, update, threshold=None):
                 .all()
 
             for index, inline_query in enumerate(inline_queries):
-                if len(inline_query.query.strip()) == 0:
+                # Break, if it's the last query in the list
+                if len(inline_queries) <= index + 1:
+                    break
+
+                # Look at the next inline_query (previous in the timeline)
+                # If it has a sticker_file_id, ignore it and continue
+                next_inline_query = inline_queries[index + 1]
+                if next_inline_query.sticker_file_id is not None:
                     continue
 
-                if inline_query.sticker_file_id is not None:
-                    continue
-
-                if len(inline_queries) <= index+1:
-                    continue
-
-                next_inline_query = user.inline_queries[index+1]
-                distance = inline_query.created_at - next_inline_query.created_at
-                if inline_query.query in next_inline_query.query and \
-                        distance < timedelta(seconds=5):
-                    deleted += 1
-                    overall_deleted += 1
-                    session.delete(inline_query)
+                # If the next (previous in timeline) inline_query is longer than the current one,
+                # the user deleted characters from their search
+                time_distance = inline_query.created_at - next_inline_query.created_at
+                if time_distance < time_between_searches:
+                    if next_inline_query.query.startswith(inline_query.query) or \
+                            next_inline_query.query == inline_query.query:
+                        deleted += 1
+                        overall_deleted += 1
+                        session.delete(next_inline_query)
 
             session.commit()
 

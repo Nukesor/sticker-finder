@@ -1,5 +1,10 @@
 # v1.1.0
 
+__Bug fixes__
+- Telegram sometimes randomly changes file_ids of stickers. This led to major loss of usage statistics and tags.
+
+# v1.1.0
+
 
 **Features**
 

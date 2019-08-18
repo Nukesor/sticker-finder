@@ -44,6 +44,10 @@ class InlineQuery(base):
         self.user = user
         self.bot = config['telegram']['bot_name']
 
+    def __repr__(self):
+        """Print as string."""
+        return f'InlineQuery: {self.query}, user: {self.user_id}'
+
     @staticmethod
     def get_or_create(session, query_id, query, user):
         """Get or create the InlineQuery."""
