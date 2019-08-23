@@ -76,16 +76,12 @@ def get_inline_queries_statistics(session):
 
 
 def get_user_activity(session):
-    """Create a plot showing the inline usage statistics."""
+    """Create a plot showing the user statistics."""
     # Create a subquery to ensure that the user fired a inline query
-    inline_query_exists_subquery = session.query(InlineQuery) \
-        .filter(InlineQuery.user_id == User.id) \
-        .exists()
-
     # Group the new users by date
     creation_date = cast(User.created_at, Date).label('creation_date')
     all_users_subquery = session.query(creation_date, func.count(User.id).label('count')) \
-        .filter(inline_query_exists_subquery) \
+        .filter(User.inline_queries.any()) \
         .group_by(creation_date) \
         .subquery()
 
