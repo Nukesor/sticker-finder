@@ -63,7 +63,7 @@ Windows isn't tested, but it shouldn't be too hard to make it compatible. Feel f
 
 Dependencies: 
 - `poetry` to manage and install dependencies.
-- Stickerfinder uses postgres by default. Make sure the user has write/read rights. (This can be changed, by changing the SQLURI in the configuration file.)
+- Stickerfinder uses postgres. Make sure the user has write/read rights.
 
 1. Clone the repository: 
 
