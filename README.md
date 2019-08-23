@@ -68,7 +68,7 @@ Dependencies:
 1. Clone the repository: 
 
         % git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
-2. Execute following `poetry install` to install all dependencies.
+2. Execute `poetry install` to install all dependencies.
 3. Either start the stickerfinder once with `poetry run main.py` or copy the `stickerfinder.toml` manually to `~/.config/stickerfinder.toml` and adjust all necessary values.
 4. Run `poetry run initdb.py` to initialize the database.
 5. Start the bot `poetry run main.py`
