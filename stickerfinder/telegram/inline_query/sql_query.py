@@ -1,5 +1,6 @@
 """Query composition for inline search."""
 from sqlalchemy import func, case, cast, Numeric, or_, and_
+from sqlalchemy.dialects import postgresql
 
 from stickerfinder.models import (
     Sticker,
@@ -46,9 +47,13 @@ def get_fuzzy_matching_stickers(session, context):
     limit = context.limit if context.limit else 50
     matching_stickers = get_fuzzy_matching_query(session, context) \
         .offset(context.fuzzy_offset) \
-        .limit(limit) \
-        .all()
+        .limit(limit)
 
+    # Debug print query
+    # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+    # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
+
+    matching_stickers = matching_stickers.all()
     return matching_stickers
 
 
@@ -143,7 +148,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
         intermediate_query.c.file_id,
         intermediate_query.c.name,
         intermediate_query.c.score,
-        ) \
+    ) \
         .filter(or_(intermediate_query.c.score > 0)) \
         .subquery('matching_stickers')
 
@@ -183,41 +188,29 @@ def get_fuzzy_matching_query(session, context):
 
     threshold = 0.3
     # Create a query for each tag, which fuzzy matches all tags and computes the distance
-    matching_tags = []
+    # Todo:
+    # 1. Fuzzy check on tag table
+    # 2. Join with similarity sum on sticker
+    similarities = []
+    threshold_check = []
     for tag in tags:
-        tag_query = session.query(
-            sticker_tag.c.tag_name,
-            func.similarity(sticker_tag.c.tag_name, tag).label('tag_similarity')
-        ) \
-            .join(Tag, sticker_tag.c.tag_name == Tag.name) \
-            .filter(func.similarity(sticker_tag.c.tag_name, tag) >= threshold) \
-            .filter(or_(Tag.is_default_language == user.is_default_language,
-                        Tag.is_default_language.is_(True)))
-        matching_tags.append(tag_query)
+        similarities.append(func.similarity(Tag.name, tag))
+        threshold_check.append(func.similarity(Tag.name, tag) >= threshold)
 
-    # Union all fuzzy matched tags
-    if len(matching_tags) > 1:
-        matching_tags = matching_tags[0].union(*matching_tags[1:])
-        matching_tags = matching_tags.subquery('matching_tags')
-
-        # Due to using a union, we need to use another column name as below
-        tag_name_column = matching_tags.c.sticker_tag_tag_name.label('tag_name')
-    else:
-        matching_tags = matching_tags[0]
-        matching_tags = matching_tags.subquery('matching_tags')
-
-        # Normal single tag search column
-        tag_name_column = matching_tags.c.tag_name.label('tag_name')
-
-    # Group all matching tags to get the max score of the best matching searched tag.
-    fuzzy_subquery = session.query(tag_name_column, func.max(matching_tags.c.tag_similarity).label('tag_similarity')) \
-        .group_by(tag_name_column) \
-        .subquery()
+    tag_query = session.query(
+        Tag.name,
+        func.max(*similarities).label('tag_similarity'),
+    ) \
+        .filter(or_(*threshold_check)) \
+        .filter(or_(Tag.is_default_language == user.is_default_language,
+                    Tag.is_default_language.is_(True))) \
+        .group_by(Tag.name) \
+        .subquery('tag_query')
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
-    fuzzy_score = func.sum(fuzzy_subquery.c.tag_similarity).label("fuzzy_score")
+    fuzzy_score = func.sum(tag_query.c.tag_similarity).label("fuzzy_score")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, fuzzy_score) \
-        .join(fuzzy_subquery, sticker_tag.c.tag_name == fuzzy_subquery.c.tag_name) \
+        .join(tag_query, sticker_tag.c.tag_name == tag_query.c.name) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
 
