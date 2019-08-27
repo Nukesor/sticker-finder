@@ -39,6 +39,7 @@ from stickerfinder.telegram.commands import (
     set_not_is_default_language,
     deluxe_user,
     undeluxe_user,
+    delete_history,
     show_sticker,
     show_sticker_file_id,
     plot_statistics,
@@ -98,6 +99,7 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('report', report_set))
     dispatcher.add_handler(CommandHandler('skip', skip))
     dispatcher.add_handler(CommandHandler('forget_set', forget_set))
+    dispatcher.add_handler(CommandHandler('delete_history', delete_history))
 
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))

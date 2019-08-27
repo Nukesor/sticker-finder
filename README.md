@@ -53,6 +53,7 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /international Get sticker sets from all all languages.
     /toggle_deluxe Only get the very best sticker packs. (Restricts the search drastically)
     /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
+    /delete_history   Delete the full search history of a user.
     /admin_help       Display admin help
 
 
@@ -93,6 +94,7 @@ Get the latest revision with `poetry run alembic history` and change the current
     international - Get sticker sets from all all languages.
     toggle_deluxe - Only get the very best sticker packs. (Restricts the search drastically)
     forget_set - Forget all usages of a sticker pack.
+    delete_history - Delete the full search history of a user.
     help - Display admin help
 
 

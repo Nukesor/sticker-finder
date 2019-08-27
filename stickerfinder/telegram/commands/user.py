@@ -3,6 +3,7 @@ from telegram.ext import run_async
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.keyboard import get_main_keyboard
+from stickerfinder.models import InlineQuery
 
 
 @run_async
@@ -50,4 +51,17 @@ def undeluxe_user(bot, update, session, chat, user):
     user.deluxe = False
     call_tg_func(update.message.chat, 'send_message',
                  ["You will now see all sticker sets again."],
+                 {'reply_markup': get_main_keyboard(user)})
+
+
+@run_async
+@session_wrapper(check_ban=True, private=True)
+def delete_history(bot, update, session, chat, user):
+    """Delete the whole search history of the user."""
+    session.query(InlineQuery) \
+        .filter(InlineQuery.user_id == user.id) \
+        .delete(synchronize_session=False)
+
+    call_tg_func(update.message.chat, 'send_message',
+                 ['History cleared'],
                  {'reply_markup': get_main_keyboard(user)})
