@@ -42,7 +42,6 @@ from stickerfinder.telegram.commands import (
     delete_history,
     show_sticker,
     show_sticker_file_id,
-    plot_statistics,
     plot_files,
     fix_stuff,
 )
@@ -134,8 +133,7 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('cleanup', cleanup))
     dispatcher.add_handler(CommandHandler('tasks', start_tasks))
     dispatcher.add_handler(CommandHandler('stats', stats))
-    dispatcher.add_handler(CommandHandler('plot', plot_statistics))
-    dispatcher.add_handler(CommandHandler('plot_files', plot_files))
+    dispatcher.add_handler(CommandHandler('plot', plot_files))
     dispatcher.add_handler(CommandHandler('fix', fix_stuff))
 
     # Regular tasks

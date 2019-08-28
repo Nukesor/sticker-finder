@@ -2,11 +2,13 @@
 import io
 import pandas
 import matplotlib
+import matplotlib.dates as mdates
 from sqlalchemy import func, Date, cast, Integer
 
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.models import (
     InlineQuery,
+    InlineQueryRequest,
     User,
 )
 
@@ -19,6 +21,10 @@ def send_plots(bot, update, session, chat, user, mode):
     image = get_inline_queries_statistics(session)
     call_tg_func(update.message.chat, mode, [image],
                  {'caption': 'Inline queries'})
+
+    image = get_inline_query_performance_statistics(session)
+    call_tg_func(update.message.chat, mode, [image],
+                 {'caption': 'Inline query performance statistics'})
 
     image = get_user_activity(session)
     call_tg_func(update.message.chat, mode, [image],
@@ -75,6 +81,38 @@ def get_inline_queries_statistics(session):
     return image
 
 
+def get_inline_query_performance_statistics(session):
+    """Plot statistics regarding performance of inline query requests."""
+    creation_date = func.cast(InlineQueryRequest.created_at, Date).label('creation_date')
+    # Group the started users by date
+    strict_search_subquery = session.query(
+        creation_date,
+        func.avg(InlineQueryRequest.duration).label('count')
+    ) \
+        .group_by(creation_date) \
+        .order_by(creation_date) \
+        .all()
+    strict_queries = [('strict', q[0], q[1]) for q in strict_search_subquery]
+
+    # Combine the results in a single dataframe and name the columns
+    request_statistics = strict_queries
+    dataframe = pandas.DataFrame(request_statistics, columns=['type', 'date', 'duration'])
+
+    months = mdates.MonthLocator()  # every month
+    months_fmt = mdates.DateFormatter('%Y-%m')
+
+    # Plot each result set
+    fig, ax = plt.subplots(figsize=(30, 15), dpi=120)
+    for key, group in dataframe.groupby(['type']):
+        ax = group.plot(ax=ax, kind='bar', x='date', y='duration', label=key)
+        ax.xaxis.set_major_locator(months)
+        ax.xaxis.set_major_formatter(months_fmt)
+
+    image = image_from_figure(fig)
+    image.name = 'request_duration_statistics.png'
+    return image
+
+
 def get_user_activity(session):
     """Create a plot showing the user statistics."""
     # Create a subquery to ensure that the user fired a inline query
@@ -87,12 +125,12 @@ def get_user_activity(session):
 
     # Create a running window which sums all users up to this point for the current millennium ;P
     all_users = session.query(
-            all_users_subquery.c.creation_date,
-            cast(func.sum(all_users_subquery.c.count).over(
-                partition_by=func.extract('millennium', all_users_subquery.c.creation_date),
-                order_by=all_users_subquery.c.creation_date.asc(),
-            ), Integer).label('running_total'),
-        ) \
+        all_users_subquery.c.creation_date,
+        cast(func.sum(all_users_subquery.c.count).over(
+            partition_by=func.extract('millennium', all_users_subquery.c.creation_date),
+            order_by=all_users_subquery.c.creation_date.asc(),
+        ), Integer).label('running_total'),
+    ) \
         .order_by(all_users_subquery.c.creation_date) \
         .all()
     all_users = [('all', q[0], q[1]) for q in all_users]

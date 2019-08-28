@@ -213,13 +213,6 @@ def cleanup(bot, update, session, chat, user):
 
 @run_async
 @session_wrapper(admin_only=True)
-def plot_statistics(bot, update, session, chat, user):
-    """Plot interesting statistics."""
-    send_plots(bot, update, session, chat, user, 'send_photo')
-
-
-@run_async
-@session_wrapper(admin_only=True)
 def plot_files(bot, update, session, chat, user):
     """Plot interesting statistics."""
     send_plots(bot, update, session, chat, user, 'send_document')
