@@ -1,8 +1,10 @@
 """Query composition for inline search."""
+import pprint
 from sqlalchemy import func, case, cast, Numeric, or_, and_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql.expression import literal
 
+from stickerfinder.config import config
 from stickerfinder.db import greatest
 from stickerfinder.models import (
     Sticker,
@@ -51,13 +53,13 @@ def get_fuzzy_matching_stickers(session, context):
         .offset(context.fuzzy_offset) \
         .limit(limit)
 
-    # Debug print query
-    # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
-    # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
+    if config['logging']['debug']:
+        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
 
     matching_stickers = matching_stickers.all()
-    # import pprint
-    # pprint.pprint(matching_stickers)
+    if config['logging']['debug']:
+        pprint.pprint(matching_stickers)
     return matching_stickers
 
 
@@ -278,6 +280,6 @@ def get_fuzzy_matching_query(session, context):
     if user.deluxe:
         matching_stickers = matching_stickers.filter(StickerSet.deluxe.is_(True))
 
-    matching_stickers = matching_stickers.order_by(score.desc(), StickerSet.name)
+    matching_stickers = matching_stickers.order_by(score.desc(), StickerSet.name, Sticker.file_id)
 
     return matching_stickers
