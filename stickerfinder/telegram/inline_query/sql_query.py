@@ -205,10 +205,9 @@ def get_fuzzy_matching_query(session, context):
         .subquery('tag_query')
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
-    tag_score = func.sum(tag_query.c.tag_similarity).label("tag_score")
+    tag_score = tag_query.c.tag_similarity.label("tag_score")
     tag_score_subq = session.query(sticker_tag.c.sticker_file_id, tag_score) \
         .join(tag_query, sticker_tag.c.tag_name == tag_query.c.name) \
-        .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_score_subq")
 
     # Condition for matching sticker set names and titles
