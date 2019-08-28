@@ -26,6 +26,9 @@ def search_stickers(session, update, context, inline_query_request):
     # Get all matching stickers
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
 
+    if context.fuzzy_offset is not None:
+        inline_query_request.fuzzy = True
+
     # Calculate the next offset. 'done' means there are no more results.
     next_offset = get_next_offset(context, matching_stickers, fuzzy_matching_stickers)
 
@@ -138,7 +141,7 @@ def get_matching_stickers(session, context):
 
     # If we take more than 10 seconds, the answer will be invalid.
     # We need to know about this, before it happens.
-    duration = end-start
+    duration = end - start
     if duration.seconds >= 9:
         sentry.captureMessage(f'Query took too long.', level='info',
                               extra={
@@ -162,7 +165,7 @@ def get_matching_sticker_sets(session, context):
 
     # If we take more than 10 seconds, the answer will be invalid.
     # We need to know about this, before it happens.
-    duration = end-start
+    duration = end - start
     if duration.seconds >= 9:
         sentry.captureMessage(f'Query took too long.', level='info',
                               extra={
