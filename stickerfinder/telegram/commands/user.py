@@ -3,7 +3,7 @@ from telegram.ext import run_async
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.keyboard import get_main_keyboard
-from stickerfinder.models import InlineQuery
+from stickerfinder.models import InlineQuery, StickerUsage
 
 
 @run_async
@@ -58,6 +58,10 @@ def undeluxe_user(bot, update, session, chat, user):
 @session_wrapper(check_ban=True, private=True)
 def delete_history(bot, update, session, chat, user):
     """Delete the whole search history of the user."""
+    session.query(StickerUsage) \
+        .filter(StickerUsage.user_id == user.id) \
+        .delete(synchronize_session=False)
+
     session.query(InlineQuery) \
         .filter(InlineQuery.user_id == user.id) \
         .delete(synchronize_session=False)
