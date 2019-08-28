@@ -56,8 +56,8 @@ def get_fuzzy_matching_stickers(session, context):
     # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
 
     matching_stickers = matching_stickers.all()
-    import pprint
-    pprint.pprint(matching_stickers)
+    # import pprint
+    # pprint.pprint(matching_stickers)
     return matching_stickers
 
 
@@ -278,6 +278,6 @@ def get_fuzzy_matching_query(session, context):
     if user.deluxe:
         matching_stickers = matching_stickers.filter(StickerSet.deluxe.is_(True))
 
-    matching_stickers = matching_stickers.order_by(score.desc(), StickerSet.name, Sticker.file_id)
+    matching_stickers = matching_stickers.order_by(score.desc(), StickerSet.name)
 
     return matching_stickers
