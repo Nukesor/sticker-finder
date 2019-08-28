@@ -1,7 +1,9 @@
 """Query composition for inline search."""
 from sqlalchemy import func, case, cast, Numeric, or_, and_
 from sqlalchemy.dialects import postgresql
+from sqlalchemy.sql.expression import literal
 
+from stickerfinder.db import greatest
 from stickerfinder.models import (
     Sticker,
     StickerSet,
@@ -54,6 +56,8 @@ def get_fuzzy_matching_stickers(session, context):
     # print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
 
     matching_stickers = matching_stickers.all()
+    import pprint
+    pprint.pprint(matching_stickers)
     return matching_stickers
 
 
@@ -208,28 +212,38 @@ def get_fuzzy_matching_query(session, context):
         .subquery('tag_query')
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
-    fuzzy_score = func.sum(tag_query.c.tag_similarity).label("fuzzy_score")
-    tag_subq = session.query(sticker_tag.c.sticker_file_id, fuzzy_score) \
+    tag_score = func.sum(tag_query.c.tag_similarity).label("tag_score")
+    tag_score_subq = session.query(sticker_tag.c.sticker_file_id, tag_score) \
         .join(tag_query, sticker_tag.c.tag_name == tag_query.c.name) \
         .group_by(sticker_tag.c.sticker_file_id) \
-        .subquery("tag_subq")
+        .subquery("tag_score_subq")
 
     # Condition for matching sticker set names and titles
-    set_conditions = []
+    sticker_set_score = []
+    sticker_set_subqs = []
     for tag in tags:
-        set_conditions.append(case([
-            (func.similarity(StickerSet.name, tag) >= threshold, func.similarity(StickerSet.name, tag)),
-            (func.similarity(StickerSet.title, tag) >= threshold, func.similarity(StickerSet.title, tag)),
-        ], else_=0))
+        set_score_subq = session.query(
+            greatest(
+                func.similarity(StickerSet.name, tag),
+                func.similarity(StickerSet.title, tag),
+            ).label('set_score'), StickerSet.name) \
+            .filter(or_(
+                func.similarity(StickerSet.name, tag) >= threshold,
+                func.similarity(StickerSet.title, tag) >= threshold,
+            )) \
+            .subquery('set_score_subq')
+
+        sticker_set_subqs.append(set_score_subq)
+        sticker_set_score.append(func.coalesce(set_score_subq.c.set_score, 0))
 
     # Condition for matching sticker text
-    text_conditions = []
+    text_score = []
     for tag in tags:
-        text_conditions.append(case([(func.similarity(Sticker.text, tag) >= threshold, 0.30)], else_=0))
+        text_score.append(case([(func.similarity(Sticker.text, tag) >= threshold, threshold)], else_=0))
 
     # Compute the whole score
-    score = cast(func.coalesce(tag_subq.c.fuzzy_score, 0), Numeric)
-    for condition in set_conditions + text_conditions:
+    score = cast(func.coalesce(tag_score_subq.c.tag_score, 0), Numeric)
+    for condition in sticker_set_score + text_score:
         score = score + condition
     score = score.label('score')
 
@@ -240,10 +254,15 @@ def get_fuzzy_matching_query(session, context):
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
     intermediate_query = session.query(Sticker.file_id, StickerSet.name, score) \
-        .outerjoin(tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id) \
+        .outerjoin(tag_score_subq, Sticker.file_id == tag_score_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
-        .join(Sticker.sticker_set) \
-        .filter(Sticker.banned.is_(False)) \
+        .join(Sticker.sticker_set)
+
+    for subq in sticker_set_subqs:
+        intermediate_query = intermediate_query.outerjoin(
+            subq, Sticker.sticker_set_name == subq.c.name)
+
+    intermediate_query = intermediate_query.filter(Sticker.banned.is_(False)) \
         .filter(strict_subquery.c.file_id.is_(None)) \
         .filter(StickerSet.deleted.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
