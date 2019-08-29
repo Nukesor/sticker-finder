@@ -196,7 +196,7 @@ def get_fuzzy_matching_query(session, context):
 
     tag_query = session.query(
         Tag.name,
-        func.max(*similarities).label('tag_similarity'),
+        greatest(*similarities).label('tag_similarity'),
     ) \
         .filter(or_(*threshold_check)) \
         .filter(or_(Tag.is_default_language == user.is_default_language,
@@ -230,7 +230,7 @@ def get_fuzzy_matching_query(session, context):
             .filter(StickerSet.reviewed.is_(True)) \
             .filter(StickerSet.nsfw.is_(nsfw)) \
             .filter(StickerSet.furry.is_(furry)) \
-            .subquery('set_score_subq')
+            .subquery()
 
         sticker_set_subqs.append(set_score_subq)
         sticker_set_score.append(func.coalesce(set_score_subq.c.set_score, 0))
