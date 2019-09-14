@@ -1,5 +1,5 @@
 """Query composition for inline search."""
-import pprint
+from pprint import pprint
 from sqlalchemy import func, case, cast, Numeric, or_, and_
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.sql.expression import literal
@@ -43,6 +43,10 @@ def get_strict_matching_stickers(session, context):
         .limit(limit) \
         .all()
 
+    if config['logging']['debug']:
+        pprint('Strict results:')
+        pprint(matching_stickers)
+
     return matching_stickers
 
 
@@ -59,7 +63,8 @@ def get_fuzzy_matching_stickers(session, context):
 
     matching_stickers = matching_stickers.all()
     if config['logging']['debug']:
-        pprint.pprint(matching_stickers)
+        pprint('Fuzzy results:')
+        pprint(matching_stickers)
     return matching_stickers
 
 
@@ -162,7 +167,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
             matching_stickers.c.file_id == StickerUsage.sticker_file_id,
             StickerUsage.user_id == user.id
         )) \
-        .order_by(score_with_usage.desc(), matching_stickers.c.name, matching_stickers.c.file_id) \
+        .order_by(score_with_usage.desc(), matching_stickers.c.name, matching_stickers.c.file_id)
 
     return matching_stickers_with_usage
 
