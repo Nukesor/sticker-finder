@@ -3,7 +3,6 @@ import io
 import re
 import logging
 from PIL import Image
-from PIL.er
 from pytesseract import image_to_string
 from telegram.error import BadRequest, TimedOut
 
