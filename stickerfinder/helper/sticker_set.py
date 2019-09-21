@@ -23,6 +23,9 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
         if e.message == 'Stickerset_invalid' or \
                 e.message == 'Requested data is inaccessible':
             sticker_set.deleted = True
+            sticker_set.completed = True
+            # The review task for a sticker set is always the first task
+            sticker_set.tasks[0].reviewed = True
             return
 
         raise e
@@ -61,6 +64,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
         if text is not None:
             sticker.text = text
 
+        sticker.animated = tg_sticker.is_animated
         add_original_emojis(session, sticker, tg_sticker.emoji)
         stickers.append(sticker)
         session.commit()

@@ -52,9 +52,6 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
                 func(context.bot, update, session, user)
 
                 session.commit()
-            # Raise all telegram errors and let the generic error_callback handle it
-            except TelegramError as e:
-                raise e
             # Handle all not telegram relatated exceptions
             except:
                 traceback.print_exc()
@@ -106,10 +103,6 @@ def session_wrapper(send_message=True, check_ban=False,
             # A group chat has been converted to a super group.
             except ChatMigrated:
                 session.delete(chat)
-
-            # Raise all telegram errors and let the generic error_callback handle it
-            except TelegramError as e:
-                raise e
 
             # Handle all not telegram relatated exceptions
             except:

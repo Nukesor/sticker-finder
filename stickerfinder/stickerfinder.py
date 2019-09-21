@@ -138,13 +138,18 @@ if not config['mode']['leecher']:
 
     # Regular tasks
     minute = 60
-    hour = minute*60
+    hour = minute * 60
     job_queue = updater.job_queue
-    job_queue.run_repeating(newsfeed_job, interval=minute*5, first=0, name='Process newsfeed')
-    job_queue.run_repeating(maintenance_job, interval=hour*2, first=0, name='Create new maintenance tasks')
-    job_queue.run_repeating(scan_sticker_sets_job, interval=10, first=0, name='Scan new sticker sets')
-    job_queue.run_repeating(distribute_tasks_job, interval=minute, first=minute*2, name='Distribute new tasks')
-    job_queue.run_repeating(cleanup_job, interval=hour*2, first=0, name='Perform some database cleanup tasks')
+    job_queue.run_repeating(newsfeed_job, interval=5 * minute,
+                            first=0, name='Process newsfeed')
+    job_queue.run_repeating(maintenance_job, interval=2 * hour,
+                            first=0, name='Create new maintenance tasks')
+    job_queue.run_repeating(scan_sticker_sets_job, interval=10,
+                            first=0, name='Scan new sticker sets')
+    job_queue.run_repeating(distribute_tasks_job, interval=minute,
+                            first=2 * minute, name='Distribute new tasks')
+    job_queue.run_repeating(cleanup_job, interval=2 * hour,
+                            first=0, name='Perform some database cleanup tasks')
 
     # Create private message handler
     dispatcher.add_handler(

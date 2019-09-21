@@ -64,9 +64,10 @@ class Sticker(base):
 
     file_id = Column(String, primary_key=True)
     text = Column(String)
-    banned = Column(Boolean, server_default='FALSE', default=False, nullable=False)
+    banned = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    animated = Column(Boolean, server_default='FALSE', default=False, nullable=False)
 
     sticker_set_name = Column(String, ForeignKey('sticker_set.name',
                                                  onupdate='cascade',

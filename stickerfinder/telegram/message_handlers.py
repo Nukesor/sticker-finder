@@ -121,7 +121,7 @@ def handle_group_sticker(bot, update, session, chat, user):
 
     # Check if we know this sticker set. Early return if we don't
     sticker_set = session.query(StickerSet).get(set_name)
-    if sticker_set is None:
+    if not update.message.sticker.is_animated:
         return
 
     if sticker_set not in chat.sticker_sets:

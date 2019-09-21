@@ -29,7 +29,7 @@ class InlineQueryRequest(base):
     offset = Column(String, nullable=False)
     next_offset = Column(String)
     duration = Column(Interval)
-    fuzzy = Column(Boolean, default=False, server_default='false')
+    fuzzy = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     inline_query_id = Column(BigInteger, ForeignKey('inline_query.id', ondelete='CASCADE'), index=True)

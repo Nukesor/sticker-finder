@@ -95,9 +95,6 @@ def distribute_tasks_job(context, session):
 @job_session_wrapper()
 def scan_sticker_sets_job(context, session):
     """Send all new sticker to the newsfeed chats."""
-    stickerset = session.query(StickerSet).get('bribstuff')
-    refresh_stickers(session, stickerset, context.bot)
-
     context.job.enabled = False
     tasks = session.query(Task) \
         .filter(Task.type == Task.SCAN_SET) \
@@ -110,7 +107,8 @@ def scan_sticker_sets_job(context, session):
     # Send the first sticker of each new set to all newsfeed channels
     for task in tasks:
         refresh_stickers(session, task.sticker_set, context.bot, chat=task.chat)
-        session.commit()
+
+    session.commit()
 
     context.job.enabled = True
     return

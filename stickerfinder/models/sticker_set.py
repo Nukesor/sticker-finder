@@ -48,7 +48,7 @@ class StickerSet(base):
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     reports = relationship("Report", order_by="desc(Report.created_at)")
-    tasks = relationship("Task")
+    tasks = relationship("Task", order_by="asc(Task.created_at)")
     chats = relationship(
         "Chat",
         secondary=chat_sticker_set,
