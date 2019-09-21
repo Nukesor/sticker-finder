@@ -110,31 +110,40 @@ def handle_group_sticker(bot, update, session, chat, user):
     - Handle initial sticker addition.
     - Detect whether a sticker set is used in a chat or not.
     """
-    set_name = update.message.sticker.set_name
+    tg_sticker = update.message.sticker
+    set_name = tg_sticker.set_name
 
     # The sticker is no longer associated to a sticker set
     if set_name is None:
         return
 
-    # Handle replies to #request messages and tag those stickers with the request tags
-    handle_request_reply(update.message.sticker.file_id, update, session, chat, user)
+    # Handle maintenance and newsfeed sticker sets
+    if chat.is_maintenance or chat.is_newsfeed:
+        sticker_set = session.query(StickerSet).get(set_name)
+        if sticker_set is None:
+            return
 
-    # Check if we know this sticker set. Early return if we don't
-    sticker_set = session.query(StickerSet).get(set_name)
-    if not update.message.sticker.is_animated:
+        message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
+        keyboard = get_nsfw_ban_keyboard(sticker_set)
+        call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
+
         return
+
+    # Handle replies to #request messages and tag those stickers with the request tags
+    handle_request_reply(tg_sticker.file_id, update, session, chat, user)
+
+    # Right now we only want to add animated stickers
+    if not tg_sticker.is_animated:
+        return
+
+    sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
 
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
 
     # Set the send sticker to the current sticker for tagging or report.
-    sticker = session.query(Sticker).get(update.message.sticker.file_id)
+    sticker = session.query(Sticker).get(tg_sticker.file_id)
     chat.current_sticker = sticker
-
-    if chat.is_maintenance or chat.is_newsfeed:
-        message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
-        keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
 
     return
 
