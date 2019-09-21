@@ -3,6 +3,7 @@ import io
 import re
 import logging
 from PIL import Image
+from PIL.er
 from pytesseract import image_to_string
 from telegram.error import BadRequest, TimedOut
 
@@ -130,7 +131,10 @@ def extract_text(tg_sticker):
         logger.info(f'Finally failed on file {tg_sticker.file_id}')
         pass
     except BadRequest:
-        logger.info(f'Failed to get image of f{tg_sticker.file_id}')
+        logger.info(f'Failed to get image of {tg_sticker.file_id}')
+        pass
+    except OSError:
+        logger.info(f'Failed to open image {tg_sticker.file_id}')
         pass
     except:
         sentry.captureException()
