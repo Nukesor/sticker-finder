@@ -119,8 +119,10 @@ def handle_group_sticker(bot, update, session, chat, user):
 
     # Handle maintenance and newsfeed sticker sets
     if chat.is_maintenance or chat.is_newsfeed:
-        sticker_set = session.query(StickerSet).get(set_name)
-        if sticker_set is None:
+        sticker_set = session.query(StickerSet).get_or_create(set_name)
+        if not sticker_set.completed:
+            call_tg_func(update.message.chat,
+                         'send_message', ['Sticker set is not yet reviewed'])
             return
 
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
@@ -140,6 +142,10 @@ def handle_group_sticker(bot, update, session, chat, user):
 
     if sticker_set not in chat.sticker_sets:
         chat.sticker_sets.append(sticker_set)
+
+    # Stickerset is not yet completed
+    if not sticker_set.completed:
+        return
 
     # Set the send sticker to the current sticker for tagging or report.
     sticker = session.query(Sticker).get(tg_sticker.file_id)
