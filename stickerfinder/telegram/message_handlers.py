@@ -3,7 +3,6 @@ from stickerfinder.models import (
     Change,
     Sticker,
     StickerSet,
-    ProposedTags,
 )
 from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.telegram import call_tg_func
@@ -119,8 +118,8 @@ def handle_group_sticker(bot, update, session, chat, user):
 
     # Handle maintenance and newsfeed sticker sets
     if chat.is_maintenance or chat.is_newsfeed:
-        sticker_set = session.query(StickerSet).get_or_create(set_name)
-        if not sticker_set.completed:
+        sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
+        if not sticker_set.complete:
             call_tg_func(update.message.chat,
                          'send_message', ['Sticker set is not yet reviewed'])
             return
@@ -144,7 +143,7 @@ def handle_group_sticker(bot, update, session, chat, user):
         chat.sticker_sets.append(sticker_set)
 
     # Stickerset is not yet completed
-    if not sticker_set.completed:
+    if not sticker_set.complete:
         return
 
     # Set the send sticker to the current sticker for tagging or report.
