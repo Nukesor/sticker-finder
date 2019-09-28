@@ -202,7 +202,7 @@ def get_tag_this_set_keyboard(sticker_set, user):
     tag_set_data = f'{CallbackType["tag_set"].value}:{sticker_set.name}:0'
     buttons = []
 
-    if user.admin:
+    if user.admin is True:
         action = CallbackResult["ok"].value
         text = 'Tag as deluxe'
         if sticker_set.deluxe:

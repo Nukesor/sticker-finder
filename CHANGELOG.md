@@ -1,10 +1,17 @@
-# v1.1.0
+# v1.2.0
+
+**Features**
+- Support for animated stickers
+- `/delete_history` function. The bot will forget everything you every searched for.
+
+__Maintenance__
+- Speed and clean up fuzzy query.
 
 __Bug fixes__
 - Telegram sometimes randomly changes file_ids of stickers. This led to major loss of usage statistics and tags.
+- Fix a problem with the main keyboard.
 
 # v1.1.0
-
 
 **Features**
 
@@ -22,13 +29,13 @@ __Other Stuff__
 
 __Deluxe Mode__
 - deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.
-    You can now choose to only see this carefully curated set of stickers with the /toggle_deluxe command.
-    If you want to see everything again, just type /deluxe again.
-    (This mode will take some time to become really good, since we need to look at all of the 4000 sticker packs again -.-)
+    You can now choose to only see this carefully curated set of stickers with the `/toggle_deluxe` command.  
+    If you want to see everything again, just type `/deluxe` again.  
+    (This mode will take some time to become really good, since we need to look at all of the 4000 sticker packs again -.-)  
 - /tag_random will now prioritize deluxe sets.
 
 **Admin/Maintenance additions**
-- /test\_broadcast function to preview a broadcast text.
+- `/test_broadcast` function to preview a broadcast text.
 - I finally added testing :3 
 - Add a LOT of tests
 - Lots of bug/behaviour fixes and adjustments
@@ -49,7 +56,7 @@ __Deluxe Mode__
 - Added a new button `Continue tagging this set` to jump right back to the last sticker you tagged.
 
 **General stuff:**
-- Remove /tag\_set function since this is handled by buttons by now.
+- Remove `/tag_set` function since this is handled by buttons by now.
 - Several fixes all over the place
 - Improved performance and even better error monitoring
 
