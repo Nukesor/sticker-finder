@@ -113,11 +113,11 @@ def extract_text(tg_sticker):
         # Get Image and preprocess it
         tg_file = call_tg_func(tg_sticker, 'get_file')
         image_bytes = call_tg_func(tg_file, 'download_as_bytearray')
-        image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
-        image = preprocess_image(image)
+        with Image.open(io.BytesIO(image_bytes)).convert('RGB') as image:
+            image = preprocess_image(image)
 
-        # Extract text
-        text = image_to_string(image).strip().lower()
+            # Extract text
+            text = image_to_string(image).strip().lower()
 
         # Only allow chars and remove multiple spaces to single spaces
         text = re.sub('[^a-zA-Z\ ]+', '', text)
