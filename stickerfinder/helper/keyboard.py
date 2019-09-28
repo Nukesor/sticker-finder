@@ -12,24 +12,32 @@ from stickerfinder.helper.tag_mode import TagMode
 def get_main_keyboard(user=None, admin=False):
     """Get the main keyboard for the current user."""
     if admin:
-        keyboard = ReplyKeyboardMarkup(
-            [
-                ['toggle_deluxe', '/cancel', '/tasks'],
-                ['/stats', '/refresh', '/cleanup'],
-            ],
-            resize_keyboard=True, one_time_keyboard=True
-        )
-    else:
         buttons = [
-            ['/highscore', '/tag_random'],
-            ['/donations', '/help'],
+            ['/cancel', '/tasks'],
+            ['/stats', '/refresh', '/cleanup'],
         ]
-        # Deluxe button
         if user.deluxe:
             buttons[0].insert(0, '/undeluxe')
         else:
             buttons[0].insert(0, '/deluxe')
 
+        keyboard = ReplyKeyboardMarkup(
+            buttons,
+            resize_keyboard=True,
+            one_time_keyboard=True,
+        )
+
+    else:
+        buttons = [
+            ['/tag_random'],
+            ['/donations', '/help'],
+        ]
+        if user.deluxe:
+            buttons[0].insert(0, '/undeluxe')
+        else:
+            buttons[0].insert(0, '/deluxe')
+
+        # Deluxe button
         # Language button
         if user.is_default_language:
             buttons[1].append('/international')
