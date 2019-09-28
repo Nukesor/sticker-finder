@@ -94,19 +94,16 @@ def handle_next_newsfeed_set(session, bot, context):
     if task_chat is None or task_chat.current_task is None:
         call_tg_func(context.query, 'answer', ['No new stickers sets'])
 
-    try:
-        if task.chat and task.chat.type == 'private':
-            if sticker_set.banned:
-                call_tg_func(bot, 'send_message', [task.chat.id, f'Stickerset {sticker_set.name} has been banned.'])
+    if task.chat and task.chat.type == 'private':
+        if sticker_set.banned:
+            call_tg_func(bot, 'send_message', [task.chat.id, f'Stickerset {sticker_set.name} has been banned.'])
 
-            else:
-                keyboard = get_tag_this_set_keyboard(sticker_set, context.user)
-                message = f'Stickerset {sticker_set.name} has been added.'
-                if sticker_set.nsfw or sticker_set.furry:
-                    message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
-                    message += f"{'furry' if sticker_set.furry else ''}"
+        else:
+            keyboard = get_tag_this_set_keyboard(sticker_set, task.user)
+            message = f'Stickerset {sticker_set.name} has been added.'
+            if sticker_set.nsfw or sticker_set.furry:
+                message += f"\n It has been tagged as: {'nsfw' if sticker_set.nsfw else ''} "
+                message += f"{'furry' if sticker_set.furry else ''}"
 
-                call_tg_func(bot, 'send_message', [task.chat.id, message], {'reply_markup': keyboard})
-            return
-    except: # noqa
-        pass
+            call_tg_func(bot, 'send_message', [task.chat.id, message], {'reply_markup': keyboard})
+        return
