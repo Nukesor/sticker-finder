@@ -115,7 +115,7 @@ Sticker sets:
 Total queries : {total_queries_count}
     => last day: {last_day_queries_count}
 """
-    call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': get_main_keyboard(admin=True)})
+    call_tg_func(update.message.chat, 'send_message', [stats], {'reply_markup': get_main_keyboard(user, admin=True)})
 
 
 @run_async

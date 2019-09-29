@@ -16,7 +16,7 @@ def get_main_keyboard(user=None, admin=False):
             ['/cancel', '/tasks'],
             ['/stats', '/refresh', '/cleanup'],
         ]
-        if user.deluxe:
+        if user and user.deluxe:
             buttons[0].insert(0, '/undeluxe')
         else:
             buttons[0].insert(0, '/deluxe')
