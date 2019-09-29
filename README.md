@@ -45,16 +45,8 @@ Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/
     /donations  Show information for donations
     /tag [tags] Tag the last sticker posted in this chat or the sticker you replied to
     /replace [tags] Replace the tags of the last sticker posted in this chat or the sticker you replied to
-    /tag_random Get a random sticker for tagging. Crowdsourcing :). Thanks for everybody doing this :)!
-    /random_set Get a random sticker set.
-    /skip       Skip the current sticker
     /cancel     Cancel all current tag actions
-    /english    Only english sticker sets and tags
-    /international Get sticker sets from all all languages.
-    /toggle_deluxe Only get the very best sticker packs. (Restricts the search drastically)
     /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
-    /delete_history   Delete the full search history of a user.
-    /admin_help       Display admin help
 
 
 ## Installation and starting:
@@ -82,19 +74,11 @@ Get the latest revision with `poetry run alembic history` and change the current
 ## Botfather commands
 
     help - Display help
-    donations - Show information for donations
     tag - Tag the last sticker posted in this chat or the sticker you replied to
     replace - Replace the tags of the last sticker posted in this chat or the sticker you replied to
-    tag_random - Get a random sticker for tagging. Thanks for doing this :)!
-    random_set - The bot sends you a random sticker set.
-    skip - Skip the current sticker
     report - Report something regarding the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
-    english - Only english sticker sets and tags
-    international - Get sticker sets from all all languages.
-    toggle_deluxe - Only get the very best sticker packs. (Restricts the search drastically)
     forget_set - Forget all usages of a sticker pack.
-    delete_history - Delete the full search history of a user.
     help - Display admin help
 
 
@@ -103,18 +87,15 @@ This is just for people hosting a bot and those with `admin` permissions:
 
     /ban Ban the last sticker posted in this chat.
     /unban Unban the last sticker posted in this chat.
+    /make_admin [name|id] Make another user admin
     /ban_user [name|id] Ban a user
     /unban_user [name|id] Unban a user
     /tasks Start to process tasks in a maintenance chat
-    /make_admin [name|id] Make another user admin
-
-    /delete_set [name] Completely delete a set
-    /show [file_id]` Command sends the corresponding sticker for the given Id
-    /add_set [names...] Add multiple sets at once by `set_name` separated by newline
 
     /toggle_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
 
-    /stats Get some statistics
-    /refresh Refresh all stickerpacks.
-    /refresh_ocr Refresh all stickerpacks including ocr.
     /broadcast [message] Send the message after this command to all users.
+    /add_set [names...] Add multiple sets at once by `set_name` separated by newline
+    /delete_set [name] Completely delete a set
+    /show_sticker [file_id] Command sends the corresponding sticker for the given Id
+    /show_id Show file id of sticker you replied to

@@ -26,8 +26,8 @@ def job_session_wrapper(check_ban=False, admin_only=False):
                 func(context, session)
 
                 session.commit()
-            except: # noqa
-                # Capture all exceptions from jobs. We need to handle those insidse the jobs
+            except:
+                # Capture all exceptions from jobs. We need to handle those inside the jobs
                 traceback.print_exc()
                 sentry.captureException()
             finally:

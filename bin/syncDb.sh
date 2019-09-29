@@ -17,4 +17,8 @@ pg_restore -O -j 4 -F c -d stickerfinder stickerfinder.dump
 echo 'Deleting dumps'
 rm stickerfinder.dump
 ssh $host 'rm stickerfinder.dump'
+
+echo 'Run migrations'
+poetry run alembic upgrade head
+
 echo 'Done'

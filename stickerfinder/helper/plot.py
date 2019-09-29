@@ -16,19 +16,16 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt # noqa
 
 
-def send_plots(bot, update, session, chat, user, mode):
+def send_plots(session, chat):
     """Generate and send plots to the user."""
     image = get_inline_queries_statistics(session)
-    call_tg_func(update.message.chat, mode, [image],
-                 {'caption': 'Inline queries'})
+    chat.send_document(image, caption='Inline queries')
 
     image = get_inline_query_performance_statistics(session)
-    call_tg_func(update.message.chat, mode, [image],
-                 {'caption': 'Inline query performance statistics'})
+    chat.send_document(image, caption='Inline query performance statistics')
 
     image = get_user_activity(session)
-    call_tg_func(update.message.chat, mode, [image],
-                 {'caption': 'User statistics'})
+    chat.send_document(image, caption='User statistics')
 
     image.close()
 

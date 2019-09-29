@@ -38,12 +38,12 @@ def search_stickers(session, update, context, inline_query_request):
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
-        pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint({"offset": context.offset, "fuzzy_offset": context.fuzzy_offset}) # noqa
-        pprint.pprint(f'Normal matching (Count: {len(matching_stickers)})::') # noqa
-        pprint.pprint(matching_stickers) # noqa
-        pprint.pprint(f'Fuzzy matching (Count: {len(fuzzy_matching_stickers)}):') # noqa
-        pprint.pprint(fuzzy_matching_stickers) # noqa
+        pprint.pprint('\n\nNext: ')
+        pprint.pprint({"offset": context.offset, "fuzzy_offset": context.fuzzy_offset})
+        pprint.pprint(f'Normal matching (Count: {len(matching_stickers)})::')
+        pprint.pprint(matching_stickers)
+        pprint.pprint(f'Fuzzy matching (Count: {len(fuzzy_matching_stickers)}):')
+        pprint.pprint(fuzzy_matching_stickers)
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
 
@@ -53,14 +53,15 @@ def search_stickers(session, update, context, inline_query_request):
         results.append(InlineQueryResultCachedSticker(
             f'{context.inline_query_id}:{file_id[0]}', sticker_file_id=file_id[0]))
 
-    call_tg_func(update.inline_query, 'answer', args=[results],
-                 kwargs={
-                     'next_offset': next_offset,
-                     'cache_time': 1,
-                     'is_personal': True,
-                     'switch_pm_text': 'Maybe tag some stickers :)?',
-                     'switch_pm_parameter': 'inline',
-                 })
+    call_tg_func(
+        update.inline_query, 'answer', args=[results],
+        kwargs={
+            'next_offset': next_offset,
+            'cache_time': 1,
+            'is_personal': True,
+            'switch_pm_text': 'Maybe tag some stickers :)?',
+            'switch_pm_parameter': 'inline',
+        })
 
 
 def search_sticker_sets(session, update, context, inline_query_request):
@@ -77,9 +78,9 @@ def search_sticker_sets(session, update, context, inline_query_request):
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
-        pprint.pprint('\n\nNext: ') # noqa
-        pprint.pprint(context.offset) # noqa
-        pprint.pprint(matching_sets) # noqa
+        pprint.pprint('\n\nNext: ')
+        pprint.pprint(context.offset)
+        pprint.pprint(matching_sets)
 
     # Create a result list of max 50 cached sticker objects
     results = []
@@ -101,14 +102,15 @@ def search_sticker_sets(session, update, context, inline_query_request):
                 results.append(InlineQueryResultCachedSticker(
                     f'{context.inline_query_id}:{file_id}', sticker_file_id=file_id))
 
-    call_tg_func(update.inline_query, 'answer', args=[results],
-                 kwargs={
-                     'next_offset': next_offset,
-                     'cache_time': 1,
-                     'is_personal': True,
-                     'switch_pm_text': 'Maybe tag some stickers :)?',
-                     'switch_pm_parameter': 'inline',
-                 })
+    call_tg_func(
+        update.inline_query, 'answer', args=[results],
+        kwargs={
+            'next_offset': next_offset,
+            'cache_time': 1,
+            'is_personal': True,
+            'switch_pm_text': 'Maybe tag some stickers :)?',
+            'switch_pm_parameter': 'inline',
+        })
 
 
 def get_matching_stickers(session, context):

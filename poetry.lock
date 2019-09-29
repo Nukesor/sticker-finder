@@ -305,7 +305,7 @@ description = "Thin-wrapper around the mock package for easier use with py.test"
 name = "pytest-mock"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
-version = "1.10.4"
+version = "1.11.0"
 
 [package.dependencies]
 pytest = ">=2.7"
@@ -423,7 +423,7 @@ version = "0.6.0"
 more-itertools = "*"
 
 [metadata]
-content-hash = "df81d34230286b13d21d159d7e3915900d47e8018184ebe6f344be672b09be59"
+content-hash = "51b697f019e29dd5539a5796e56adbb28dec19cbcec42f58eeb6665839323419"
 python-versions = ">=3.6"
 
 [metadata.hashes]
@@ -456,7 +456,7 @@ pycparser = ["a988718abfad80b6b157acce7bf130a30876d27603738ac39f140993246b25b3"]
 pyparsing = ["6f98a7b9397e206d78cc01df10131398f1c8b8510a2f4d97d9abd82e1aacdd80", "d9338df12903bbf5d65a0e4e87c2161968b10d2e489652bb47001d82a9b028b4"]
 pytesseract = ["6fc79282411f4aef2981c5da96ebe9efc22dec7548a7d90fd58d7947d41d59d6"]
 pytest = ["8fc39199bdda3d9d025d3b1f4eb99a192c20828030ea7c9a0d2840721de7d347", "d100a02770f665f5dcf7e3f08202db29857fee6d15f34c942be0a511f39814f0"]
-pytest-mock = ["43ce4e9dd5074993e7c021bb1c22cbb5363e612a2b5a76bc6d956775b10758b7", "5bf5771b1db93beac965a7347dc81c675ec4090cb841e49d9d34637a25c30568"]
+pytest-mock = ["3fd5ffb33b7041aea60a77f77b98e05d5acd577d53a01bf2ff0ca9780c6e3d84", "a89104018a4083b5c402e23b15b855924b74d9a3511e94f230a33621b72e35e1"]
 python-dateutil = ["7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb", "c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"]
 python-editor = ["1bf6e860a8ad52a14c3ee1252d5dc25b2030618ed80c022598f00176adc8367d", "51fda6bcc5ddbbb7063b2af7509e43bd84bfc32a4ff71349ec7847713882327b", "5f98b069316ea1c2ed3f67e7f5df6c0d8f10b689964a4a811ff64f0106819ec8", "c3da2053dbab6b29c94e43c486ff67206eafbe7eb52dbec7390b5e2fb05aac77", "ea87e17f6ec459e780e4221f295411462e0d0810858e055fc514684350a2f522"]
 python-telegram-bot = ["43a67c1f6da444e1baabb960467d1524f81c71166b1235c5bf6d225332c01c3e", "c7c56ea3bf9874e39397633a35478b9bed44ba35db49cfd3ce97d331edef82a9"]

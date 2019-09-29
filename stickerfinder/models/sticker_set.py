@@ -31,7 +31,7 @@ class StickerSet(base):
 
     name = Column(String, primary_key=True)
     title = Column(String)
-    is_default_language = Column(Boolean, default=True, nullable=False)
+    international = Column(Boolean, default=False, nullable=False)
     deleted = Column(Boolean, default=False, nullable=False)
 
     # Flags
@@ -72,7 +72,7 @@ class StickerSet(base):
             # Create a task for adding a sticker.
             # This task will be processed by a job, since adding a sticker can take quite a while
             sticker_set = StickerSet(name, None)
-            sticker_set.is_default_language = user.is_default_language
+            sticker_set.international = user.international
             task = Task(Task.SCAN_SET, sticker_set=sticker_set, chat=chat, user=user)
             session.add(sticker_set)
             session.add(task)

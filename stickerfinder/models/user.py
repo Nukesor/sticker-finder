@@ -22,12 +22,19 @@ class User(base):
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String)
-    is_default_language = Column(Boolean, default=True, nullable=False)
-    deluxe = Column(Boolean, default=False, nullable=False)
 
+    # Search related flags
+    international = Column(Boolean, default=False, nullable=False)
+    deluxe = Column(Boolean, default=False, nullable=False)
+    nsfw = Column(Boolean, default=False, nullable=False, server_default='False')
+    furry = Column(Boolean, default=False, nullable=False, server_default='False')
+
+    # Management related flags
     banned = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     admin = Column(Boolean, default=False, nullable=False)
+
+    # Debug info
     authorized = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 

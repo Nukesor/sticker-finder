@@ -14,7 +14,7 @@ from stickerfinder.helper.tag import (
     current_sticker_tags_message,
     handle_request_reply,
 )
-from stickerfinder.helper.keyboard import (
+from stickerfinder.telegram.keyboard import (
     get_tag_this_set_keyboard,
     get_nsfw_ban_keyboard,
 )

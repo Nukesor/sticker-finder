@@ -1,8 +1,7 @@
-"""Callback query sub-handlers for dealing with newsfeed buttons."""
 from stickerfinder.helper.maintenance import distribute_newsfeed_tasks
 from stickerfinder.helper.callback import CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import (
+from stickerfinder.telegram.keyboard import (
     get_nsfw_ban_keyboard,
     get_tag_this_set_keyboard,
 )
@@ -62,16 +61,17 @@ def handle_change_set_language(session, context):
     """Handle the change language button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload.lower())
     if CallbackResult(context.action).name == 'international':
-        sticker_set.is_default_language = False
+        sticker_set.international = False
     elif CallbackResult(context.action).name == 'default':
-        sticker_set.is_default_language = True
+        sticker_set.international = True
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
 
 
-def handle_next_newsfeed_set(session, bot, context):
+def handle_next_newsfeed_set(session, context):
     """Handle the next button in newsfeed chats."""
+    bot = context.bot
     sticker_set = session.query(StickerSet).get(context.payload.lower())
     task = session.query(Task) \
         .filter(Task.type == Task.SCAN_SET) \

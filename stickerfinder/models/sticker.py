@@ -93,27 +93,27 @@ class Sticker(base):
 
     def __str__(self):
         """Debug string for class."""
-        return f'Sticker {self.file_id} with {self.tags_as_text(True)}'
+        return f'Sticker {self.file_id} with {self.tags_as_text(False)}'
 
-    def tags_as_text(self, is_default_language):
+    def tags_as_text(self, international):
         """Return tag names as single string."""
-        tags = [tag.name for tag in self.tags if tag.is_default_language == is_default_language and not tag.emoji]
+        tags = [tag.name for tag in self.tags if tag.international == international and not tag.emoji]
         # Sort to ensure that there are no changes due to changed order
         tags.sort()
         return ', '.join(tags)
 
-    def has_tags_for_language(self, is_default_language):
+    def has_tags_for_language(self, international):
         """Check whether there exist tags for the language type."""
-        tags = [tag.name for tag in self.tags if tag.is_default_language == is_default_language and not tag.emoji]
+        tags = [tag.name for tag in self.tags if tag.international == international and not tag.emoji]
         if len(tags) > 0:
             return True
 
         return False
 
-    def find_newest_change(self, is_default_language):
+    def find_newest_change(self, international):
         """Check whether there exist tags for the language type."""
         for change in self.changes:
-            if change.is_default_language == is_default_language:
+            if change.international == international:
                 return change
 
         return None

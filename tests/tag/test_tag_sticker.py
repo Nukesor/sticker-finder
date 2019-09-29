@@ -55,25 +55,25 @@ def test_add_duplicate_sticker_tags_in_other_language(session, user, sticker_set
     if somebody tags in default, but not the other way around.
     """
     # User should tag in not default language first
-    user.is_default_language = False
+    user.international = False
     sticker = sticker_set.stickers[0]
     tag_sticker(session, 'language_test_tag', sticker, user, replace=True)
 
     session.commit()
 
     tag = session.query(Tag).get('language_test_tag')
-    assert not tag.is_default_language
+    assert not tag.international
 
     # Add same tag to sticker, but this time in default language
-    user.is_default_language = True
+    user.international = True
     tag_sticker(session, 'language_test_tag', sticker, user, replace=True)
 
-    assert tag.is_default_language
+    assert tag.international
     assert len(user.changes) == 1
 
     # Now tag in the not default language again. This shouldn't change anything now
-    user.is_default_language = False
+    user.international = False
     tag_sticker(session, 'language_test_tag', sticker, user, replace=True)
 
-    assert tag.is_default_language
+    assert tag.international
     assert len(user.changes) == 1

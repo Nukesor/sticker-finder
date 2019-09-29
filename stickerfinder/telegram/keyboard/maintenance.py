@@ -1,52 +1,9 @@
-"""Reply keyboards."""
+"""Maintenance related keyboards."""
 from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
-    ReplyKeyboardMarkup,
 )
-
 from stickerfinder.helper.callback import CallbackType, CallbackResult
-from stickerfinder.helper.tag_mode import TagMode
-
-
-def get_main_keyboard(user=None, admin=False):
-    """Get the main keyboard for the current user."""
-    if admin:
-        buttons = [
-            ['/cancel', '/tasks'],
-            ['/stats', '/refresh', '/cleanup'],
-        ]
-        if user and user.deluxe:
-            buttons[0].insert(0, '/undeluxe')
-        else:
-            buttons[0].insert(0, '/deluxe')
-
-        keyboard = ReplyKeyboardMarkup(
-            buttons,
-            resize_keyboard=True,
-            one_time_keyboard=True,
-        )
-
-    else:
-        buttons = [
-            ['/tag_random'],
-            ['/donations', '/help'],
-        ]
-        if user.deluxe:
-            buttons[0].insert(0, '/undeluxe')
-        else:
-            buttons[0].insert(0, '/deluxe')
-
-        # Deluxe button
-        # Language button
-        if user.is_default_language:
-            buttons[1].append('/international')
-        else:
-            buttons[1].append('/english')
-
-        keyboard = ReplyKeyboardMarkup(buttons, one_time_keyboard=True, resize_keyboard=True)
-
-    return keyboard
 
 
 def get_nsfw_ban_keyboard(sticker_set):
@@ -79,12 +36,12 @@ def get_nsfw_ban_keyboard(sticker_set):
         fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         fur_text = 'Tag as Furry'
 
-    if sticker_set.is_default_language:
-        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
-        language_text = 'Make International'
-    else:
+    if sticker_set.international:
         language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["default"].value}'
         language_text = 'Make English'
+    else:
+        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
+        language_text = 'Make International'
 
     if sticker_set.deluxe:
         deluxe_data = f'{deluxe_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
@@ -176,74 +133,22 @@ def check_user_tags_keyboard(task):
 
     # Language changing button
     change_data = f'{callback_type}:{task.id}:{CallbackResult["change_language"].value}'
-    if task.is_default_language:
-        change_text = 'Make International'
-    else:
+    if task.international:
         change_text = 'Make English'
+    else:
+        change_text = 'Make International'
 
     buttons = [[
-            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
-            InlineKeyboardButton(text=revert_text, callback_data=revert_data),
-        ], [
-            InlineKeyboardButton(text=change_text, callback_data=change_data),
-            ]]
+        InlineKeyboardButton(text=ban_text, callback_data=ban_data),
+        InlineKeyboardButton(text=revert_text, callback_data=revert_data),
+    ], [
+        InlineKeyboardButton(text=change_text, callback_data=change_data),
+    ]]
 
     # Remove next button, if the task is already finished
     if not task.reviewed:
         ok_data = f'{callback_type}:{task.id}:{CallbackResult["ok"].value}'
         next_button = InlineKeyboardButton(text='Next', callback_data=ok_data)
         buttons[1].append(next_button)
-
-    return InlineKeyboardMarkup(buttons)
-
-
-def get_tag_this_set_keyboard(sticker_set, user):
-    """Button for tagging a specific set."""
-    tag_set_data = f'{CallbackType["tag_set"].value}:{sticker_set.name}:0'
-    buttons = []
-
-    if user.admin is True:
-        action = CallbackResult["ok"].value
-        text = 'Tag as deluxe'
-        if sticker_set.deluxe:
-            action = CallbackResult["ban"].value
-            text = 'Revert deluxe tag'
-        deluxe_data = f'{CallbackType["deluxe_set_user_chat"].value}:{sticker_set.name}:{action}'
-        buttons.append(InlineKeyboardButton(text=text, callback_data=deluxe_data))
-
-    buttons.append(InlineKeyboardButton(text="Tag this set.", callback_data=tag_set_data))
-
-    return InlineKeyboardMarkup([buttons])
-
-
-def get_tagging_keyboard(chat):
-    """Get tagging keyboard."""
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
-        next_data = f'{CallbackType["next"].value}:0:0'
-        cancel_data = f'{CallbackType["cancel"].value}:0:0'
-        buttons = [[
-            InlineKeyboardButton(text='Stop tagging', callback_data=cancel_data),
-            InlineKeyboardButton(text='Skip this sticker', callback_data=next_data),
-        ]]
-    else:
-        return None
-
-    return InlineKeyboardMarkup(buttons)
-
-
-def get_fix_sticker_tags_keyboard(file_id):
-    """Fix the tags of this current sticker."""
-    edit_again_data = f'{CallbackType["edit_sticker"].value}:{file_id}:0'
-    buttons = [[InlineKeyboardButton(
-        text="Fix this sticker's tags", callback_data=edit_again_data)]]
-
-    return InlineKeyboardMarkup(buttons)
-
-
-def get_continue_tagging_keyboard(file_id):
-    """Fix the tags of this current sticker."""
-    continue_tagging_data = f'{CallbackType["continue_tagging"].value}:{file_id}:0'
-    buttons = [[InlineKeyboardButton(
-        text="Continue tagging this sticker set", callback_data=continue_tagging_data)]]
 
     return InlineKeyboardMarkup(buttons)

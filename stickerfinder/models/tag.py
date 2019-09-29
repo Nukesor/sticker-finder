@@ -25,7 +25,7 @@ class Tag(base):
     )
 
     name = Column(String, primary_key=True)
-    is_default_language = Column(Boolean, default=True, nullable=False)
+    international = Column(Boolean, default=False, nullable=False)
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
@@ -34,29 +34,29 @@ class Tag(base):
         secondary=sticker_tag,
         back_populates="tags")
 
-    def __init__(self, name, is_default_language, emoji):
+    def __init__(self, name, international, emoji):
         """Create a new sticker."""
         self.name = name
-        self.is_default_language = is_default_language
+        self.international = international
         self.emoji = emoji
 
     @staticmethod
-    def get_or_create(session, name, is_default_language, emoji=False):
+    def get_or_create(session, name, international, emoji=False):
         """Get or create a new sticker."""
         tag = session.query(Tag).get(name)
 
         # Make a tag an emoji, if somebody added it as a normal tag before
         if tag and emoji:
             tag.emoji = True
-            if tag.is_default_language is False:
-                tag.is_default_language = True
+            if tag.international is False:
+                tag.international = True
 
-        # If somebody tagged didn't tag in default language, but the thag should be, fix it.
-        if tag and is_default_language and not tag.is_default_language:
-            tag.is_default_language = True
+        # If somebody didn't tag in default language, but the thag should be, fix it.
+        if tag and not international and tag.international:
+            tag.international = False
 
         if tag is None:
-            tag = Tag(name, is_default_language, emoji)
+            tag = Tag(name, international, emoji)
             session.add(tag)
             session.commit()
 

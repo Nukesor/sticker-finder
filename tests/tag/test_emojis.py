@@ -30,13 +30,13 @@ def test_convert_tag_to_emoji(session, user, sticker_set):
     session.commit()
 
     assert not tag.emoji
-    assert not tag.is_default_language
+    assert not tag.international
 
     # Now tag the sticker in replace mode
     add_original_emojis(session, sticker, '😲')
     session.commit()
 
     assert tag.emoji
-    assert tag.is_default_language
+    assert tag.international
     assert len(sticker.tags) == 1
     assert sticker.original_emojis[0] in sticker.tags

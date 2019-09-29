@@ -1,8 +1,12 @@
 # v1.2.0
 
 **Features**
+- Complete UX revamp
+- Interactive main-/settings-menu
 - Support for animated stickers
 - `/delete_history` function. The bot will forget everything you every searched for.
+- Permanently enabled searches for nsfw and furry stuff
+
 
 __Maintenance__
 - Speed and clean up fuzzy query.

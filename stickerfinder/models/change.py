@@ -31,7 +31,7 @@ change_added_tags = Table(
                       onupdate='cascade', deferrable=True,
                       name='change_added_tags_tag_name_fkey'),
            index=True),
-    Column('tag_is_default_language', Boolean),
+    Column('tag_international', Boolean),
 )
 change_removed_tags = Table(
     'change_removed_tags', base.metadata,
@@ -45,7 +45,7 @@ change_removed_tags = Table(
                       onupdate='cascade', deferrable=True,
                       name='change_removed_tags_tag_name_fkey'),
            index=True),
-    Column('tag_is_default_language', Boolean),
+    Column('tag_international', Boolean),
 )
 
 
@@ -58,7 +58,7 @@ class Change(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     reviewed = Column(Boolean, default=False, nullable=False)
-    is_default_language = Column(Boolean, default=True, nullable=False)
+    international = Column(Boolean, default=False, nullable=False)
     old_tags = Column(String)
     new_tags = Column(String)
     message_id = Column(BigInteger)
@@ -80,13 +80,13 @@ class Change(base):
     check_task = relationship("Task")
     sticker = relationship("Sticker")
 
-    def __init__(self, user, sticker, is_default_language,
+    def __init__(self, user, sticker, international,
                  added_tags, removed_tags,
                  chat=None, message_id=None):
         """Create a new change."""
         self.user = user
         self.sticker = sticker
-        self.is_default_language = is_default_language
+        self.international = international
 
         self.added_tags = added_tags
         self.removed_tags = removed_tags

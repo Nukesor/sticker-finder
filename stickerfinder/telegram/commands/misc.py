@@ -1,17 +1,14 @@
 """Misc telegram commands."""
-from telegram import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
-
-from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper import (
-    start_text,
-    help_text,
-    donations_text,
-    admin_help_text,
+from stickerfinder.helper import start_text
+from stickerfinder.helper.display import (
+    get_settings_text,
+    get_help_text_and_keyboard,
+)
+from stickerfinder.telegram.keyboard import (
+    get_main_keyboard,
+    get_settings_keyboard,
 )
 
 
@@ -20,7 +17,7 @@ def start(bot, update, session, chat, user):
     """Send the start text."""
     if chat.is_maintenance or chat.is_newsfeed:
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
-                     {'reply_markup': get_main_keyboard(admin=True)})
+                     {'reply_markup': get_main_keyboard(user)})
     else:
         call_tg_func(update.message.chat, 'send_message', [start_text],
                      {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
@@ -29,30 +26,19 @@ def start(bot, update, session, chat, user):
 @session_wrapper()
 def send_help_text(bot, update, session, chat, user):
     """Send the help text."""
-    call_tg_func(update.message.chat, 'send_message', [help_text],
-                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-
-
-@session_wrapper(admin_only=True)
-def send_admin_help_text(bot, update, session, chat, user):
-    """Send the admin help text."""
-    call_tg_func(update.message.chat, 'send_message', [admin_help_text],
-                 {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
+    text, keyboard = get_help_text_and_keyboard("Search")
+    update.message.chat.send_message(
+        text,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
+    )
 
 
 @session_wrapper()
-def send_donation_text(bot, update, session, chat, user):
-    """Send the donation text."""
-    patreon_url = f'https://patreon.com/nukesor'
-    paypal_url = f'https://paypal.me/arnebeer/1'
-    buttons = [
-        [InlineKeyboardButton(text='Patreon', url=patreon_url)],
-        [InlineKeyboardButton(text='Paypal', url=paypal_url)],
-    ]
-
-    keyboard = InlineKeyboardMarkup(buttons)
-
-    call_tg_func(update.message.chat, 'send_message', [donations_text],
-                 {'reply_markup': keyboard, 'parse_mode': 'Markdown'})
-
-
+def show_settings(bot, update, session, chat, user):
+    """Update the settings message."""
+    update.message.send_message(
+        get_settings_text(user),
+        parse_mode="Markdown",
+        reply_markup=get_settings_keyboard(user),
+    )

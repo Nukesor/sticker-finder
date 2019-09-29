@@ -6,7 +6,7 @@ from stickerfinder.sentry import sentry
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.tag_mode import TagMode
-from stickerfinder.helper.keyboard import (
+from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
     get_tagging_keyboard,
     get_fix_sticker_tags_keyboard,
@@ -28,11 +28,11 @@ from stickerfinder.models import (
 def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
     # Check if both user and sticker set are using the default language
-    is_default_language = user.is_default_language and sticker.sticker_set.is_default_language
+    international = user.international and sticker.sticker_set.international
 
-    language = 'english' if is_default_language else 'international'
-    if sticker.has_tags_for_language(is_default_language):
-        message = f'Current {language} tags are: \n{sticker.tags_as_text(is_default_language)}'
+    language = 'international' if international else 'english'
+    if sticker.has_tags_for_language(international):
+        message = f'Current {language} tags are: \n{sticker.tags_as_text(international)}'
     else:
         return f'There are no {language} tags for this sticker'
 
@@ -72,18 +72,18 @@ def handle_next(session, bot, chat, tg_chat, user):
         # Check there is a next sticker
         stickers = chat.current_sticker.sticker_set.stickers
         for index, sticker in enumerate(stickers):
-            if sticker == chat.current_sticker and index+1 < len(stickers):
+            if sticker == chat.current_sticker and index + 1 < len(stickers):
                 # We found the next sticker. Send the messages and return
-                chat.current_sticker = stickers[index+1]
+                chat.current_sticker = stickers[index + 1]
                 send_tag_messages(chat, tg_chat, user)
 
                 return
 
         # There are no stickers left, reset the chat and send success message.
         chat.current_sticker.sticker_set.completely_tagged = True
-        call_tg_func(tg_chat, 'send_message', ['The full sticker set is now tagged.'],
-                     {'reply_markup': get_main_keyboard(user)})
         send_tagged_count_message(session, bot, user, chat)
+        tg_chat.send_message('The full sticker set is now tagged.',
+                             reply_markup=get_main_keyboard(user))
         chat.cancel(bot)
 
     # Find a random sticker with no changes
@@ -92,7 +92,7 @@ def handle_next(session, bot, chat, tg_chat, user):
             .outerjoin(Sticker.changes) \
             .join(Sticker.sticker_set) \
             .filter(Change.id.is_(None)) \
-            .filter(StickerSet.is_default_language.is_(True)) \
+            .filter(StickerSet.international.is_(False)) \
             .filter(StickerSet.banned.is_(False)) \
             .filter(StickerSet.nsfw.is_(False)) \
             .filter(StickerSet.furry.is_(False)) \
@@ -115,6 +115,7 @@ def handle_next(session, bot, chat, tg_chat, user):
                          ['It looks like all stickers are already tagged :).'],
                          {'reply_markup': get_main_keyboard(user)})
             chat.cancel(bot)
+            return
 
         # Found a sticker. Send the messages
         chat.current_sticker = sticker
@@ -178,8 +179,7 @@ def send_tagged_count_message(session, bot, user, chat):
             .filter(Change.user == user) \
             .count()
 
-        call_tg_func(bot, 'send_message', [user.id, f'You already tagged {count} stickers. Thanks!'],
-                     {'reply_markup': get_main_keyboard(user)})
+        bot.send_message(user.id, f'You already tagged {count} stickers. Thanks!')
 
 
 def tag_sticker(session, text, sticker, user,
@@ -222,7 +222,7 @@ def tag_sticker(session, text, sticker, user,
 
     # Initialize the new tags array with the tags don't have the current language setting.
     for raw_tag in raw_tags:
-        incoming_tag = Tag.get_or_create(session, raw_tag, user.is_default_language, False)
+        incoming_tag = Tag.get_or_create(session, raw_tag, user.international, False)
         incoming_tags.append(incoming_tag)
 
         # Add the tag to the list of new tags, if it doesn't exist on this sticker yet
@@ -249,7 +249,7 @@ def tag_sticker(session, text, sticker, user,
             sticker.tags.append(new_tag)
 
     # Create a change for logging
-    change = Change(user, sticker, user.is_default_language,
+    change = Change(user, sticker, user.international,
                     new_tags, removed_tags,
                     chat=chat, message_id=message_id)
     session.add(change)

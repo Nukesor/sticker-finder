@@ -21,7 +21,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from stickerfinder.db import base
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.tag_mode import TagMode
-from stickerfinder.helper.keyboard import get_continue_tagging_keyboard
+from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
 
 
 chat_sticker_set = Table(

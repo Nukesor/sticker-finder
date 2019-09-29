@@ -24,7 +24,7 @@ class Task(base):
 
     __tablename__ = 'task'
     __table_args__ = (
-        CheckConstraint("(type = 'check_user_tags' AND is_default_language IS NOT NULL AND \
+        CheckConstraint("(type = 'check_user_tags' AND international IS NOT NULL AND \
                          user_id IS NOT NULL) OR type != 'check_user_tags'"),
         CheckConstraint("(type = 'report' AND user_id IS NOT NULL) OR type != 'report'"),
         CheckConstraint("(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'report'"),
@@ -39,7 +39,7 @@ class Task(base):
     message = Column(String)
     reviewed = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
-    is_default_language = Column(Boolean, default=True, nullable=True)
+    international = Column(Boolean, default=True, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey('user.id'), index=True)

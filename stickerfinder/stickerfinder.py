@@ -23,33 +23,18 @@ from stickerfinder.telegram.commands import (
     flag_chat,
     start_tasks,
     tag_single,
-    tag_random,
     replace_single,
-    cleanup,
-    skip,
     cancel,
-    stats,
-    refresh_sticker_sets,
-    refresh_ocr,
-    random_set,
     add_sets,
     delete_set,
     forget_set,
-    set_is_default_language,
-    set_not_is_default_language,
-    deluxe_user,
-    undeluxe_user,
-    delete_history,
     show_sticker,
     show_sticker_file_id,
-    plot_files,
     fix_stuff,
 )
 from stickerfinder.telegram.commands import (
     start,
     send_help_text,
-    send_admin_help_text,
-    send_donation_text,
 )
 from stickerfinder.telegram.jobs import (
     cleanup_job,
@@ -96,22 +81,12 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('tag', tag_single))
     dispatcher.add_handler(CommandHandler('replace', replace_single))
     dispatcher.add_handler(CommandHandler('report', report_set))
-    dispatcher.add_handler(CommandHandler('skip', skip))
     dispatcher.add_handler(CommandHandler('forget_set', forget_set))
-    dispatcher.add_handler(CommandHandler('delete_history', delete_history))
 
     # Button commands
     dispatcher.add_handler(CommandHandler('start', start))
     dispatcher.add_handler(CommandHandler('help', send_help_text))
-    dispatcher.add_handler(CommandHandler('admin_help', send_admin_help_text))
-    dispatcher.add_handler(CommandHandler('donations', send_donation_text))
-    dispatcher.add_handler(CommandHandler('tag_random', tag_random))
-    dispatcher.add_handler(CommandHandler('random_set', random_set))
     dispatcher.add_handler(CommandHandler('cancel', cancel))
-    dispatcher.add_handler(CommandHandler('english', set_is_default_language))
-    dispatcher.add_handler(CommandHandler('international', set_not_is_default_language))
-    dispatcher.add_handler(CommandHandler('deluxe', deluxe_user))
-    dispatcher.add_handler(CommandHandler('undeluxe', undeluxe_user))
 
     # Maintenance input commands
     dispatcher.add_handler(CommandHandler('ban', ban_sticker))
@@ -128,12 +103,7 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('show_id', show_sticker_file_id))
 
     # Maintenance commands
-    dispatcher.add_handler(CommandHandler('refresh', refresh_sticker_sets))
-    dispatcher.add_handler(CommandHandler('refresh_ocr', refresh_ocr))
-    dispatcher.add_handler(CommandHandler('cleanup', cleanup))
     dispatcher.add_handler(CommandHandler('tasks', start_tasks))
-    dispatcher.add_handler(CommandHandler('stats', stats))
-    dispatcher.add_handler(CommandHandler('plot', plot_files))
     dispatcher.add_handler(CommandHandler('fix', fix_stuff))
 
     # Regular tasks

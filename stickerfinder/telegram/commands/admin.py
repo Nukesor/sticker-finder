@@ -2,12 +2,12 @@
 import time
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
+from telegram import ReplyKeyboardRemove
 
 from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat, Sticker
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import get_main_keyboard
 
 
 @run_async
@@ -135,9 +135,13 @@ def broadcast(bot, update, session, chat, user):
     deleted = 0
     for chat in chats:
         try:
-            call_tg_func(bot, 'send_message',
-                         [chat.id, message],
-                         {'parse_mode': 'Markdown'})
+            call_tg_func(
+                bot, 'send_message',
+                [chat.id, message],
+                {
+                    'parse_mode': 'Markdown',
+                    'reply_markup': ReplyKeyboardRemove()
+                })
 
         # The chat doesn't exist any longer, delete it
         except BadRequest as e:
@@ -157,7 +161,7 @@ def broadcast(bot, update, session, chat, user):
 
     call_tg_func(update.message.chat, 'send_message',
                  [f'All messages sent. Deleted {deleted} chats.'],
-                 {'reply_markup': get_main_keyboard(user)})
+                 {'reply_markup': ReplyKeyboardRemove()})
 
 
 @run_async
@@ -166,9 +170,9 @@ def test_broadcast(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     message = update.message.text.split(' ', 1)[1].strip()
 
-    call_tg_func(bot, 'send_message',
-                 [chat.id, message],
-                 {'parse_mode': 'Markdown'})
+    call_tg_func(bot, 'send_message', [chat.id, message],
+                 {'parse_mode': 'Markdown', 'reply_markup': ReplyKeyboardRemove()}
+                 )
 
 
 @run_async
@@ -210,3 +214,44 @@ def fix_stuff(bot, update, session, chat, user):
     session.commit()
 
     call_tg_func(bot, 'send_message', [chat.id, 'Fixing done'])
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def show_sticker(bot, update, session, chat, user):
+    """Show the sticker for the given file id."""
+    file_id = update.message.text.split(' ', 1)[1].strip()
+    call_tg_func(update.message.chat, 'send_sticker', args=[file_id])
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def show_sticker_file_id(bot, update, session, chat, user):
+    """Give the file id for a sticker."""
+    if update.message.reply_to_message is None:
+        return 'You need to reply to a sticker to use this command.'
+
+    message = update.message.reply_to_message
+    if message.sticker is None:
+        return 'You need to reply to a sticker.'
+
+    return message.sticker.file_id
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def ban_sticker(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    chat.current_sticker.banned = True
+    chat.current_sticker.tags = []
+
+    return 'Sticker banned.'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def unban_sticker(bot, update, session, chat, user):
+    """Broadcast a message to all users."""
+    chat.current_sticker.banned = True
+
+    return 'Sticker unbanned.'

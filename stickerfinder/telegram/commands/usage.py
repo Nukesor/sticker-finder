@@ -1,4 +1,4 @@
-"""Sticker usage statistic specific commands."""
+"""Sticker usage related commands."""
 from telegram.ext import run_async
 from stickerfinder.helper.session import session_wrapper
 

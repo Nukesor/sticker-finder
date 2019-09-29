@@ -1,4 +1,3 @@
-"""Module for handling user checking task buttons."""
 from stickerfinder.helper.maintenance import check_maintenance_chat
 from stickerfinder.helper.callback import CallbackResult
 from stickerfinder.helper.telegram import call_tg_func
@@ -7,7 +6,7 @@ from stickerfinder.helper.maintenance import (
     undo_user_changes_revert,
     change_language_of_task_changes,
 )
-from stickerfinder.helper.keyboard import (
+from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
     check_user_tags_keyboard,
 )
@@ -15,7 +14,7 @@ from stickerfinder.helper.keyboard import (
 from stickerfinder.models import Task
 
 
-def handle_check_user(session, bot, context):
+def handle_check_user(session, context):
     """Handle all actions from the check_user task."""
     task = session.query(Task).get(context.payload)
     # Ban the user
@@ -26,7 +25,8 @@ def handle_check_user(session, bot, context):
         task.user.banned = False
         call_tg_func(context.query, 'answer', ['User ban reverted'])
         message = f'Your ban has been lifted.'
-        call_tg_func(bot, 'send_message', [task.user.id, message], {'reply_markup': get_main_keyboard(task.user)})
+        context.bot.send_message(task.user.id, message,
+                                 reply_markup=get_main_keyboard(task.user))
 
     # Revert user changes
     elif CallbackResult(context.action).name == 'revert':

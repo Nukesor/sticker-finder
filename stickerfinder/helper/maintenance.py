@@ -4,8 +4,7 @@ from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.helper.text import split_text
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import (
-    get_main_keyboard,
+from stickerfinder.telegram.keyboard import (
     check_user_tags_keyboard,
     get_report_keyboard,
     get_nsfw_ban_keyboard,
@@ -142,10 +141,7 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         if job:
             return
 
-        call_tg_func(tg_chat, 'send_message',
-                     ['There are no more tasks for processing.'],
-                     {'reply_markup': get_main_keyboard(admin=True)})
-
+        tg_chat.send_message('There are no more tasks for processing.')
         return
 
     chat.current_task = task
@@ -200,15 +196,18 @@ def change_language_of_task_changes(session, task):
             changes_by_sticker[file_id] = []
         changes_by_sticker[file_id].append(change)
 
+    # Change the language of the task
+    task.international = not task.international
+
     for _, changes in changes_by_sticker.items():
         for change in changes:
             # Change the language of the added tags.
             for tag in change.added_tags:
                 if not tag.emoji:
-                    tag.is_default_language = not task.is_default_language
+                    tag.international = task.international
 
             # Change the language for the change
-            change.is_default_language = not task.is_default_language
+            change.international = task.international
 
             # Restore removed tags
             for tag in change.removed_tags:
@@ -217,7 +216,6 @@ def change_language_of_task_changes(session, task):
 
             session.commit()
 
-    task.is_default_language = not task.is_default_language
 
 
 def revert_user_changes(session, user):

@@ -104,8 +104,8 @@ def get_strict_matching_query(session, context, sticker_set=False):
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = session.query(sticker_tag.c.sticker_file_id, tag_count) \
         .join(Tag, sticker_tag.c.tag_name == Tag.name) \
-        .filter(or_(Tag.is_default_language == user.is_default_language,
-                    Tag.is_default_language.is_(True))) \
+        .filter(or_(Tag.international == user.international,
+                    Tag.international.is_(False))) \
         .filter(sticker_tag.c.tag_name.in_(tags)) \
         .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_subq")
@@ -140,13 +140,22 @@ def get_strict_matching_query(session, context, sticker_set=False):
         .filter(StickerSet.deleted.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
-        .filter(StickerSet.nsfw.is_(nsfw)) \
-        .filter(StickerSet.furry.is_(furry)) \
         .filter(score > 0) \
 
+    # Handle default nsfw/furry stuff search
+    if nsfw:
+        matching_stickers = matching_stickers.filter(StickerSet.nsfw.is_(True))
+    elif user.nsfw is False:
+        matching_stickers = matching_stickers.filter(StickerSet.nsfw.is_(False))
+
+    if furry:
+        matching_stickers = matching_stickers.filter(StickerSet.furry.is_(True))
+    elif user.furry is False:
+        matching_stickers = matching_stickers.filter(StickerSet.furry.is_(False))
+
     # Only query default language
-    if user.is_default_language:
-        matching_stickers = matching_stickers.filter(StickerSet.is_default_language.is_(True))
+    if not user.international:
+        matching_stickers = matching_stickers.filter(StickerSet.international.is_(False))
 
     # Only query deluxe
     if user.deluxe:
@@ -204,8 +213,8 @@ def get_fuzzy_matching_query(session, context):
         greatest(*similarities).label('tag_similarity'),
     ) \
         .filter(or_(*threshold_check)) \
-        .filter(or_(Tag.is_default_language == user.is_default_language,
-                    Tag.is_default_language.is_(True))) \
+        .filter(or_(Tag.international == user.international,
+                    Tag.international.is_(False))) \
         .group_by(Tag.name) \
         .subquery('tag_query')
 
@@ -232,10 +241,20 @@ def get_fuzzy_matching_query(session, context):
             )) \
             .filter(StickerSet.deleted.is_(False)) \
             .filter(StickerSet.banned.is_(False)) \
-            .filter(StickerSet.reviewed.is_(True)) \
-            .filter(StickerSet.nsfw.is_(nsfw)) \
-            .filter(StickerSet.furry.is_(furry)) \
-            .subquery()
+            .filter(StickerSet.reviewed.is_(True))
+
+        # Handle default nsfw/furry stuff search
+        if nsfw:
+            set_score_subq = set_score_subq.filter(StickerSet.nsfw.is_(True))
+        elif user.nsfw is False:
+            set_score_subq = set_score_subq.filter(StickerSet.nsfw.is_(False))
+
+        if furry:
+            set_score_subq = set_score_subq.filter(StickerSet.furry.is_(True))
+        elif user.furry is False:
+            set_score_subq = set_score_subq.filter(StickerSet.furry.is_(False))
+
+        set_score_subq = set_score_subq .subquery()
 
         sticker_set_subqs.append(set_score_subq)
         sticker_set_score.append(func.coalesce(set_score_subq.c.set_score, 0))
@@ -272,13 +291,22 @@ def get_fuzzy_matching_query(session, context):
         .filter(StickerSet.deleted.is_(False)) \
         .filter(StickerSet.banned.is_(False)) \
         .filter(StickerSet.reviewed.is_(True)) \
-        .filter(StickerSet.nsfw.is_(nsfw)) \
-        .filter(StickerSet.furry.is_(furry)) \
-        .filter(or_(score > 0, nsfw, furry))
+        .filter(score > 0)
+
+    # Handle default nsfw/furry stuff search
+    if nsfw:
+        matching_stickers = matching_stickers.filter(StickerSet.nsfw.is_(True))
+    elif user.nsfw is False:
+        matching_stickers = matching_stickers.filter(StickerSet.nsfw.is_(False))
+
+    if furry:
+        matching_stickers = matching_stickers.filter(StickerSet.furry.is_(True))
+    elif user.furry is False:
+        matching_stickers = matching_stickers.filter(StickerSet.furry.is_(False))
 
     # Only query default language sticker sets
-    if user.is_default_language:
-        matching_stickers = matching_stickers.filter(StickerSet.is_default_language.is_(True))
+    if not user.international:
+        matching_stickers = matching_stickers.filter(StickerSet.international.is_(False))
 
     # Only query deluxe sticker sets
     if user.deluxe:

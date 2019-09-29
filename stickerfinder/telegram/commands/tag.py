@@ -90,26 +90,3 @@ def replace_single(bot, update, session, chat, user):
         handle_next(session, bot, chat, update.message.chat, user)
     else:
         return 'Sticker tags replaced.'
-
-
-@run_async
-@session_wrapper(check_ban=True, private=True)
-def tag_random(bot, update, session, chat, user):
-    """Initialize tagging of a whole set."""
-    chat.cancel(bot)
-    chat.tag_mode = TagMode.RANDOM
-    handle_next(session, bot, chat, update.message.chat, user)
-
-    return
-
-
-@run_async
-@session_wrapper(check_ban=True, private=True)
-def skip(bot, update, session, chat, user):
-    """Initialize tagging of a whole set."""
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
-        handle_next(session, bot, chat, update.message.chat, user)
-
-        return
-
-    return "Currently not tagging a set or some random stickers"

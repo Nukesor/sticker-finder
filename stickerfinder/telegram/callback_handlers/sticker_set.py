@@ -1,11 +1,10 @@
-"""Sticker set related callback handlers."""
 from stickerfinder.models import StickerSet
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.callback import CallbackResult
-from stickerfinder.helper.keyboard import get_tag_this_set_keyboard
+from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
 
 
-def handle_deluxe_set_user_chat(session, bot, context):
+def handle_deluxe_set_user_chat(session, context):
     """Make a set a deluxe set."""
     sticker_set = session.query(StickerSet).get(context.payload)
     if CallbackResult(context.action).name == 'ok':

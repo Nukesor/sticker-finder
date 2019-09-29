@@ -1,4 +1,4 @@
-select sticker.file_id, change.is_default_language,
+select sticker.file_id, change.international,
        sticker_set.name, sticker_set.title,
        change_added_tags.tag_name
     from change 

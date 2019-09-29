@@ -5,7 +5,6 @@ from datetime import datetime, timedelta
 
 from stickerfinder.helper.corrections import ignored_characters
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.keyboard import get_main_keyboard
 from stickerfinder.models import (
     Tag,
     User,
@@ -13,20 +12,20 @@ from stickerfinder.models import (
 )
 
 
-def full_cleanup(session, inline_query_threshold, update=None):
+def full_cleanup(session, inline_query_threshold, chat=None):
     """Execute all cleanup functions."""
-    tag_cleanup(session, update=update)
-    user_cleanup(session, update=update)
-    inline_query_cleanup(session, update=update, threshold=inline_query_threshold)
+    tag_cleanup(session, chat=chat)
+    user_cleanup(session, chat=chat)
+    inline_query_cleanup(session, chat=chat, threshold=inline_query_threshold)
 
 
-def tag_cleanup(session, update=None):
+def tag_cleanup(session, chat=None):
     """Do some cleanup tasks for tags."""
     from stickerfinder.helper import blacklist
     all_tags = session.query(Tag).all()
 
-    if update is not None:
-        call_tg_func(update.message.chat, 'send_message', [f'Found {len(all_tags)} tags'])
+    if chat is not None:
+        chat.send_message(f'Found {len(all_tags)} tags')
 
     removed = 0
     corrected = 0
@@ -46,7 +45,7 @@ def tag_cleanup(session, update=None):
                 corrected += 0
 
         # If the new tag with removed chars already exists in the db, remove the old tag.
-        # Otherwise just update the tag name
+        # Otherwise just chat the tag name
         if new_name != tag.name:
             new_exists = session.query(Tag).get(new_name)
             if new_exists is not None or new_name == '':
@@ -55,14 +54,11 @@ def tag_cleanup(session, update=None):
             else:
                 tag.name = new_name
 
-    if update is not None:
-        call_tg_func(
-            update.message.chat, 'send_message',
-            [f'Removed {removed}\nCorrected: {corrected}'],
-        )
+    if chat is not None:
+        chat.send_message(f'Removed {removed}\nCorrected: {corrected}')
 
 
-def user_cleanup(session, update):
+def user_cleanup(session, chat):
     """Do some cleanup tasks for users."""
     before = session.query(User).count()
     session.query(User) \
@@ -79,21 +75,18 @@ def user_cleanup(session, update):
 
     after = session.query(User).count()
     deleted = before - after
-    if update is not None:
-        call_tg_func(
-            update.message.chat, 'send_message',
-            [f'User cleanup: {deleted} user deleted.'],
-        )
+    if chat is not None:
+        chat.send_message(f'User cleanup: {deleted} user deleted.')
 
 
-def inline_query_cleanup(session, update, threshold=None):
+def inline_query_cleanup(session, chat, threshold=None):
     """Cleanup duplicated inline queries (slow users typing etc.)."""
     if threshold is None:
         threshold = datetime.now() - timedelta(hours=6)
     time_between_searches = timedelta(seconds=20)
 
-    if update is not None:
-        call_tg_func(update.message.chat, 'send_message', ['Starting to clean inline queries.'])
+    if chat is not None:
+        chat.send_message('Starting to clean inline queries.')
 
     # Get the current total count to get the amount of deleted inline queries
     count_before = session.query(InlineQuery.id) \
@@ -127,5 +120,5 @@ def inline_query_cleanup(session, update, threshold=None):
         .count()
 
     deleted = count_before - count_after
-    if update is not None:
-        call_tg_func(update.message.chat, 'send_message', [f'Deleted {deleted} inline queries.'])
+    if chat is not None:
+        chat.send_message(f'Deleted {deleted} inline queries.')
