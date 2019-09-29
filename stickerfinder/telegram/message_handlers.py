@@ -78,32 +78,29 @@ def handle_private_sticker(bot, update, session, chat, user):
 
         return
 
-    else:
-        # Notify if they are still in a tagging process
-        if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
-            chat.cancel(bot)
-            pass
+    # Notify if they are still in a tagging process
+    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
+        chat.cancel(bot)
+        pass
 
-        sticker = session.query(Sticker).get(incoming_sticker.file_id)
-        if sticker is None:
-            call_tg_func(update.message.chat, 'send_message',
-                         args=[f"I don't know this specific sticker yet. I'll just trigger a rescan of this set. Please wait a minute and try again."])
-            refresh_stickers(session, sticker_set, bot)
-            return
+    sticker = session.query(Sticker).get(incoming_sticker.file_id)
+    if sticker is None:
+        call_tg_func(update.message.chat, 'send_message',
+                     args=[f"I don't know this specific sticker yet. I'll just trigger a rescan of this set. Please wait a minute and try again."])
+        refresh_stickers(session, sticker_set, bot)
+        return
 
-        chat.current_sticker = sticker
-        chat.tag_mode = TagMode.SINGLE_STICKER
+    chat.current_sticker = sticker
+    chat.tag_mode = TagMode.SINGLE_STICKER
 
-        sticker_tags_message = current_sticker_tags_message(sticker, user)
-        # Send inline keyboard to allow fast tagging of the sticker's set
-        keyboard = get_tag_this_set_keyboard(sticker.sticker_set, user)
-        call_tg_func(
-            update.message.chat, 'send_message',
-            [f'Just send the new tags for this sticker.\n{sticker_tags_message}'],
-            {'reply_markup': keyboard},
-        )
-
-    return
+    sticker_tags_message = current_sticker_tags_message(sticker, user)
+    # Send inline keyboard to allow fast tagging of the sticker's set
+    keyboard = get_tag_this_set_keyboard(sticker.sticker_set, user)
+    call_tg_func(
+        update.message.chat, 'send_message',
+        [f'Just send the new tags for this sticker.\n{sticker_tags_message}'],
+        {'reply_markup': keyboard},
+    )
 
 
 @session_wrapper(send_message=False)
