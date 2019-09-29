@@ -126,38 +126,41 @@ def broadcast(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     message = update.message.text.split(' ', 1)[1].strip()
 
-    chats = session.query(Chat) \
-        .filter(Chat.type == 'private') \
+    users = session.query(User) \
+        .filter(User.notifications.is_(True)) \
+        .order_by(User.id.asc()) \
         .all()
 
     call_tg_func(update.message.chat, 'send_message',
-                 args=[f'Sending broadcast to {len(chats)} chats.'])
+                 args=[f'Sending broadcast to {len(users)} chats.'])
     deleted = 0
-    for chat in chats:
+    count = 0
+    for user in users:
         try:
-            call_tg_func(
-                bot, 'send_message',
-                [chat.id, message],
-                {
-                    'parse_mode': 'Markdown',
-                    'reply_markup': ReplyKeyboardRemove()
-                })
+            count += 1
+            if count % 250 == 0:
+                update.message.chat.send_message(f'{count} users')
+
+            bot.send_message(
+                user.id, message,
+                parse_mode='Markdown',
+                reply_markup=ReplyKeyboardRemove(),
+            )
 
         # The chat doesn't exist any longer, delete it
         except BadRequest as e:
             if e.message == 'Chat not found':  # noqa
                 deleted += 1
-                session.delete(chat)
                 continue
 
         # We are not allowed to contact this user.
         except Unauthorized:
             deleted += 1
-            session.delete(chat)
+            session.delete(user)
             continue
 
         # Sleep one second to not trigger flood prevention
-        time.sleep(1)
+        time.sleep(0.07)
 
     call_tg_func(update.message.chat, 'send_message',
                  [f'All messages sent. Deleted {deleted} chats.'],

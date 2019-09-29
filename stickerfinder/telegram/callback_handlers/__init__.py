@@ -45,6 +45,7 @@ from .menu import (
     switch_help,
 )
 from .settings import (
+    user_toggle_notifications,
     user_toggle_international,
     user_toggle_deluxe,
     user_toggle_nsfw,
@@ -135,6 +136,7 @@ def handle_callback_query(bot, update, session, user):
         CallbackType.switch_help: switch_help,
 
         # Settings
+        CallbackType.user_toggle_notifications: user_toggle_notifications,
         CallbackType.user_toggle_international: user_toggle_international,
         CallbackType.user_toggle_deluxe: user_toggle_deluxe,
         CallbackType.user_toggle_nsfw: user_toggle_nsfw,

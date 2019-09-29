@@ -5,7 +5,18 @@ from stickerfinder.telegram.keyboard import get_help_keyboard
 def get_settings_text(user):
     """Compile the settings text for a specific user."""
 
-    text = ["*Current settings*"]
+    text = ["*User settings:*"]
+    text.append("")
+
+    if user.notifications:
+        text.append("*Notifications:* You'll receive updates about notifications and other info regarding the bot")
+    else:
+        text.append("*Notifications:* You won't get any messages regarding the bot and development")
+
+    text.append("")
+    text.append("")
+    text.append("")
+    text.append("*Search Settings:*")
     text.append("")
 
     if user.international:

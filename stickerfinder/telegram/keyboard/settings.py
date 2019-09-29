@@ -12,8 +12,14 @@ def get_settings_keyboard(user):
     deluxe_payload = build_user_data("user_toggle_deluxe", user)
     nsfw_payload = build_user_data("user_toggle_nsfw", user)
     furry_payload = build_user_data("user_toggle_furry", user)
+    notification_payload = build_data("user_toggle_notifications")
     delete_history_payload = build_data("user_delete_history_confirmation")
     main_payload = build_data("main_menu")
+
+    if user.notifications:
+        notification_text = "📩 Disable notifications"
+    else:
+        notification_text = "📩 Enable notifications"
 
     if user.international:
         international_text = "🌐 English-only sticker"
@@ -35,15 +41,14 @@ def get_settings_keyboard(user):
     else:
         furry_text = "Include furry by default"
 
-    main_text = "Back"
-    delete_history_text = "⚠️ Delete history ⚠️"
     buttons = [
+        [InlineKeyboardButton(text=notification_text, callback_data=notification_payload)],
         [InlineKeyboardButton(text=international_text, callback_data=international_payload)],
         [InlineKeyboardButton(text=deluxe_text, callback_data=deluxe_payload)],
         [InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_payload)],
         [InlineKeyboardButton(text=furry_text, callback_data=furry_payload)],
-        [InlineKeyboardButton(text=delete_history_text, callback_data=delete_history_payload)],
-        [InlineKeyboardButton(text=main_text, callback_data=main_payload)],
+        [InlineKeyboardButton(text="⚠️ Delete history ⚠️", callback_data=delete_history_payload)],
+        [InlineKeyboardButton(text="Back", callback_data=main_payload)],
     ]
 
     return InlineKeyboardMarkup(buttons)

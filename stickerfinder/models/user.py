@@ -26,13 +26,14 @@ class User(base):
     # Search related flags
     international = Column(Boolean, default=False, nullable=False)
     deluxe = Column(Boolean, default=False, nullable=False)
-    nsfw = Column(Boolean, default=False, nullable=False, server_default='False')
-    furry = Column(Boolean, default=False, nullable=False, server_default='False')
+    nsfw = Column(Boolean, default=False, nullable=False)
+    furry = Column(Boolean, default=False, nullable=False)
 
     # Management related flags
     banned = Column(Boolean, default=False, nullable=False)
     reverted = Column(Boolean, default=False, nullable=False)
     admin = Column(Boolean, default=False, nullable=False)
+    notifications = Column(Boolean, default=True, nullable=False)
 
     # Debug info
     authorized = Column(Boolean, default=False, nullable=False)

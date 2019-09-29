@@ -39,6 +39,14 @@ def delete_history(session, context):
     context.message.chat.send_message('History cleared')
 
 
+def user_toggle_notifications(session, context):
+    """Toggle the international flag of the user."""
+    user = context.user
+    user.notifications = not user.notifications
+    session.commit()
+    update_settings(context)
+
+
 def user_toggle_international(session, context):
     """Toggle the international flag of the user."""
     user = context.user

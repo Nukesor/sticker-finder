@@ -54,6 +54,7 @@ class CallbackType(Enum):
     user_toggle_furry = 104
     user_delete_history_confirmation = 105
     user_delete_history = 106
+    user_toggle_notifications = 107
 
     # Admin settings
     admin_stats = 150
