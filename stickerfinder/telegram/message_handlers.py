@@ -39,6 +39,10 @@ def handle_private_text(bot, update, session, chat, user):
         handle_next(session, bot, chat, update.message.chat, user)
 
     elif chat.tag_mode == TagMode.SINGLE_STICKER:
+        if chat.current_sticker is None:
+            chat.current_sticker = None
+            return
+
         tag_sticker(
             session,
             update.message.text,

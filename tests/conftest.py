@@ -6,8 +6,8 @@ from sqlalchemy.exc import InternalError
 
 from stickerfinder.db import base
 
-from tests.fixtures import * # noqa
-from tests.helper import * # noqa
+from .fixtures import * # noqa
+from .helper import * # noqa
 
 
 @pytest.fixture(scope='session')
