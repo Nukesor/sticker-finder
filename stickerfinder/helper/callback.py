@@ -93,7 +93,6 @@ def build_data(name, payload="", action=0):
 def build_set_data(name, sticker_set, action=0):
     """Callback helper """
     callback_type = CallbackType[name].value
-    action = CallbackResult[action].value
     if action != 0:
         try:
             action = CallbackResult[action].value
