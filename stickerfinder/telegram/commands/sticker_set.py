@@ -16,7 +16,7 @@ def report_set(bot, update, session, chat, user):
             update.message.reply_to_message.sticker is None:
         return "Please reply to the sticker you want to report."
 
-    sticker_file_id = update.message.reply_to_message.sticker
+    sticker_file_id = update.message.reply_to_message.sticker.file_id
 
     # Remove the /report command
     text = update.message.text.split(' ', 1)
