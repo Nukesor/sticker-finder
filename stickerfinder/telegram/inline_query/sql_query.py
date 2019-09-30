@@ -40,8 +40,13 @@ def get_strict_matching_stickers(session, context):
 
     limit = context.limit if context.limit else 50
     matching_stickers = matching_stickers.offset(context.offset) \
-        .limit(limit) \
-        .all()
+        .limit(limit)
+
+    if config['logging']['debug']:
+        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
+
+    matching_stickers = matching_stickers.all()
 
     if config['logging']['debug']:
         pprint('Strict results:')
@@ -171,7 +176,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
     score_with_usage = score_with_usage + matching_stickers.c.score
     score_with_usage = score_with_usage.label('score_with_usage')
-    matching_stickers_with_usage = session.query(matching_stickers.c.file_id, score_with_usage, matching_stickers.c.name) \
+    matching_stickers_with_usage = session.query(matching_stickers.c.file_id, matching_stickers.c.name, score_with_usage) \
         .outerjoin(StickerUsage, and_(
             matching_stickers.c.file_id == StickerUsage.sticker_file_id,
             StickerUsage.user_id == user.id

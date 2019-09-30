@@ -48,8 +48,8 @@ class Tag(base):
         # Make a tag an emoji, if somebody added it as a normal tag before
         if tag and emoji:
             tag.emoji = True
-            if tag.international is False:
-                tag.international = True
+            if tag.international is True:
+                tag.international = False
 
         # If somebody didn't tag in default language, but the thag should be, fix it.
         if tag and not international and tag.international:

@@ -267,7 +267,7 @@ def tag_sticker(session, text, sticker, user,
 def add_original_emojis(session, sticker, raw_emojis):
     """Add the original emojis to the sticker's tags and to the original_emoji relationship."""
     for raw_emoji in raw_emojis:
-        emoji = Tag.get_or_create(session, raw_emoji, True, True)
+        emoji = Tag.get_or_create(session, raw_emoji, False, True)
 
         if emoji not in sticker.tags:
             sticker.tags.append(emoji)

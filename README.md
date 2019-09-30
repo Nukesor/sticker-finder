@@ -79,7 +79,6 @@ Get the latest revision with `poetry run alembic history` and change the current
     report - Report something regarding the sticker set of the last sticker in the chat.
     cancel - Cancel all current actions.
     forget_set - Forget all usages of a sticker pack.
-    help - Display admin help
 
 
 ## Dev commands

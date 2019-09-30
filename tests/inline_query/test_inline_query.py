@@ -7,20 +7,21 @@ from stickerfinder.telegram.inline_query.context import Context
 from stickerfinder.telegram.inline_query.search import get_matching_stickers
 
 
-@pytest.mark.parametrize('query,first_score, second_score',
+@pytest.mark.parametrize('query, first_score, second_score',
                          [('testtag', 1, 1),
                           ('awesome dumb', 0.75, 0.75),
                           ('testtag roflcopter', 2.00, 1.00),
                           ('awesome dumb testtag roflcopter', 2.75, 1.75),
                           ('awesome testtag roflcopter', 2.00, 1.75)])
-def test_strict_sticker_search_set_order(session, strict_inline_search, user,
-                                         query, first_score, second_score):
+def test_strict_sticker_search_order(session, strict_inline_search, user,
+                                     query, first_score, second_score):
     """Test correct sticker set sorting order."""
     # Simple search which should get nearly all stickers from both sets
     context = Context(query, '', user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-    assert len(matching_stickers) == 50
+
     assert len(fuzzy_matching_stickers) == 0
+    assert len(matching_stickers) == 50
     for i, result in enumerate(matching_stickers):
         # The stickers are firstly sorted by:
         # 1. score
@@ -31,18 +32,18 @@ def test_strict_sticker_search_set_order(session, strict_inline_search, user,
         # for both sets, but this set's name is higher in order.
         if i < 20:
             assert result[0] == f'sticker_{i+40}'
-            assert result[1] == first_score
-            assert result[2] == 'a_dumb_shit'
+            assert result[1] == 'a_dumb_shit'
+            assert result[2] == first_score
         # Next we get the second set in order of the file_ids
         elif i >= 20:
             # We need to subtract 21, since we now start to count file_ids from 0
-            i = i-20
+            i = i - 20
             # Also do this little workaround to prevent fucky number sorting here as well
             if i < 10:
                 i = f'0{i}'
             assert result[0] == f'sticker_{i}'
-            assert result[1] == second_score
-            assert result[2] == 'z_mega_awesome'
+            assert result[1] == 'z_mega_awesome'
+            assert result[2] == second_score
 
     # Context properties have not been changed
     assert not context.switched_to_fuzzy
@@ -62,8 +63,8 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         if i < 10:
             i = f'0{i}'
         assert result[0] == f'sticker_{i}'
-        assert result[1] == 0.75
-        assert result[2] == 'z_mega_awesome'
+        assert result[1] == 'z_mega_awesome'
+        assert result[2] == 0.75
 
 
 @pytest.mark.parametrize('query,score',
@@ -80,7 +81,7 @@ def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score)
         if i < 10:
             i = f'0{i}'
         assert result[0] == f'sticker_{i}'
-        assert round(result[1], 2) == score
+        assert round(result[2], 2) == score
 
     # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on the first run
     context = Context(query, '', user)
@@ -110,15 +111,16 @@ def test_combined_sticker_search(session, strict_inline_search, user):
 
     for i, result in enumerate(matching_stickers):
         # Also do this little workaround to prevent fucky number sorting here as well
+        print(result)
         if i < 10:
             i = f'0{i}'
         assert result[0] == f'sticker_{i}'
-        assert round(result[1], 2) == 1
+        assert round(result[2], 2) == 1
 
     for i, result in enumerate(fuzzy_matching_stickers):
         i += 40
         assert result[0] == f'sticker_{i}'
-        assert round(result[1], 2) == 0.62
+        assert round(result[2], 2) == 0.62
 
 
 def test_no_combined_on_full_strict(session, strict_inline_search, user):
@@ -152,7 +154,7 @@ def test_nsfw_search(session, strict_inline_search, user):
 
     # Add specific sticker to tag
     sticker = sticker_set.stickers[0]
-    tag = Tag.get_or_create(session, 'porn', True, False)
+    tag = Tag.get_or_create(session, 'porn', False, False)
     sticker.tags.append(tag)
     session.commit()
 
