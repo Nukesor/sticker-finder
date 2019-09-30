@@ -34,7 +34,7 @@ def delete_history(session, context):
         .filter(InlineQuery.user_id == context.user.id) \
         .delete(synchronize_session=False)
 
-    update_settings()
+    update_settings(context)
 
     context.message.chat.send_message('History cleared')
 
