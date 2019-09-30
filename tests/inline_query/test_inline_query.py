@@ -13,8 +13,8 @@ from stickerfinder.telegram.inline_query.search import get_matching_stickers
                           ('testtag roflcopter', 2.00, 1.00),
                           ('awesome dumb testtag roflcopter', 2.75, 1.75),
                           ('awesome testtag roflcopter', 2.00, 1.75)])
-def test_strict_sticker_search_order(session, strict_inline_search, user,
-                                     query, first_score, second_score):
+def test_strict_sticker_search_set_order(session, strict_inline_search, user,
+                                         query, first_score, second_score):
     """Test correct sticker set sorting order."""
     # Simple search which should get nearly all stickers from both sets
     context = Context(query, '', user)
@@ -65,63 +65,6 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         assert result[0] == f'sticker_{i}'
         assert result[1] == 'z_mega_awesome'
         assert result[2] == 0.75
-
-
-@pytest.mark.parametrize('query,score',
-                         [('unique_oter', 0.67),
-                          ('mega_awesme', 0.59)])
-def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score):
-    """Test fuzzy search for stickers."""
-    context = Context(query, '123:60:0', user)
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-    assert len(fuzzy_matching_stickers) == 40
-    assert len(matching_stickers) == 0
-    for i, result in enumerate(fuzzy_matching_stickers):
-        # Also do this little workaround to prevent fucky number sorting here as well
-        if i < 10:
-            i = f'0{i}'
-        assert result[0] == f'sticker_{i}'
-        assert round(result[2], 2) == score
-
-    # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on the first run
-    context = Context(query, '', user)
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-    assert len(matching_stickers) == 0
-    assert len(fuzzy_matching_stickers) == 40
-
-    # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on a normal offset
-    context = Context(query, '123:50', user)
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-    assert len(matching_stickers) == 0
-    assert len(fuzzy_matching_stickers) == 40
-
-
-def test_combined_sticker_search(session, strict_inline_search, user):
-    """Test fuzzy search for stickers."""
-    context = Context('roflcpter unique_other', '', user)
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
-    # Context properties have been properly set
-    assert context.switched_to_fuzzy
-    assert context.limit == 10
-    assert context.fuzzy_offset == 0
-
-    # Sticker result counts are correct
-    assert len(matching_stickers) == 40
-    assert len(fuzzy_matching_stickers) == 10
-
-    for i, result in enumerate(matching_stickers):
-        # Also do this little workaround to prevent fucky number sorting here as well
-        print(result)
-        if i < 10:
-            i = f'0{i}'
-        assert result[0] == f'sticker_{i}'
-        assert round(result[2], 2) == 1
-
-    for i, result in enumerate(fuzzy_matching_stickers):
-        i += 40
-        assert result[0] == f'sticker_{i}'
-        assert round(result[2], 2) == 0.62
-
 
 def test_no_combined_on_full_strict(session, strict_inline_search, user):
     """Test fuzzy search for stickers."""

@@ -57,3 +57,25 @@ def strict_inline_search(session):
     session.commit()
 
     return [sticker_set_1, sticker_set_2]
+
+
+@pytest.fixture(scope='function')
+def fuzzy_inline_search(session):
+    """Create several sticker sets and stickers with tags for strict sticker search testing."""
+    # Create a set with a 40 stickers, each having one tag `testtag`
+    sticker_set_1 = sticker_set_factory(session, 'z_one_set')
+    for i in range(0, 20):
+        # This is a little workaround to prevent fucky number sorting stuff
+        if i < 10:
+            i = f'0{i}'
+        sticker = sticker_factory(session, f'sticker_{i}', ['longstring', '/longstring'])
+        sticker_set_1.stickers.append(sticker)
+
+    # Create a second set with 20 stickers, each having one tag `testtag` as well
+    sticker_set_2 = sticker_set_factory(session, 'a_another_one')
+    for i in range(20, 40):
+        sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'roflcopter'])
+        sticker_set_2.stickers.append(sticker)
+    session.commit()
+
+    return [sticker_set_1, sticker_set_2]

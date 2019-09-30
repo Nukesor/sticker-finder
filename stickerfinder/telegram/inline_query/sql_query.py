@@ -42,9 +42,9 @@ def get_strict_matching_stickers(session, context):
     matching_stickers = matching_stickers.offset(context.offset) \
         .limit(limit)
 
-    if config['logging']['debug']:
-        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
-        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
+#    if config['logging']['debug']:
+#        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+#        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
 
     matching_stickers = matching_stickers.all()
 
@@ -62,9 +62,9 @@ def get_fuzzy_matching_stickers(session, context):
         .offset(context.fuzzy_offset) \
         .limit(limit)
 
-    if config['logging']['debug']:
-        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
-        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
+#    if config['logging']['debug']:
+#        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}))
+#        print(matching_stickers.statement.compile(dialect=postgresql.dialect(), compile_kwargs={"literal_binds": True}).params)
 
     matching_stickers = matching_stickers.all()
     if config['logging']['debug']:
@@ -224,9 +224,10 @@ def get_fuzzy_matching_query(session, context):
         .subquery('tag_query')
 
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
-    tag_score = tag_query.c.tag_similarity.label("tag_score")
+    tag_score = func.avg(tag_query.c.tag_similarity).label("tag_score")
     tag_score_subq = session.query(sticker_tag.c.sticker_file_id, tag_score) \
         .join(tag_query, sticker_tag.c.tag_name == tag_query.c.name) \
+        .group_by(sticker_tag.c.sticker_file_id) \
         .subquery("tag_score_subq")
 
     # Condition for matching sticker set names and titles
