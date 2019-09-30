@@ -224,7 +224,10 @@ def fix_stuff(bot, update, session, chat, user):
 def show_sticker(bot, update, session, chat, user):
     """Show the sticker for the given file id."""
     file_id = update.message.text.split(' ', 1)[1].strip()
-    call_tg_func(update.message.chat, 'send_sticker', args=[file_id])
+    try:
+        call_tg_func(update.message.chat, 'send_sticker', args=[file_id])
+    except:
+        return "Wrong file id"
 
 
 @run_async
