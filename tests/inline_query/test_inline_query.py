@@ -66,6 +66,7 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         assert result[1] == 'z_mega_awesome'
         assert result[2] == 0.75
 
+
 def test_no_combined_on_full_strict(session, strict_inline_search, user):
     """Test fuzzy search for stickers."""
     context = Context('roflcpter unique_other', '', user)
