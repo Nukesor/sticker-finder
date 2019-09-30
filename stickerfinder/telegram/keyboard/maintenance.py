@@ -12,7 +12,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     nsfw_data = build_set_data('nsfw_set', sticker_set)
     furry_data = build_set_data('fur_set', sticker_set)
     language_data = build_set_data('change_set_language', sticker_set)
-    deluxe_data = build_set_data('deluxe', sticker_set)
+    deluxe_data = build_set_data('deluxe_set', sticker_set)
 
     if sticker_set.nsfw:
         nsfw_text = 'Revert nsfw tag'
