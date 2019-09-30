@@ -12,10 +12,7 @@ from stickerfinder.models import StickerSet, Task
 def handle_ban_set(session, context):
     """Handle the ban button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload.lower())
-    if CallbackResult(context.action).name == 'ban':
-        sticker_set.banned = True
-    elif CallbackResult(context.action).name == 'ok':
-        sticker_set.banned = False
+    sticker_set.banned = not sticker_set.banned
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -24,10 +21,7 @@ def handle_ban_set(session, context):
 def handle_nsfw_set(session, context):
     """Handle the nsfw button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload.lower())
-    if CallbackResult(context.action).name == 'ban':
-        sticker_set.nsfw = True
-    elif CallbackResult(context.action).name == 'ok':
-        sticker_set.nsfw = False
+    sticker_set.nsfw = not sticker_set.nsfw
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -36,10 +30,7 @@ def handle_nsfw_set(session, context):
 def handle_fur_set(session, context):
     """Handle the fur button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload.lower())
-    if CallbackResult(context.action).name == 'ok':
-        sticker_set.furry = False
-    elif CallbackResult(context.action).name == 'ban':
-        sticker_set.furry = True
+    sticker_set.furry = not sticker_set.furry
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -48,10 +39,7 @@ def handle_fur_set(session, context):
 def handle_deluxe_set(session, context):
     """Handle the deluxe button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload)
-    if CallbackResult(context.action).name == 'ok':
-        sticker_set.deluxe = True
-    elif CallbackResult(context.action).name == 'ban':
-        sticker_set.deluxe = False
+    sticker_set.deluxe = not sticker_set.deluxe
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
@@ -60,10 +48,7 @@ def handle_deluxe_set(session, context):
 def handle_change_set_language(session, context):
     """Handle the change language button in newsfeed chats."""
     sticker_set = session.query(StickerSet).get(context.payload.lower())
-    if CallbackResult(context.action).name == 'international':
-        sticker_set.international = False
-    elif CallbackResult(context.action).name == 'default':
-        sticker_set.international = True
+    sticker_set.international = not sticker_set.international
 
     keyboard = get_nsfw_ban_keyboard(sticker_set)
     call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})

@@ -3,57 +3,46 @@ from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
-from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.callback import CallbackType, CallbackResult, build_set_data
 
 
 def get_nsfw_ban_keyboard(sticker_set):
     """Get the inline keyboard for newsfeed messages."""
-    ban_type = CallbackType["ban_set"].value
-    nsfw_type = CallbackType["nsfw_set"].value
-    fur_type = CallbackType["fur_set"].value
-    language_type = CallbackType["change_set_language"].value
-    next_type = CallbackType["newsfeed_next_set"].value
-    deluxe_type = CallbackType["deluxe_set"].value
+    ban_data = build_set_data('ban_set', sticker_set)
+    nsfw_data = build_set_data('nsfw_set', sticker_set)
+    furry_data = build_set_data('fur_set', sticker_set)
+    language_data = build_set_data('change_set_language', sticker_set)
+    deluxe_data = build_set_data('deluxe', sticker_set)
 
     if sticker_set.nsfw:
-        nsfw_data = f'{nsfw_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         nsfw_text = 'Revert nsfw tag'
     else:
-        nsfw_data = f'{nsfw_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         nsfw_text = 'Tag as nsfw'
 
     if sticker_set.banned:
-        ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         ban_text = 'Revert ban tag'
     else:
-        ban_data = f'{ban_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         ban_text = 'Ban this set'
 
     if sticker_set.furry:
-        fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         fur_text = 'Revert furry tag'
     else:
-        fur_data = f'{fur_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         fur_text = 'Tag as Furry'
 
     if sticker_set.international:
-        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["default"].value}'
         language_text = 'Make English'
     else:
-        language_data = f'{language_type}:{sticker_set.name}:{CallbackResult["international"].value}'
         language_text = 'Make International'
 
     if sticker_set.deluxe:
-        deluxe_data = f'{deluxe_type}:{sticker_set.name}:{CallbackResult["ban"].value}'
         deluxe_text = 'Revert Deluxe Tag'
     else:
-        deluxe_data = f'{deluxe_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
         deluxe_text = 'Tag as Deluxe'
 
     buttons = [
         [
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
-            InlineKeyboardButton(text=fur_text, callback_data=fur_data),
+            InlineKeyboardButton(text=fur_text, callback_data=furry_data),
         ],
         [
             InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
@@ -65,7 +54,7 @@ def get_nsfw_ban_keyboard(sticker_set):
     ]
 
     if not sticker_set.reviewed:
-        next_data = f'{next_type}:{sticker_set.name}:{CallbackResult["ok"].value}'
+        next_data = build_set_data("newsfeed_next_set", sticker_set)
         button = InlineKeyboardButton(text='Next', callback_data=next_data)
         buttons[2].append(button)
 
