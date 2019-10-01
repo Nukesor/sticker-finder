@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.telegram.keyboard import get_main_keyboard
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.sentry import sentry
 from stickerfinder.helper.cleanup import full_cleanup
 from stickerfinder.helper.plot import send_plots
 
@@ -43,7 +43,12 @@ def refresh_sticker_sets(session, context):
 
     count = 0
     for sticker_set in sticker_sets:
-        refresh_stickers(session, sticker_set, context.bot)
+        try:
+            refresh_stickers(session, sticker_set, context.bot)
+        except:
+            # Bare except so any exception on a sticker won't kill the whole refresh process
+            sentry.captureException()
+            pass
         count += 1
         if count % 500 == 0:
             progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
