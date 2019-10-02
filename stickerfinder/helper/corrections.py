@@ -1,3 +1,3 @@
 """Class for correcting/shrinking stickers."""
 
-ignored_characters = set(['\n', ',', '.', '!', '?', "'", '@', '#'])
+ignored_characters = set(['\n', ',', '.', '!', '?', "'", '@', '#', '*', '[', '_'])

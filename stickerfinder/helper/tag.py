@@ -149,15 +149,35 @@ def get_tags_from_text(text, limit=15):
     if text.startswith('#request'):
         text = text[8:]
 
-    # Clean the text
-    for ignored in ignored_characters:
-        text = text.replace(ignored, '')
-
     # Split and strip
     tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
 
-    # Remove telegram links accidentally added by selecting a set in a set-search mode while tagging.
-    tags = [tag for tag in tags if 'telegramme' not in tag]
+    # Remove words or links that are undesired
+    partial_word_blacklist = [
+        'telegramme',
+        'telegram.me',
+        'tme/',
+        't.me',
+        'https://',
+        'http://',
+        'addstickers',
+        'randomset',
+    ]
+
+    def contains_partial_word(tag):
+        for word in partial_word_blacklist:
+            if word in tag:
+                return True
+        return False
+    tags = [tag for tag in tags if not contains_partial_word(tag)]
+
+    # Clean the text
+    def remove_ignored_chars(tag):
+        for ignored in ignored_characters:
+            tag = tag.replace(ignored, '')
+        return tag
+    tags = [remove_ignored_chars(tag) for tag in tags]
+
     # Remove tags accidentally added while using an inline bots
     if len(tags) > 0 and original_text.startswith('@') and 'bot' in tags[0]:
         tags.pop(0)
@@ -168,7 +188,25 @@ def get_tags_from_text(text, limit=15):
     # Clean the tags from unwanted words
     tags = [tag for tag in tags if tag not in blacklist]
 
-    return tags[:limit]
+    filtered_tags = []
+    # Remove characters that occur more than three times consecutively
+    for tag in tags:
+        count = 0
+        prev_char = None
+        new_tag = ''
+        for char in tag:
+            if prev_char == char:
+                count += 1
+                if count < 3:
+                    new_tag += char
+            else:
+                prev_char = char
+                count = 0
+                new_tag += char
+
+        filtered_tags.append(new_tag)
+
+    return filtered_tags[:15]
 
 
 def send_tagged_count_message(session, bot, user, chat):

@@ -3,8 +3,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 
-from stickerfinder.helper.corrections import ignored_characters
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.helper.tag import get_tags_from_text
 from stickerfinder.models import (
     Tag,
     User,
@@ -33,16 +32,22 @@ def tag_cleanup(session, chat=None):
         # Remove all tags in the blacklist
         if tag.name in blacklist:
             session.delete(tag)
+            session.commit()
             removed += 1
 
             continue
 
-        # Remove ignored characters from tag
-        new_name = tag.name
-        for char in ignored_characters:
-            if char in new_name:
-                new_name = new_name.replace(char, '')
-                corrected += 0
+        # Clean the tag
+        tags = get_tags_from_text(tag.name)
+
+        # If the tag is empty, remove it
+        if len(tags) == 0:
+            session.delete(tag)
+            session.commit()
+            removed += 1
+            continue
+
+        new_name = tags[0]
 
         # If the new tag with removed chars already exists in the db, remove the old tag.
         # Otherwise just chat the tag name
@@ -51,8 +56,10 @@ def tag_cleanup(session, chat=None):
             if new_exists is not None or new_name == '':
                 session.delete(tag)
                 removed += 1
+                session.commit()
             else:
                 tag.name = new_name
+                session.commit()
 
     if chat is not None:
         chat.send_message(f'Removed {removed}\nCorrected: {corrected}')
