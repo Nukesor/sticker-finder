@@ -6,6 +6,8 @@
 - Support for animated stickers
 - `/delete_history` function. The bot will forget everything you every searched for.
 - Permanently enabled searches for nsfw and furry stuff
+- Removal of many invalid/stupid/link/spam tags
+- Tags with many consecutive characters (`loooooool`) will be reduced to a maximum of 3 consecutive letters (`loool`). The same is applied for search words
 
 
 __Maintenance__
