@@ -19,9 +19,12 @@ def start(bot, update, session, chat, user):
         call_tg_func(update.message.chat, 'send_message', ['Hello there'],
                      {'reply_markup': get_main_keyboard(user)})
     else:
-        call_tg_func(update.message.chat, 'send_message', [start_text],
-                     {'reply_markup': get_main_keyboard(user), 'parse_mode': 'Markdown'})
-
+        update.message.chat.send_message(
+            start_text,
+            reply_markup=get_main_keyboard(user),
+            parse_mode=Markdow,
+            disable_web_preview=True,
+        )
 
 @session_wrapper()
 def send_help_text(bot, update, session, chat, user):
