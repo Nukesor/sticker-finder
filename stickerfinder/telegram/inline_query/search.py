@@ -1,4 +1,5 @@
 """Entry points for inline query search."""
+import hashlib
 from datetime import datetime
 from telegram import (
     InlineQueryResultCachedSticker,
@@ -88,8 +89,11 @@ def search_sticker_sets(session, update, context, inline_query_request):
         sticker_set = sticker_set[0]
         url = f'https://telegram.me/addstickers/{sticker_set.name}'
         input_message_content = InputTextMessageContent(url)
+
+        # Hash the sticker set name, since they tend to be super long
+        sticker_set_hash = hashlib.md5(sticker_set.name.encode()).hexdigest()
         results.append(InlineQueryResultArticle(
-            f'{context.inline_query_id}:{sticker_set.name}',
+            f'{context.inline_query_id}:{sticker_set_hash}',
             title=sticker_set.title,
             description=sticker_set.name,
             url=url,

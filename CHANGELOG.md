@@ -14,6 +14,8 @@ __Maintenance__
 __Bug fixes__
 - Telegram sometimes randomly changes file_ids of stickers. This led to major loss of usage statistics and tags.
 - Fix a problem with the main keyboard.
+- Fix a bug where search would break if a sticker had two very similar tags during fuzzy search
+- Fix a bug where search would break due to super long sticker set names
 
 # v1.1.0
 
