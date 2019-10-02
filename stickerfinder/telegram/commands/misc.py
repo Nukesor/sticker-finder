@@ -22,7 +22,7 @@ def start(bot, update, session, chat, user):
         update.message.chat.send_message(
             start_text,
             reply_markup=get_main_keyboard(user),
-            parse_mode=Markdown,
+            parse_mode="Markdown",
             disable_web_preview=True,
         )
 
