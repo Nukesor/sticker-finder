@@ -53,7 +53,8 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
         # Ignore already existing stickers if we don't need to rescan images
         sticker = session.query(Sticker).get(tg_sticker.file_id)
         text = None
-        if (sticker is None or refresh_ocr) and not tg_sticker.is_animated:
+        # This is broken for now and I don't know why
+        if False:  # (sticker is None or refresh_ocr) and not tg_sticker.is_animated:
             text = extract_text(tg_sticker)
 
         # Create new Sticker.
