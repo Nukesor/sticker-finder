@@ -108,7 +108,7 @@ def session_wrapper(send_message=True, check_ban=False,
             except:
                 traceback.print_exc()
                 sentry.captureException()
-                if send_message:
+                if send_message and message:
                     session.close()
                     call_tg_func(message.chat, 'send_message',
                                  args=[error_text])

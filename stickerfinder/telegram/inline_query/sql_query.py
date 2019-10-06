@@ -159,7 +159,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
         matching_stickers = matching_stickers.filter(StickerSet.furry.is_(False))
 
     # Only query default language
-    if not user.international:
+    if user.international is False:
         matching_stickers = matching_stickers.filter(StickerSet.international.is_(False))
 
     # Only query deluxe
