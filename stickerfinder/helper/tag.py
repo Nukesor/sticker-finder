@@ -28,7 +28,7 @@ from stickerfinder.models import (
 def current_sticker_tags_message(sticker, user, send_set_info=False):
     """Create a message displaying the current text and tags."""
     # Check if both user and sticker set are using the default language
-    international = user.international and sticker.sticker_set.international
+    international = user.international or sticker.sticker_set.international
 
     language = 'international' if international else 'english'
     if sticker.has_tags_for_language(international):
@@ -258,9 +258,10 @@ def tag_sticker(session, text, sticker, user,
     # We need this, if we want to replace all tags
     incoming_tags = []
 
+    international = user.international or sticker.sticker_set.international
     # Initialize the new tags array with the tags don't have the current language setting.
     for raw_tag in raw_tags:
-        incoming_tag = Tag.get_or_create(session, raw_tag, user.international, False)
+        incoming_tag = Tag.get_or_create(session, raw_tag, international, False)
         incoming_tags.append(incoming_tag)
 
         # Add the tag to the list of new tags, if it doesn't exist on this sticker yet
@@ -287,7 +288,7 @@ def tag_sticker(session, text, sticker, user,
             sticker.tags.append(new_tag)
 
     # Create a change for logging
-    change = Change(user, sticker, user.international,
+    change = Change(user, sticker, international,
                     new_tags, removed_tags,
                     chat=chat, message_id=message_id)
     session.add(change)
