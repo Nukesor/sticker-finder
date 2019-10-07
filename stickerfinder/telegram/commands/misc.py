@@ -23,7 +23,7 @@ def start(bot, update, session, chat, user):
             start_text,
             reply_markup=get_main_keyboard(user),
             parse_mode="Markdown",
-            disable_web_preview=True,
+            disable_web_page_preview=True,
         )
 
 @session_wrapper()
