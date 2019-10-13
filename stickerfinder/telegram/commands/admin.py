@@ -220,7 +220,7 @@ def fix_stuff(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@session_wrapper()
 def show_sticker(bot, update, session, chat, user):
     """Show the sticker for the given file id."""
     file_id = update.message.text.split(' ', 1)[1].strip()
@@ -231,7 +231,7 @@ def show_sticker(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@session_wrapper()
 def show_sticker_file_id(bot, update, session, chat, user):
     """Give the file id for a sticker."""
     if update.message.reply_to_message is None:
