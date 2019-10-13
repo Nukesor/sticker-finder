@@ -75,6 +75,12 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     sticker_set.title = tg_sticker_set.title.lower()
     sticker_set.stickers = stickers
     sticker_set.complete = True
+
+    # Auto accept furry stuff
+    if sticker_set.furry is True:
+        sticker_set.reviewed = True
+        sticker_set.tasks[0].reviewed = True
+
     session.commit()
 
 
