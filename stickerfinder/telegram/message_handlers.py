@@ -74,6 +74,8 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.reviewed is False:
         sticker_set.furry = user.furry
+        sticker_set.tasks[0].reviewed = True
+        sticker_set.reviewed = True
         call_tg_func(update.message.chat, 'send_message',
                      args=[f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'])
 
