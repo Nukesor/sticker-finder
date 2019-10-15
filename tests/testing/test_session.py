@@ -9,14 +9,14 @@ def test_correct_session_handling(session, user):
 
     second_user = user_factory(session, 5, 'testuser2')
 
-    first_user = session.query(User).get(2)
+    first_user = session.query(User).one(2)
     assert first_user is not None
 
-    second_user = session.query(User).get(5)
+    second_user = session.query(User).one(5)
     assert second_user is not None
 
     session.delete(first_user)
     session.commit()
 
-    first_user = session.query(User).get(1)
+    first_user = session.query(User).one(1)
     assert first_user is None

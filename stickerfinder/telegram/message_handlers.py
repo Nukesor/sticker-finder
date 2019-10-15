@@ -39,10 +39,6 @@ def handle_private_text(bot, update, session, chat, user):
         handle_next(session, bot, chat, update.message.chat, user)
 
     elif chat.tag_mode == TagMode.SINGLE_STICKER:
-        if chat.current_sticker is None:
-            chat.current_sticker = None
-            return
-
         tag_sticker(
             session,
             update.message.text,
@@ -68,16 +64,12 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     # The sticker is no longer associated to a sticker set
     if set_name is None:
-        call_tg_func(update.message.chat, 'send_message', args=["This sticker doesn't belong to a sticker set."])
-        return
+        return "This sticker doesn't belong to a sticker set."
 
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.reviewed is False:
         sticker_set.furry = user.furry
-        call_tg_func(update.message.chat, 'send_message',
-                     args=[f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'])
-
-        return
+        return f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'
 
     # Notify if they are still in a tagging process
     if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
@@ -86,10 +78,8 @@ def handle_private_sticker(bot, update, session, chat, user):
 
     sticker = session.query(Sticker).get(incoming_sticker.file_id)
     if sticker is None:
-        call_tg_func(update.message.chat, 'send_message',
-                     args=[f"I don't know this specific sticker yet. I'll just trigger a rescan of this set. Please wait a minute and try again."])
-        refresh_stickers(session, sticker_set, bot)
-        return
+        sticker_set.scan_scheduled = True
+        return f"I don't know this specific sticker yet. Please wait a few minutes and try again."
 
     chat.current_sticker = sticker
     chat.tag_mode = TagMode.SINGLE_STICKER
@@ -97,10 +87,9 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker_tags_message = current_sticker_tags_message(sticker, user)
     # Send inline keyboard to allow fast tagging of the sticker's set
     keyboard = get_tag_this_set_keyboard(sticker.sticker_set, user)
-    call_tg_func(
-        update.message.chat, 'send_message',
-        [f'Just send the new tags for this sticker.\n{sticker_tags_message}'],
-        {'reply_markup': keyboard},
+    update.message.chat.send_message(
+        f'Just send the new tags for this sticker.\n{sticker_tags_message}',
+        reply_markup=keyboard,
     )
 
 
@@ -122,9 +111,7 @@ def handle_group_sticker(bot, update, session, chat, user):
     if chat.is_maintenance or chat.is_newsfeed:
         sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
         if not sticker_set.complete:
-            call_tg_func(update.message.chat,
-                         'send_message', ['Sticker set is not yet reviewed'])
-            return
+            return 'Sticker set is not yet reviewed'
 
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
         keyboard = get_nsfw_ban_keyboard(sticker_set)
@@ -150,6 +137,10 @@ def handle_group_sticker(bot, update, session, chat, user):
 
     # Set the send sticker to the current sticker for tagging or report.
     sticker = session.query(Sticker).get(tg_sticker.file_id)
+    if sticker is None:
+        sticker_set.scan_scheduled = True
+        return
+
     chat.current_sticker = sticker
 
     return

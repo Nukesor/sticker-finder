@@ -125,4 +125,5 @@ class Chat(base):
                     raise e
 
         self.tag_mode = None
+        self.current_sticker = None
         self.last_sticker_message_id = None

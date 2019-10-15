@@ -37,26 +37,13 @@ def refresh_sticker_sets(session, context):
     tg_chat = context.tg_chat
     sticker_sets = session.query(StickerSet) \
         .filter(StickerSet.deleted.is_(False)) \
-        .all()
+        .count()
 
-    tg_chat.send_message(f'Found {len(sticker_sets)} sets.')
+    tg_chat.send_message(f'Scheduled rescan for {sticker_sets} sets.')
 
-    count = 0
-    for sticker_set in sticker_sets:
-        try:
-            refresh_stickers(session, sticker_set, context.bot)
-        except:
-            # Bare except so any exception on a sticker won't kill the whole refresh process
-            sentry.captureException()
-            pass
-        count += 1
-        if count % 500 == 0:
-            progress = f'Updated {count} sets ({len(sticker_sets) - count} remaining).'
-            tg_chat.send_message(progress)
-
-    tg_chat.send_message('All sticker sets are refreshed.',
-                         reply_markup=get_main_keyboard(context.user))
-    context.message.delete()
+    sticker_sets = session.query(StickerSet) \
+        .filter(StickerSet.deleted.is_(False)) \
+        .update({'scan_scheduled': True})
 
 
 def refresh_ocr(session, context):

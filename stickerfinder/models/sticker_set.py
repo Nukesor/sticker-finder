@@ -44,6 +44,7 @@ class StickerSet(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, default=False, nullable=False)
+    scan_scheduled = Column(Boolean, default=False, nullable=False, server_default='false')
     reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
