@@ -11,7 +11,9 @@ def test_normal_search_with_single_usage(session, strict_inline_search, user):
     # Simple search which should get nearly all stickers from both sets
     context = Context('awesome', '', user)
 
-    used_sticker = session.query(Sticker).one('sticker_00')
+    used_sticker = session.query(Sticker) \
+        .filter(Sticker.file_id == 'sticker_00') \
+        .one()
 
     sticker_usage = StickerUsage(user, used_sticker)
     sticker_usage.usage_count = 1
@@ -42,7 +44,9 @@ def test_search_with_usage_from_another_user(session, strict_inline_search, user
     context = Context('awesome', '', user)
     other_user = user_factory(session, 100, 'other_user')
 
-    used_sticker = session.query(Sticker).one('sticker_00')
+    used_sticker = session.query(Sticker) \
+        .filter(Sticker.file_id == 'sticker_00') \
+        .one()
 
     sticker_usage = StickerUsage(other_user, used_sticker)
     sticker_usage.usage_count = 1

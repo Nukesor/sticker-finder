@@ -12,7 +12,7 @@ def test_revert_replacing_user_tags(session, user, sticker_set, tags):
 
     for sticker in sticker_set.stickers:
         # Create a new tag for each sticker
-        tag_sticker(session, f'tag_banned_{sticker.file_id}', sticker, ban_user, replace=True)
+        tag_sticker(session, f'tag-banned-{sticker.file_id}', sticker, ban_user, replace=True)
 
     session.commit()
 
@@ -22,7 +22,7 @@ def test_revert_replacing_user_tags(session, user, sticker_set, tags):
     # Ensure that the mallicious user's tags have been removed and the old tags are in place
     for sticker in sticker_set.stickers:
         assert len(sticker.tags) == 1
-        assert sticker.tags[0].name == f'tag_{sticker.file_id}'
+        assert sticker.tags[0].name == f'tag-{sticker.file_id}'
 
     for change in ban_user.changes:
         assert change.reverted
@@ -33,7 +33,7 @@ def test_revert_replacing_user_tags(session, user, sticker_set, tags):
     # Ensure that the mallicious user's tags have been removed and the old tags are in place
     for sticker in sticker_set.stickers:
         assert len(sticker.tags) == 1
-        assert sticker.tags[0].name == f'tag_banned_{sticker.file_id}'
+        assert sticker.tags[0].name == f'tag-banned-{sticker.file_id}'
 
     for change in ban_user.changes:
         assert not change.reverted
@@ -45,7 +45,7 @@ def test_revert_add_user_tags(session, user, sticker_set, tags):
 
     for sticker in sticker_set.stickers:
         # Create a new tag for each sticker
-        tag_sticker(session, f'tag_banned_{sticker.file_id}', sticker, ban_user)
+        tag_sticker(session, f'tag-banned-{sticker.file_id}', sticker, ban_user)
 
     session.commit()
 
@@ -55,7 +55,7 @@ def test_revert_add_user_tags(session, user, sticker_set, tags):
     # Ensure that the mallicious user's tags have been removed and the old tags are in place
     for sticker in sticker_set.stickers:
         assert len(sticker.tags) == 1
-        assert sticker.tags[0].name == f'tag_{sticker.file_id}'
+        assert sticker.tags[0].name == f'tag-{sticker.file_id}'
 
     for change in ban_user.changes:
         assert change.reverted
@@ -65,7 +65,7 @@ def test_revert_add_user_tags(session, user, sticker_set, tags):
 
     # Ensure that the mallicious user's tags have been removed and the old tags are in place
     for sticker in sticker_set.stickers:
-        assert_sticker_contains_tags(sticker, [f'tag_{sticker.file_id}', f'tag_banned_{sticker.file_id}'])
+        assert_sticker_contains_tags(sticker, [f'tag-{sticker.file_id}', f'tag-banned-{sticker.file_id}'])
 
     for change in ban_user.changes:
         assert not change.reverted

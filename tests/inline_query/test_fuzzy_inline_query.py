@@ -7,7 +7,7 @@ from stickerfinder.telegram.inline_query.search import get_matching_stickers
 
 def test_combined_sticker_search(session, strict_inline_search, user):
     """Test whether combined search of fuzzy and strict search works."""
-    context = Context('roflcpter unique_other', '', user)
+    context = Context('roflcpter unique-other', '', user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
     # Context properties have been properly set
     assert context.switched_to_fuzzy
@@ -33,8 +33,8 @@ def test_combined_sticker_search(session, strict_inline_search, user):
 
 
 @pytest.mark.parametrize('query,score',
-                         [('unique_oter', 0.67),
-                          ('mega_awesme', 0.59)])
+                         [('unique-oter', 0.67),
+                          ('mega-awesme', 0.59)])
 def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score):
     """Test fuzzy search for stickers."""
     context = Context(query, '123:60:0', user)

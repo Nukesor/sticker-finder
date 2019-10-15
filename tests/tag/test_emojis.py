@@ -15,8 +15,8 @@ def test_original_emoji_stays_on_replace(session, user, sticker_set):
     session.commit()
 
     # Now tag the sticker in replace mode
-    tag_sticker(session, 'new_tag', sticker, user, replace=True)
-    assert_sticker_contains_tags(sticker, ['new_tag', '😲'])
+    tag_sticker(session, 'new-tag', sticker, user, replace=True)
+    assert_sticker_contains_tags(sticker, ['new-tag', '😲'])
     assert len(sticker.tags) == 2
     assert sticker.original_emojis[0] in sticker.tags
 

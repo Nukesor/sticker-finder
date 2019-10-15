@@ -69,11 +69,11 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
 
 def test_no_combined_on_full_strict(session, strict_inline_search, user):
     """Test fuzzy search for stickers."""
-    context = Context('roflcpter unique_other', '', user)
+    context = Context('roflcpter unique-other', '', user)
     # Add ten more stickers to the strict matching set
     sticker_set = strict_inline_search[0]
     for i in range(60, 70):
-        sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'unique_other'])
+        sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'unique-other'])
         sticker_set.stickers.append(sticker)
     session.commit()
 

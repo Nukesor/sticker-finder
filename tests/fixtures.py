@@ -34,7 +34,7 @@ def tags(session, sticker_set, user):
     """Create tags for all stickers."""
     for sticker in sticker_set.stickers:
         # Create a new tag for each sticker
-        tag_sticker(session, f'tag_{sticker.file_id}', sticker, user)
+        tag_sticker(session, f'tag-{sticker.file_id}', sticker, user)
 
 
 @pytest.fixture(scope='function')
@@ -46,7 +46,7 @@ def strict_inline_search(session):
         # This is a little workaround to prevent fucky number sorting stuff
         if i < 10:
             i = f'0{i}'
-        sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'unique_other'])
+        sticker = sticker_factory(session, f'sticker_{i}', ['testtag', 'unique-other'])
         sticker_set_1.stickers.append(sticker)
 
     # Create a second set with 20 stickers, each having one tag `testtag` as well

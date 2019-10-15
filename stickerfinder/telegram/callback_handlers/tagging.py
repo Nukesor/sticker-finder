@@ -42,7 +42,9 @@ def handle_cancel_tagging(session, context):
 def handle_fix_sticker_tags(session, context):
     """Handle the `Fix this stickers tags` button."""
     chat = context.chat
-    sticker = session.query(Sticker).one(context.payload)
+    sticker = session.query(Sticker) \
+        .filter(Sticker.file_id == context.payload) \
+        .one()
     chat.current_sticker = sticker
     if chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]:
         chat.tag_mode = TagMode.SINGLE_STICKER
