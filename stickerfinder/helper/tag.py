@@ -99,15 +99,16 @@ def handle_next(session, bot, chat, tg_chat, user):
 
         # Let the users tag the deluxe sticker set first.
         # If there are no more deluxe sets, just tag another random sticker.
-        sticker = base_query.filter(StickerSet.deluxe.is_(True)) \
+# Remove the favoring of deluxe stickers until the deluxe pool is bigger again.
+#        sticker = base_query.filter(StickerSet.deluxe.is_(True)) \
+#            .order_by(func.random()) \
+#            .limit(1) \
+#            .one_or_none()
+#        if sticker is None:
+        sticker = base_query \
             .order_by(func.random()) \
             .limit(1) \
             .one_or_none()
-        if sticker is None:
-            sticker = base_query \
-                .order_by(func.random()) \
-                .limit(1) \
-                .one_or_none()
 
         # No stickers for tagging left :)
         if not sticker:
