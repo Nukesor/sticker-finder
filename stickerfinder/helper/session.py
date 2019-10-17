@@ -48,6 +48,8 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
                 user = get_user(session, update)
                 if not is_allowed(user, update, admin_only=admin_only, check_ban=check_ban):
                     return
+                if config['mode']['authorized_only'] and not user.authorized:
+                    return
 
                 func(context.bot, update, session, user)
 
@@ -73,14 +75,17 @@ def session_wrapper(send_message=True, check_ban=False,
         def wrapper(update, context):
             session = get_session()
             try:
-                user = get_user(session, update)
-                if not is_allowed(user, update, admin_only=admin_only, check_ban=check_ban):
-                    return
-
                 if hasattr(update, 'message') and update.message:
                     message = update.message
                 elif hasattr(update, 'edited_message') and update.edited_message:
                     message = update.edited_message
+
+                user = get_user(session, update)
+                if config['mode']['authorized_only'] and not user.authorized:
+                    message.chat.send_message('StickerFinder is offline. Check the repository for the latest database dump in case you want to host your own bot')
+                    return
+                if not is_allowed(user, update, admin_only=admin_only, check_ban=check_ban):
+                    return
 
                 chat_id = message.chat_id
                 chat_type = message.chat.type
@@ -94,7 +99,7 @@ def session_wrapper(send_message=True, check_ban=False,
                 session.commit()
                 # Respond to user
                 if hasattr(update, 'message') and response is not None:
-                    call_tg_func(message.chat, 'send_message', args=[response])
+                    message.chat.send_message(response)
 
             # A user banned the bot
             except Unauthorized:

@@ -26,6 +26,7 @@ def start(bot, update, session, chat, user):
             disable_web_page_preview=True,
         )
 
+
 @session_wrapper()
 def send_help_text(bot, update, session, chat, user):
     """Send the help text."""

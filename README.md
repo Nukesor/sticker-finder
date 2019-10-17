@@ -1,4 +1,4 @@
-# Sticker Finder ([@stfi_bot](https://t.me/stfi_bot))
+# Sticker Finder
 
 [![GitHub release](https://img.shields.io/github/tag/nukesor/sticker-finder.svg)](https://github.com/nukesor/sticker-finder/releases/latest)
 [![Test status](https://travis-ci.org/Nukesor/sticker-finder.svg?branch=master)](https://travis-ci.org/Nukesor/sticker-finder)
@@ -23,7 +23,7 @@ And in case you get bored, you can go ahead and do some good by tagging a few ra
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Feel free to host your own or to use mine on telegram: [@stfi_bot](https://t.me/stfi_bot)
+Feel free to host your own bot. There is postgreSQL database dump in the repository.
 
 ## Features:
 
@@ -66,9 +66,10 @@ Dependencies:
 4. Run `poetry run initdb.py` to initialize the database.
 5. Start the bot `poetry run main.py`
 
-6. If you plan to keep up to date, you need to set the current alemibic revision manually.
+6. Import the database `pg_restore -O -j 4 -F c -d your_db_name name_of_the_dump`
+7. If you plan to keep up to date, you need to set the current alemibic revision manually.
 Get the latest revision with `poetry run alembic history` and change the current head to the newest revision with `poetry run alembic stamp <revision>`.
-7. Now you can just execute `poetry run alembic upgrade head`, whenever you are updating from a previous version.
+8. Now you can just execute `poetry run alembic upgrade head`, whenever you are updating from a previous version.
 
 
 ## Botfather commands
