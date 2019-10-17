@@ -1,6 +1,7 @@
 """Callback query handling."""
 from telegram.ext import run_async
 
+from stickerfinder.db import get_session
 from stickerfinder.helper.session import hidden_session_wrapper
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
@@ -164,8 +165,8 @@ def handle_callback_query(bot, update, session, user):
 
 
 @run_async
-@hidden_session_wrapper()
-def handle_chosen_inline_result(bot, update, session, user):
+def handle_chosen_inline_result(update, context):
+    session = get_session()
     """Save the chosen inline result."""
     result = update.chosen_inline_result
     splitted = result.result_id.split(':')
