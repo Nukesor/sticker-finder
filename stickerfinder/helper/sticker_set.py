@@ -6,11 +6,13 @@ from PIL import Image
 from pytesseract import image_to_string
 from telegram.error import BadRequest, TimedOut
 
+from stickerfinder.config import config
 from stickerfinder.helper.image import preprocess_image
 from stickerfinder.helper.tag import add_original_emojis
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.models import Sticker
+from stickerfinder.models import Sticker, Chat
 from stickerfinder.sentry import sentry
+from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
 
 
 def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
@@ -76,10 +78,21 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     sticker_set.stickers = stickers
     sticker_set.complete = True
 
-    # Auto accept furry stuff
-    if sticker_set.furry is True:
+    # Auto accept everything if the config says so
+    review_task = sticker_set.tasks[0]
+    if config['mode']['auto_accept_set'] and not review_task.reviewed:
         sticker_set.reviewed = True
-        sticker_set.tasks[0].reviewed = True
+        review_task.reviewed = True
+
+        keyboard = get_tag_this_set_keyboard(sticker_set, review_task.user)
+        message = f'Stickerset {sticker_set.name} has been added.'
+        bot.send_message(review_task.chat.id, message, reply_markup=keyboard)
+
+        newsfeed_chats = session.query(Chat) \
+            .filter(Chat.is_newsfeed.is_(True)) \
+            .all()
+        for chat in newsfeed_chats:
+            bot.send_sticker(chat.id, sticker_set.stickers[0].file_id)
 
     session.commit()
 

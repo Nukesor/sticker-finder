@@ -36,6 +36,7 @@ default_config = {
     'mode': {
         'leecher': False,
         'authorized_only': False,
+        'auto_accept_set': False,
     }
 }
 

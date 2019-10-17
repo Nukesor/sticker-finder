@@ -33,7 +33,7 @@ __Other Stuff__
 - Tags will now be added to the existing tags, instead of replacing the old ones
 - Replacing tags can be done by using `/replace [tags]`
 - You can reply to a sticker with `/replace [tags...]` and replace those tags
-- If a sticker is replied to a request message (in a group chat) e.g. `#request kermit` or simply `#kermit`, the respective stickers will be tagged with the request's tags (after being reviewed by me). This feature is mainly for [StickersChat](t.me/stickersChat)
+- If a sticker is replied to a request message (in a group chat) e.g. `#request kermit` or simply `#kermit`, the respective stickers will be tagged with the request's tags. This feature is mainly for [StickersChat](t.me/stickersChat)
 
 __Deluxe Mode__
 - deluxe Mode. We started to collect the (in our opinion) very best and pristine sticker packs out there.

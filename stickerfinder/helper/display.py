@@ -66,8 +66,7 @@ Just add `set` or `pack` to your search e.g. `@stfi_bot kermit set`.
 *DISCLAIMER:* If you add a pack, it will be available to *ALL* users.
 
 Send any sticker to me in a direct conversation and I'll add the whole pack.
-The bot will tell you if it doesn't know this pack yet and you will get a notification when the sticker pack has been processed and accepted by us.
-Since we need to review every single pack manually, it can take quite a while to review all new sticker packs (sometimes over 100 on a single day).
+The bot will tell you if it doesn't know this pack yet and you will get a notification when the sticker pack has been processed.
 Please bear with us.
 If the bot is added to a group chat, it will automatically add all stickers posted in this chat!
 

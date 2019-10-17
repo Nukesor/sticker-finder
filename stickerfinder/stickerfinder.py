@@ -110,8 +110,12 @@ if not config['mode']['leecher']:
     minute = 60
     hour = minute * 60
     job_queue = updater.job_queue
-    job_queue.run_repeating(newsfeed_job, interval=5 * minute,
-                            first=0, name='Process newsfeed')
+
+    # Disable the newsfeed/review task if auto accept is on
+    if not config['mode']['auto_accept_set']:
+        job_queue.run_repeating(newsfeed_job, interval=5 * minute,
+                                first=0, name='Process newsfeed')
+
     job_queue.run_repeating(maintenance_job, interval=2 * hour,
                             first=0, name='Create new maintenance tasks')
     job_queue.run_repeating(scan_sticker_sets_job, interval=10,

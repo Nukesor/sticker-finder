@@ -69,7 +69,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.reviewed is False:
         sticker_set.furry = user.furry
-        return f'Set {sticker_set.name} is going to be reviewed soon. Please bear with us :).'
+        return f'Set {sticker_set.name} is going to be added soon ☺️'
 
     # Notify if they are still in a tagging process
     if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
@@ -79,7 +79,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker = session.query(Sticker).get(incoming_sticker.file_id)
     if sticker is None:
         sticker_set.scan_scheduled = True
-        return f"I don't know this specific sticker yet. Please wait a few minutes and try again."
+        return f"I don't know this specific sticker yet. Please wait a few minutes and try again ☺️"
 
     chat.current_sticker = sticker
     chat.tag_mode = TagMode.SINGLE_STICKER
