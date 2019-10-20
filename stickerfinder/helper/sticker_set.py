@@ -79,8 +79,11 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     sticker_set.complete = True
 
     # Auto accept everything if the config says so
-    review_task = sticker_set.tasks[0]
-    if config['mode']['auto_accept_set'] and not review_task.reviewed:
+    review_task = None
+    if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == 'scan_set':
+        review_task = sticker_set.tasks[0]
+
+    if review_task and config['mode']['auto_accept_set'] and not review_task.reviewed:
         sticker_set.reviewed = True
         review_task.reviewed = True
 

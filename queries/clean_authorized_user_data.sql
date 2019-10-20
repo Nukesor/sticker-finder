@@ -1,5 +1,7 @@
-DELETE FROM "task";
-DELETE FROM "change";
+DELETE FROM task
+    WHERE NOT EXISTS (SELECT * FROM "user" as u WHERE task.user_id = u.id and u.authorized = True);
+DELETE FROM change
+    WHERE NOT EXISTS (SELECT * FROM "user" as u WHERE change.user_id = u.id and u.authorized = True);
 DELETE FROM chat
     WHERE not is_newsfeed
     AND not is_maintenance
