@@ -2,6 +2,7 @@
 import traceback
 from functools import wraps
 from telegram.error import (
+    BadRequest,
     TelegramError,
     ChatMigrated,
     Unauthorized,
@@ -55,9 +56,10 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
 
                 session.commit()
             # Handle all not telegram relatated exceptions
-            except:
-                traceback.print_exc()
-                sentry.captureException()
+            except Exception as e:
+                if not ignore_exception(e):
+                    traceback.print_exc()
+                    sentry.captureException()
 
             finally:
                 session.close()
@@ -110,14 +112,15 @@ def session_wrapper(send_message=True, check_ban=False,
                 session.delete(chat)
 
             # Handle all not telegram relatated exceptions
-            except:
-                traceback.print_exc()
-                sentry.captureException()
-                if send_message and message:
-                    session.close()
-                    call_tg_func(message.chat, 'send_message',
-                                 args=[error_text])
-                raise
+            except Exception as e:
+                if not ignore_exception(e):
+                    traceback.print_exc()
+                    sentry.captureException()
+                    if send_message and message:
+                        session.close()
+                        call_tg_func(message.chat, 'send_message',
+                                     args=[error_text])
+                    raise
             finally:
                 session.close()
 
@@ -164,3 +167,25 @@ def is_allowed(user, update, chat=None, admin_only=False,
         return False
 
     return True
+
+
+def ignore_exception(exception):
+    """Check whether we can safely ignore this exception."""
+    if isinstance(exception, BadRequest):
+        if exception.message.startswith('Query is too old') or \
+           exception.message.startswith('Have no rights to send a message') or \
+           exception.message.startswith('Message is not modified: specified new message content'):
+            return True
+
+    if isinstance(exception, Unauthorized):
+        if exception.message == 'Forbidden: bot was blocked by the user':
+            return True
+        if exception.message == 'Forbidden: MESSAGE_AUTHOR_REQUIRED':
+            return True
+        if exception.message == 'Forbidden: bot is not a member of the supergroup chat':
+            return True
+
+    if isinstance(exception, TimedOut):
+        return True
+
+    return False
