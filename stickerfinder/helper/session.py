@@ -6,6 +6,7 @@ from telegram.error import (
     TelegramError,
     ChatMigrated,
     Unauthorized,
+    TimedOut,
 )
 
 from stickerfinder.config import config
