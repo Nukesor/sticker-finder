@@ -78,8 +78,7 @@ Have great day!
 
 
 tag_text = """Now please send me tags for each sticker I'll send you.
-Just write what describes this sticker best.
-It would be awesome if you could also add the text in the sticker :).
+Just try to use words that describe this sticker best.
 """
 
 
