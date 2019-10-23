@@ -85,7 +85,9 @@ def session_wrapper(send_message=True, check_ban=False,
 
                 user = get_user(session, update)
                 if config['mode']['authorized_only'] and not user.authorized:
-                    message.chat.send_message('StickerFinder is offline. Check the repository for the latest database dump in case you want to host your own bot')
+                    message = 'StickerFinder is officially offline. Access will still be granted for [Patreons](https://www.patreon.com/nukesor).\n'
+                    message += 'Check the repository for the latest database dump in case you want to host your own bot.'
+                    message.chat.send_message(message, parse_mode='Markdown')
                     return
                 if not is_allowed(user, update, admin_only=admin_only, check_ban=check_ban):
                     return
