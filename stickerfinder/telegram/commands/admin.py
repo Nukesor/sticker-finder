@@ -25,11 +25,11 @@ def ban_user(bot, update, session, chat, user):
             .filter(User.id == name_to_ban) \
             .one_or_none()
 
-    if user_to_ban:
-        user_to_ban.banned = True
-        return f'User {name_to_ban} banned'
-    else:
+    if not user_to_ban:
         return 'Unknown username'
+
+    user_to_ban.banned = True
+    return f'User {name_to_ban} banned'
 
 
 @run_async
@@ -47,11 +47,33 @@ def unban_user(bot, update, session, chat, user):
             .filter(User.id == name_to_unban) \
             .one_or_none()
 
-    if user_to_unban:
-        user_to_unban.banned = False
-        return f'User {name_to_unban} unbanned'
-    else:
+    if not user_to_unban:
         return 'Unknown username'
+
+    user_to_unban.banned = False
+    return f'User {name_to_unban} unbanned'
+
+
+@run_async
+@session_wrapper(admin_only=True)
+def authorize_user(bot, update, session, chat, user):
+    """Send a help text."""
+    name_to_ban = update.message.text.split(' ', 1)[1].lower()
+
+    user = session.query(User) \
+        .filter(User.username == name_to_ban) \
+        .one_or_none()
+
+    if user is None:
+        user = session.query(User) \
+            .filter(User.id == name_to_ban) \
+            .one_or_none()
+
+    if user is None:
+        return 'Unknown username'
+
+    user.authorized = True
+    return f'User {name_to_ban} authorized'
 
 
 @run_async

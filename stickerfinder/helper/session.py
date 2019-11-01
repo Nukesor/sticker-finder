@@ -88,6 +88,7 @@ def session_wrapper(send_message=True, check_ban=False,
                     text = 'StickerFinder is officially offline. Access will still be granted for [Patreons](https://www.patreon.com/nukesor).\n'
                     text += 'Check the repository for the latest database dump in case you want to host your own bot.'
                     message.chat.send_message(text, parse_mode='Markdown')
+                    session.commit()
                     return
                 if not is_allowed(user, update, admin_only=admin_only, check_ban=check_ban):
                     return
