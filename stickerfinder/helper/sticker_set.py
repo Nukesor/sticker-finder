@@ -26,8 +26,9 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
                 e.message == 'Requested data is inaccessible':
             sticker_set.deleted = True
             sticker_set.completed = True
-            # The review task for a sticker set is always the first task
-            sticker_set.tasks[0].reviewed = True
+            # Auto review the task
+            if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == 'scan_set':
+                sticker_set.tasks[0].reviewed = True
             return
 
         raise e
