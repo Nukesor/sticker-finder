@@ -18,6 +18,7 @@ from stickerfinder.telegram.commands import (
     unban_sticker,
     ban_user,
     unban_user,
+    authorize_user,
     make_admin,
     report_set,
     flag_chat,
@@ -93,6 +94,7 @@ if not config['mode']['leecher']:
     dispatcher.add_handler(CommandHandler('unban', unban_sticker))
     dispatcher.add_handler(CommandHandler('ban_user', ban_user))
     dispatcher.add_handler(CommandHandler('unban_user', unban_user))
+    dispatcher.add_handler(CommandHandler('authorize', authorize_user))
     dispatcher.add_handler(CommandHandler('toggle_flag', flag_chat))
     dispatcher.add_handler(CommandHandler('add_sets', add_sets))
     dispatcher.add_handler(CommandHandler('delete_set', delete_set))
