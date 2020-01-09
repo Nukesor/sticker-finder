@@ -25,9 +25,7 @@ def search(bot, update, session, user):
         results = [InlineQueryResultCachedSticker(
             uuid4(),
             sticker_file_id='CAADAQADOQIAAjnUfAmQSUibakhEFgI')]
-        update.inline_query.answer(results, cache_time=300, is_personal=True,
-                                   switch_pm_text="Maybe don't be a dick :)?",
-                                   switch_pm_parameter='inline')
+        update.inline_query.answer(results, cache_time=300, is_personal=True)
         return
 
     offset_payload = update.inline_query.offset

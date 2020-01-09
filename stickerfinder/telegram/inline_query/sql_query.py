@@ -260,7 +260,7 @@ def get_fuzzy_matching_query(session, context):
         elif user.furry is False:
             set_score_subq = set_score_subq.filter(StickerSet.furry.is_(False))
 
-        set_score_subq = set_score_subq .subquery()
+        set_score_subq = set_score_subq.subquery()
 
         sticker_set_subqs.append(set_score_subq)
         sticker_set_score.append(func.coalesce(set_score_subq.c.set_score, 0))

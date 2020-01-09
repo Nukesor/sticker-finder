@@ -60,8 +60,6 @@ def search_stickers(session, update, context, inline_query_request):
             'next_offset': next_offset,
             'cache_time': 1,
             'is_personal': True,
-            'switch_pm_text': 'Maybe tag some stickers :)?',
-            'switch_pm_parameter': 'inline',
         })
 
 
@@ -112,8 +110,6 @@ def search_sticker_sets(session, update, context, inline_query_request):
             'next_offset': next_offset,
             'cache_time': 1,
             'is_personal': True,
-            'switch_pm_text': 'Maybe tag some stickers :)?',
-            'switch_pm_parameter': 'inline',
         })
 
 
