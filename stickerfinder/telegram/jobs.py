@@ -21,7 +21,8 @@ from stickerfinder.models import (
 @job_session_wrapper()
 def newsfeed_job(context, session):
     """Send all new sticker to the newsfeed chats."""
-    # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
+    # Get all tasks of added sticker sets, which have been
+    # scanned and aren't currently assigned to a chat.
     distribute_newsfeed_tasks(context.bot, session)
 
     return
@@ -55,7 +56,8 @@ def maintenance_job(context, session):
         tasks.append(task)
         session.add(task)
 
-    # Get all users which tagged more than the configurated amount of stickers since the last user check.
+    # Get all users which tagged more than the configurated
+    # amount of stickers since the last user check.
     for international in [True, False]:
         change_count = func.count(Change.id).label('change_count')
         user_check_candidates = session.query(User, change_count) \
@@ -106,7 +108,12 @@ def scan_sticker_sets_job(context, session):
 
     # Send the first sticker of each new set to all newsfeed channels
     for task in tasks:
-        refresh_stickers(session, task.sticker_set, context.bot, chat=task.chat)
+        refresh_stickers(
+            session,
+            task.sticker_set,
+            context.bot,
+            chat=task.chat
+        )
 
     session.commit()
 

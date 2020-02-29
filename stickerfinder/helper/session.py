@@ -29,10 +29,12 @@ def job_session_wrapper(check_ban=False, admin_only=False):
 
                 session.commit()
             except:
-                # Capture all exceptions from jobs. We need to handle those inside the jobs
+                # Capture all exceptions from jobs.
+                # We need to handle those inside the jobs
                 traceback.print_exc()
                 sentry.captureException()
             finally:
+                context.job.enabled = True
                 session.close()
         return wrapper
 
