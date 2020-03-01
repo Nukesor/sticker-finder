@@ -9,6 +9,7 @@ from sqlalchemy import (
     UniqueConstraint,
 )
 from sqlalchemy.types import (
+    BigInteger,
     Boolean,
     DateTime,
     String,
@@ -62,6 +63,7 @@ class Sticker(base):
               postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
     )
 
+    id = Column(BigInteger, autoincrement=True)
     file_id = Column(String, primary_key=True)
     text = Column(String)
     banned = Column(Boolean, default=False, nullable=False)

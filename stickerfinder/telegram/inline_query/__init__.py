@@ -36,8 +36,13 @@ def search(bot, update, session, user):
 
     context = Context(update.inline_query.query, offset_payload, user)
 
-    # Create a new inline query or get the respective existing one, if we are working with an offset.
-    inline_query = InlineQuery.get_or_create(session, context.inline_query_id, context.query, user)
+    # Create a new inline query or get the respective existing one,
+    # if we are working with an offset.
+    inline_query = InlineQuery.get_or_create(
+        session,
+        context.inline_query_id,
+        context.query, user
+    )
     context.inline_query_id = inline_query.id
 
     if context.mode == Context.STICKER_SET_MODE:
@@ -45,15 +50,19 @@ def search(bot, update, session, user):
 
     # Save this specific InlineQueryRequest
     try:
-        saved_offset = offset_payload.split(':', 1)[1] if context.offset != 0 else 0
+        saved_offset = 0
+        if context.offset != 0:
+            saved_offset = offset_payload.split(':', 1)[1]
         inline_query_request = InlineQueryRequest(inline_query, saved_offset)
         session.add(inline_query_request)
         session.commit()
     except IntegrityError:
         # This needs some explaining:
-        # Sometimes (probably due to slow sticker loading) the telegram clients fire queries with the same offset.
+        # Sometimes (probably due to slow sticker loading) the telegram clients
+        # fire queries with the same offset.
         # To prevent this, we have an unique constraint on InlineQueryRequests.
-        # If this constraint is violated, we assume that the scenario above just happened and just don't answer.
+        # If this constraint is violated, we assume that the scenario
+        # above just happened and just don't answer.
         # This prevents duplicate sticker suggestions due to slow internet connections.
         session.rollback()
         return

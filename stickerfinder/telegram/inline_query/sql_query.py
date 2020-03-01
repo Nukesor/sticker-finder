@@ -18,7 +18,7 @@ from stickerfinder.models import (
 def get_favorite_stickers(session, context):
     """Get the most used stickers of a user."""
     limit = context.limit if context.limit else 50
-    favorite_stickers = session.query(StickerUsage.sticker_file_id, StickerUsage.usage_count) \
+    favorite_stickers = session.query(Sticker.id, StickerUsage.sticker_file_id, StickerUsage.usage_count) \
         .join(Sticker) \
         .join(Sticker.sticker_set) \
         .filter(StickerUsage.user == context.user) \
@@ -135,7 +135,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     score = score.label('score')
 
     # Query the whole sticker set in case we actually want to query sticker sets
-    matching_stickers = session.query(Sticker.file_id, StickerSet.name, score)
+    matching_stickers = session.query(Sticker.id, Sticker.file_id, StickerSet.name, score)
 
     # Compute the score for all stickers and filter nsfw stuff
     matching_stickers = matching_stickers \
@@ -176,7 +176,12 @@ def get_strict_matching_query(session, context, sticker_set=False):
     score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
     score_with_usage = score_with_usage + matching_stickers.c.score
     score_with_usage = score_with_usage.label('score_with_usage')
-    matching_stickers_with_usage = session.query(matching_stickers.c.file_id, matching_stickers.c.name, score_with_usage) \
+    matching_stickers_with_usage = session.query(
+        matching_stickers.c.id,
+        matching_stickers.c.file_id,
+        matching_stickers.c.name,
+        score_with_usage
+    ) \
         .outerjoin(StickerUsage, and_(
             matching_stickers.c.file_id == StickerUsage.sticker_file_id,
             StickerUsage.user_id == user.id
@@ -282,7 +287,7 @@ def get_fuzzy_matching_query(session, context):
 
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
-    matching_stickers = session.query(Sticker.file_id, StickerSet.name, score) \
+    matching_stickers = session.query(Sticker.id, Sticker.file_id, StickerSet.name, score) \
         .outerjoin(tag_score_subq, Sticker.file_id == tag_score_subq.c.sticker_file_id) \
         .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id) \
         .join(Sticker.sticker_set)

@@ -175,15 +175,17 @@ def handle_chosen_inline_result(update, context):
     if len(splitted) < 2:
         return
 
-    [search_id, file_id] = splitted
+    [search_id, sticker_id] = splitted
     inline_query = session.query(InlineQuery).get(search_id)
 
     # This happens, if the user clicks on a link in sticker set search.
-    sticker = session.query(Sticker).get(file_id)
+    sticker = session.query(Sticker) \
+        .filter(Sticker.id == sticker_id) \
+        .one_or_none()
     if sticker is None:
         return
 
-    inline_query.sticker_file_id = file_id
+    inline_query.sticker_file_id = sticker.file_id
 
     sticker_usage = StickerUsage.get_or_create(session, inline_query.user, sticker)
     sticker_usage.usage_count += 1

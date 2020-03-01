@@ -52,7 +52,7 @@ def search_stickers(session, update, context, inline_query_request):
     results = []
     for file_id in matching_stickers:
         results.append(InlineQueryResultCachedSticker(
-            f'{context.inline_query_id}:{file_id[0]}', sticker_file_id=file_id[0]))
+            f'{context.inline_query_id}:{file_id[0]}', sticker_file_id=file_id[1]))
 
     call_tg_func(
         update.inline_query, 'answer', args=[results],
@@ -100,9 +100,12 @@ def search_sticker_sets(session, update, context, inline_query_request):
 
         for index in range(0, 5):
             if index < len(sticker_set.stickers):
+                sticker_id = sticker_set.stickers[index].id
                 file_id = sticker_set.stickers[index].file_id
                 results.append(InlineQueryResultCachedSticker(
-                    f'{context.inline_query_id}:{file_id}', sticker_file_id=file_id))
+                    f'{context.inline_query_id}:{sticker_id}',
+                    sticker_file_id=file_id)
+                )
 
     call_tg_func(
         update.inline_query, 'answer', args=[results],

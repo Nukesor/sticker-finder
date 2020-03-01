@@ -4,7 +4,6 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
-from stickerfinder.helper.sticker_set import refresh_stickers
 from stickerfinder.helper.telegram import call_tg_func
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.tag_mode import TagMode

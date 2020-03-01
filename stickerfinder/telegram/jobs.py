@@ -6,7 +6,10 @@ from datetime import datetime, timedelta
 from stickerfinder.config import config
 from stickerfinder.helper.session import job_session_wrapper
 from stickerfinder.helper.sticker_set import refresh_stickers
-from stickerfinder.helper.maintenance import distribute_tasks, distribute_newsfeed_tasks
+from stickerfinder.helper.maintenance import (
+    distribute_tasks,
+    distribute_newsfeed_tasks,
+)
 from stickerfinder.helper.cleanup import full_cleanup
 from stickerfinder.models import (
     Change,
