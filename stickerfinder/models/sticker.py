@@ -5,6 +5,7 @@ from sqlalchemy import (
     ForeignKeyConstraint,
     func,
     Index,
+    Sequence,
     Table,
     UniqueConstraint,
 )
@@ -63,8 +64,8 @@ class Sticker(base):
               postgresql_using='gin', postgresql_ops={'text': 'gin_trgm_ops'}),
     )
 
-    id = Column(BigInteger, autoincrement=True)
     file_id = Column(String, primary_key=True)
+    id = Column(BigInteger, Sequence('user_id_seq'))
     text = Column(String)
     banned = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)

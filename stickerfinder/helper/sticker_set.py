@@ -53,9 +53,6 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
             session.commit()
 
     for tg_sticker in tg_sticker_set.stickers:
-        # Super weird. Looks like file_id are NULL in some situations.
-        if tg_sticker.file_id is None:
-            continue
         # Ignore already existing stickers if we don't need to rescan images
         sticker = session.query(Sticker).get(tg_sticker.file_id)
         text = None
