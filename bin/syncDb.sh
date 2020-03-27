@@ -1,4 +1,5 @@
 #!/usr/bin/bash
+set -euo pipefail
 
 host=nuke@jarvis
 
