@@ -16,8 +16,12 @@ from stickerfinder.telegram.keyboard import (
 def start(bot, update, session, chat, user):
     """Send the start text."""
     if chat.is_maintenance or chat.is_newsfeed:
-        call_tg_func(update.message.chat, 'send_message', ['Hello there'],
-                     {'reply_markup': get_main_keyboard(user)})
+        call_tg_func(
+            update.message.chat,
+            "send_message",
+            ["Hello there"],
+            {"reply_markup": get_main_keyboard(user)},
+        )
     else:
         update.message.chat.send_message(
             start_text,
@@ -32,9 +36,7 @@ def send_help_text(bot, update, session, chat, user):
     """Send the help text."""
     text, keyboard = get_help_text_and_keyboard("Search")
     update.message.chat.send_message(
-        text,
-        reply_markup=keyboard,
-        parse_mode="Markdown",
+        text, reply_markup=keyboard, parse_mode="Markdown",
     )
 
 

@@ -13,14 +13,18 @@ def get_tag_this_set_keyboard(sticker_set, user):
 
     if user.admin is True:
         action = CallbackResult["ok"].value
-        text = 'Tag as deluxe'
+        text = "Tag as deluxe"
         if sticker_set.deluxe:
             action = CallbackResult["ban"].value
-            text = 'Revert deluxe tag'
-        deluxe_data = f'{CallbackType["deluxe_set_user_chat"].value}:{sticker_set.name}:{action}'
+            text = "Revert deluxe tag"
+        deluxe_data = (
+            f'{CallbackType["deluxe_set_user_chat"].value}:{sticker_set.name}:{action}'
+        )
         buttons.append(InlineKeyboardButton(text=text, callback_data=deluxe_data))
 
-    buttons.append(InlineKeyboardButton(text="Tag this set.", callback_data=tag_set_data))
+    buttons.append(
+        InlineKeyboardButton(text="Tag this set.", callback_data=tag_set_data)
+    )
 
     return InlineKeyboardMarkup([buttons])
 
@@ -30,10 +34,12 @@ def get_tagging_keyboard(chat):
     if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
         next_data = f'{CallbackType["next"].value}:0:0'
         cancel_data = f'{CallbackType["cancel"].value}:0:0'
-        buttons = [[
-            InlineKeyboardButton(text='Stop tagging', callback_data=cancel_data),
-            InlineKeyboardButton(text='Skip this sticker', callback_data=next_data),
-        ]]
+        buttons = [
+            [
+                InlineKeyboardButton(text="Stop tagging", callback_data=cancel_data),
+                InlineKeyboardButton(text="Skip this sticker", callback_data=next_data),
+            ]
+        ]
     else:
         return None
 
@@ -43,8 +49,13 @@ def get_tagging_keyboard(chat):
 def get_fix_sticker_tags_keyboard(file_id):
     """Fix the tags of this current sticker."""
     edit_again_data = f'{CallbackType["edit_sticker"].value}:{file_id}:0'
-    buttons = [[InlineKeyboardButton(
-        text="Fix this sticker's tags", callback_data=edit_again_data)]]
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="Fix this sticker's tags", callback_data=edit_again_data
+            )
+        ]
+    ]
 
     return InlineKeyboardMarkup(buttons)
 
@@ -52,7 +63,13 @@ def get_fix_sticker_tags_keyboard(file_id):
 def get_continue_tagging_keyboard(file_id):
     """Fix the tags of this current sticker."""
     continue_tagging_data = f'{CallbackType["continue_tagging"].value}:{file_id}:0'
-    buttons = [[InlineKeyboardButton(
-        text="Continue tagging this sticker set", callback_data=continue_tagging_data)]]
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="Continue tagging this sticker set",
+                callback_data=continue_tagging_data,
+            )
+        ]
+    ]
 
     return InlineKeyboardMarkup(buttons)

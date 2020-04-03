@@ -1,5 +1,5 @@
 """Some static stuff or helper functions for sticker finder bot."""
-#import cv2
+# import cv2
 import numpy as np
 from PIL import Image
 
@@ -7,7 +7,8 @@ from PIL import Image
 def preprocess_image(image):
     return image
 
-#def preprocess_image(image):
+
+# def preprocess_image(image):
 #    """Preprocessing the Image for tesseract."""
 #    # Upscale an image x2
 #    image = image.resize((4*image.size[0], 4*image.size[1]), resample=Image.LANCZOS)

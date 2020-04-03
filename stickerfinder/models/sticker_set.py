@@ -20,12 +20,20 @@ from stickerfinder.models import chat_sticker_set, Task
 class StickerSet(base):
     """The sqlite model for a sticker set."""
 
-    __tablename__ = 'sticker_set'
+    __tablename__ = "sticker_set"
     __table_args__ = (
-        Index('sticker_set_name_gin_idx', 'name',
-              postgresql_using='gin', postgresql_ops={'name': 'gin_trgm_ops'}),
-        Index('sticker_title_name_gin_idx', 'title',
-              postgresql_using='gin', postgresql_ops={'title': 'gin_trgm_ops'}),
+        Index(
+            "sticker_set_name_gin_idx",
+            "name",
+            postgresql_using="gin",
+            postgresql_ops={"name": "gin_trgm_ops"},
+        ),
+        Index(
+            "sticker_title_name_gin_idx",
+            "title",
+            postgresql_using="gin",
+            postgresql_ops={"title": "gin_trgm_ops"},
+        ),
         CheckConstraint("NOT (reviewed AND NOT complete)"),
     )
 
@@ -44,16 +52,17 @@ class StickerSet(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, default=False, nullable=False)
-    scan_scheduled = Column(Boolean, default=False, nullable=False, server_default='false')
+    scan_scheduled = Column(
+        Boolean, default=False, nullable=False, server_default="false"
+    )
     reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_id)")
     reports = relationship("Report", order_by="desc(Report.created_at)")
     tasks = relationship("Task", order_by="asc(Task.created_at)")
     chats = relationship(
-        "Chat",
-        secondary=chat_sticker_set,
-        back_populates="sticker_sets")
+        "Chat", secondary=chat_sticker_set, back_populates="sticker_sets"
+    )
 
     def __init__(self, name, stickers):
         """Create a new StickerSet instance."""
@@ -62,7 +71,9 @@ class StickerSet(base):
 
     def __str__(self):
         """Debug string for class."""
-        return f'StickerSet: {self.title} ({self.name}) \nStickers: {len(self.stickers)}'
+        return (
+            f"StickerSet: {self.title} ({self.name}) \nStickers: {len(self.stickers)}"
+        )
 
     @staticmethod
     def get_or_create(session, name, chat, user):

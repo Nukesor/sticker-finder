@@ -11,7 +11,8 @@ def cancel(bot, update, session, chat, user):
     """Send a help text."""
     if not send_tagged_count_message(session, bot, user, chat):
         keyboard = get_main_keyboard(user)
-        update.message.chat.send_message('All running commands are canceled',
-                                         reply_markup=keyboard)
+        update.message.chat.send_message(
+            "All running commands are canceled", reply_markup=keyboard
+        )
 
     chat.cancel(bot)

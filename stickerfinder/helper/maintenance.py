@@ -20,10 +20,12 @@ from stickerfinder.models import (
 def distribute_newsfeed_tasks(bot, session, chats=None):
     """Distribute tasks under idle newsfeed chats."""
     if chats is None:
-        chats = session.query(Chat) \
-            .filter(Chat.is_newsfeed.is_(True)) \
-            .filter(Chat.current_task_id.is_(None)) \
+        chats = (
+            session.query(Chat)
+            .filter(Chat.is_newsfeed.is_(True))
+            .filter(Chat.current_task_id.is_(None))
             .all()
+        )
 
     # No newsfeed chats found
     if chats is None:
@@ -36,16 +38,18 @@ def distribute_newsfeed_tasks(bot, session, chats=None):
 def check_newsfeed_chat(bot, session, chat):
     """Check if this chat should get a new sticker for inspection."""
     # Get all tasks of added sticker sets, which have been scanned and aren't currently assigned to a chat.
-    next_task = session.query(Task) \
-        .filter(Task.type == Task.SCAN_SET) \
-        .join(Task.sticker_set) \
-        .outerjoin(Task.processing_chat) \
-        .filter(Chat.current_task_id.is_(None)) \
-        .filter(StickerSet.complete.is_(True)) \
-        .filter(Task.reviewed.is_(False)) \
-        .order_by(Task.created_at.asc()) \
-        .limit(1) \
+    next_task = (
+        session.query(Task)
+        .filter(Task.type == Task.SCAN_SET)
+        .join(Task.sticker_set)
+        .outerjoin(Task.processing_chat)
+        .filter(Chat.current_task_id.is_(None))
+        .filter(StickerSet.complete.is_(True))
+        .filter(Task.reviewed.is_(False))
+        .order_by(Task.created_at.asc())
+        .limit(1)
         .one_or_none()
+    )
 
     # No more tasks
     if next_task is None:
@@ -61,28 +65,33 @@ def check_newsfeed_chat(bot, session, chat):
 
     new_set = next_task.sticker_set
 
-    task_count = session.query(func.count(Task.id)) \
-        .filter(Task.type == Task.SCAN_SET) \
-        .filter(Task.reviewed.is_(False)) \
+    task_count = (
+        session.query(func.count(Task.id))
+        .filter(Task.type == Task.SCAN_SET)
+        .filter(Task.reviewed.is_(False))
         .one()
+    )
 
     task_count = task_count[0]
 
     # Add the keyboard for managing this specific sticker set.
     try:
         keyboard = get_nsfw_ban_keyboard(new_set)
-        call_tg_func(bot, 'send_sticker',
-                     [chat.id, new_set.stickers[0].file_id],
-                     {'reply_markup': keyboard})
+        call_tg_func(
+            bot,
+            "send_sticker",
+            [chat.id, new_set.stickers[0].file_id],
+            {"reply_markup": keyboard},
+        )
 
-        if next_task.chat.type == 'private':
-            message = f'Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})'
+        if next_task.chat.type == "private":
+            message = f"Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})"
         else:
-            message = f'Set {new_set.name} added by chat: {next_task.chat.id}'
+            message = f"Set {new_set.name} added by chat: {next_task.chat.id}"
         if task_count > 1:
-            message += f'\n{task_count - 1} sets remaining.'
+            message += f"\n{task_count - 1} sets remaining."
 
-        call_tg_func(bot, 'send_message', [chat.id, message])
+        call_tg_func(bot, "send_message", [chat.id, message])
 
         chat.current_task = next_task
         chat.current_sticker = new_set.stickers[0]
@@ -91,7 +100,7 @@ def check_newsfeed_chat(bot, session, chat):
     except ChatMigrated:
         session.delete(chat)
     except BadRequest as e:
-        if e.message == 'Chat not found': # noqa
+        if e.message == "Chat not found":  # noqa
             session.delete(chat)
         else:
             raise e
@@ -101,16 +110,18 @@ def check_newsfeed_chat(bot, session, chat):
 
 def distribute_tasks(bot, session):
     """Distribute tasks under idle maintenance chats."""
-    idle_maintenance_chats = session.query(Chat) \
-        .filter(Chat.is_maintenance) \
-        .filter(Chat.current_task_id.is_(None)) \
+    idle_maintenance_chats = (
+        session.query(Chat)
+        .filter(Chat.is_maintenance)
+        .filter(Chat.current_task_id.is_(None))
         .all()
+    )
 
     for chat in idle_maintenance_chats:
         try:
-            tg_chat = call_tg_func(bot, 'get_chat', args=[chat.id])
+            tg_chat = call_tg_func(bot, "get_chat", args=[chat.id])
         except BadRequest as e:
-            if e.message == 'Chat not found': # noqa
+            if e.message == "Chat not found":  # noqa
                 session.delete(chat)
                 continue
 
@@ -125,15 +136,14 @@ def distribute_tasks(bot, session):
 
 def check_maintenance_chat(session, tg_chat, chat, job=False):
     """Get the next task and send it to the maintenance channel."""
-    task = session.query(Task) \
-        .filter(Task.reviewed.is_(False)) \
-        .filter(Task.type.in_([
-            Task.CHECK_USER_TAGS,
-            Task.REPORT,
-        ])) \
-        .order_by(Task.created_at.asc()) \
-        .limit(1) \
+    task = (
+        session.query(Task)
+        .filter(Task.reviewed.is_(False))
+        .filter(Task.type.in_([Task.CHECK_USER_TAGS, Task.REPORT,]))
+        .order_by(Task.created_at.asc())
+        .limit(1)
         .one_or_none()
+    )
 
     if task is None:
         chat.current_task = None
@@ -141,7 +151,7 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         if job:
             return
 
-        tg_chat.send_message('There are no more tasks for processing.')
+        tg_chat.send_message("There are no more tasks for processing.")
         return
 
     chat.current_task = task
@@ -150,38 +160,43 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         changes = task.changes_to_check
 
         # Compile task text
-        text = [f'User {task.user.username} ({task.user.id}) tagged {len(changes)} sticker']
-        text.append(f'Detected at {task.created_at}: \n')
+        text = [
+            f"User {task.user.username} ({task.user.id}) tagged {len(changes)} sticker"
+        ]
+        text.append(f"Detected at {task.created_at}: \n")
         for change in changes:
             if len(change.added_tags) > 0:
-                text.append(f'Added: {change.added_tags_as_text()}')
+                text.append(f"Added: {change.added_tags_as_text()}")
             if len(change.removed_tags) > 0:
-                text.append(f'Removed: {change.removed_tags_as_text()}')
+                text.append(f"Removed: {change.removed_tags_as_text()}")
 
         keyboard = check_user_tags_keyboard(task)
 
     elif task.type == Task.REPORT:
         # Compile task text
-        text = ['Ban sticker set? \n']
+        text = ["Ban sticker set? \n"]
         for ban in task.sticker_set.reports:
             text.append(ban.reason)
 
         keyboard = get_report_keyboard(task)
 
         # Send first sticker of the set
-        call_tg_func(tg_chat, 'send_sticker', args=[task.sticker_set.stickers[0].file_id])
+        call_tg_func(
+            tg_chat, "send_sticker", args=[task.sticker_set.stickers[0].file_id]
+        )
 
     text_chunks = split_text(text)
     while len(text_chunks) > 0:
         chunk = text_chunks.pop(0)
         # First chunks, just send the text
         if len(text_chunks) > 0:
-            call_tg_func(tg_chat, 'send_message', args=[chunk])
+            call_tg_func(tg_chat, "send_message", args=[chunk])
 
         # Last chunk. Send the text and the inline keyboard
         else:
-            call_tg_func(tg_chat, 'send_message', args=[chunk],
-                         kwargs={'reply_markup': keyboard})
+            call_tg_func(
+                tg_chat, "send_message", args=[chunk], kwargs={"reply_markup": keyboard}
+            )
 
     return True
 
@@ -217,15 +232,16 @@ def change_language_of_task_changes(session, task):
             session.commit()
 
 
-
 def revert_user_changes(session, user):
     """Revert all changes of a user."""
     # Get all affected changes with their respective sticker
-    changes = session.query(Change) \
-        .filter(Change.user == user) \
-        .filter(Change.reverted.is_(False)) \
-        .order_by(Change.created_at.desc()) \
+    changes = (
+        session.query(Change)
+        .filter(Change.user == user)
+        .filter(Change.reverted.is_(False))
+        .order_by(Change.created_at.desc())
         .all()
+    )
 
     for change in changes:
         sticker = change.sticker
@@ -249,10 +265,12 @@ def revert_user_changes(session, user):
 
 def undo_user_changes_revert(session, user):
     """Undo the revert of all changes of a user."""
-    changes = session.query(Change) \
-        .filter(Change.user == user) \
-        .filter(Change.reverted.is_(True)) \
+    changes = (
+        session.query(Change)
+        .filter(Change.user == user)
+        .filter(Change.reverted.is_(True))
         .all()
+    )
 
     for change in changes:
         sticker = change.sticker

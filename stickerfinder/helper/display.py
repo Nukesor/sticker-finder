@@ -9,9 +9,13 @@ def get_settings_text(user):
     text.append("")
 
     if user.notifications:
-        text.append("*Notifications:* You'll receive updates about notifications and other info regarding the bot")
+        text.append(
+            "*Notifications:* You'll receive updates about notifications and other info regarding the bot"
+        )
     else:
-        text.append("*Notifications:* You won't get any messages regarding the bot and development")
+        text.append(
+            "*Notifications:* You won't get any messages regarding the bot and development"
+        )
 
     text.append("")
     text.append("")
@@ -54,7 +58,9 @@ def get_help_text_and_keyboard(current_category):
     ]
 
     help_texts = {}
-    help_texts["Search"] = """*Sticker search:*
+    help_texts[
+        "Search"
+    ] = """*Sticker search:*
 Start typing @stfi\_bot in any chat. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
 
 
@@ -74,7 +80,9 @@ If the bot is added to a group chat, it will automatically add all stickers post
 If you already added a pack, you probably need to tag stickers first (or just search by the pack name).
 To tag a whole pack just send me a sticker from the pack you want to tag."""
 
-    help_texts["Tagging"] = """*Tagging stickers:*
+    help_texts[
+        "Tagging"
+    ] = """*Tagging stickers:*
 
 Just send the sticker you want to tag and start typing.
 You can also reply to a sticker with `/tag [tags]` e.g. `/tag obi wan star wars hello there`.
@@ -87,13 +95,17 @@ Just try to describe the sticker as good as possible and add the text of the sti
 When you're in the English mode, *PLEASE* only tag in English.
 If you want to tag in another language, please use the international mode."""
 
-    help_texts["Language"] = """*Language:*
+    help_texts[
+        "Language"
+    ] = """*Language:*
 
 The default language is English. Every sticker pack, that contains languages other than English will be flagged as international.
 These stickers can only be found, when changing to international in your settings.
 You can find lots of stuff in there, but it's not as good maintained as the /english section."""
 
-    help_texts["NSFW/Furry/Ban"] = """*NSFW & Furry:*
+    help_texts[
+        "NSFW/Furry/Ban"
+    ] = """*NSFW & Furry:*
 Nude stickers and alike will be tagged with `nsfw` and can only be found when adding the word `nsfw` to your search.
 Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
 In case I miss any, reply to the sticker with the /report command to make me look at it again.
@@ -108,12 +120,16 @@ If you just Spam `asdf` while tagging or if you add hundreds of tags to your own
 You'll also get banned if you repeatedly tag in other languages while being in /english mode.
 When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted."""
 
-    help_texts["Bugs"] = """⚠️ *There is an unknown bug that won't go away!!* 😩
+    help_texts[
+        "Bugs"
+    ] = """⚠️ *There is an unknown bug that won't go away!!* 😩
 
 I usually get a notification as soon as something breaks, but there might be some bugs that go unnoticed!
 In case a bug isn't fixed in a day or two, please write a ticket on [GitHub](https://github.com/Nukesor/ultimate-poll-bot) or stop by my [support group](https://t.me/nukesors_projects)."""
 
-    help_texts["Deluxe"] = """*Deluxe mode:*
+    help_texts[
+        "Deluxe"
+    ] = """*Deluxe mode:*
 
 A selected and well-curated (and well tagged) collection of sticker packs are marked as `deluxe`.
 You can enable deluxe mode in your settings."""

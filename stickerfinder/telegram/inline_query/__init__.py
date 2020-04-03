@@ -22,15 +22,17 @@ def search(bot, update, session, user):
     """Handle inline queries for sticker search."""
     # We don't want banned users
     if user.banned:
-        results = [InlineQueryResultCachedSticker(
-            uuid4(),
-            sticker_file_id='CAADAQADOQIAAjnUfAmQSUibakhEFgI')]
+        results = [
+            InlineQueryResultCachedSticker(
+                uuid4(), sticker_file_id="CAADAQADOQIAAjnUfAmQSUibakhEFgI"
+            )
+        ]
         update.inline_query.answer(results, cache_time=300, is_personal=True)
         return
 
     offset_payload = update.inline_query.offset
     # If the offset is 'done' there are no more stickers for this query.
-    if offset_payload == 'done':
+    if offset_payload == "done":
         update.inline_query.answer([], cache_time=0)
         return
 
@@ -39,9 +41,7 @@ def search(bot, update, session, user):
     # Create a new inline query or get the respective existing one,
     # if we are working with an offset.
     inline_query = InlineQuery.get_or_create(
-        session,
-        context.inline_query_id,
-        context.query, user
+        session, context.inline_query_id, context.query, user
     )
     context.inline_query_id = inline_query.id
 
@@ -52,7 +52,7 @@ def search(bot, update, session, user):
     try:
         saved_offset = 0
         if context.offset != 0:
-            saved_offset = offset_payload.split(':', 1)[1]
+            saved_offset = offset_payload.split(":", 1)[1]
         inline_query_request = InlineQueryRequest(inline_query, saved_offset)
         session.add(inline_query_request)
         session.commit()

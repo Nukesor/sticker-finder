@@ -9,10 +9,12 @@ from sqlalchemy.ext.compiler import compiles
 from sqlalchemy.types import Numeric
 
 
-engine = create_engine(config['database']['sql_uri'],
-                       pool_size=config['database']['connection_count'],
-                       max_overflow=config['database']['overflow_count'],
-                       echo=False)
+engine = create_engine(
+    config["database"]["sql_uri"],
+    pool_size=config["database"]["connection_count"],
+    max_overflow=config["database"]["overflow_count"],
+    echo=False,
+)
 base = declarative_base(bind=engine)
 
 
@@ -24,7 +26,7 @@ def get_session(connection=None):
 
 class greatest(expression.FunctionElement):
     type = Numeric()
-    name = 'greatest'
+    name = "greatest"
 
 
 @compiles(greatest)
@@ -32,9 +34,9 @@ def default_greatest(element, compiler, **kw):
     return compiler.visit_function(element)
 
 
-@compiles(greatest, 'sqlite')
-@compiles(greatest, 'mssql')
-@compiles(greatest, 'oracle')
+@compiles(greatest, "sqlite")
+@compiles(greatest, "mssql")
+@compiles(greatest, "oracle")
 def case_greatest(element, compiler, **kw):
     arg1, arg2 = list(element.clauses)
     return compiler.process(case([(arg1 > arg2, arg1)], else_=arg2), **kw)

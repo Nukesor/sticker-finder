@@ -30,14 +30,16 @@ def current_sticker_tags_message(sticker, user, send_set_info=False):
     # Check if both user and sticker set are using the default language
     international = user.international or sticker.sticker_set.international
 
-    language = 'international' if international else 'english'
+    language = "international" if international else "english"
     if sticker.has_tags_for_language(international):
-        message = f'Current {language} tags are: \n{sticker.tags_as_text(international)}'
+        message = (
+            f"Current {language} tags are: \n{sticker.tags_as_text(international)}"
+        )
     else:
-        return f'There are no {language} tags for this sticker'
+        return f"There are no {language} tags for this sticker"
 
     if send_set_info:
-        set_info = f'From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n'
+        set_info = f"From sticker set: {sticker.sticker_set.title} ({sticker.sticker_set.name}) \n"
         return set_info + message
 
     return message
@@ -47,21 +49,28 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
     """Send next sticker and the tags of this sticker."""
     # If we don't have a message, we need to add the inline keyboard to the sticker
     # Otherwise attach it to the following message.
-    message = current_sticker_tags_message(chat.current_sticker, user, send_set_info=send_set_info)
+    message = current_sticker_tags_message(
+        chat.current_sticker, user, send_set_info=send_set_info
+    )
     keyboard = get_tagging_keyboard(chat)
 
     if not message:
-        response = call_tg_func(tg_chat, 'send_sticker',
-                                args=[chat.current_sticker.file_id],
-                                kwargs={'reply_markup': keyboard})
+        response = call_tg_func(
+            tg_chat,
+            "send_sticker",
+            args=[chat.current_sticker.file_id],
+            kwargs={"reply_markup": keyboard},
+        )
 
         chat.last_sticker_message_id = response.message_id
 
     else:
-        call_tg_func(tg_chat, 'send_sticker', args=[chat.current_sticker.file_id])
+        call_tg_func(tg_chat, "send_sticker", args=[chat.current_sticker.file_id])
 
     if message:
-        response = call_tg_func(tg_chat, 'send_message', [message], {'reply_markup': keyboard})
+        response = call_tg_func(
+            tg_chat, "send_message", [message], {"reply_markup": keyboard}
+        )
         chat.last_sticker_message_id = response.message_id
 
 
@@ -82,39 +91,41 @@ def handle_next(session, bot, chat, tg_chat, user):
         # There are no stickers left, reset the chat and send success message.
         chat.current_sticker.sticker_set.completely_tagged = True
         send_tagged_count_message(session, bot, user, chat)
-        tg_chat.send_message('The full sticker set is now tagged.',
-                             reply_markup=get_main_keyboard(user))
+        tg_chat.send_message(
+            "The full sticker set is now tagged.", reply_markup=get_main_keyboard(user)
+        )
         chat.cancel(bot)
 
     # Find a random sticker with no changes
     elif chat.tag_mode == TagMode.RANDOM:
-        base_query = session.query(Sticker) \
-            .outerjoin(Sticker.changes) \
-            .join(Sticker.sticker_set) \
-            .filter(Change.id.is_(None)) \
-            .filter(StickerSet.international.is_(False)) \
-            .filter(StickerSet.banned.is_(False)) \
-            .filter(StickerSet.nsfw.is_(False)) \
-            .filter(StickerSet.furry.is_(False)) \
-
+        base_query = (
+            session.query(Sticker)
+            .outerjoin(Sticker.changes)
+            .join(Sticker.sticker_set)
+            .filter(Change.id.is_(None))
+            .filter(StickerSet.international.is_(False))
+            .filter(StickerSet.banned.is_(False))
+            .filter(StickerSet.nsfw.is_(False))
+            .filter(StickerSet.furry.is_(False))
+        )
         # Let the users tag the deluxe sticker set first.
         # If there are no more deluxe sets, just tag another random sticker.
-# Remove the favoring of deluxe stickers until the deluxe pool is bigger again.
-#        sticker = base_query.filter(StickerSet.deluxe.is_(True)) \
-#            .order_by(func.random()) \
-#            .limit(1) \
-#            .one_or_none()
-#        if sticker is None:
-        sticker = base_query \
-            .order_by(func.random()) \
-            .limit(1) \
-            .one_or_none()
+        # Remove the favoring of deluxe stickers until the deluxe pool is bigger again.
+        #        sticker = base_query.filter(StickerSet.deluxe.is_(True)) \
+        #            .order_by(func.random()) \
+        #            .limit(1) \
+        #            .one_or_none()
+        #        if sticker is None:
+        sticker = base_query.order_by(func.random()).limit(1).one_or_none()
 
         # No stickers for tagging left :)
         if not sticker:
-            call_tg_func(tg_chat, 'send_message',
-                         ['It looks like all stickers are already tagged :).'],
-                         {'reply_markup': get_main_keyboard(user)})
+            call_tg_func(
+                tg_chat,
+                "send_message",
+                ["It looks like all stickers are already tagged :)."],
+                {"reply_markup": get_main_keyboard(user)},
+            )
             chat.cancel(bot)
             return
 
@@ -133,7 +144,7 @@ def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
     chat.tag_mode = TagMode.STICKER_SET
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(tg_chat, 'send_message', [tag_text])
+    call_tg_func(tg_chat, "send_message", [tag_text])
     send_tag_messages(chat, tg_chat, user)
 
 
@@ -143,26 +154,26 @@ def get_tags_from_text(text, limit=15):
     text = text.lower().strip()
 
     # Remove the /tag command
-    if text.startswith('/tag'):
+    if text.startswith("/tag"):
         text = text[4:]
 
     # Remove #request tag
-    if text.startswith('#request'):
+    if text.startswith("#request"):
         text = text[8:]
 
     # Split and strip
-    tags = [tag.strip() for tag in text.split(' ') if tag.strip() != '']
+    tags = [tag.strip() for tag in text.split(" ") if tag.strip() != ""]
 
     # Remove words or links that are undesired
     partial_word_blacklist = [
-        'telegramme',
-        'telegram.me',
-        'tme/',
-        't.me',
-        'https://',
-        'http://',
-        'addstickers',
-        'randomset',
+        "telegramme",
+        "telegram.me",
+        "tme/",
+        "t.me",
+        "https://",
+        "http://",
+        "addstickers",
+        "randomset",
     ]
 
     def contains_partial_word(tag):
@@ -170,17 +181,19 @@ def get_tags_from_text(text, limit=15):
             if word in tag:
                 return True
         return False
+
     tags = [tag for tag in tags if not contains_partial_word(tag)]
 
     # Clean the text
     def remove_ignored_chars(tag):
         for ignored in ignored_characters:
-            tag = tag.replace(ignored, '')
+            tag = tag.replace(ignored, "")
         return tag
+
     tags = [remove_ignored_chars(tag) for tag in tags]
 
     # Remove tags accidentally added while using an inline bots
-    if len(tags) > 0 and original_text.startswith('@') and 'bot' in tags[0]:
+    if len(tags) > 0 and original_text.startswith("@") and "bot" in tags[0]:
         tags.pop(0)
 
     # Deduplicate tags
@@ -194,7 +207,7 @@ def get_tags_from_text(text, limit=15):
     for tag in tags:
         count = 0
         prev_char = None
-        new_tag = ''
+        new_tag = ""
         for char in tag:
             if prev_char == char:
                 count += 1
@@ -213,18 +226,27 @@ def get_tags_from_text(text, limit=15):
 def send_tagged_count_message(session, bot, user, chat):
     """Send a user a message that displays how many stickers he already tagged."""
     if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
-        count = session.query(Sticker) \
-            .join(Sticker.changes) \
-            .filter(Change.user == user) \
+        count = (
+            session.query(Sticker)
+            .join(Sticker.changes)
+            .filter(Change.user == user)
             .count()
+        )
 
-        bot.send_message(user.id, f'You already tagged {count} stickers. Thanks!')
+        bot.send_message(user.id, f"You already tagged {count} stickers. Thanks!")
 
 
-def tag_sticker(session, text, sticker, user,
-                tg_chat=None,
-                chat=None, message_id=None,
-                replace=False, single_sticker=False):
+def tag_sticker(
+    session,
+    text,
+    sticker,
+    user,
+    tg_chat=None,
+    chat=None,
+    message_id=None,
+    replace=False,
+    single_sticker=False,
+):
     """Tag a single sticker."""
     # Extract all texts from message and clean/filter them
     raw_tags = get_tags_from_text(text)
@@ -236,20 +258,26 @@ def tag_sticker(session, text, sticker, user,
     # Only use the first few tags. This should prevent abuse from tag spammers.
     if len(raw_tags) > 10:
         raw_tags = raw_tags[:10]
-        call_tg_func(tg_chat, 'send_message',
-                     ["Please don't send that many tags. Try to describe everything as brief as possible."])
+        call_tg_func(
+            tg_chat,
+            "send_message",
+            [
+                "Please don't send that many tags. Try to describe everything as brief as possible."
+            ],
+        )
 
     # Inform us if the user managed to hit a special count of changes
     if tg_chat and len(user.changes) in reward_messages:
         reward = reward_messages[len(user.changes)]
-        call_tg_func(tg_chat, 'send_message', [reward])
+        call_tg_func(tg_chat, "send_message", [reward])
 
         sentry.captureMessage(
-            f'User hit {len(user.changes)} changes!', level='info',
+            f"User hit {len(user.changes)} changes!",
+            level="info",
             extra={
-                'user': user.username,
-                'user_id': user.id,
-                'changes': len(user.changes),
+                "user": user.username,
+                "user_id": user.id,
+                "changes": len(user.changes),
             },
         )
 
@@ -289,9 +317,15 @@ def tag_sticker(session, text, sticker, user,
             sticker.tags.append(new_tag)
 
     # Create a change for logging
-    change = Change(user, sticker, international,
-                    new_tags, removed_tags,
-                    chat=chat, message_id=message_id)
+    change = Change(
+        user,
+        sticker,
+        international,
+        new_tags,
+        removed_tags,
+        chat=chat,
+        message_id=message_id,
+    )
     session.add(change)
 
     session.commit()
@@ -299,9 +333,12 @@ def tag_sticker(session, text, sticker, user,
     # Change the inline keyboard to allow fast fixing of the sticker's tags
     if tg_chat and chat and not single_sticker and chat.last_sticker_message_id:
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
-        call_tg_func(tg_chat.bot, 'edit_message_reply_markup',
-                     [tg_chat.id, chat.last_sticker_message_id],
-                     {'reply_markup': keyboard})
+        call_tg_func(
+            tg_chat.bot,
+            "edit_message_reply_markup",
+            [tg_chat.id, chat.last_sticker_message_id],
+            {"reply_markup": keyboard},
+        )
 
 
 def add_original_emojis(session, sticker, raw_emojis):
@@ -325,7 +362,9 @@ def handle_request_reply(file_id, update, session, chat, user):
     if tags_message is None:
         return
 
-    if tags_message.lower().startswith('#') or tags_message.lower().startswith('request'):
+    if tags_message.lower().startswith("#") or tags_message.lower().startswith(
+        "request"
+    ):
         proposed_tags = ProposedTags(tags_message, file_id, user, chat)
         session.add(proposed_tags)
         session.commit()

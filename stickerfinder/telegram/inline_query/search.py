@@ -25,7 +25,9 @@ from .sql_query import (
 def search_stickers(session, update, context, inline_query_request):
     """Execute the normal sticker search."""
     # Get all matching stickers
-    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(session, context)
+    matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
+        session, context
+    )
 
     if context.fuzzy_offset is not None:
         inline_query_request.fuzzy = True
@@ -34,16 +36,19 @@ def search_stickers(session, update, context, inline_query_request):
     next_offset = get_next_offset(context, matching_stickers, fuzzy_matching_stickers)
 
     inline_query_request.duration = duration
-    inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
+    inline_query_request.next_offset = (
+        next_offset.split(":", 1)[1] if next_offset != "done" else next_offset
+    )
 
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
-        pprint.pprint('\n\nNext: ')
+
+        pprint.pprint("\n\nNext: ")
         pprint.pprint({"offset": context.offset, "fuzzy_offset": context.fuzzy_offset})
-        pprint.pprint(f'Normal matching (Count: {len(matching_stickers)})::')
+        pprint.pprint(f"Normal matching (Count: {len(matching_stickers)})::")
         pprint.pprint(matching_stickers)
-        pprint.pprint(f'Fuzzy matching (Count: {len(fuzzy_matching_stickers)}):')
+        pprint.pprint(f"Fuzzy matching (Count: {len(fuzzy_matching_stickers)}):")
         pprint.pprint(fuzzy_matching_stickers)
 
     matching_stickers = matching_stickers + fuzzy_matching_stickers
@@ -51,16 +56,18 @@ def search_stickers(session, update, context, inline_query_request):
     # Create a result list of max 50 cached sticker objects
     results = []
     for file_id in matching_stickers:
-        results.append(InlineQueryResultCachedSticker(
-            f'{context.inline_query_id}:{file_id[0]}', sticker_file_id=file_id[1]))
+        results.append(
+            InlineQueryResultCachedSticker(
+                f"{context.inline_query_id}:{file_id[0]}", sticker_file_id=file_id[1]
+            )
+        )
 
     call_tg_func(
-        update.inline_query, 'answer', args=[results],
-        kwargs={
-            'next_offset': next_offset,
-            'cache_time': 1,
-            'is_personal': True,
-        })
+        update.inline_query,
+        "answer",
+        args=[results],
+        kwargs={"next_offset": next_offset, "cache_time": 1, "is_personal": True,},
+    )
 
 
 def search_sticker_sets(session, update, context, inline_query_request):
@@ -72,12 +79,15 @@ def search_sticker_sets(session, update, context, inline_query_request):
     next_offset = get_next_set_offset(context, matching_sets)
 
     inline_query_request.duration = duration
-    inline_query_request.next_offset = next_offset.split(':', 1)[1] if next_offset != 'done' else next_offset
+    inline_query_request.next_offset = (
+        next_offset.split(":", 1)[1] if next_offset != "done" else next_offset
+    )
 
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
-        pprint.pprint('\n\nNext: ')
+
+        pprint.pprint("\n\nNext: ")
         pprint.pprint(context.offset)
         pprint.pprint(matching_sets)
 
@@ -85,35 +95,38 @@ def search_sticker_sets(session, update, context, inline_query_request):
     results = []
     for sticker_set in matching_sets:
         sticker_set = sticker_set[0]
-        url = f'https://telegram.me/addstickers/{sticker_set.name}'
+        url = f"https://telegram.me/addstickers/{sticker_set.name}"
         input_message_content = InputTextMessageContent(url)
 
         # Hash the sticker set name, since they tend to be super long
         sticker_set_hash = hashlib.md5(sticker_set.name.encode()).hexdigest()
-        results.append(InlineQueryResultArticle(
-            f'{context.inline_query_id}:{sticker_set_hash}',
-            title=sticker_set.title,
-            description=sticker_set.name,
-            url=url,
-            input_message_content=input_message_content,
-        ))
+        results.append(
+            InlineQueryResultArticle(
+                f"{context.inline_query_id}:{sticker_set_hash}",
+                title=sticker_set.title,
+                description=sticker_set.name,
+                url=url,
+                input_message_content=input_message_content,
+            )
+        )
 
         for index in range(0, 5):
             if index < len(sticker_set.stickers):
                 sticker_id = sticker_set.stickers[index].id
                 file_id = sticker_set.stickers[index].file_id
-                results.append(InlineQueryResultCachedSticker(
-                    f'{context.inline_query_id}:{sticker_id}',
-                    sticker_file_id=file_id)
+                results.append(
+                    InlineQueryResultCachedSticker(
+                        f"{context.inline_query_id}:{sticker_id}",
+                        sticker_file_id=file_id,
+                    )
                 )
 
     call_tg_func(
-        update.inline_query, 'answer', args=[results],
-        kwargs={
-            'next_offset': next_offset,
-            'cache_time': 1,
-            'is_personal': True,
-        })
+        update.inline_query,
+        "answer",
+        args=[results],
+        kwargs={"next_offset": next_offset, "cache_time": 1, "is_personal": True,},
+    )
 
 
 def get_matching_stickers(session, context):
@@ -148,12 +161,15 @@ def get_matching_stickers(session, context):
     # We need to know about this, before it happens.
     duration = end - start
     if duration.seconds >= 9:
-        sentry.captureMessage(f'Query took too long.', level='info',
-                              extra={
-                                  'query': context.query,
-                                  'duration': duration,
-                                  'results': len(matching_stickers),
-                              })
+        sentry.captureMessage(
+            f"Query took too long.",
+            level="info",
+            extra={
+                "query": context.query,
+                "duration": duration,
+                "results": len(matching_stickers),
+            },
+        )
 
     return matching_stickers, fuzzy_matching_stickers, duration
 
@@ -172,11 +188,14 @@ def get_matching_sticker_sets(session, context):
     # We need to know about this, before it happens.
     duration = end - start
     if duration.seconds >= 9:
-        sentry.captureMessage(f'Query took too long.', level='info',
-                              extra={
-                                  'query': context.query,
-                                  'duration': duration,
-                                  'results': len(matching_stickers),
-                              })
+        sentry.captureMessage(
+            f"Query took too long.",
+            level="info",
+            extra={
+                "query": context.query,
+                "duration": duration,
+                "results": len(matching_stickers),
+            },
+        )
 
     return matching_stickers, duration

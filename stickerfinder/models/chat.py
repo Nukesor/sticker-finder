@@ -25,30 +25,37 @@ from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
 
 
 chat_sticker_set = Table(
-    'chat_sticker_set', base.metadata,
-    Column('chat_id',
-           BigInteger,
-           ForeignKey('chat.id', ondelete='CASCADE',
-                      onupdate='CASCADE', deferrable=True),
-           index=True),
-    Column('sticker_set_name',
-           String(),
-           ForeignKey('sticker_set.name', ondelete='CASCADE',
-                      onupdate='CASCADE', deferrable=True),
-           index=True),
-    UniqueConstraint('chat_id', 'sticker_set_name'),
+    "chat_sticker_set",
+    base.metadata,
+    Column(
+        "chat_id",
+        BigInteger,
+        ForeignKey("chat.id", ondelete="CASCADE", onupdate="CASCADE", deferrable=True),
+        index=True,
+    ),
+    Column(
+        "sticker_set_name",
+        String(),
+        ForeignKey(
+            "sticker_set.name", ondelete="CASCADE", onupdate="CASCADE", deferrable=True
+        ),
+        index=True,
+    ),
+    UniqueConstraint("chat_id", "sticker_set_name"),
 )
 
 
 class Chat(base):
     """The model for a chat."""
 
-    __tablename__ = 'chat'
+    __tablename__ = "chat"
 
     id = Column(BigInteger, primary_key=True)
     type = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     # Maintenance and chat flags
     is_newsfeed = Column(Boolean, default=False, nullable=False)
@@ -59,22 +66,25 @@ class Chat(base):
     last_sticker_message_id = Column(BigInteger)
 
     # ForeignKeys
-    current_task_id = Column(UUID(as_uuid=True),
-                             ForeignKey('task.id', ondelete='SET NULL', name='chat_current_task_id_fkey'),
-                             index=True)
-    current_sticker_file_id = Column(String, ForeignKey('sticker.file_id',
-                                                        onupdate='cascade',
-                                                        ondelete='SET NULL'), index=True)
+    current_task_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("task.id", ondelete="SET NULL", name="chat_current_task_id_fkey"),
+        index=True,
+    )
+    current_sticker_file_id = Column(
+        String,
+        ForeignKey("sticker.file_id", onupdate="cascade", ondelete="SET NULL"),
+        index=True,
+    )
 
     # Relationships
-    current_task = relationship("Task", foreign_keys='Chat.current_task_id')
+    current_task = relationship("Task", foreign_keys="Chat.current_task_id")
     current_sticker = relationship("Sticker")
 
-    tasks = relationship("Task", foreign_keys='Task.chat_id')
+    tasks = relationship("Task", foreign_keys="Task.chat_id")
     sticker_sets = relationship(
-        "StickerSet",
-        secondary=chat_sticker_set,
-        back_populates="chats")
+        "StickerSet", secondary=chat_sticker_set, back_populates="chats"
+    )
 
     def __init__(self, chat_id, chat_type):
         """Create a new chat."""
@@ -111,15 +121,19 @@ class Chat(base):
         if self.tag_mode == TagMode.STICKER_SET and self.current_sticker is not None:
             keyboard = get_continue_tagging_keyboard(self.current_sticker.file_id)
             try:
-                call_tg_func(bot, 'edit_message_reply_markup',
-                             [self.id, self.last_sticker_message_id],
-                             {'reply_markup': keyboard})
+                call_tg_func(
+                    bot,
+                    "edit_message_reply_markup",
+                    [self.id, self.last_sticker_message_id],
+                    {"reply_markup": keyboard},
+                )
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)
                 logger = logging.getLogger()
-                if 'Message to edit not found' in str(e) or \
-                        'Message is not modified' in str(e):
-                    logger.info('Message to edit has been deleted.')
+                if "Message to edit not found" in str(
+                    e
+                ) or "Message is not modified" in str(e):
+                    logger.info("Message to edit has been deleted.")
                     pass
                 else:
                     raise e

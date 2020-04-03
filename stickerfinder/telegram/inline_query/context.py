@@ -2,12 +2,12 @@
 from stickerfinder.helper.tag import get_tags_from_text
 
 
-class Context():
+class Context:
     """Object representing a inline query search for easier parameter handling."""
 
-    STICKER_MODE = 'sticker'
-    STICKER_SET_MODE = 'sticker_set'
-    FAVORITE_MODE = 'favorite'
+    STICKER_MODE = "sticker"
+    STICKER_SET_MODE = "sticker_set"
+    FAVORITE_MODE = "favorite"
 
     def __init__(self, query, offset_payload, user):
         """Create a new context instance."""
@@ -27,20 +27,20 @@ class Context():
 
     def __str__(self):
         """Debug string for class."""
-        text = f'Context: {self.query}, {self.mode}'
-        text += f'\nTags {self.tags}'
-        text += f'\nOffsets: {self.offset}, {self.fuzzy_offset}'
-        text += f'\nnsfw, furry: {self.nsfw}, {self.furry}'
+        text = f"Context: {self.query}, {self.mode}"
+        text += f"\nTags {self.tags}"
+        text += f"\nOffsets: {self.offset}, {self.fuzzy_offset}"
+        text += f"\nnsfw, furry: {self.nsfw}, {self.furry}"
         return text
 
     def extract_info_from_offset(self, offset):
         """Extract all important information from the incoming offset payload."""
         # First incoming request, set the offset to 0
-        if offset == '':
+        if offset == "":
             self.offset = 0
         # Extract query_id, offset and possibly fuzzy_offset. They are sepparated by `:`
         else:
-            splitted = offset.split(':')
+            splitted = offset.split(":")
             self.inline_query_id = int(splitted[0])
             self.offset = int(splitted[1])
 
@@ -51,16 +51,16 @@ class Context():
     def determine_special_search(self):
         """Check whether we should enter a special search mode."""
         # Handle nsfw mode
-        self.nsfw = 'nsfw' in self.tags
+        self.nsfw = "nsfw" in self.tags
         # Handle furry mode
-        self.furry = 'fur' in self.tags or 'furry' in self.tags
+        self.furry = "fur" in self.tags or "furry" in self.tags
 
         # Switch to set mode
-        if 'set' in self.tags or 'pack' in self.tags:
+        if "set" in self.tags or "pack" in self.tags:
             self.mode = Context.STICKER_SET_MODE
 
         # Clean tags from special keywords
-        keywords = ['pack', 'set', 'furry', 'fur', 'nsfw']
+        keywords = ["pack", "set", "furry", "fur", "nsfw"]
         self.tags = [tag for tag in self.tags if tag not in keywords]
 
         # Check whether we should enter favorite mode

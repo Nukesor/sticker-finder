@@ -42,12 +42,24 @@ def get_settings_keyboard(user):
         furry_text = "Include furry by default"
 
     buttons = [
-        [InlineKeyboardButton(text=notification_text, callback_data=notification_payload)],
-        [InlineKeyboardButton(text=international_text, callback_data=international_payload)],
+        [
+            InlineKeyboardButton(
+                text=notification_text, callback_data=notification_payload
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text=international_text, callback_data=international_payload
+            )
+        ],
         [InlineKeyboardButton(text=deluxe_text, callback_data=deluxe_payload)],
         [InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_payload)],
         [InlineKeyboardButton(text=furry_text, callback_data=furry_payload)],
-        [InlineKeyboardButton(text="⚠️ Delete history ⚠️", callback_data=delete_history_payload)],
+        [
+            InlineKeyboardButton(
+                text="⚠️ Delete history ⚠️", callback_data=delete_history_payload
+            )
+        ],
         [InlineKeyboardButton(text="Back", callback_data=main_payload)],
     ]
 
@@ -59,16 +71,24 @@ def get_admin_settings_keyboard(user):
     main_payload = build_data("main_menu")
 
     buttons = [
-        [InlineKeyboardButton(text="Stats",
-                              callback_data=build_data("admin_stats"))],
-        [InlineKeyboardButton(text="Cleanup",
-                              callback_data=build_data("admin_cleanup"))],
-        [InlineKeyboardButton(text="Plot",
-                              callback_data=build_data("admin_plot"))],
-        [InlineKeyboardButton(text="Refresh all sticker",
-                              callback_data=build_data("admin_refresh"))],
-        [InlineKeyboardButton(text="Refresh all sticker + OCR",
-                              callback_data=build_data("admin_refresh_ocr"))],
+        [InlineKeyboardButton(text="Stats", callback_data=build_data("admin_stats"))],
+        [
+            InlineKeyboardButton(
+                text="Cleanup", callback_data=build_data("admin_cleanup")
+            )
+        ],
+        [InlineKeyboardButton(text="Plot", callback_data=build_data("admin_plot"))],
+        [
+            InlineKeyboardButton(
+                text="Refresh all sticker", callback_data=build_data("admin_refresh")
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="Refresh all sticker + OCR",
+                callback_data=build_data("admin_refresh_ocr"),
+            )
+        ],
         [InlineKeyboardButton(text="Back", callback_data=main_payload)],
     ]
 
@@ -78,10 +98,13 @@ def get_admin_settings_keyboard(user):
 def get_user_delete_history_confirmation_keyboard():
     """Ask the user if they really want to delete the history."""
     buttons = [
-        [InlineKeyboardButton(text="⚠️ Permanently delete history ⚠️",
-                              callback_data=build_data("user_delete_history"))],
-        [InlineKeyboardButton(text="back",
-                              callback_data=build_data("settings_open"))],
+        [
+            InlineKeyboardButton(
+                text="⚠️ Permanently delete history ⚠️",
+                callback_data=build_data("user_delete_history"),
+            )
+        ],
+        [InlineKeyboardButton(text="back", callback_data=build_data("settings_open"))],
     ]
 
     return InlineKeyboardMarkup(buttons)

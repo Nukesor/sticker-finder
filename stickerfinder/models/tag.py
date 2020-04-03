@@ -18,10 +18,14 @@ from stickerfinder.models.sticker import sticker_tag
 class Tag(base):
     """The model for a sticker."""
 
-    __tablename__ = 'tag'
+    __tablename__ = "tag"
     __table_args__ = (
-        Index('tag_name_gin_idx', 'name',
-              postgresql_using='gin', postgresql_ops={'name': 'gin_trgm_ops'}),
+        Index(
+            "tag_name_gin_idx",
+            "name",
+            postgresql_using="gin",
+            postgresql_ops={"name": "gin_trgm_ops"},
+        ),
     )
 
     name = Column(String, primary_key=True)
@@ -29,10 +33,7 @@ class Tag(base):
     emoji = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    stickers = relationship(
-        "Sticker",
-        secondary=sticker_tag,
-        back_populates="tags")
+    stickers = relationship("Sticker", secondary=sticker_tag, back_populates="tags")
 
     def __init__(self, name, international, emoji):
         """Create a new sticker."""

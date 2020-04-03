@@ -32,7 +32,8 @@ def handle_private_text(bot, update, session, chat, user):
             user,
             tg_chat=update.message.chat,
             chat=chat,
-            message_id=update.message.message_id)
+            message_id=update.message.message_id,
+        )
 
         session.commit()
         handle_next(session, bot, chat, update.message.chat, user)
@@ -45,10 +46,11 @@ def handle_private_text(bot, update, session, chat, user):
             user,
             tg_chat=update.message.chat,
             chat=chat,
-            message_id=update.message.message_id)
+            message_id=update.message.message_id,
+        )
 
         chat.cancel(bot)
-        return 'Sticker tags adjusted.'
+        return "Sticker tags adjusted."
 
 
 @session_wrapper(check_ban=True)
@@ -68,7 +70,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
     if sticker_set.reviewed is False:
         sticker_set.furry = user.furry
-        return f'Set {sticker_set.name} is going to be added soon ☺️'
+        return f"Set {sticker_set.name} is going to be added soon ☺️"
 
     # Notify if they are still in a tagging process
     if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
@@ -87,7 +89,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     # Send inline keyboard to allow fast tagging of the sticker's set
     keyboard = get_tag_this_set_keyboard(sticker.sticker_set, user)
     update.message.chat.send_message(
-        f'Just send the new tags for this sticker.\n{sticker_tags_message}',
+        f"Just send the new tags for this sticker.\n{sticker_tags_message}",
         reply_markup=keyboard,
     )
 
@@ -110,11 +112,13 @@ def handle_group_sticker(bot, update, session, chat, user):
     if chat.is_maintenance or chat.is_newsfeed:
         sticker_set = StickerSet.get_or_create(session, set_name, chat, user)
         if not sticker_set.complete:
-            return 'Sticker set is not yet reviewed'
+            return "Sticker set is not yet reviewed"
 
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
         keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(update.message.chat, 'send_message', [message], {'reply_markup': keyboard})
+        call_tg_func(
+            update.message.chat, "send_message", [message], {"reply_markup": keyboard}
+        )
 
         return
 
@@ -151,12 +155,14 @@ def handle_edited_messages(bot, update, session, chat, user):
     message = update.edited_message
 
     # Try to find a Change with this message
-    change = session.query(Change) \
-        .filter(Change.chat == chat) \
-        .filter(Change.message_id == message.message_id) \
-        .order_by(Change.created_at.desc()) \
-        .limit(1) \
+    change = (
+        session.query(Change)
+        .filter(Change.chat == chat)
+        .filter(Change.message_id == message.message_id)
+        .order_by(Change.created_at.desc())
+        .limit(1)
         .one_or_none()
+    )
 
     if change is None:
         return
@@ -172,4 +178,4 @@ def handle_edited_messages(bot, update, session, chat, user):
         single_sticker=True,
     )
 
-    return 'Sticker tags edited.'
+    return "Sticker tags edited."

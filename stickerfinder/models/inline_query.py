@@ -18,35 +18,38 @@ from stickerfinder.config import config
 class InlineQuery(base):
     """The model for a inline search."""
 
-    SET_MODE = 'sticker_set'
-    STICKER_MODE = 'sticker'
+    SET_MODE = "sticker_set"
+    STICKER_MODE = "sticker"
 
-    __tablename__ = 'inline_query'
+    __tablename__ = "inline_query"
 
     id = Column(BigInteger, primary_key=True)
     query = Column(String, nullable=False)
-    mode = Column(String, nullable=False, default='sticker')
+    mode = Column(String, nullable=False, default="sticker")
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    user_id = Column(BigInteger, ForeignKey('user.id'), index=True)
-    sticker_file_id = Column(String, ForeignKey('sticker.file_id',
-                                                onupdate='cascade',
-                                                ondelete='cascade'), index=True)
+    user_id = Column(BigInteger, ForeignKey("user.id"), index=True)
+    sticker_file_id = Column(
+        String,
+        ForeignKey("sticker.file_id", onupdate="cascade", ondelete="cascade"),
+        index=True,
+    )
 
     user = relationship("User")
     sticker = relationship("Sticker")
-    requests = relationship("InlineQueryRequest",
-                            order_by="asc(InlineQueryRequest.created_at)")
+    requests = relationship(
+        "InlineQueryRequest", order_by="asc(InlineQueryRequest.created_at)"
+    )
 
     def __init__(self, query, user):
         """Create a new change."""
         self.query = query
         self.user = user
-        self.bot = config['telegram']['bot_name']
+        self.bot = config["telegram"]["bot_name"]
 
     def __repr__(self):
         """Print as string."""
-        return f'InlineQuery: {self.query}, user: {self.user_id}'
+        return f"InlineQuery: {self.query}, user: {self.user_id}"
 
     @staticmethod
     def get_or_create(session, query_id, query, user):

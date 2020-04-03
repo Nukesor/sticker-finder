@@ -21,7 +21,9 @@ def handle_tag_next(session, context):
     handle_next(session, context.bot, chat, context.tg_chat, context.user)
     if chat.current_sticker is not None:
         keyboard = get_fix_sticker_tags_keyboard(current_sticker.file_id)
-        call_tg_func(context.query.message, 'edit_reply_markup', [], {'reply_markup': keyboard})
+        call_tg_func(
+            context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
+        )
 
 
 def handle_cancel_tagging(session, context):
@@ -31,10 +33,12 @@ def handle_cancel_tagging(session, context):
     # if the user was just tagging some stickers.
     # Otherwise just send the normal cancel success message.
     if not send_tagged_count_message(session, bot, context.user, context.chat):
-        context.query.answer('All active commands have been canceled')
+        context.query.answer("All active commands have been canceled")
 
-    context.tg_chat.send_message('All running commands are canceled',
-                                 reply_markup=get_main_keyboard(context.user))
+    context.tg_chat.send_message(
+        "All running commands are canceled",
+        reply_markup=get_main_keyboard(context.user),
+    )
 
     context.chat.cancel(bot)
 
@@ -42,9 +46,7 @@ def handle_cancel_tagging(session, context):
 def handle_fix_sticker_tags(session, context):
     """Handle the `Fix this stickers tags` button."""
     chat = context.chat
-    sticker = session.query(Sticker) \
-        .filter(Sticker.file_id == context.payload) \
-        .one()
+    sticker = session.query(Sticker).filter(Sticker.file_id == context.payload).one()
     chat.current_sticker = sticker
     if chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]:
         chat.tag_mode = TagMode.SINGLE_STICKER
@@ -65,6 +67,11 @@ def handle_continue_tagging_set(session, context):
 
 def handle_initialize_set_tagging(session, context):
     """Initialize tagging of a set."""
-    initialize_set_tagging(session, context.bot,
-                           context.tg_chat, context.payload,
-                           context.chat, context.user)
+    initialize_set_tagging(
+        session,
+        context.bot,
+        context.tg_chat,
+        context.payload,
+        context.chat,
+        context.user,
+    )

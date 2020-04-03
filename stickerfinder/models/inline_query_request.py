@@ -20,10 +20,8 @@ from stickerfinder.db import base
 class InlineQueryRequest(base):
     """The model for a inline query request."""
 
-    __tablename__ = 'inline_query_request'
-    __table_args__ = (
-        UniqueConstraint('inline_query_id', 'offset'),
-    )
+    __tablename__ = "inline_query_request"
+    __table_args__ = (UniqueConstraint("inline_query_id", "offset"),)
 
     id = Column(BigInteger, primary_key=True)
     offset = Column(String, nullable=False)
@@ -32,7 +30,9 @@ class InlineQueryRequest(base):
     fuzzy = Column(Boolean, default=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    inline_query_id = Column(BigInteger, ForeignKey('inline_query.id', ondelete='CASCADE'), index=True)
+    inline_query_id = Column(
+        BigInteger, ForeignKey("inline_query.id", ondelete="CASCADE"), index=True
+    )
     inline_query = relationship("InlineQuery")
 
     def __init__(self, inline_query, offset):

@@ -18,7 +18,7 @@ from stickerfinder.db import base
 class User(base):
     """The model for a user."""
 
-    __tablename__ = 'user'
+    __tablename__ = "user"
 
     id = Column(BigInteger, primary_key=True)
     username = Column(String)
@@ -39,11 +39,11 @@ class User(base):
     authorized = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    changes = relationship('Change')
-    tasks = relationship('Task')
-    reports = relationship('Report')
-    inline_queries = relationship('InlineQuery', order_by="asc(InlineQuery.created_at)")
-    proposed_tags = relationship('ProposedTags')
+    changes = relationship("Change")
+    tasks = relationship("Task")
+    reports = relationship("Report")
+    inline_queries = relationship("InlineQuery", order_by="asc(InlineQuery.created_at)")
+    proposed_tags = relationship("ProposedTags")
 
     def __init__(self, user_id, username):
         """Create a new user."""
@@ -53,7 +53,7 @@ class User(base):
 
     def __repr__(self):
         """Print as string."""
-        return f'User with Id: {self.id}, name: {self.username}'
+        return f"User with Id: {self.id}, name: {self.username}"
 
     @staticmethod
     def get_or_create(session, tg_user):

@@ -6,21 +6,21 @@ from sqlalchemy.exc import InternalError
 
 from stickerfinder.db import base
 
-from .fixtures import * # noqa
-from .helper import * # noqa
+from .fixtures import *  # noqa
+from .helper import *  # noqa
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def engine():
     """Create the engine."""
-    return create_engine('postgresql://localhost/stickerfinder_test')
+    return create_engine("postgresql://localhost/stickerfinder_test")
 
 
-@pytest.yield_fixture(scope='session')
+@pytest.yield_fixture(scope="session")
 def tables(engine):
     """Create the base schema."""
     with engine.connect() as con:
-        con.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm;')
+        con.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
     base.metadata.create_all(engine)
     yield
     base.metadata.drop_all(engine)
@@ -45,7 +45,8 @@ def session(connection, monkeypatch):
         return session
 
     from stickerfinder import db
-    monkeypatch.setattr(db, 'get_session', get_session)
+
+    monkeypatch.setattr(db, "get_session", get_session)
     assert session == db.get_session()
 
     yield session
@@ -59,7 +60,7 @@ def session(connection, monkeypatch):
     # https://www.postgresql.org/docs/current/static/sql-set-constraints.html
     # for details.
     try:
-        connection.execute('SET CONSTRAINTS ALL IMMEDIATE')
+        connection.execute("SET CONSTRAINTS ALL IMMEDIATE")
     except InternalError:
         # This is the case when we are doing something in the tests
         # that we expect it to fail by executing the statement above.

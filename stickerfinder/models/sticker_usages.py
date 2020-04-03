@@ -21,22 +21,28 @@ class StickerUsage(base):
     This is a precomputed number, which shows which sticker got used how many times by a user.
     """
 
-    __tablename__ = 'sticker_usage'
+    __tablename__ = "sticker_usage"
 
-    sticker_file_id = Column(String,
-                             ForeignKey('sticker.file_id', ondelete='cascade',
-                                        onupdate='cascade', deferrable=True),
-                             index=True,
-                             primary_key=True)
-    user_id = Column(BigInteger,
-                     ForeignKey('user.id', ondelete='cascade',
-                                onupdate='cascade', deferrable=True),
-                     index=True,
-                     primary_key=True)
+    sticker_file_id = Column(
+        String,
+        ForeignKey(
+            "sticker.file_id", ondelete="cascade", onupdate="cascade", deferrable=True
+        ),
+        index=True,
+        primary_key=True,
+    )
+    user_id = Column(
+        BigInteger,
+        ForeignKey("user.id", ondelete="cascade", onupdate="cascade", deferrable=True),
+        index=True,
+        primary_key=True,
+    )
     usage_count = Column(Integer)
 
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
-    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now(), nullable=False)
+    updated_at = Column(
+        DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
+    )
 
     user = relationship("User")
     sticker = relationship("Sticker")

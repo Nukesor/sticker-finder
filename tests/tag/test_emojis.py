@@ -9,14 +9,14 @@ def test_original_emoji_stays_on_replace(session, user, sticker_set):
     """Original emojis will remain if tags are added in replace mode."""
     sticker = sticker_set.stickers[0]
     # Add an original emoji tag to the sticker
-    tag = Tag('😲', False, True)
+    tag = Tag("😲", False, True)
     sticker.tags.append(tag)
     sticker.original_emojis.append(tag)
     session.commit()
 
     # Now tag the sticker in replace mode
-    tag_sticker(session, 'new-tag', sticker, user, replace=True)
-    assert_sticker_contains_tags(sticker, ['new-tag', '😲'])
+    tag_sticker(session, "new-tag", sticker, user, replace=True)
+    assert_sticker_contains_tags(sticker, ["new-tag", "😲"])
     assert len(sticker.tags) == 2
     assert sticker.original_emojis[0] in sticker.tags
 
@@ -25,7 +25,7 @@ def test_convert_tag_to_emoji(session, user, sticker_set):
     """Tags will be converted to emojis, if they appear in the original emojis."""
     sticker = sticker_set.stickers[0]
     # Add an original emoji tag to the sticker
-    tag = Tag('😲', False, False)
+    tag = Tag("😲", False, False)
     sticker.tags.append(tag)
     session.commit()
 
@@ -33,7 +33,7 @@ def test_convert_tag_to_emoji(session, user, sticker_set):
     assert not tag.international
 
     # Now tag the sticker in replace mode
-    add_original_emojis(session, sticker, '😲')
+    add_original_emojis(session, sticker, "😲")
     session.commit()
 
     assert tag.emoji

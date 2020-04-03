@@ -22,21 +22,27 @@ class ProposedTags(base):
     created, which will then be reviewed, before being applied.
     """
 
-    __tablename__ = 'proposed_tags'
+    __tablename__ = "proposed_tags"
 
     id = Column(Integer, primary_key=True)
     tags = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    user_id = Column(Integer, ForeignKey('user.id'), index=True)
+    user_id = Column(Integer, ForeignKey("user.id"), index=True)
     sticker_file_id = Column(String, index=True)
-    chat_id = Column(BigInteger, ForeignKey('chat.id',
-                                            onupdate='cascade',
-                                            ondelete='cascade',
-                                            name='proposed_tags_chat_id_fkey'), index=True)
+    chat_id = Column(
+        BigInteger,
+        ForeignKey(
+            "chat.id",
+            onupdate="cascade",
+            ondelete="cascade",
+            name="proposed_tags_chat_id_fkey",
+        ),
+        index=True,
+    )
 
     user = relationship("User")
-    chat = relationship('Chat')
+    chat = relationship("Chat")
 
     def __init__(self, tags, file_id, user, chat):
         """Create a new change."""

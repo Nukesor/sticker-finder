@@ -5,19 +5,15 @@ from tests.factories import user_factory
 
 def test_correct_session_handling(session, user):
     """User is created correctly."""
-    assert user.username == 'testuser'
+    assert user.username == "testuser"
 
-    second_user = user_factory(session, 5, 'testuser2')
+    second_user = user_factory(session, 5, "testuser2")
 
     # First user exists
-    first_user = session.query(User) \
-        .filter(User.id == 2) \
-        .one()
+    first_user = session.query(User).filter(User.id == 2).one()
 
     # Second user exists
-    second_user = session.query(User) \
-        .filter(User.id == 5) \
-        .one()
+    second_user = session.query(User).filter(User.id == 5).one()
 
     session.delete(first_user)
     session.commit()

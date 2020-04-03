@@ -108,5 +108,3 @@ def build_user_data(name, user, action=0):
     if action != 0:
         action = CallbackResult[action].value
     return f"{callback_type}:{user.id}:{action}"
-
-

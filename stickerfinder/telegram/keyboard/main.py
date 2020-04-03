@@ -7,19 +7,41 @@ from stickerfinder.helper.callback import build_data
 
 def get_main_keyboard(user):
     """Get the main keyboard for the current user."""
-    buttons = [[InlineKeyboardButton(text="⚙️ Settings",
-                                     callback_data=build_data("settings_open"))]]
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text="⚙️ Settings", callback_data=build_data("settings_open")
+            )
+        ]
+    ]
     if user.admin:
-        buttons.append([InlineKeyboardButton(text="⚙️ Admin Settings",
-                                             callback_data=build_data("admin_settings_open"))])
+        buttons.append(
+            [
+                InlineKeyboardButton(
+                    text="⚙️ Admin Settings",
+                    callback_data=build_data("admin_settings_open"),
+                )
+            ]
+        )
 
-    buttons.append([InlineKeyboardButton(text="? Tag random stickers ?",
-                                         callback_data=build_data("tag_random"))])
-    buttons.append([InlineKeyboardButton(text="🤔 Help",
-                                         callback_data=build_data("help_open"))])
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                text="? Tag random stickers ?", callback_data=build_data("tag_random")
+            )
+        ]
+    )
+    buttons.append(
+        [InlineKeyboardButton(text="🤔 Help", callback_data=build_data("help_open"))]
+    )
 
-    buttons.append([InlineKeyboardButton(text="❤️ Help me out ❤️",
-                                         callback_data=build_data("donations_open"))])
+    buttons.append(
+        [
+            InlineKeyboardButton(
+                text="❤️ Help me out ❤️", callback_data=build_data("donations_open")
+            )
+        ]
+    )
 
     keyboard = InlineKeyboardMarkup(buttons)
     return keyboard
@@ -46,10 +68,10 @@ def get_help_keyboard(categories, current_category):
     current_row = []
     while len(categories) > 0:
         category = categories.pop(0)
-        payload = build_data('switch_help', action=category)
+        payload = build_data("switch_help", action=category)
         text = category
         if category == current_category:
-            text = f'[ {category} ]'
+            text = f"[ {category} ]"
         button = InlineKeyboardButton(text, callback_data=payload)
 
         if len(current_row) < 3:
@@ -64,4 +86,3 @@ def get_help_keyboard(categories, current_category):
     rows.append([InlineKeyboardButton(text="Back", callback_data=main_payload)])
 
     return InlineKeyboardMarkup(rows)
-

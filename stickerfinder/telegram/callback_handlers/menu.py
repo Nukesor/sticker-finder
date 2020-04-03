@@ -19,7 +19,7 @@ def open_settings(session, context):
     context.query.message.edit_text(
         get_settings_text(context.user),
         reply_markup=settings_keyboard,
-        parse_mode='Markdown'
+        parse_mode="Markdown",
     )
 
 
@@ -29,7 +29,7 @@ def open_admin_settings(session, context):
     context.query.message.edit_text(
         get_settings_text(context.user),
         reply_markup=admin_keyboard,
-        parse_mode='Markdown'
+        parse_mode="Markdown",
     )
 
 
@@ -38,7 +38,7 @@ def open_help(session, context):
 
     context.query.message.edit_text(
         text,
-        parse_mode='Markdown',
+        parse_mode="Markdown",
         reply_markup=keyboard,
         disable_web_page_preview=True,
     )
@@ -50,7 +50,7 @@ def switch_help(session, context):
 
     context.query.message.edit_text(
         text,
-        parse_mode='Markdown',
+        parse_mode="Markdown",
         reply_markup=keyboard,
         disable_web_page_preview=True,
     )
@@ -72,7 +72,7 @@ def open_donations(session, context):
     context.query.message.edit_text(
         donations_text,
         reply_markup=donation_keyboard,
-        parse_mode='Markdown',
+        parse_mode="Markdown",
         disable_web_page_preview=True,
     )
 
@@ -82,7 +82,6 @@ def main_menu(session, context):
     context.query.message.edit_text(
         start_text,
         reply_markup=get_main_keyboard(context.user),
-        parse_mode='Markdown',
+        parse_mode="Markdown",
         disable_web_page_preview=True,
     )
-

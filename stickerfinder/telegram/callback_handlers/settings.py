@@ -18,7 +18,7 @@ def update_settings(context):
 def delete_history_confirmation(session, context):
     """Delete the whole search history of the user."""
     context.message.edit_text(
-        '⚠️ *Do you really want to delete your history?* ⚠️',
+        "⚠️ *Do you really want to delete your history?* ⚠️",
         reply_markup=get_user_delete_history_confirmation_keyboard(),
         parse_mode="Markdown",
     )
@@ -26,17 +26,17 @@ def delete_history_confirmation(session, context):
 
 def delete_history(session, context):
     """Delete the whole search history of the user."""
-    session.query(StickerUsage) \
-        .filter(StickerUsage.user_id == context.user.id) \
-        .delete(synchronize_session=False)
+    session.query(StickerUsage).filter(StickerUsage.user_id == context.user.id).delete(
+        synchronize_session=False
+    )
 
-    session.query(InlineQuery) \
-        .filter(InlineQuery.user_id == context.user.id) \
-        .delete(synchronize_session=False)
+    session.query(InlineQuery).filter(InlineQuery.user_id == context.user.id).delete(
+        synchronize_session=False
+    )
 
     update_settings(context)
 
-    context.message.chat.send_message('History cleared')
+    context.message.chat.send_message("History cleared")
 
 
 def user_toggle_notifications(session, context):

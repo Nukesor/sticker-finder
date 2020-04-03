@@ -17,7 +17,7 @@ def error_callback(update, context):
     except BadRequest as e:
         # It took to long to send the inline query response.
         # Probably due to slow network on client side.
-        if str(e) == 'Query_id_invalid': # noqa
+        if str(e) == "Query_id_invalid":  # noqa
             return
 
         traceback.print_exc()

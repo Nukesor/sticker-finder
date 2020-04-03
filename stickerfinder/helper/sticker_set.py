@@ -20,14 +20,16 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     # Get sticker set from telegram and create new a Sticker for each sticker
     stickers = []
     try:
-        tg_sticker_set = call_tg_func(bot, 'get_sticker_set', args=[sticker_set.name])
+        tg_sticker_set = call_tg_func(bot, "get_sticker_set", args=[sticker_set.name])
     except BadRequest as e:
-        if e.message == 'Stickerset_invalid' or \
-                e.message == 'Requested data is inaccessible':
+        if (
+            e.message == "Stickerset_invalid"
+            or e.message == "Requested data is inaccessible"
+        ):
             sticker_set.deleted = True
             sticker_set.completed = True
             # Auto review the task
-            if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == 'scan_set':
+            if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == "scan_set":
                 sticker_set.tasks[0].reviewed = True
             return
 
@@ -38,9 +40,9 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     # otherwise, change the file id to the new one
     for sticker in sticker_set.stickers:
         try:
-            tg_sticker = call_tg_func(bot, 'get_file', args=[sticker.file_id])
+            tg_sticker = call_tg_func(bot, "get_file", args=[sticker.file_id])
         except BadRequest as e:
-            if e.message == 'Wrong file id':
+            if e.message == "Wrong file id":
                 session.delete(sticker)
             continue
 
@@ -81,20 +83,18 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
     # Auto accept everything if the config says so
     review_task = None
-    if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == 'scan_set':
+    if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == "scan_set":
         review_task = sticker_set.tasks[0]
 
-    if review_task and config['mode']['auto_accept_set'] and not review_task.reviewed:
+    if review_task and config["mode"]["auto_accept_set"] and not review_task.reviewed:
         sticker_set.reviewed = True
         review_task.reviewed = True
 
         keyboard = get_tag_this_set_keyboard(sticker_set, review_task.user)
-        message = f'Stickerset {sticker_set.name} has been added.'
+        message = f"Stickerset {sticker_set.name} has been added."
         bot.send_message(review_task.chat.id, message, reply_markup=keyboard)
 
-        newsfeed_chats = session.query(Chat) \
-            .filter(Chat.is_newsfeed.is_(True)) \
-            .all()
+        newsfeed_chats = session.query(Chat).filter(Chat.is_newsfeed.is_(True)).all()
         for chat in newsfeed_chats:
             bot.send_sticker(chat.id, sticker_set.stickers[0].file_id)
 
@@ -135,29 +135,29 @@ def extract_text(tg_sticker):
     logger = logging.getLogger()
     try:
         # Get Image and preprocess it
-        tg_file = call_tg_func(tg_sticker, 'get_file')
-        image_bytes = call_tg_func(tg_file, 'download_as_bytearray')
-        with Image.open(io.BytesIO(image_bytes)).convert('RGB') as image:
+        tg_file = call_tg_func(tg_sticker, "get_file")
+        image_bytes = call_tg_func(tg_file, "download_as_bytearray")
+        with Image.open(io.BytesIO(image_bytes)).convert("RGB") as image:
             image = preprocess_image(image)
 
             # Extract text
             text = image_to_string(image).strip().lower()
 
         # Only allow chars and remove multiple spaces to single spaces
-        text = re.sub('[^a-zA-Z\ ]+', '', text)
-        text = re.sub(' +', ' ', text)
+        text = re.sub("[^a-zA-Z\ ]+", "", text)
+        text = re.sub(" +", " ", text)
         text = text.strip()
-        if text == '':
+        if text == "":
             text = None
 
     except TimedOut:
-        logger.info(f'Finally failed on file {tg_sticker.file_id}')
+        logger.info(f"Finally failed on file {tg_sticker.file_id}")
         pass
     except BadRequest:
-        logger.info(f'Failed to get image of {tg_sticker.file_id}')
+        logger.info(f"Failed to get image of {tg_sticker.file_id}")
         pass
     except OSError:
-        logger.info(f'Failed to open image {tg_sticker.file_id}')
+        logger.info(f"Failed to open image {tg_sticker.file_id}")
         pass
     except:
         sentry.captureException()
