@@ -128,11 +128,13 @@ def session_wrapper(
 
             # A user banned the bot
             except Unauthorized:
-                session.delete(chat)
+                if 'chat' in vars():
+                    session.delete(chat)
 
             # A group chat has been converted to a super group.
             except ChatMigrated:
-                session.delete(chat)
+                if 'chat' in vars():
+                    session.delete(chat)
 
             # Handle all not telegram relatated exceptions
             except Exception as e:
