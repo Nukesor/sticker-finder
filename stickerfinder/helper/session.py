@@ -94,6 +94,7 @@ def session_wrapper(
         @wraps(func)
         def wrapper(update, context):
             session = get_session()
+            chat = None
             try:
                 if hasattr(update, "message") and update.message:
                     message = update.message
@@ -128,12 +129,12 @@ def session_wrapper(
 
             # A user banned the bot
             except Unauthorized:
-                if 'chat' in vars():
+                if chat is not None:
                     session.delete(chat)
 
             # A group chat has been converted to a super group.
             except ChatMigrated:
-                if 'chat' in vars():
+                if chat is not None:
                     session.delete(chat)
 
             # Handle all not telegram relatated exceptions
