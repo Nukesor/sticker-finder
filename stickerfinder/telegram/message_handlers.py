@@ -77,7 +77,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         chat.cancel(bot)
         pass
 
-    sticker = session.query(Sticker).get(incoming_sticker.file_id)
+    sticker = session.query(Sticker).get(incoming_sticker.file_unique_id)
     if sticker is None:
         sticker_set.scan_scheduled = True
         return f"I don't know this specific sticker yet. Please wait a few minutes and try again ☺️"
@@ -123,7 +123,7 @@ def handle_group_sticker(bot, update, session, chat, user):
         return
 
     # Handle replies to #request messages and tag those stickers with the request tags
-    handle_request_reply(tg_sticker.file_id, update, session, chat, user)
+    handle_request_reply(tg_sticker.file_unique_id, update, session, chat, user)
 
     # Right now we only want to add animated stickers
     if not tg_sticker.is_animated:
@@ -139,7 +139,7 @@ def handle_group_sticker(bot, update, session, chat, user):
         return
 
     # Set the send sticker to the current sticker for tagging or report.
-    sticker = session.query(Sticker).get(tg_sticker.file_id)
+    sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
     if sticker is None:
         sticker_set.scan_scheduled = True
         return

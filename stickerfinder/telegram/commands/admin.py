@@ -227,8 +227,8 @@ def fix_stuff(bot, update, session, chat, user):
                 continue
 
         # File id changed
-        if tg_sticker.file_id != sticker.file_id:
-            new_sticker = session.query(Sticker).get(tg_sticker.file_id)
+        if tg_sticker.file_unique_id != sticker.file_id:
+            new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
             if new_sticker is not None:
                 sticker.sticker_set = new_sticker.sticker_set
             else:
@@ -265,7 +265,7 @@ def show_sticker_file_id(bot, update, session, chat, user):
     if message.sticker is None:
         return "You need to reply to a sticker."
 
-    return message.sticker.file_id
+    return message.sticker.file_unique_id
 
 
 @run_async

@@ -46,17 +46,17 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
                 session.delete(sticker)
             continue
 
-        if tg_sticker.file_id != sticker.file_id:
-            new_sticker = session.query(Sticker).get(tg_sticker.file_id)
+        if tg_sticker.file_unique_id != sticker.file_id:
+            new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
             if new_sticker is not None:
                 merge_sticker(session, sticker, new_sticker)
 
-            sticker.file_id = tg_sticker.file_id
+            sticker.file_id = tg_sticker.file_unique_id
             session.commit()
 
     for tg_sticker in tg_sticker_set.stickers:
         # Ignore already existing stickers if we don't need to rescan images
-        sticker = session.query(Sticker).get(tg_sticker.file_id)
+        sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
         text = None
         # This is broken for now and I don't know why
         if False:  # (sticker is None or refresh_ocr) and not tg_sticker.is_animated:
@@ -64,7 +64,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
         # Create new Sticker.
         if sticker is None:
-            sticker = Sticker(tg_sticker.file_id)
+            sticker = Sticker(tg_sticker.file_unique_id)
 
         # Only set text, if we got some text from the ocr recognition
         if text is not None:
@@ -151,13 +151,13 @@ def extract_text(tg_sticker):
             text = None
 
     except TimedOut:
-        logger.info(f"Finally failed on file {tg_sticker.file_id}")
+        logger.info(f"Finally failed on file {tg_sticker.file_unique_id}")
         pass
     except BadRequest:
-        logger.info(f"Failed to get image of {tg_sticker.file_id}")
+        logger.info(f"Failed to get image of {tg_sticker.file_unique_id}")
         pass
     except OSError:
-        logger.info(f"Failed to open image {tg_sticker.file_id}")
+        logger.info(f"Failed to open image {tg_sticker.file_unique_id}")
         pass
     except:
         sentry.captureException()

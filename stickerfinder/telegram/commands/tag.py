@@ -18,7 +18,7 @@ def tag_single(bot, update, session, chat, user):
         and update.message.reply_to_message.sticker is not None
     ):
         tg_sticker = update.message.reply_to_message.sticker
-        sticker = session.query(Sticker).get(tg_sticker.file_id)
+        sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
         if sticker is None:
             return "This sticker has not yet been added."
         is_single_sticker = True
@@ -62,7 +62,7 @@ def replace_single(bot, update, session, chat, user):
         and update.message.reply_to_message.sticker is not None
     ):
         tg_sticker = update.message.reply_to_message.sticker
-        sticker = session.query(Sticker).get(tg_sticker.file_id)
+        sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
         if sticker is None:
             return "This sticker has not yet been added."
         is_single_sticker = True
