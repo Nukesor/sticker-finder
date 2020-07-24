@@ -23,7 +23,6 @@ def tables(engine):
         con.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
     base.metadata.create_all(engine)
     yield
-    base.metadata.drop_all(engine)
 
 
 @pytest.yield_fixture

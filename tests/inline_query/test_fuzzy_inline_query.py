@@ -25,13 +25,13 @@ def test_combined_sticker_search(session, strict_inline_search, user):
         print(result)
         if i < 10:
             i = f"0{i}"
-        assert result[0] == f"sticker_{i}"
-        assert round(result[2], 2) == 1
+        assert result[1] == f"sticker_{i}"
+        assert round(result[3], 2) == 1
 
     for i, result in enumerate(fuzzy_matching_stickers):
         i += 40
-        assert result[0] == f"sticker_{i}"
-        assert round(result[2], 2) == 0.62
+        assert result[1] == f"sticker_{i}"
+        assert round(result[3], 2) == 0.62
 
 
 @pytest.mark.parametrize("query,score", [("unique-oter", 0.67), ("mega-awesme", 0.59)])
@@ -47,8 +47,8 @@ def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score)
         # Also do this little workaround to prevent fucky number sorting here as well
         if i < 10:
             i = f"0{i}"
-        assert result[0] == f"sticker_{i}"
-        assert round(result[2], 2) == score
+        assert result[1] == f"sticker_{i}"
+        assert round(result[3], 2) == score
 
     # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on the first run
     context = Context(query, "", user)
@@ -86,5 +86,5 @@ def test_similar_fuzzy_tags_search(session, fuzzy_inline_search, user, query, sc
         # Also do this little workaround to prevent fucky number sorting here as well
         if i < 10:
             i = f"0{i}"
-        assert result[0] == f"sticker_{i}"
-        assert round(result[2], 2) == score
+        assert result[1] == f"sticker_{i}"
+        assert round(result[3], 2) == score

@@ -38,9 +38,9 @@ def test_strict_sticker_search_set_order(
         # Thereby we expect the `a_dumb_shit` set first (20 results), since the scores are the same
         # for both sets, but this set's name is higher in order.
         if i < 20:
-            assert result[0] == f"sticker_{i+40}"
-            assert result[1] == "a_dumb_shit"
-            assert result[2] == first_score
+            assert result[1] == f"sticker_{i+40}"
+            assert result[2] == "a_dumb_shit"
+            assert result[3] == first_score
         # Next we get the second set in order of the file_ids
         elif i >= 20:
             # We need to subtract 21, since we now start to count file_ids from 0
@@ -48,9 +48,9 @@ def test_strict_sticker_search_set_order(
             # Also do this little workaround to prevent fucky number sorting here as well
             if i < 10:
                 i = f"0{i}"
-            assert result[0] == f"sticker_{i}"
-            assert result[1] == "z_mega_awesome"
-            assert result[2] == second_score
+            assert result[1] == f"sticker_{i}"
+            assert result[2] == "z_mega_awesome"
+            assert result[3] == second_score
 
     # Context properties have not been changed
     assert not context.switched_to_fuzzy
@@ -71,9 +71,9 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         # Also do this little workaround to prevent fucky number sorting here as well
         if i < 10:
             i = f"0{i}"
-        assert result[0] == f"sticker_{i}"
-        assert result[1] == "z_mega_awesome"
-        assert result[2] == 0.75
+        assert result[1] == f"sticker_{i}"
+        assert result[2] == "z_mega_awesome"
+        assert result[3] == 0.75
 
 
 def test_no_combined_on_full_strict(session, strict_inline_search, user):
@@ -117,4 +117,4 @@ def test_nsfw_search(session, strict_inline_search, user):
         session, context
     )
     assert len(matching_stickers) == 1
-    assert matching_stickers[0][0] == sticker.file_id
+    assert matching_stickers[0][1] == sticker.file_id
