@@ -20,7 +20,7 @@ def handle_tag_next(session, context):
     current_sticker = chat.current_sticker
     handle_next(session, context.bot, chat, context.tg_chat, context.user)
     if chat.current_sticker is not None:
-        keyboard = get_fix_sticker_tags_keyboard(current_sticker.file_id)
+        keyboard = get_fix_sticker_tags_keyboard(current_sticker.id)
         call_tg_func(
             context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
         )
@@ -46,7 +46,7 @@ def handle_cancel_tagging(session, context):
 def handle_fix_sticker_tags(session, context):
     """Handle the `Fix this stickers tags` button."""
     chat = context.chat
-    sticker = session.query(Sticker).filter(Sticker.file_id == context.payload).one()
+    sticker = session.query(Sticker).filter(Sticker.id == context.payload).one()
     chat.current_sticker = sticker
     if chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]:
         chat.tag_mode = TagMode.SINGLE_STICKER
@@ -59,7 +59,7 @@ def handle_continue_tagging_set(session, context):
     chat.cancel(context.bot)
 
     chat.tag_mode = TagMode.STICKER_SET
-    sticker = session.query(Sticker).get(context.payload)
+    sticker = session.query(Sticker).filter(Sticker.id == context.payload).one()
     chat.current_sticker = sticker
 
     send_tag_messages(chat, context.tg_chat, context.user)

@@ -332,7 +332,7 @@ def tag_sticker(
 
     # Change the inline keyboard to allow fast fixing of the sticker's tags
     if tg_chat and chat and not single_sticker and chat.last_sticker_message_id:
-        keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_id)
+        keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_unique_id)
         call_tg_func(
             tg_chat.bot,
             "edit_message_reply_markup",
@@ -353,7 +353,7 @@ def add_original_emojis(session, sticker, raw_emojis):
             sticker.original_emojis.append(emoji)
 
 
-def handle_request_reply(file_id, update, session, chat, user):
+def handle_request_reply(file_unique_id, update, session, chat, user):
     """Handle group request stickers."""
     if update.message.reply_to_message is None:
         return
@@ -365,6 +365,6 @@ def handle_request_reply(file_id, update, session, chat, user):
     if tags_message.lower().startswith("#") or tags_message.lower().startswith(
         "request"
     ):
-        proposed_tags = ProposedTags(tags_message, file_id, user, chat)
+        proposed_tags = ProposedTags(tags_message, file_unique_id, user, chat)
         session.add(proposed_tags)
         session.commit()

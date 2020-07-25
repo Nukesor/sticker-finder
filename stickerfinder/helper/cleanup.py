@@ -130,7 +130,9 @@ def inline_query_cleanup(session, chat, threshold=None):
     # Actually delete inline queries
     session.query(InlineQuery).filter(exists_subquery).filter(
         InlineQuery.created_at >= threshold
-    ).filter(InlineQuery.sticker_file_id.is_(None)).delete(synchronize_session=False)
+    ).filter(InlineQuery.sticker_file_unique_id.is_(None)).delete(
+        synchronize_session=False
+    )
 
     # Count the deleted stickers
     count_after = (

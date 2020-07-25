@@ -71,9 +71,9 @@ class Chat(base):
         ForeignKey("task.id", ondelete="SET NULL", name="chat_current_task_id_fkey"),
         index=True,
     )
-    current_sticker_file_id = Column(
+    current_sticker_file_unique_id = Column(
         String,
-        ForeignKey("sticker.file_id", onupdate="cascade", ondelete="SET NULL"),
+        ForeignKey("sticker.file_unique_id", onupdate="cascade", ondelete="SET NULL"),
         index=True,
     )
 
@@ -119,7 +119,7 @@ class Chat(base):
     def cancel_tagging(self, bot):
         """Cancel the tagging process."""
         if self.tag_mode == TagMode.STICKER_SET and self.current_sticker is not None:
-            keyboard = get_continue_tagging_keyboard(self.current_sticker.file_id)
+            keyboard = get_continue_tagging_keyboard(self.current_sticker.id)
             try:
                 call_tg_func(
                     bot,

@@ -227,7 +227,7 @@ def fix_stuff(bot, update, session, chat, user):
                 continue
 
         # File id changed
-        if tg_sticker.file_unique_id != sticker.file_id:
+        if tg_sticker.file_unique_id != sticker.file_unique_id:
             new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
             if new_sticker is not None:
                 sticker.sticker_set = new_sticker.sticker_set

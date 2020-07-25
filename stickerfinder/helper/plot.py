@@ -55,7 +55,7 @@ def get_inline_queries_statistics(session):
     # Get all successful queries over time
     successful_queries = (
         session.query(cast(InlineQuery.created_at, Date), func.count(InlineQuery.id))
-        .filter(InlineQuery.sticker_file_id.isnot(None))
+        .filter(InlineQuery.sticker_file_unique_id.isnot(None))
         .group_by(cast(InlineQuery.created_at, Date))
         .all()
     )
@@ -64,7 +64,7 @@ def get_inline_queries_statistics(session):
     # Get all unsuccessful queries over time
     unsuccessful_queries = (
         session.query(cast(InlineQuery.created_at, Date), func.count(InlineQuery.id))
-        .filter(InlineQuery.sticker_file_id.is_(None))
+        .filter(InlineQuery.sticker_file_unique_id.is_(None))
         .group_by(cast(InlineQuery.created_at, Date))
         .all()
     )

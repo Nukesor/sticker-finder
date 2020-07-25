@@ -46,9 +46,9 @@ def get_tagging_keyboard(chat):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_fix_sticker_tags_keyboard(file_id):
+def get_fix_sticker_tags_keyboard(sticker_id):
     """Fix the tags of this current sticker."""
-    edit_again_data = f'{CallbackType["edit_sticker"].value}:{file_id}:0'
+    edit_again_data = f'{CallbackType["edit_sticker"].value}:{sticker_id}:0'
     buttons = [
         [
             InlineKeyboardButton(
@@ -60,9 +60,9 @@ def get_fix_sticker_tags_keyboard(file_id):
     return InlineKeyboardMarkup(buttons)
 
 
-def get_continue_tagging_keyboard(file_id):
+def get_continue_tagging_keyboard(sticker_id):
     """Fix the tags of this current sticker."""
-    continue_tagging_data = f'{CallbackType["continue_tagging"].value}:{file_id}:0'
+    continue_tagging_data = f'{CallbackType["continue_tagging"].value}:{sticker_id}:0'
     buttons = [
         [
             InlineKeyboardButton(

@@ -27,15 +27,15 @@ def test_normal_search_with_single_usage(session, strict_inline_search, user):
     for i, result in enumerate(matching_stickers):
         if i == 0:
             assert result[1] == "sticker_00"
-            assert result[2] == "z_mega_awesome"
-            assert result[3] == 1.0
+            assert result[3] == "z_mega_awesome"
+            assert result[4] == 1.0
         else:
             # Also do this little workaround to prevent fucky number sorting here as well
             if i < 10:
                 i = f"0{i}"
             assert result[1] == f"sticker_{i}"
-            assert result[2] == "z_mega_awesome"
-            assert result[3] == 0.75
+            assert result[3] == "z_mega_awesome"
+            assert result[4] == 0.75
 
 
 def test_search_with_usage_from_another_user(session, strict_inline_search, user):
@@ -62,5 +62,5 @@ def test_search_with_usage_from_another_user(session, strict_inline_search, user
         if i < 10:
             i = f"0{i}"
         assert result[1] == f"sticker_{i}"
-        assert result[2] == "z_mega_awesome"
-        assert result[3] == 0.75
+        assert result[3] == "z_mega_awesome"
+        assert result[4] == 0.75

@@ -95,7 +95,7 @@ def stats(session, context):
 
     # Tags and emojis
     total_tag_count = (
-        session.query(sticker_tag.c.sticker_file_id)
+        session.query(sticker_tag.c.sticker_file_unique_id)
         .join(Tag, sticker_tag.c.tag_name == Tag.name)
         .filter(Tag.emoji.is_(False))
         .count()
@@ -117,7 +117,7 @@ def stats(session, context):
     # Stickers and sticker/text sticker/tag ratio
     sticker_count = session.query(Sticker).count()
     tagged_sticker_count = (
-        session.query(distinct(sticker_tag.c.sticker_file_id))
+        session.query(distinct(sticker_tag.c.sticker_file_unique_id))
         .join(Tag, sticker_tag.c.tag_name == Tag.name)
         .filter(Tag.emoji.is_(False))
         .count()

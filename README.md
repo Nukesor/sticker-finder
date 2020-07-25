@@ -66,7 +66,7 @@ Dependencies:
 4. Run `createdb $your_database_name` to initialize the database.
 
 5. Import the database `pg_restore -O -j 4 -F c -d your_db_name name_of_the_dump`
-6. If you plan to keep up to date, you need to set the dump's alemibic revision manually with `poetry run alembic stamp 3919491ac655`.
+6. If you plan to keep up to date, you need to set the dump's alemibic revision manually with `poetry run alembic stamp head`.
 7. Now you can just execute `poetry run alembic upgrade head`, whenever you are updating from a previous version.
 8. Start the bot `poetry run python main.py`
 

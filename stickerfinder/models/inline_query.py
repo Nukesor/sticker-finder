@@ -29,9 +29,9 @@ class InlineQuery(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(BigInteger, ForeignKey("user.id"), index=True)
-    sticker_file_id = Column(
+    sticker_file_unique_id = Column(
         String,
-        ForeignKey("sticker.file_id", onupdate="cascade", ondelete="cascade"),
+        ForeignKey("sticker.file_unique_id", onupdate="cascade", ondelete="cascade"),
         index=True,
     )
 

@@ -28,7 +28,7 @@ def sticker_set_factory(session, name, stickers=None, tags=None):
 
 def sticker_factory(session, file_id, tag_names=None, international=False):
     """Create a sticker and eventually add tags."""
-    sticker = Sticker(file_id)
+    sticker = Sticker(file_id, file_id + "unique")
     if tag_names:
         for tag_name in tag_names:
             tag = Tag.get_or_create(session, tag_name, international, False)

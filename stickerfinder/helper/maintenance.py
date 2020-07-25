@@ -206,10 +206,10 @@ def change_language_of_task_changes(session, task):
     # Sort all changes by sticker. The changes are sorted by created_at.desc()
     changes_by_sticker = {}
     for change in task.changes_to_check:
-        file_id = change.sticker.file_id
-        if file_id not in changes_by_sticker:
-            changes_by_sticker[file_id] = []
-        changes_by_sticker[file_id].append(change)
+        file_unique_id = change.sticker.file_unique_id
+        if file_unique_id not in changes_by_sticker:
+            changes_by_sticker[file_unique_id] = []
+        changes_by_sticker[file_unique_id].append(change)
 
     # Change the language of the task
     task.international = not task.international

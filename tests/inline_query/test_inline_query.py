@@ -33,24 +33,24 @@ def test_strict_sticker_search_set_order(
         # The stickers are firstly sorted by:
         # 1. score
         # 2. StickerSet.name
-        # 3. Sticker.file_id
+        # 3. Sticker.file_unique_id
         #
         # Thereby we expect the `a_dumb_shit` set first (20 results), since the scores are the same
         # for both sets, but this set's name is higher in order.
         if i < 20:
             assert result[1] == f"sticker_{i+40}"
-            assert result[2] == "a_dumb_shit"
-            assert result[3] == first_score
-        # Next we get the second set in order of the file_ids
+            assert result[3] == "a_dumb_shit"
+            assert result[4] == first_score
+        # Next we get the second set in order of the file_unique_ids
         elif i >= 20:
-            # We need to subtract 21, since we now start to count file_ids from 0
+            # We need to subtract 21, since we now start to count file_unqiue_ids from 0
             i = i - 20
             # Also do this little workaround to prevent fucky number sorting here as well
             if i < 10:
                 i = f"0{i}"
             assert result[1] == f"sticker_{i}"
-            assert result[2] == "z_mega_awesome"
-            assert result[3] == second_score
+            assert result[3] == "z_mega_awesome"
+            assert result[4] == second_score
 
     # Context properties have not been changed
     assert not context.switched_to_fuzzy
@@ -72,8 +72,8 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         if i < 10:
             i = f"0{i}"
         assert result[1] == f"sticker_{i}"
-        assert result[2] == "z_mega_awesome"
-        assert result[3] == 0.75
+        assert result[3] == "z_mega_awesome"
+        assert result[4] == 0.75
 
 
 def test_no_combined_on_full_strict(session, strict_inline_search, user):

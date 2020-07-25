@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-host=nuke@jarvis
+host=bot@jarvis
 timestamp=`date +%Y-%m-%d_%H-%m`
 dest="backup/stickerfinder/stickerfinder_${timestamp}.dump"
 

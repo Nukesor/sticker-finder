@@ -41,7 +41,7 @@ def search_stickers(session, update, context, inline_query_request):
     )
 
     # Stuff for debugging, since I need that all the time
-    if False:
+    if True:
         import pprint
 
         pprint.pprint("\n\nNext: ")

@@ -1,7 +1,7 @@
 #!/usr/bin/bash
 set -euo pipefail
 
-host=nuke@jarvis
+host=bot@jarvis
 
 echo 'Dumping DB on remote'
 ssh $host 'pg_dump -O -F c stickerfinder > stickerfinder.dump'

@@ -89,9 +89,9 @@ class Change(base):
     check_task_id = Column(
         UUID(as_uuid=True), ForeignKey("task.id", ondelete="SET NULL"), index=True
     )
-    sticker_file_id = Column(
+    sticker_file_unique_id = Column(
         String,
-        ForeignKey("sticker.file_id", onupdate="cascade", ondelete="cascade"),
+        ForeignKey("sticker.file_unique_id", onupdate="cascade", ondelete="cascade"),
         index=True,
     )
     chat_id = Column(

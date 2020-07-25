@@ -23,10 +23,13 @@ class StickerUsage(base):
 
     __tablename__ = "sticker_usage"
 
-    sticker_file_id = Column(
+    sticker_file_unique_id = Column(
         String,
         ForeignKey(
-            "sticker.file_id", ondelete="cascade", onupdate="cascade", deferrable=True
+            "sticker.file_unique_id",
+            ondelete="cascade",
+            onupdate="cascade",
+            deferrable=True,
         ),
         index=True,
         primary_key=True,
@@ -56,7 +59,9 @@ class StickerUsage(base):
     @staticmethod
     def get_or_create(session, user, sticker):
         """Get an existing StickerUsage or create a new one."""
-        sticker_usage = session.query(StickerUsage).get([sticker.file_id, user.id])
+        sticker_usage = session.query(StickerUsage).get(
+            [sticker.file_unique_id, user.id]
+        )
 
         if sticker_usage is None:
             sticker_usage = StickerUsage(user, sticker)

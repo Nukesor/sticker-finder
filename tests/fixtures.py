@@ -23,7 +23,7 @@ def sticker_set(session, admin):
     """Create a user."""
     stickers = []
     for file_id in range(0, 10):
-        sticker = Sticker(str(file_id))
+        sticker = Sticker(str(file_id), str(file_id) + "unique")
         stickers.append(sticker)
 
     return sticker_set_factory(session, "test_set", stickers)

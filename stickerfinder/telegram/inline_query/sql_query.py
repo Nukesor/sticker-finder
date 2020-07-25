@@ -20,7 +20,10 @@ def get_favorite_stickers(session, context):
     limit = context.limit if context.limit else 50
     favorite_stickers = (
         session.query(
-            Sticker.id, StickerUsage.sticker_file_id, StickerUsage.usage_count
+            Sticker.id,
+            Sticker.file_id,
+            Sticker.file_unique_id,
+            StickerUsage.usage_count,
         )
         .join(Sticker)
         .join(Sticker.sticker_set)
@@ -101,7 +104,7 @@ def get_strict_matching_sticker_sets(session, context):
 def get_strict_matching_query(session, context, sticker_set=False):
     """Get the query for strict tag matching.
 
-    The stickers are sorted by score, StickerSet.name and Sticker.file_id in this respective order.
+    The stickers are sorted by score, StickerSet.name and Sticker.file_unique_id in this respective order.
 
     Score is calculated like this:
     + 1 for each exactly matching tag
@@ -116,13 +119,13 @@ def get_strict_matching_query(session, context, sticker_set=False):
 
     tag_count = func.count(sticker_tag.c.tag_name).label("tag_count")
     tag_subq = (
-        session.query(sticker_tag.c.sticker_file_id, tag_count)
+        session.query(sticker_tag.c.sticker_file_unique_id, tag_count)
         .join(Tag, sticker_tag.c.tag_name == Tag.name)
         .filter(
             or_(Tag.international == user.international, Tag.international.is_(False))
         )
         .filter(sticker_tag.c.tag_name.in_(tags))
-        .group_by(sticker_tag.c.sticker_file_id)
+        .group_by(sticker_tag.c.sticker_file_unique_id)
         .subquery("tag_subq")
     )
 
@@ -152,13 +155,13 @@ def get_strict_matching_query(session, context, sticker_set=False):
 
     # Query the whole sticker set in case we actually want to query sticker sets
     matching_stickers = session.query(
-        Sticker.id, Sticker.file_id, StickerSet.name, score
+        Sticker.id, Sticker.file_id, Sticker.file_unique_id, StickerSet.name, score
     )
 
     # Compute the score for all stickers and filter nsfw stuff
     matching_stickers = (
         matching_stickers.outerjoin(
-            tag_subq, Sticker.file_id == tag_subq.c.sticker_file_id
+            tag_subq, Sticker.file_unique_id == tag_subq.c.sticker_file_unique_id
         )
         .join(Sticker.sticker_set)
         .filter(Sticker.banned.is_(False))
@@ -194,7 +197,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     # into the search. For this purpose we join StickerUsage on all matching stickers and include the count into the score
     # Afterwards we order by the newly calculated count.
     #
-    # We also order by the name of the set and the file_id to get a deterministic sorting in the search.
+    # We also order by the name of the set and the file_unique_id to get a deterministic sorting in the search.
     score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
     score_with_usage = score_with_usage + matching_stickers.c.score
     score_with_usage = score_with_usage.label("score_with_usage")
@@ -202,20 +205,22 @@ def get_strict_matching_query(session, context, sticker_set=False):
         session.query(
             matching_stickers.c.id,
             matching_stickers.c.file_id,
+            matching_stickers.c.file_unique_id,
             matching_stickers.c.name,
             score_with_usage,
         )
         .outerjoin(
             StickerUsage,
             and_(
-                matching_stickers.c.file_id == StickerUsage.sticker_file_id,
+                matching_stickers.c.file_unique_id
+                == StickerUsage.sticker_file_unique_id,
                 StickerUsage.user_id == user.id,
             ),
         )
         .order_by(
             score_with_usage.desc(),
             matching_stickers.c.name,
-            matching_stickers.c.file_id,
+            matching_stickers.c.file_unique_id,
         )
     )
 
@@ -226,7 +231,7 @@ def get_fuzzy_matching_query(session, context):
     """Get the query for fuzzy tag matching.
 
     All stickers that have been found in strict search are excluded via left outer join.
-    The stickers are sorted by score, StickerSet.name and Sticker.file_id in this respective order.
+    The stickers are sorted by score, StickerSet.name and Sticker.file_unique_id in this respective order.
 
     Score is calculated like this:
     + 'similarity_value' (0-1) for each similar tags
@@ -262,9 +267,9 @@ def get_fuzzy_matching_query(session, context):
     # Get all stickers which match a tag, together with the accumulated score of the fuzzy matched tags.
     tag_score = func.avg(tag_query.c.tag_similarity).label("tag_score")
     tag_score_subq = (
-        session.query(sticker_tag.c.sticker_file_id, tag_score)
+        session.query(sticker_tag.c.sticker_file_unique_id, tag_score)
         .join(tag_query, sticker_tag.c.tag_name == tag_query.c.name)
-        .group_by(sticker_tag.c.sticker_file_id)
+        .group_by(sticker_tag.c.sticker_file_unique_id)
         .subquery("tag_score_subq")
     )
 
@@ -332,9 +337,16 @@ def get_fuzzy_matching_query(session, context):
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
     matching_stickers = (
-        session.query(Sticker.id, Sticker.file_id, StickerSet.name, score)
-        .outerjoin(tag_score_subq, Sticker.file_id == tag_score_subq.c.sticker_file_id)
-        .outerjoin(strict_subquery, Sticker.file_id == strict_subquery.c.file_id)
+        session.query(
+            Sticker.id, Sticker.file_id, Sticker.file_unique_id, StickerSet.name, score
+        )
+        .outerjoin(
+            tag_score_subq,
+            Sticker.file_unique_id == tag_score_subq.c.sticker_file_unique_id,
+        )
+        .outerjoin(
+            strict_subquery, Sticker.file_unique_id == strict_subquery.c.file_unique_id
+        )
         .join(Sticker.sticker_set)
     )
 
@@ -346,7 +358,7 @@ def get_fuzzy_matching_query(session, context):
 
     matching_stickers = (
         matching_stickers.filter(Sticker.banned.is_(False))
-        .filter(strict_subquery.c.file_id.is_(None))
+        .filter(strict_subquery.c.file_unique_id.is_(None))
         .filter(StickerSet.deleted.is_(False))
         .filter(StickerSet.banned.is_(False))
         .filter(StickerSet.reviewed.is_(True))
@@ -375,7 +387,7 @@ def get_fuzzy_matching_query(session, context):
         matching_stickers = matching_stickers.filter(StickerSet.deluxe.is_(True))
 
     matching_stickers = matching_stickers.order_by(
-        score.desc(), StickerSet.name, Sticker.file_id
+        score.desc(), StickerSet.name, Sticker.file_unique_id
     )
 
     return matching_stickers

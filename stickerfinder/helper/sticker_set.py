@@ -35,8 +35,18 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
         raise e
 
+    # This block exists due to the huge fuckup that was created when Telegram's devs
+    # decided to completely change the way file ids work. Thanks!
+    for tg_sticker in tg_sticker_set.stickers:
+        for sticker in sticker_set.stickers:
+            if (
+                sticker.file_unique_id == tg_sticker.file_unique_id
+                and sticker.file_id is None
+            ):
+                sticker.file_id = tg_sticker.file_id
+
     # Sometimes file ids in telegram seem to randomly change
-    # If this has already happened, merge the two stickers (backup replay)
+    # If this has already happened, merge the two stickers (backup replay).
     # otherwise, change the file id to the new one
     for sticker in sticker_set.stickers:
         try:
@@ -46,13 +56,15 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
                 session.delete(sticker)
             continue
 
-        if tg_sticker.file_unique_id != sticker.file_id:
+        if tg_sticker.file_unique_id != sticker.file_unique_id:
             new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
             if new_sticker is not None:
                 merge_sticker(session, sticker, new_sticker)
 
-            sticker.file_id = tg_sticker.file_unique_id
+            sticker.file_unique_id = tg_sticker.file_unique_id
             session.commit()
+
+        sticker.file_id = tg_sticker.file_id
 
     for tg_sticker in tg_sticker_set.stickers:
         # Ignore already existing stickers if we don't need to rescan images
@@ -122,7 +134,7 @@ def merge_sticker(session, sticker, new_sticker):
         # Otherwise it would be deleted by cascade or there would
         # be a unique constraint violation
         if not found_equivalent:
-            new_usage.sticker_file_id = sticker.file_id
+            new_usage.sticker_file_unique_id = sticker.file_unique_id
             session.commit()
 
     session.delete(new_sticker)

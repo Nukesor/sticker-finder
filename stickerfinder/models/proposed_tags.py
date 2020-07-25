@@ -29,7 +29,7 @@ class ProposedTags(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
     user_id = Column(Integer, ForeignKey("user.id"), index=True)
-    sticker_file_id = Column(String, index=True)
+    sticker_file_unique_id = Column(String, index=True)
     chat_id = Column(
         BigInteger,
         ForeignKey(
@@ -44,9 +44,9 @@ class ProposedTags(base):
     user = relationship("User")
     chat = relationship("Chat")
 
-    def __init__(self, tags, file_id, user, chat):
+    def __init__(self, tags, file_unique_id, user, chat):
         """Create a new change."""
         self.tags = tags
-        self.sticker_file_id = file_id
+        self.sticker_file_unique_id = file_unique_id
         self.user = user
         self.chat = chat

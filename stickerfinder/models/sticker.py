@@ -24,10 +24,13 @@ sticker_tag = Table(
     "sticker_tag",
     base.metadata,
     Column(
-        "sticker_file_id",
+        "sticker_file_unique_id",
         String,
         ForeignKey(
-            "sticker.file_id", ondelete="cascade", onupdate="cascade", deferrable=True
+            "sticker.file_unique_id",
+            ondelete="cascade",
+            onupdate="cascade",
+            deferrable=True,
         ),
         index=True,
     ),
@@ -43,7 +46,7 @@ sticker_tag = Table(
         ),
         index=True,
     ),
-    UniqueConstraint("sticker_file_id", "tag_name"),
+    UniqueConstraint("sticker_file_unique_id", "tag_name"),
     Index(
         "sticker_tag_tag_name_idx",
         "tag_name",
@@ -57,14 +60,14 @@ sticker_original_emoji = Table(
     "sticker_original_emojis",
     base.metadata,
     Column(
-        "sticker_file_id",
+        "sticker_file_unique_id",
         String,
         ForeignKey(
-            "sticker.file_id",
+            "sticker.file_unique_id",
             ondelete="cascade",
             onupdate="cascade",
             deferrable=True,
-            name="sticker_original_emojis_sticker_file_id_fkey",
+            name="sticker_original_emojis_sticker_file_unique_id_fkey",
         ),
         index=True,
     ),
@@ -80,8 +83,10 @@ sticker_original_emoji = Table(
         ),
         index=True,
     ),
-    UniqueConstraint("sticker_file_id", "emoji"),
+    UniqueConstraint("sticker_file_unique_id", "emoji"),
 )
+
+user_id_serial = Sequence("user_id_seq", start=1, increment=1)
 
 
 class Sticker(base):
@@ -97,8 +102,12 @@ class Sticker(base):
         ),
     )
 
-    file_id = Column(String, primary_key=True)
-    id = Column(BigInteger, Sequence("user_id_seq"))
+    # file_unique_id is used for identifying stickers
+    file_unique_id = Column(String, primary_key=True)
+    # This is the file id of a sticker that's used for sharing
+    file_id = Column(String, nullable=False)
+    # Incrementing ID. Needed for internal identification
+    id = Column(BigInteger, user_id_serial, unique=True, nullable=False)
     text = Column(String)
     banned = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
@@ -126,13 +135,14 @@ class Sticker(base):
     # Many-to-Many
     original_emojis = relationship("Tag", secondary=sticker_original_emoji)
 
-    def __init__(self, file_id):
+    def __init__(self, file_id, file_unique_id):
         """Create a new sticker."""
         self.file_id = file_id
+        self.file_unique_id = file_unique_id
 
     def __str__(self):
         """Debug string for class."""
-        return f"Sticker {self.file_id} with {self.tags_as_text(False)}"
+        return f"Sticker {self.file_unique_id} with {self.tags_as_text(False)}"
 
     def tags_as_text(self, international):
         """Return tag names as single string."""
