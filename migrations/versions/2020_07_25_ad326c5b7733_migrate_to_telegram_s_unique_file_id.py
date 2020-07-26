@@ -21,7 +21,7 @@ def upgrade():
     op.alter_column(
         "sticker", "file_id", new_column_name="file_unique_id",
     )
-    op.add_column("sticker", sa.Column("file_id", sa.String(), nullable=False))
+    op.add_column("sticker", sa.Column("file_id", sa.String()))
 
     # Sticker Usage file_id rename
     op.drop_index("ix_sticker_usage_sticker_file_id", table_name="sticker_usage")
