@@ -86,8 +86,6 @@ sticker_original_emoji = Table(
     UniqueConstraint("sticker_file_unique_id", "emoji"),
 )
 
-user_id_serial = Sequence("user_id_seq", start=1, increment=1)
-
 
 class Sticker(base):
     """The model for a sticker."""
@@ -107,7 +105,12 @@ class Sticker(base):
     # This is the file id of a sticker that's used for sharing
     file_id = Column(String, nullable=False)
     # Incrementing ID. Needed for internal identification
-    id = Column(BigInteger, user_id_serial, unique=True, nullable=False)
+    id = Column(
+        BigInteger,
+        Sequence("sticker_id_seq", start=1, increment=1),
+        unique=True,
+        nullable=False,
+    )
     text = Column(String)
     banned = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
