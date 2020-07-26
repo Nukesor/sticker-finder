@@ -76,7 +76,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
 
         # Create new Sticker.
         if sticker is None:
-            sticker = Sticker(tg_sticker.file_unique_id)
+            sticker = Sticker(tg_sticker.file_id, tg_sticker.file_unique_id)
 
         # Only set text, if we got some text from the ocr recognition
         if text is not None:
