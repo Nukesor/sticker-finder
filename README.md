@@ -25,7 +25,7 @@ And in case you get bored, you can go ahead and do some good by tagging a few ra
 
 Feel free to host your own bot. There is postgreSQL database dump in the repository.
 
-## Features:
+## Features
 
 - Inline query search by tags, text, emoji, sticker set name and title.
 - A dedicated search for sticker packs. Just add `pack` or `set` to your search e.g. `@stfi_bot kermit set`.
@@ -39,7 +39,7 @@ Feel free to host your own bot. There is postgreSQL database dump in the reposit
 - A minimalistic mode for groups that don't want user interaction (I already host one with the name [@stfil_bot](https://t.me/stfil_bot)).
 
 
-## Available commands:
+## Available commands
 
     /help       Display help
     /donations  Show information for donations
@@ -48,19 +48,19 @@ Feel free to host your own bot. There is postgreSQL database dump in the reposit
     /cancel     Cancel all current tag actions
     /forget_set Forget all usages of all stickers of a specific sticker pack. The sticker pack is determined by the latest sticker in this chat.
 
+## Installation and starting
 
-## Installation and starting:
 **This bot is developed for Linux.**
 
 Windows isn't tested, but it shouldn't be too hard to make it compatible. Feel free to create a PR.
 
-Dependencies: 
+Dependencies:
+
 - `poetry` to manage and install dependencies.
 - Stickerfinder uses postgres. Make sure the user has write/read rights.
 
-1. Clone the repository: 
-
-        % git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
+1. Clone the repository:
+        git clone git@github.com:nukesor/stickerfinder && cd stickerfinder
 2. Execute `poetry install` to install all dependencies.
 3. Either start the stickerfinder once with `poetry run main.py` or copy the `stickerfinder.toml` manually to `~/.config/stickerfinder.toml` and adjust all necessary values.
 4. Run `createdb $your_database_name` to initialize the database.
@@ -69,7 +69,6 @@ Dependencies:
 6. If you plan to keep up to date, you need to set the dump's alemibic revision manually with `poetry run alembic stamp head`.
 7. Now you can just execute `poetry run alembic upgrade head`, whenever you are updating from a previous version.
 8. Start the bot `poetry run python main.py`
-
 
 ## Botfather commands
 
@@ -80,8 +79,8 @@ Dependencies:
     cancel - Cancel all current actions.
     forget_set - Forget all usages of a sticker pack.
 
-
 ## Dev commands
+
 This is just for people hosting a bot and those with `admin` permissions:
 
     /ban Ban the last sticker posted in this chat.
