@@ -142,7 +142,7 @@ def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
     chat.tag_mode = TagMode.sticker_set.value
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(tg_chat, "send_message", [i18n.t("misc.tagging.send_tags")])
+    call_tg_func(tg_chat, "send_message", [i18n.t("text.tagging.send_tags")])
     send_tag_messages(chat, tg_chat, user)
 
 
