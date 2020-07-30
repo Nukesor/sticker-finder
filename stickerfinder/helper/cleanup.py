@@ -20,7 +20,6 @@ def full_cleanup(session, inline_query_threshold, chat=None):
 
 def tag_cleanup(session, chat=None):
     """Do some cleanup tasks for tags."""
-    from stickerfinder.helper import blacklist
 
     all_tags = session.query(Tag).all()
 
@@ -30,14 +29,6 @@ def tag_cleanup(session, chat=None):
     removed = 0
     corrected = 0
     for tag in all_tags:
-        # Remove all tags in the blacklist
-        if tag.name in blacklist:
-            session.delete(tag)
-            session.commit()
-            removed += 1
-
-            continue
-
         # Clean the tag
         tags = get_tags_from_text(tag.name)
 

@@ -8,15 +8,16 @@ repository = "https://github.com/nukesor/sticker-finder"
 
 [tool.poetry.dependencies]
 python = ">=3.7"
-raven = "6.10"
-alembic = "1.4"
+raven = "^6"
+alembic = "^1"
 python-telegram-bot = "^12"
 SQLAlchemy = "^1"
 sqlalchemy-utils = "^0.36"
-psycopg2-binary = "^2.8"
+psycopg2-binary = "^2"
 pytesseract = "^0.3"
 imutils = "^0.5"
 toml = "^0.10"
+python-i18n = {version = "^0.3", extras = ["yaml"]}
 
 matplotlib = "3.3"
 pandas = "^1"

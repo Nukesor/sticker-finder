@@ -1,0 +1,169 @@
+text:
+  tagging:
+    send_tags: |
+      Now please send me tags for each sticker I'll send you.
+      Just try to use words that describe this sticker best.
+
+    achievements:
+      "10": "🎉🎉🎉 Nice! 🎉🎉🎉 \n You just tagged your 10th sticker!"
+      "25": "25 Stickers. \n You're getting faster!"
+      "50": "50 Stickers. \n Way to go!"
+      "100": "🎉🎉🎉 100 Stickers...🎉🎉🎉 \n Wow!"
+      "250": "250 Stickers! \n I think you can manage 1000, can you?"
+      "500": "500 Stickers! \n Halfway there!"
+      "1000": "🎉🎉🎉 1000 Stickers!!!!! 🎉🎉🎉 \n Get a life :D!"
+      "2000": "2000 Stickers.. \n It stops being funny"
+      "3000": "3000 Stickers.... \n You should really stop."
+
+  misc:
+    error: |
+      An unknown error occurred. I probably just got a notification about this and I'll try to fix it as quickly as possible.
+      In case this error still occurs in a day or two, please report the bug to me :). The link to the Github repository is in the /help text.
+    start: |
+      Hi!
+      Here some basic information on how to use the bot!
+      If you're interested, there is more detailed info in the help section.
+
+      🔎 *Sticker search:*
+      just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
+
+      🔎 *Sticker pack search:*
+      Just add "set" or "pack" to your search e.g. `@stfi_bot kermit set`.
+
+      🔎 *Animated stickers:*
+      Animated stickers are always included in your search. If you want to search animated stickers exclusively, simply add the word `ani` or `animated` to your search.
+
+      🌐 *Languages:*
+      If you want non-English sticker packs, use /international to enable other languages than English.
+
+      ✒️ *Tagging:*
+      To tag a specfic sticker pack just send me any sticker from the pack.
+      To tag a specfic sticker just send me the sticker and start typing e.g. `obi wan kenobi star wars`.
+      Check out the help page for more information 🙂.
+
+      ❌ *Explicit content:*
+      If you want `nsfw` or `furry` stuff, include those words in your search or enable them permanently in your settings.
+
+      🤔 *Help:*
+      For a more detailed explanation (especially if you want to tag) check out the /help :)
+      If you still have questions, stop by my [support group](https://t.me/nukesors_projects).
+
+      🥳*Donations:*
+      The whole project is *for free*, *open-source* on [Github](https://github.com/Nukesor/sticker-finder) and hosted on a server I'm currently renting. I really appreciate any help I can get! 🙏
+    donations: |
+      Hi! ☺️
+
+      My name is Arne Beer (@Nukesor) and I'm the developer of the Sticker Finder.
+
+      StickerFinder is my first big telegram bot, and I'm super excited to see it being used by so many people! ❤️
+
+      I really like the idea of giving the community the power to create a _huge_ and _intuitive_ sticker library and I hope that this project will become one of the best and most used Sticker Bots out there!
+
+      The project is *non-profit*, *open-source* on [Github](https://github.com/Nukesor/sticker-finder) and hosted on a server I'm currently renting.
+      Right now I usually invest between 5-20 hours a week into developing and maintaining my projects.
+
+      I really appreciate anything that keeps me and my server running ☺️, especially if this means that I can put more time into optimizations and developing features!
+
+      🌟 Thank you for using the bot! 🌟
+
+      Find me on [Patreon](https://www.patreon.com/nukesor) and [Paypal](https://www.paypal.me/arnebeer).
+      If you have any questions, stop by my [support group](https://t.me/nukesors_projects).
+
+      Have great day!
+  help:
+    admin: |
+      Commands available to admins:
+
+      /ban Ban the last sticker posted in this chat.
+      /unban Ban the last sticker posted in this chat.
+      /ban\_user [name|id] Ban a user
+      /unban\_user [name|id] Unban a user
+      /make\_admin Make another user admin
+      /tasks Start to process tasks in a maintenance chat
+
+      /delete\_set Completely delete a set
+      /add\_set Add multiple sets at once by /set\_name
+      /show\_sticker [file_id] Show the sticker for this file id
+      /show\_id Show the fild_id of the sticker you replied to
+
+      /toggle\_flag [maintenance|newsfeed] Flag a chat as a maintenance or newsfeed chat. Newsfeed chats get the first sticker of every new set that is added, while all tasks are send to maintenance chats.
+
+
+      /stats Get some statistics
+      /refresh Refresh all stickerpacks.
+      /refresh\_ocr Refresh all stickerpacks including ocr.
+      /broadcast Send the message after this command to all users.
+    search: |
+      *Sticker search:*
+
+      Start typing @stfi\_bot in any chat. You can search by pack name, tags, emoji and sometimes even text inside the sticker.
+
+
+      *Sticker pack search:*
+
+      Just add `set` or `pack` to your search e.g. `@stfi_bot kermit set`.
+
+
+      *Add sticker packs:*
+
+      *DISCLAIMER:* If you add a pack, it will be available to *ALL* users.
+      Send any sticker to me in a direct conversation and I'll add the whole pack.
+      The bot will tell you if it doesn't know this pack yet and you will get a notification when the sticker pack has been processed. Please bear with us.
+      If the bot is added to a group chat, it will automatically add all stickers posted in this chat!
+
+      *Can't find a sticker?*
+
+      If you already added a pack, you probably need to tag stickers first (or just search by the pack name).
+      To tag a whole pack just send me a sticker from the pack you want to tag.
+
+    tagging: |
+      *Tagging stickers:*
+
+      Just send the sticker you want to tag and start typing.
+      You can also reply to a sticker with `/tag [tags]` e.g. `/tag obi wan star wars hello there`.
+      If you want to replace tags, you need to reply to the sticker in question with `/replace [tags]`
+      Unless tagging with /replace, tags are always added on top of the existing ones.
+
+      *Tagging 101:*
+
+      Just try to describe the sticker as good as possible and add the text of the sticker: e.g. `obi wan star wars hello there`
+      When you're in the English mode, *PLEASE* only tag in English.
+      If you want to tag in another language, please use the international mode.
+
+    language: |
+      *Language:*
+
+      The default language is English. Every sticker pack, that contains languages other than English will be flagged as international.
+      These stickers can only be found, when changing to international in your settings.
+      You can find lots of stuff in there, but it's not as good maintained as the /english section.
+
+    ban: |
+      *NSFW & Furry:*
+
+      Nude stickers and alike will be tagged with `nsfw` and can only be found when adding the word `nsfw` to your search.
+      Furry stuff also got its own tags (`fur` or `furry`), since there is an unreasonable amount of (nsfw) furry sticker packs.
+      In case I miss any, reply to the sticker with the /report command to make me look at it again.
+
+      *Sticker Ban:*
+
+      I'm trying to detect and ban inappropriate stickers, if I've missed something please, please report it by replying with /report to the sticker.
+
+      *User Ban:*
+
+      If you just Spam `asdf` while tagging or if you add hundreds of tags to your own sticker pack to gain popularity, you will get banned.
+      You'll also get banned if you repeatedly tag in other languages while being in /english mode.
+      When you're banned, you can't use the inline search any longer and all of your changes/tags will be reverted.
+
+    bugs: |
+        ⚠️ *There is an unknown bug that won't go away!!* 😩
+
+        I usually get a notification as soon as something breaks, but there might be some bugs that go unnoticed!
+        In case a bug isn't fixed in a day or two, please write a ticket on [GitHub](https://github.com/Nukesor/ultimate-poll-bot) or stop by my [support group](https://t.me/nukesors_projects).
+
+    deluxe: |
+        *Deluxe mode:*
+
+        A selected and well-curated (and well tagged) collection of sticker packs are marked as `deluxe`.
+        You can enable deluxe mode in your settings.
+
+keyboard:

@@ -13,7 +13,7 @@ from stickerfinder.config import config
 from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat, User
-from stickerfinder.helper import error_text
+from stickerfinder.i18n import i18n
 from stickerfinder.helper.telegram import call_tg_func
 
 
@@ -170,7 +170,10 @@ def session_wrapper(
                     sentry.captureException()
                     if send_message and message:
                         session.close()
-                        call_tg_func(message.chat, "send_message", args=[error_text])
+                        error_message = i18n.t("text.misc.error")
+                        call_tg_func(
+                            message.chat, "send_message", args=[error_message],
+                        )
                     raise
             finally:
                 session.close()

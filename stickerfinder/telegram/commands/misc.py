@@ -1,11 +1,11 @@
 """Misc telegram commands."""
 from stickerfinder.helper.session import session_wrapper
 from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper import start_text
 from stickerfinder.helper.display import (
     get_settings_text,
     get_help_text_and_keyboard,
 )
+from stickerfinder.i18n import i18n
 from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
     get_settings_keyboard,
@@ -24,7 +24,7 @@ def start(bot, update, session, chat, user):
         )
     else:
         update.message.chat.send_message(
-            start_text,
+            i18n.t("text.misc.start"),
             reply_markup=get_main_keyboard(user),
             parse_mode="Markdown",
             disable_web_page_preview=True,

@@ -1,4 +1,4 @@
-from stickerfinder.helper import donations_text, start_text
+from stickerfinder.i18n import i18n
 from stickerfinder.helper.tag import handle_next
 from stickerfinder.helper.tag_mode import TagMode
 from stickerfinder.helper.display import (
@@ -70,7 +70,7 @@ def open_donations(session, context):
     """Send the donation text."""
     donation_keyboard = get_donation_keyboard()
     context.query.message.edit_text(
-        donations_text,
+        i18n.t("text.misc.donations"),
         reply_markup=donation_keyboard,
         parse_mode="Markdown",
         disable_web_page_preview=True,
@@ -80,7 +80,7 @@ def open_donations(session, context):
 def main_menu(session, context):
     """Show the main menu."""
     context.query.message.edit_text(
-        start_text,
+        i18n.t("text.misc.start"),
         reply_markup=get_main_keyboard(context.user),
         parse_mode="Markdown",
         disable_web_page_preview=True,

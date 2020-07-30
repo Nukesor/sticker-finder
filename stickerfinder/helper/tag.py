@@ -11,11 +11,7 @@ from stickerfinder.telegram.keyboard import (
     get_tagging_keyboard,
     get_fix_sticker_tags_keyboard,
 )
-from stickerfinder.helper import (
-    tag_text,
-    blacklist,
-    reward_messages,
-)
+from stickerfinder.i18n import i18n
 from stickerfinder.models import (
     Change,
     Tag,
@@ -144,7 +140,7 @@ def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
     chat.tag_mode = TagMode.STICKER_SET
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(tg_chat, "send_message", [tag_text])
+    call_tg_func(tg_chat, "send_message", [i18n.t("misc.tagging.send_tags")])
     send_tag_messages(chat, tg_chat, user)
 
 
@@ -198,9 +194,6 @@ def get_tags_from_text(text, limit=15):
 
     # Deduplicate tags
     tags = list(OrderedDict.fromkeys(tags))
-
-    # Clean the tags from unwanted words
-    tags = [tag for tag in tags if tag not in blacklist]
 
     filtered_tags = []
     # Remove characters that occur more than three times consecutively
@@ -267,9 +260,9 @@ def tag_sticker(
         )
 
     # Inform us if the user managed to hit a special count of changes
-    if tg_chat and len(user.changes) in reward_messages:
-        reward = reward_messages[len(user.changes)]
-        call_tg_func(tg_chat, "send_message", [reward])
+    if tg_chat and len(user.changes) in [10, 25, 50, 100, 250, 500, 1000, 2000, 3000]:
+        achievement_message = i18n.t(f"text.tagging.achievements.{len(user.changes)}")
+        call_tg_func(tg_chat, "send_message", [achievement_message])
 
         sentry.captureMessage(
             f"User hit {len(user.changes)} changes!",
