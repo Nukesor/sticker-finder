@@ -32,7 +32,17 @@ def get_favorite_stickers(session, context):
         .filter(StickerSet.banned.is_(False))
         .filter(StickerSet.nsfw.is_(context.nsfw))
         .filter(StickerSet.furry.is_(context.furry))
-        .order_by(StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc())
+    )
+
+    # Animated stickers are included by default.
+    # However we have to exclusively check for animated stickers, if a keyword is provided
+    if context.animated:
+        favorite_stickers = favorite_stickers.filter(Sticker.animated.is_(True))
+
+    favorite_stickers = (
+        favorite_stickers.order_by(
+            StickerUsage.usage_count.desc(), StickerUsage.updated_at.desc()
+        )
         .offset(context.offset)
         .limit(limit)
         .all()
@@ -114,6 +124,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     """
     user = context.user
     tags = context.tags
+    animated = context.animated
     nsfw = context.nsfw
     furry = context.furry
 
@@ -170,7 +181,11 @@ def get_strict_matching_query(session, context, sticker_set=False):
         .filter(StickerSet.reviewed.is_(True))
         .filter(score > 0)
     )
-    # Handle default nsfw/furry stuff search
+
+    # Handle special flags
+    if animated:
+        matching_stickers = matching_stickers.filter(Sticker.animated.is_(True))
+
     if nsfw:
         matching_stickers = matching_stickers.filter(StickerSet.nsfw.is_(True))
     elif user.nsfw is False:
@@ -240,6 +255,7 @@ def get_fuzzy_matching_query(session, context):
     """
     user = context.user
     tags = context.tags
+    animated = context.animated
     nsfw = context.nsfw
     furry = context.furry
 
@@ -298,7 +314,6 @@ def get_fuzzy_matching_query(session, context):
             .filter(StickerSet.reviewed.is_(True))
         )
 
-        # Handle default nsfw/furry stuff search
         if nsfw:
             set_score_subq = set_score_subq.filter(StickerSet.nsfw.is_(True))
         elif user.nsfw is False:
@@ -364,6 +379,10 @@ def get_fuzzy_matching_query(session, context):
         .filter(StickerSet.reviewed.is_(True))
         .filter(score > 0)
     )
+
+    # Handle special flags
+    if animated:
+        matching_stickers = matching_stickers.filter(Sticker.animated.is_(True))
 
     # Handle default nsfw/furry stuff search
     if nsfw:

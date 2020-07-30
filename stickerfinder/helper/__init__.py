@@ -11,6 +11,9 @@ just type `@stfi_bot kermit` anywhere. You can search by pack name, tags, emoji 
 🔎 *Sticker pack search:*
 Just add "set" or "pack" to your search e.g. `@stfi_bot kermit set`.
 
+🔎 *Animated stickers:*
+Animated stickers are always included in your search. If you want to search animated stickers exclusively, simply add the word `ani` or `animated` to your search.
+
 🌐 *Languages:*
 If you want non-English sticker packs, use /international to enable other languages than English.
 

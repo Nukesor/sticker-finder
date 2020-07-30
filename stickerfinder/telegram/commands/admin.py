@@ -210,35 +210,29 @@ def fix_stuff(bot, update, session, chat, user):
     """Entry point for quick fixes."""
     call_tg_func(bot, "send_message", [chat.id, "starting to fix"])
 
-    stickers = session.query(Sticker).filter(Sticker.sticker_set_name.is_(None)).all()
-
-    count = 0
-    print(f"found {len(stickers)}")
-    for sticker in stickers:
-        count += 1
-        if count % 100 == 0:
-            print(f"fixed {count}")
-
+    sticker_sets = session.query(StickerSet).all()
+    for sticker_set in sticker_sets:
         try:
-            tg_sticker = bot.get_file(sticker.file_id)
+            tg_sticker_set = call_tg_func(
+                bot, "get_sticker_set", args=[sticker_set.name]
+            )
         except BadRequest as e:
-            if e.message == "Wrong file id":
-                session.delete(sticker)
+            if (
+                e.message == "Stickerset_invalid"
+                or e.message == "Requested data is inaccessible"
+            ):
+                sticker_set.deleted = True
+                sticker_set.completed = True
+                if (
+                    len(sticker_set.tasks) > 0
+                    and sticker_set.tasks[0].type == "scan_set"
+                ):
+                    sticker_set.tasks[0].reviewed = True
                 continue
 
-        # File id changed
-        if tg_sticker.file_unique_id != sticker.file_unique_id:
-            new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
-            if new_sticker is not None:
-                sticker.sticker_set = new_sticker.sticker_set
-            else:
-                session.delete(sticker)
+            raise e
 
-        # Sticker set got deleted
-        else:
-            session.delete(sticker)
-
-    session.commit()
+        sticker_set.animated = tg_sticker_set.is_animated
 
     call_tg_func(bot, "send_message", [chat.id, "Fixing done"])
 

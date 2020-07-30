@@ -117,7 +117,7 @@ class Sticker(base):
     updated_at = Column(
         DateTime, server_default=func.now(), onupdate=func.now(), nullable=False
     )
-    animated = Column(Boolean, server_default="FALSE", default=False, nullable=False)
+    animated = Column(Boolean, default=False, nullable=False)
 
     sticker_set_name = Column(
         String,

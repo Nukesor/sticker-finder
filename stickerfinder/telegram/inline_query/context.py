@@ -51,7 +51,7 @@ class Context:
     def determine_special_search(self):
         """Check whether we should enter a special search mode."""
         # Handle animated mode
-        self.nsfw = "ani" in self.tags or "animated" in self.tags
+        self.animated = "ani" in self.tags or "animated" in self.tags
         # Handle nsfw mode
         self.nsfw = "nsfw" in self.tags
         # Handle furry mode

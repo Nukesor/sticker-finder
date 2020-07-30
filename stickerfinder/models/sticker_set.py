@@ -43,7 +43,7 @@ class StickerSet(base):
     deleted = Column(Boolean, default=False, nullable=False)
 
     # Flags
-    animated = Column(Boolean, default=False, server_default="false", nullable=False)
+    animated = Column(Boolean, default=False, nullable=False)
     banned = Column(Boolean, default=False, nullable=False)
     nsfw = Column(Boolean, default=False, nullable=False)
     furry = Column(Boolean, default=False, nullable=False)
@@ -53,9 +53,7 @@ class StickerSet(base):
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
     complete = Column(Boolean, default=False, nullable=False)
     completely_tagged = Column(Boolean, default=False, nullable=False)
-    scan_scheduled = Column(
-        Boolean, default=False, nullable=False, server_default="false"
-    )
+    scan_scheduled = Column(Boolean, default=False, nullable=False,)
     reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_unique_id)")

@@ -26,52 +26,23 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
             e.message == "Stickerset_invalid"
             or e.message == "Requested data is inaccessible"
         ):
+            # The sticker set has been deleted.
+            # Mark it as such and auto review the task
             sticker_set.deleted = True
             sticker_set.completed = True
-            # Auto review the task
             if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == "scan_set":
                 sticker_set.tasks[0].reviewed = True
             return
 
         raise e
 
-    # This block exists due to the huge fuckup that was created when Telegram's devs
-    # decided to completely change the way file ids work. Thanks!
-    for tg_sticker in tg_sticker_set.stickers:
-        for sticker in sticker_set.stickers:
-            if (
-                sticker.file_unique_id == tg_sticker.file_unique_id
-                and sticker.file_id is None
-            ):
-                sticker.file_id = tg_sticker.file_id
-
-    # Sometimes file ids in telegram seem to randomly change
-    # If this has already happened, merge the two stickers (backup replay).
-    # otherwise, change the file id to the new one
-    for sticker in sticker_set.stickers:
-        try:
-            tg_sticker = call_tg_func(bot, "get_file", args=[sticker.file_id])
-        except BadRequest as e:
-            if e.message == "Wrong file id":
-                session.delete(sticker)
-            continue
-
-        if tg_sticker.file_unique_id != sticker.file_unique_id:
-            new_sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
-            if new_sticker is not None:
-                merge_sticker(session, sticker, new_sticker)
-
-            sticker.file_unique_id = tg_sticker.file_unique_id
-            session.commit()
-
-        sticker.file_id = tg_sticker.file_id
+    sticker_set.animated = tg_sticker_set.is_animated
 
     for tg_sticker in tg_sticker_set.stickers:
         # Ignore already existing stickers if we don't need to rescan images
         sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
         text = None
-        # This is broken for now and I don't know why
-        if False:  # (sticker is None or refresh_ocr) and not tg_sticker.is_animated:
+        if not tg_sticker.is_animated and (sticker is None or refresh_ocr):
             text = extract_text(tg_sticker)
 
         # Create new Sticker.
@@ -93,11 +64,11 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     sticker_set.stickers = stickers
     sticker_set.complete = True
 
-    # Auto accept everything if the config says so
     review_task = None
     if len(sticker_set.tasks) > 0 and sticker_set.tasks[0].type == "scan_set":
         review_task = sticker_set.tasks[0]
 
+    # Auto accept everything if the config says so
     if review_task and config["mode"]["auto_accept_set"] and not review_task.reviewed:
         sticker_set.reviewed = True
         review_task.reviewed = True
