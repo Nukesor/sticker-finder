@@ -134,9 +134,13 @@ def session_wrapper(
 
                 user = get_user(session, update)
                 if config["mode"]["authorized_only"] and not user.authorized:
-                    text = "StickerFinder is officially offline. Access will still be granted for [Patreons](https://www.patreon.com/nukesor).\n"
-                    text += "Check the repository for the latest database dump in case you want to host your own bot."
-                    message.chat.send_message(text, parse_mode="Markdown")
+                    text = i18n.t(
+                        "text.misc.private_access",
+                        username=config["telegram"]["bot_name"],
+                    )
+                    message.chat.send_message(
+                        text, parse_mode="Markdown", disable_web_page_preview=True,
+                    )
                     session.commit()
                     return
                 if not is_allowed(user, update, admin_only=admin_only):

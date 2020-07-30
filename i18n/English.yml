@@ -16,6 +16,17 @@ text:
       "3000": "3000 Stickers.... \n You should really stop."
 
   misc:
+    private_access: |
+      *Hello there! 😊*
+
+      Sadly, this instance of StickerFinder is private and you aren't authorized to interact with it. 😓
+
+      ⭐️ You may still use it's *search functionality* ⭐️\
+      Just start by typing `@%{username}`.
+
+      However, this project is open-source!
+      Check out the [Github repository](https://github.com/nukesor/sticker-finder) for the code and latest database dump in case you want to host your own bot.
+
     error: |
       An unknown error occurred. I probably just got a notification about this and I'll try to fix it as quickly as possible.
       In case this error still occurs in a day or two, please report the bug to me :). The link to the Github repository is in the /help text.
