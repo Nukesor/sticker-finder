@@ -59,6 +59,9 @@ def inline_session_wrapper():
                 if user.banned:
                     return
 
+                if config["mode"]["private_inline_query"] and not user.authorized:
+                    return
+
                 func(context.bot, update, session, user)
                 session.commit()
 

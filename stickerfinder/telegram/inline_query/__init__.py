@@ -20,15 +20,6 @@ from .search import (
 @inline_session_wrapper()
 def search(bot, update, session, user):
     """Handle inline queries for sticker search."""
-    # We don't want banned users
-    if user.banned:
-        results = [
-            InlineQueryResultCachedSticker(
-                uuid4(), sticker_file_id="CAADAQADOQIAAjnUfAmQSUibakhEFgI"
-            )
-        ]
-        update.inline_query.answer(results, cache_time=300, is_personal=True)
-        return
 
     offset_payload = update.inline_query.offset
     # If the offset is 'done' there are no more stickers for this query.

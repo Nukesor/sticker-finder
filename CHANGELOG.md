@@ -11,6 +11,7 @@ The project will now stick to the semver standard and keep the changelog up-to-d
 - Support for animated stickers.
 - Flag that allows to run the bot in private mode.
 - Flag to automatically accept new sticker sets.
+- Flag to restrict inline search to authorized users.
 
 ### Changed
 
