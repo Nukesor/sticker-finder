@@ -31,7 +31,7 @@ def get_tag_this_set_keyboard(sticker_set, user):
 
 def get_tagging_keyboard(chat):
     """Get tagging keyboard."""
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
+    if chat.tag_mode in [TagMode.sticker_set.value, TagMode.random.value]:
         next_data = f'{CallbackType["next"].value}:0:0'
         cancel_data = f'{CallbackType["cancel"].value}:0:0'
         buttons = [

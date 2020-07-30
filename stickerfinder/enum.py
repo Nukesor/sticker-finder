@@ -5,9 +5,9 @@ from enum import Enum, unique
 class TagMode(Enum):
     """Helper enum for defining possible states of tagging in a chat."""
 
-    STICKER_SET = "sticker_set"
-    RANDOM = "random"
-    SINGLE_STICKER = "single_sticker"
+    sticker_set = "sticker_set"
+    random = "random"
+    single_sticker = "single_sticker"
 
 
 @unique

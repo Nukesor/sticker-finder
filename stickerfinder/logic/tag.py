@@ -75,7 +75,7 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
 def handle_next(session, bot, chat, tg_chat, user):
     """Handle the /next call or the 'next' button click."""
     # We are tagging a whole sticker set. Skip the current sticker
-    if chat.tag_mode == TagMode.STICKER_SET:
+    if chat.tag_mode == TagMode.sticker_set.value:
         # Check there is a next sticker
         stickers = chat.current_sticker.sticker_set.stickers
         for index, sticker in enumerate(stickers):
@@ -95,7 +95,7 @@ def handle_next(session, bot, chat, tg_chat, user):
         chat.cancel(bot)
 
     # Find a random sticker with no changes
-    elif chat.tag_mode == TagMode.RANDOM:
+    elif chat.tag_mode == TagMode.random.value:
         base_query = (
             session.query(Sticker)
             .outerjoin(Sticker.changes)
@@ -139,7 +139,7 @@ def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
         return "Sticker set {name} is currently being added."
 
     # Chat now expects an incoming tag for the next sticker
-    chat.tag_mode = TagMode.STICKER_SET
+    chat.tag_mode = TagMode.sticker_set.value
     chat.current_sticker = sticker_set.stickers[0]
 
     call_tg_func(tg_chat, "send_message", [i18n.t("misc.tagging.send_tags")])
@@ -220,7 +220,7 @@ def get_tags_from_text(text, limit=15):
 
 def send_tagged_count_message(session, bot, user, chat):
     """Send a user a message that displays how many stickers he already tagged."""
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
+    if chat.tag_mode in [TagMode.sticker_set.value, TagMode.random.value]:
         count = (
             session.query(Sticker)
             .join(Sticker.changes)

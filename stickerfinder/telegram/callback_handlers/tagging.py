@@ -48,8 +48,8 @@ def handle_fix_sticker_tags(session, context):
     chat = context.chat
     sticker = session.query(Sticker).filter(Sticker.id == context.payload).one()
     chat.current_sticker = sticker
-    if chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]:
-        chat.tag_mode = TagMode.SINGLE_STICKER
+    if chat.tag_mode not in [TagMode.sticker_set.value, TagMode.random.value]:
+        chat.tag_mode = TagMode.single_sticker.value
     send_tag_messages(chat, context.tg_chat, context.user)
 
 
@@ -58,7 +58,7 @@ def handle_continue_tagging_set(session, context):
     chat = context.chat
     chat.cancel(context.bot)
 
-    chat.tag_mode = TagMode.STICKER_SET
+    chat.tag_mode = TagMode.sticker_set.value
     sticker = session.query(Sticker).filter(Sticker.id == context.payload).one()
     chat.current_sticker = sticker
 

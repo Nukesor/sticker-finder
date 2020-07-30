@@ -118,7 +118,10 @@ class Chat(base):
 
     def cancel_tagging(self, bot):
         """Cancel the tagging process."""
-        if self.tag_mode == TagMode.STICKER_SET and self.current_sticker is not None:
+        if (
+            self.tag_mode == TagMode.sticker_set.value
+            and self.current_sticker is not None
+        ):
             keyboard = get_continue_tagging_keyboard(self.current_sticker.id)
             try:
                 call_tg_func(

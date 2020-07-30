@@ -23,7 +23,7 @@ from stickerfinder.telegram.keyboard import (
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
+    if chat.tag_mode in [TagMode.sticker_set.value, TagMode.random.value]:
         # Try to tag the sticker. Return early if it didn't work.
         tag_sticker(
             session,
@@ -38,7 +38,7 @@ def handle_private_text(bot, update, session, chat, user):
         session.commit()
         handle_next(session, bot, chat, update.message.chat, user)
 
-    elif chat.tag_mode == TagMode.SINGLE_STICKER:
+    elif chat.tag_mode == TagMode.single_sticker.value:
         tag_sticker(
             session,
             update.message.text,
@@ -73,7 +73,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         return f"Set {sticker_set.name} is going to be added soon ☺️"
 
     # Notify if they are still in a tagging process
-    if chat.tag_mode in [TagMode.STICKER_SET, TagMode.RANDOM]:
+    if chat.tag_mode in [TagMode.sticker_set.value, TagMode.random.value]:
         chat.cancel(bot)
         pass
 
@@ -83,7 +83,7 @@ def handle_private_sticker(bot, update, session, chat, user):
         return f"I don't know this specific sticker yet. Please wait a few minutes and try again ☺️"
 
     chat.current_sticker = sticker
-    chat.tag_mode = TagMode.SINGLE_STICKER
+    chat.tag_mode = TagMode.single_sticker.value
 
     sticker_tags_message = current_sticker_tags_message(sticker, user)
     # Send inline keyboard to allow fast tagging of the sticker's set

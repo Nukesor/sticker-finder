@@ -26,7 +26,10 @@ def tag_single(bot, update, session, chat, user):
     # The tag command has been normally called
     elif chat.current_sticker:
         sticker = chat.current_sticker
-        is_single_sticker = chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]
+        is_single_sticker = chat.tag_mode not in [
+            TagMode.sticker_set.value,
+            TagMode.random.value,
+        ]
     else:
         return "No sticker for replacement selected"
 
@@ -70,7 +73,10 @@ def replace_single(bot, update, session, chat, user):
     # The replace command has been normally called
     elif chat.current_sticker:
         sticker = chat.current_sticker
-        is_single_sticker = chat.tag_mode not in [TagMode.STICKER_SET, TagMode.RANDOM]
+        is_single_sticker = chat.tag_mode not in [
+            TagMode.sticker_set.value,
+            TagMode.random.value,
+        ]
     else:
         return "No sticker for replacement selected"
 
