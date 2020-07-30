@@ -48,7 +48,7 @@ class Task(base):
     international = Column(Boolean, default=True, nullable=True)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="cascade"), index=True)
     chat_id = Column(
         BigInteger,
         ForeignKey(

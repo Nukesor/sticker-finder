@@ -23,7 +23,7 @@ class Report(base):
     reason = Column(String)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    user_id = Column(Integer, ForeignKey("user.id"), index=True)
+    user_id = Column(Integer, ForeignKey("user.id", ondelete="cascade"), index=True,)
     sticker_set_name = Column(
         String,
         ForeignKey("sticker_set.name", onupdate="cascade", ondelete="cascade"),
