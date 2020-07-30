@@ -17,7 +17,7 @@ from stickerfinder.helper import error_text
 from stickerfinder.helper.telegram import call_tg_func
 
 
-def job_session_wrapper(check_ban=False, admin_only=False):
+def job_session_wrapper():
     """Create a session, handle permissions and exceptions for jobs."""
 
     def real_decorator(func):
@@ -44,7 +44,7 @@ def job_session_wrapper(check_ban=False, admin_only=False):
     return real_decorator
 
 
-def hidden_session_wrapper(check_ban=False, admin_only=False):
+def inline_session_wrapper():
     """Create a session, handle permissions and exceptions."""
 
     def real_decorator(func):
@@ -54,11 +54,43 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
         def wrapper(update, context):
             session = get_session()
             try:
-                user = get_user(session, update)
-                if not is_allowed(
-                    user, update, admin_only=admin_only, check_ban=check_ban
-                ):
+                user = User.get_or_create(session, update.inline_query.from_user)
+
+                if user.banned:
                     return
+
+                func(context.bot, update, session, user)
+                session.commit()
+
+            # Handle all not telegram relatated exceptions
+            except Exception as e:
+                if not ignore_exception(e):
+                    traceback.print_exc()
+                    sentry.captureException()
+
+            finally:
+                session.close()
+
+        return wrapper
+
+    return real_decorator
+
+
+def callback_session_wrapper():
+    """Create a session, handle permissions and exceptions."""
+
+    def real_decorator(func):
+        """Parametrized decorator closure."""
+
+        @wraps(func)
+        def wrapper(update, context):
+            session = get_session()
+            try:
+                user = User.get_or_create(session, update.callback_query.from_user)
+
+                if user.banned:
+                    return
+
                 if config["mode"]["authorized_only"] and not user.authorized:
                     return
 
@@ -80,11 +112,7 @@ def hidden_session_wrapper(check_ban=False, admin_only=False):
 
 
 def session_wrapper(
-    send_message=True,
-    check_ban=False,
-    admin_only=False,
-    private=False,
-    allow_edit=False,
+    send_message=True, allow_edit=False, admin_only=False,
 ):
     """Create a session, handle permissions, handle exceptions and prepare some entities."""
 
@@ -108,16 +136,14 @@ def session_wrapper(
                     message.chat.send_message(text, parse_mode="Markdown")
                     session.commit()
                     return
-                if not is_allowed(
-                    user, update, admin_only=admin_only, check_ban=check_ban
-                ):
+                if not is_allowed(user, update, admin_only=admin_only):
                     return
 
                 chat_id = message.chat_id
                 chat_type = message.chat.type
                 chat = Chat.get_or_create(session, chat_id, chat_type)
 
-                if not is_allowed(user, update, chat=chat, private=private):
+                if not is_allowed(user, update, chat=chat):
                     return
 
                 response = func(context.bot, update, session, chat, user)
@@ -162,26 +188,12 @@ def get_user(session, update):
         user = User.get_or_create(session, update.message.from_user)
     if hasattr(update, "edited_message") and update.edited_message:
         user = User.get_or_create(session, update.edited_message.from_user)
-    elif hasattr(update, "inline_query") and update.inline_query:
-        user = User.get_or_create(session, update.inline_query.from_user)
-    elif hasattr(update, "callback_query") and update.callback_query:
-        user = User.get_or_create(session, update.callback_query.from_user)
 
     return user
 
 
-def is_allowed(
-    user, update, chat=None, admin_only=False, check_ban=False, private=False
-):
+def is_allowed(user, update, chat=None, admin_only=False, check_ban=True):
     """Check whether the user is allowed to access this endpoint."""
-    if private and chat.type != "private":
-        call_tg_func(
-            update.message.chat,
-            "send_message",
-            ["Please do this in a direct conversation with me."],
-        )
-        return False
-
     # Check if the user has been banned.
     if check_ban and user and user.banned:
         call_tg_func(update.message.chat, "send_message", ["You have been banned."])

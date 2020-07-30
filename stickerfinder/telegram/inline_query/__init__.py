@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from telegram.ext import run_async
 from telegram import InlineQueryResultCachedSticker
 
-from stickerfinder.helper.session import hidden_session_wrapper
+from stickerfinder.helper.session import inline_session_wrapper
 from stickerfinder.models import (
     InlineQuery,
     InlineQueryRequest,
@@ -17,7 +17,7 @@ from .search import (
 
 
 @run_async
-@hidden_session_wrapper()
+@inline_session_wrapper()
 def search(bot, update, session, user):
     """Handle inline queries for sticker search."""
     # We don't want banned users

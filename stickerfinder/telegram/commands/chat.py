@@ -6,7 +6,7 @@ from stickerfinder.helper.tag import send_tagged_count_message
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper()
 def cancel(bot, update, session, chat, user):
     """Send a help text."""
     if not send_tagged_count_message(session, bot, user, chat):

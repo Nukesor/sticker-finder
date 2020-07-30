@@ -2,7 +2,7 @@
 from telegram.ext import run_async
 
 from stickerfinder.db import get_session
-from stickerfinder.helper.session import hidden_session_wrapper
+from stickerfinder.helper.session import callback_session_wrapper
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
     Chat,
@@ -92,7 +92,7 @@ class CallbackContext:
 
 
 @run_async
-@hidden_session_wrapper()
+@callback_session_wrapper()
 def handle_callback_query(bot, update, session, user):
     """Handle callback queries from inline keyboards."""
     context = CallbackContext(session, bot, update.callback_query, user)

@@ -9,7 +9,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@session_wrapper(check_ban=True, private=True)
+@session_wrapper()
 def report_set(bot, update, session, chat, user):
     """Report the set of the last sticker send to this chat."""
     if (

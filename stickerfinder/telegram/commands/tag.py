@@ -8,7 +8,7 @@ from stickerfinder.models import Sticker
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper()
 def tag_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     # The tag command has been replied to another message
@@ -52,7 +52,7 @@ def tag_single(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(check_ban=True)
+@session_wrapper()
 def replace_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     # The replace command has been replied to another message

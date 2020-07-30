@@ -80,17 +80,33 @@ dispatcher.add_handler(
     MessageHandler(Filters.sticker & Filters.group, handle_group_sticker)
 )
 
+private_command_filter = Filters.private
+
 if not config["mode"]["leecher"]:
     # Input commands
-    dispatcher.add_handler(CommandHandler("tag", tag_single))
-    dispatcher.add_handler(CommandHandler("replace", replace_single))
-    dispatcher.add_handler(CommandHandler("report", report_set))
-    dispatcher.add_handler(CommandHandler("forget_set", forget_set))
+    dispatcher.add_handler(
+        CommandHandler("tag", tag_single, filters=private_command_filter)
+    )
+    dispatcher.add_handler(
+        CommandHandler("replace", replace_single, filters=private_command_filter)
+    )
+    dispatcher.add_handler(
+        CommandHandler("report", report_set, filters=private_command_filter)
+    )
+    dispatcher.add_handler(
+        CommandHandler("forget_set", forget_set, filters=private_command_filter)
+    )
 
     # Button commands
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("help", send_help_text))
-    dispatcher.add_handler(CommandHandler("cancel", cancel))
+    dispatcher.add_handler(
+        CommandHandler("start", start, filters=private_command_filter)
+    )
+    dispatcher.add_handler(
+        CommandHandler("help", send_help_text, filters=private_command_filter)
+    )
+    dispatcher.add_handler(
+        CommandHandler("cancel", cancel, filters=private_command_filter)
+    )
 
     # Maintenance input commands
     dispatcher.add_handler(CommandHandler("ban", ban_sticker))
