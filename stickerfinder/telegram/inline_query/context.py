@@ -30,7 +30,7 @@ class Context:
         text = f"Context: {self.query}, {self.mode}"
         text += f"\nTags {self.tags}"
         text += f"\nOffsets: {self.offset}, {self.fuzzy_offset}"
-        text += f"\nnsfw, furry: {self.nsfw}, {self.furry}"
+        text += f"\nanimated, nsfw, furry: {self.animated}, {self.nsfw}, {self.furry}"
         return text
 
     def extract_info_from_offset(self, offset):
@@ -50,6 +50,8 @@ class Context:
 
     def determine_special_search(self):
         """Check whether we should enter a special search mode."""
+        # Handle animated mode
+        self.nsfw = "ani" in self.tags or "animated" in self.tags
         # Handle nsfw mode
         self.nsfw = "nsfw" in self.tags
         # Handle furry mode
@@ -60,7 +62,7 @@ class Context:
             self.mode = Context.STICKER_SET_MODE
 
         # Clean tags from special keywords
-        keywords = ["pack", "set", "furry", "fur", "nsfw"]
+        keywords = ["pack", "set", "furry", "fur", "nsfw", "ani", "animated"]
         self.tags = [tag for tag in self.tags if tag not in keywords]
 
         # Check whether we should enter favorite mode
