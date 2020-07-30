@@ -1,6 +1,6 @@
 """Misc telegram commands."""
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.session import session_wrapper
+from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.helper.display import (
     get_settings_text,
     get_help_text_and_keyboard,

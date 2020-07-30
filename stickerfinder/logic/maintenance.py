@@ -3,7 +3,7 @@ from sqlalchemy import func
 from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.helper.text import split_text
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.telegram.keyboard import (
     check_user_tags_keyboard,
     get_report_keyboard,

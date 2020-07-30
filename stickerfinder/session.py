@@ -14,7 +14,7 @@ from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat, User
 from stickerfinder.i18n import i18n
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.telegram.wrapper import call_tg_func
 
 
 def job_session_wrapper():

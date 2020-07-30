@@ -3,9 +3,8 @@ from sqlalchemy import func
 from collections import OrderedDict
 
 from stickerfinder.sentry import sentry
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.corrections import ignored_characters
-from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.telegram.wrapper import call_tg_func
+from stickerfinder.enum import TagMode
 from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
     get_tagging_keyboard,
@@ -19,6 +18,8 @@ from stickerfinder.models import (
     StickerSet,
     ProposedTags,
 )
+
+ignored_characters = set(["\n", ",", ".", "!", "?", "'", "@", "#", "*", "[", "_"])
 
 
 def current_sticker_tags_message(sticker, user, send_set_info=False):

@@ -7,9 +7,8 @@ from pytesseract import image_to_string
 from telegram.error import BadRequest, TimedOut
 
 from stickerfinder.config import config
-from stickerfinder.helper.image import preprocess_image
-from stickerfinder.helper.tag import add_original_emojis
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.logic.tag import add_original_emojis
+from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.models import Sticker, Chat
 from stickerfinder.sentry import sentry
 from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
@@ -121,8 +120,6 @@ def extract_text(tg_sticker):
         tg_file = call_tg_func(tg_sticker, "get_file")
         image_bytes = call_tg_func(tg_file, "download_as_bytearray")
         with Image.open(io.BytesIO(image_bytes)).convert("RGB") as image:
-            image = preprocess_image(image)
-
             # Extract text
             text = image_to_string(image).strip().lower()
 

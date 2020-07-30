@@ -2,7 +2,7 @@
 from tests.helper import assert_sticker_contains_tags
 
 from stickerfinder.models import Tag
-from stickerfinder.helper.tag import tag_sticker, add_original_emojis
+from stickerfinder.logic.tag import tag_sticker, add_original_emojis
 
 
 def test_original_emoji_stays_on_replace(session, user, sticker_set):

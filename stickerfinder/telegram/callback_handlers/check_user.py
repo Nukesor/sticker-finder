@@ -1,7 +1,7 @@
-from stickerfinder.helper.maintenance import check_maintenance_chat
+from stickerfinder.logic.maintenance import check_maintenance_chat
 from stickerfinder.helper.callback import CallbackResult
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.maintenance import (
+from stickerfinder.telegram.wrapper import call_tg_func
+from stickerfinder.logic.maintenance import (
     revert_user_changes,
     undo_user_changes_revert,
     change_language_of_task_changes,

@@ -1,8 +1,8 @@
 """Chat related commands."""
 from telegram.ext import run_async
-from stickerfinder.helper.session import session_wrapper
+from stickerfinder.session import session_wrapper
 from stickerfinder.telegram.keyboard import get_main_keyboard
-from stickerfinder.helper.tag import send_tagged_count_message
+from stickerfinder.logic.tag import send_tagged_count_message
 
 
 @run_async

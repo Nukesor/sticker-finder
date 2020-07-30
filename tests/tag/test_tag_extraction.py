@@ -1,5 +1,5 @@
 """Check the tag from text extraction logic."""
-from stickerfinder.helper.tag import get_tags_from_text
+from stickerfinder.logic.tag import get_tags_from_text
 
 
 def test_ignore_telegramme_links():

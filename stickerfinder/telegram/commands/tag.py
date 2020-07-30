@@ -1,9 +1,9 @@
 """Tag related commands."""
 from telegram.ext import run_async
 
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.tag_mode import TagMode
-from stickerfinder.helper.tag import handle_next, tag_sticker
+from stickerfinder.session import session_wrapper
+from stickerfinder.enum import TagMode
+from stickerfinder.logic.tag import handle_next, tag_sticker
 from stickerfinder.models import Sticker
 
 

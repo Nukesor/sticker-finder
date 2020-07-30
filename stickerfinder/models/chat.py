@@ -19,8 +19,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.telegram.wrapper import call_tg_func
+from stickerfinder.enum import TagMode
 from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
 
 

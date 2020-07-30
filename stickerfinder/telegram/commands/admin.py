@@ -7,8 +7,8 @@ from telegram import ReplyKeyboardRemove
 
 from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat, Sticker
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.session import session_wrapper
+from stickerfinder.telegram.wrapper import call_tg_func
 
 
 @run_async

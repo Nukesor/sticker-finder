@@ -2,7 +2,7 @@
 from tests.helper import assert_sticker_contains_tags
 
 from stickerfinder.models import Tag
-from stickerfinder.helper.tag import tag_sticker
+from stickerfinder.logic.tag import tag_sticker
 
 
 def test_add_tags(session, user, sticker_set):

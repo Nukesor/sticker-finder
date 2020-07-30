@@ -4,7 +4,7 @@ from sqlalchemy.exc import IntegrityError
 from telegram.ext import run_async
 from telegram import InlineQueryResultCachedSticker
 
-from stickerfinder.helper.session import inline_session_wrapper
+from stickerfinder.session import inline_session_wrapper
 from stickerfinder.models import (
     InlineQuery,
     InlineQueryRequest,

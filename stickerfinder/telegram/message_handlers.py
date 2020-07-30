@@ -4,10 +4,10 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
-from stickerfinder.helper.telegram import call_tg_func
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.tag_mode import TagMode
-from stickerfinder.helper.tag import (
+from stickerfinder.telegram.wrapper import call_tg_func
+from stickerfinder.session import session_wrapper
+from stickerfinder.enum import TagMode
+from stickerfinder.logic.tag import (
     handle_next,
     tag_sticker,
     current_sticker_tags_message,

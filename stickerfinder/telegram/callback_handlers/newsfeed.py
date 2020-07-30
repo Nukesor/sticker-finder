@@ -1,6 +1,6 @@
-from stickerfinder.helper.maintenance import distribute_newsfeed_tasks
+from stickerfinder.logic.maintenance import distribute_newsfeed_tasks
 from stickerfinder.helper.callback import CallbackResult
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.telegram.keyboard import (
     get_nsfw_ban_keyboard,
     get_tag_this_set_keyboard,

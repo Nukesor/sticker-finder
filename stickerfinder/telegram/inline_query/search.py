@@ -8,7 +8,7 @@ from telegram import (
 )
 
 from stickerfinder.sentry import sentry
-from stickerfinder.helper.telegram import call_tg_func
+from stickerfinder.telegram.wrapper import call_tg_func
 from .context import Context
 from .offset import (
     get_next_offset,

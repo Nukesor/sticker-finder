@@ -2,7 +2,7 @@
 import pytest
 from tests.factories import user_factory, sticker_set_factory, sticker_factory
 
-from stickerfinder.helper.tag import tag_sticker
+from stickerfinder.logic.tag import tag_sticker
 from stickerfinder.models import Sticker
 
 

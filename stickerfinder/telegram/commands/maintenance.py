@@ -1,8 +1,8 @@
 """Maintenance related commands."""
 from telegram.ext import run_async
 
-from stickerfinder.helper.session import session_wrapper
-from stickerfinder.helper.maintenance import check_maintenance_chat, check_newsfeed_chat
+from stickerfinder.session import session_wrapper
+from stickerfinder.logic.maintenance import check_maintenance_chat, check_newsfeed_chat
 
 
 @run_async

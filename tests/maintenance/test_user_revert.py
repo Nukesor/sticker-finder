@@ -2,11 +2,11 @@
 from tests.factories import user_factory
 from tests.helper import assert_sticker_contains_tags
 
-from stickerfinder.helper.maintenance import (
+from stickerfinder.logic.maintenance import (
     revert_user_changes,
     undo_user_changes_revert,
 )
-from stickerfinder.helper.tag import tag_sticker
+from stickerfinder.logic.tag import tag_sticker
 
 
 def test_revert_replacing_user_tags(session, user, sticker_set, tags):

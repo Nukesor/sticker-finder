@@ -1,6 +1,6 @@
 from stickerfinder.i18n import i18n
-from stickerfinder.helper.tag import handle_next
-from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.logic.tag import handle_next
+from stickerfinder.enum import TagMode
 from stickerfinder.helper.display import (
     get_settings_text,
     get_help_text_and_keyboard,

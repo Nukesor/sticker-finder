@@ -2,7 +2,7 @@
 from telegram.ext import run_async
 
 from stickerfinder.db import get_session
-from stickerfinder.helper.session import callback_session_wrapper
+from stickerfinder.session import callback_session_wrapper
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import (
     Chat,

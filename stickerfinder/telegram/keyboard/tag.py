@@ -3,7 +3,7 @@ from telegram import (
     InlineKeyboardButton,
 )
 from stickerfinder.helper.callback import CallbackType, CallbackResult
-from stickerfinder.helper.tag_mode import TagMode
+from stickerfinder.enum import TagMode
 
 
 def get_tag_this_set_keyboard(sticker_set, user):

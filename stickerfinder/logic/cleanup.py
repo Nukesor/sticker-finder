@@ -3,7 +3,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 
-from stickerfinder.helper.tag import get_tags_from_text
+from stickerfinder.logic.tag import get_tags_from_text
 from stickerfinder.models import (
     Tag,
     User,

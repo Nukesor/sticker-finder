@@ -1,7 +1,7 @@
 """Sticker set related commands."""
 from telegram.ext import run_async
 
-from stickerfinder.helper.session import session_wrapper
+from stickerfinder.session import session_wrapper
 from stickerfinder.models import (
     Report,
     Sticker,

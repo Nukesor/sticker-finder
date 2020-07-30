@@ -16,7 +16,7 @@ from sqlalchemy.orm.session import Session
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
 sys.path.append(parent_dir)
 from stickerfinder.models import Change, Sticker, Tag  # noqa
-from stickerfinder.helper.tag import get_tags_from_text  # noqa
+from stickerfinder.logic.tag import get_tags_from_text  # noqa
 
 
 # revision identifiers, used by Alembic.

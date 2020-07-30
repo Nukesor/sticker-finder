@@ -4,13 +4,13 @@ from sqlalchemy import func, and_
 from datetime import datetime, timedelta
 
 from stickerfinder.config import config
-from stickerfinder.helper.session import job_session_wrapper
-from stickerfinder.helper.sticker_set import refresh_stickers
-from stickerfinder.helper.maintenance import (
+from stickerfinder.session import job_session_wrapper
+from stickerfinder.logic.sticker_set import refresh_stickers
+from stickerfinder.logic.maintenance import (
     distribute_tasks,
     distribute_newsfeed_tasks,
 )
-from stickerfinder.helper.cleanup import full_cleanup
+from stickerfinder.logic.cleanup import full_cleanup
 from stickerfinder.models import (
     Change,
     StickerSet,
