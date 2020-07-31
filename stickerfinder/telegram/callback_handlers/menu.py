@@ -60,7 +60,7 @@ def tag_random(session, context):
     """Initialize tagging of a whole set."""
     chat = context.chat
     chat.cancel(context.bot)
-    chat.tag_mode = TagMode.RANDOM
+    chat.tag_mode = TagMode.random.value
     handle_next(session, context.bot, chat, context.query.message.chat, context.user)
 
     return
