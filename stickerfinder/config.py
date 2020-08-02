@@ -35,7 +35,7 @@ default_config = {
         "authorized_only": False,
         "auto_accept_set": False,
         "private_inline_query": False,
-        "inline_cache_size": 250,
+        "inline_cache_size": 500,
     },
 }
 
