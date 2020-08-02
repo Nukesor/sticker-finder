@@ -1,3 +1,15 @@
+## [2.1.0] - 
+
+### Changed
+
+- SIGNIFICANTLY improve query speed by utilizing PTB's integrated cache.
+- Migrate all long texts to a yaml and add a i18n library.
+
+### Fixed
+
+- A bug where fuzzy search didn't work, if no strict results were previously found.
+- Refactoring errors that were introduced when convering a class to an enum.
+
 ## [2.0.0] - 2020-07-30
 
 **THIS RELEASE INTRODUCES BREAKING CHANGES**
