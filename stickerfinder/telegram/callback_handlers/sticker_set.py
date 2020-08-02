@@ -1,5 +1,4 @@
 from stickerfinder.models import StickerSet
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.helper.callback import CallbackResult
 from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
 
@@ -13,6 +12,4 @@ def handle_deluxe_set_user_chat(session, context):
         sticker_set.deluxe = False
 
     keyboard = get_tag_this_set_keyboard(sticker_set, context.user)
-    call_tg_func(
-        context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-    )
+    context.query.message.edit_reply_markup(reply_markup=keyboard)

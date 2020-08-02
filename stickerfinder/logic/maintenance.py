@@ -3,7 +3,6 @@ from sqlalchemy import func
 from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.helper.text import split_text
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.telegram.keyboard import (
     check_user_tags_keyboard,
     get_report_keyboard,
@@ -77,12 +76,7 @@ def check_newsfeed_chat(bot, session, chat):
     # Add the keyboard for managing this specific sticker set.
     try:
         keyboard = get_nsfw_ban_keyboard(new_set)
-        call_tg_func(
-            bot,
-            "send_sticker",
-            [chat.id, new_set.stickers[0].file_id],
-            {"reply_markup": keyboard},
-        )
+        bot.end_sticker(chat.id, new_set.stickers[0].file_id, reply_markup=keyboard)
 
         if next_task.chat.type == "private":
             message = f"Set {new_set.name} added by user: {next_task.user.username} ({next_task.user.id})"
@@ -91,7 +85,7 @@ def check_newsfeed_chat(bot, session, chat):
         if task_count > 1:
             message += f"\n{task_count - 1} sets remaining."
 
-        call_tg_func(bot, "send_message", [chat.id, message])
+        bot.send_message(chat.id, message)
 
         chat.current_task = next_task
         chat.current_sticker = new_set.stickers[0]
@@ -119,7 +113,7 @@ def distribute_tasks(bot, session):
 
     for chat in idle_maintenance_chats:
         try:
-            tg_chat = call_tg_func(bot, "get_chat", args=[chat.id])
+            tg_chat = bot.get_chat(chat.id)
         except BadRequest as e:
             if e.message == "Chat not found":  # noqa
                 session.delete(chat)
@@ -181,22 +175,18 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
         keyboard = get_report_keyboard(task)
 
         # Send first sticker of the set
-        call_tg_func(
-            tg_chat, "send_sticker", args=[task.sticker_set.stickers[0].file_id]
-        )
+        tg_chat.send_sticker(task.sticker_set.stickers[0].file_id)
 
     text_chunks = split_text(text)
     while len(text_chunks) > 0:
         chunk = text_chunks.pop(0)
         # First chunks, just send the text
         if len(text_chunks) > 0:
-            call_tg_func(tg_chat, "send_message", args=[chunk])
+            tg_chat.send_message(chunk)
 
         # Last chunk. Send the text and the inline keyboard
         else:
-            call_tg_func(
-                tg_chat, "send_message", args=[chunk], kwargs={"reply_markup": keyboard}
-            )
+            tg_chat.send_message(chunk, reply_markup=keyboard)
 
     return True
 

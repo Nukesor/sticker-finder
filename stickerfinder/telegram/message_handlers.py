@@ -4,7 +4,6 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.session import session_wrapper
 from stickerfinder.enum import TagMode
 from stickerfinder.logic.tag import (
@@ -116,9 +115,7 @@ def handle_group_sticker(bot, update, session, chat, user):
 
         message = f'StickerSet "{sticker_set.title}" ({sticker_set.name})'
         keyboard = get_nsfw_ban_keyboard(sticker_set)
-        call_tg_func(
-            update.message.chat, "send_message", [message], {"reply_markup": keyboard}
-        )
+        update.message.chat.send_message(message, reply_markup=keyboard)
 
         return
 

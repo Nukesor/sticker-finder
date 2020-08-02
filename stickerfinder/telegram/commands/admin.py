@@ -8,7 +8,6 @@ from telegram import ReplyKeyboardRemove
 from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat, Sticker
 from stickerfinder.session import session_wrapper
-from stickerfinder.telegram.wrapper import call_tg_func
 
 
 @run_async
@@ -104,7 +103,7 @@ def add_sets(bot, update, session, chat, user):
     for name in names:
         set_name = name.strip()
         try:
-            tg_sticker_set = call_tg_func(bot, "get_sticker_set", args=[set_name])
+            tg_sticker_set = bot.get_sticker_set(set_name)
         except:
             return f"Couldn't find set {set_name}"
 
@@ -147,11 +146,7 @@ def broadcast(bot, update, session, chat, user):
         .all()
     )
 
-    call_tg_func(
-        update.message.chat,
-        "send_message",
-        args=[f"Sending broadcast to {len(users)} chats."],
-    )
+    update.message.chat.send_message(f"Sending broadcast to {len(users)} chats.")
     deleted = 0
     count = 0
     for user in users:
@@ -182,11 +177,9 @@ def broadcast(bot, update, session, chat, user):
         # Sleep one second to not trigger flood prevention
         time.sleep(0.07)
 
-    call_tg_func(
-        update.message.chat,
-        "send_message",
-        [f"All messages sent. Deleted {deleted} chats."],
-        {"reply_markup": ReplyKeyboardRemove()},
+    update.message.chat.send_message(
+        f"All messages sent. Deleted {deleted} chats.",
+        reply_markup=ReplyKeyboardRemove(),
     )
 
 
@@ -196,11 +189,8 @@ def test_broadcast(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     message = update.message.text.split(" ", 1)[1].strip()
 
-    call_tg_func(
-        bot,
-        "send_message",
-        [chat.id, message],
-        {"parse_mode": "Markdown", "reply_markup": ReplyKeyboardRemove()},
+    bot.send_message(
+        chat.id, message, parse_mode="Markdown", reply_markup=ReplyKeyboardRemove()
     )
 
 
@@ -208,14 +198,12 @@ def test_broadcast(bot, update, session, chat, user):
 @session_wrapper(admin_only=True)
 def fix_stuff(bot, update, session, chat, user):
     """Entry point for quick fixes."""
-    call_tg_func(bot, "send_message", [chat.id, "starting to fix"])
+    bot.send_message(chat.id, "starting to fix")
 
     sticker_sets = session.query(StickerSet).all()
     for sticker_set in sticker_sets:
         try:
-            tg_sticker_set = call_tg_func(
-                bot, "get_sticker_set", args=[sticker_set.name]
-            )
+            tg_sticker_set = bot.get_sticker_set(sticker_set.name)
         except BadRequest as e:
             if (
                 e.message == "Stickerset_invalid"
@@ -234,7 +222,7 @@ def fix_stuff(bot, update, session, chat, user):
 
         sticker_set.animated = tg_sticker_set.is_animated
 
-    call_tg_func(bot, "send_message", [chat.id, "Fixing done"])
+    bot.send_message(chat.id, "Fixing done")
 
 
 @run_async
@@ -243,7 +231,7 @@ def show_sticker(bot, update, session, chat, user):
     """Show the sticker for the given file id."""
     file_id = update.message.text.split(" ", 1)[1].strip()
     try:
-        call_tg_func(update.message.chat, "send_sticker", args=[file_id])
+        update.message.chat.send_sticker(file_id)
     except:
         return "Wrong file id"
 

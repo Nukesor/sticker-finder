@@ -8,7 +8,6 @@ from telegram.error import BadRequest, TimedOut
 
 from stickerfinder.config import config
 from stickerfinder.logic.tag import add_original_emojis
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.models import Sticker, Chat
 from stickerfinder.sentry import sentry
 from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
@@ -19,7 +18,7 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
     # Get sticker set from telegram and create new a Sticker for each sticker
     stickers = []
     try:
-        tg_sticker_set = call_tg_func(bot, "get_sticker_set", args=[sticker_set.name])
+        tg_sticker_set = bot.get_sticker_set(sticker_set.name)
     except BadRequest as e:
         if (
             e.message == "Stickerset_invalid"
@@ -117,8 +116,8 @@ def extract_text(tg_sticker):
     logger = logging.getLogger()
     try:
         # Get Image and preprocess it
-        tg_file = call_tg_func(tg_sticker, "get_file")
-        image_bytes = call_tg_func(tg_file, "download_as_bytearray")
+        tg_file = tg_sticker.get_file()
+        image_bytes = tg_file.download_as_bytearray()
         with Image.open(io.BytesIO(image_bytes)).convert("RGB") as image:
             # Extract text
             text = image_to_string(image).strip().lower()

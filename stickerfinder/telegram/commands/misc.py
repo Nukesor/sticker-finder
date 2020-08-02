@@ -1,6 +1,5 @@
 """Misc telegram commands."""
 from stickerfinder.session import session_wrapper
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.helper.display import (
     get_settings_text,
     get_help_text_and_keyboard,
@@ -16,11 +15,8 @@ from stickerfinder.telegram.keyboard import (
 def start(bot, update, session, chat, user):
     """Send the start text."""
     if chat.is_maintenance or chat.is_newsfeed:
-        call_tg_func(
-            update.message.chat,
-            "send_message",
-            ["Hello there"],
-            {"reply_markup": get_main_keyboard(user)},
+        update.message.chat.send_message(
+            "Hello there", reply_markup=get_main_keyboard(user)
         )
     else:
         update.message.chat.send_message(

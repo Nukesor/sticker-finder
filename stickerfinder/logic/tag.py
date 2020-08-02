@@ -3,7 +3,6 @@ from sqlalchemy import func
 from collections import OrderedDict
 
 from stickerfinder.sentry import sentry
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.enum import TagMode
 from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
@@ -53,22 +52,17 @@ def send_tag_messages(chat, tg_chat, user, send_set_info=False):
     keyboard = get_tagging_keyboard(chat)
 
     if not message:
-        response = call_tg_func(
-            tg_chat,
-            "send_sticker",
-            args=[chat.current_sticker.file_id],
-            kwargs={"reply_markup": keyboard},
+        response = tg_chat.send_sticker(
+            chat.current_sticker.file_id, reply_markup=keyboard
         )
 
         chat.last_sticker_message_id = response.message_id
 
     else:
-        call_tg_func(tg_chat, "send_sticker", args=[chat.current_sticker.file_id])
+        tg_chat.send_sticker(chat.current_sticker.file_id)
 
     if message:
-        response = call_tg_func(
-            tg_chat, "send_message", [message], {"reply_markup": keyboard}
-        )
+        response = tg_chat.send_message(message, reply_markup=keyboard)
         chat.last_sticker_message_id = response.message_id
 
 
@@ -118,11 +112,9 @@ def handle_next(session, bot, chat, tg_chat, user):
 
         # No stickers for tagging left :)
         if not sticker:
-            call_tg_func(
-                tg_chat,
-                "send_message",
-                ["It looks like all stickers are already tagged :)."],
-                {"reply_markup": get_main_keyboard(user)},
+            tg_chat.send_message(
+                "It looks like all stickers are already tagged :).",
+                reply_markup=get_main_keyboard(user),
             )
             chat.cancel(bot)
             return
@@ -142,7 +134,7 @@ def initialize_set_tagging(session, bot, tg_chat, name, chat, user):
     chat.tag_mode = TagMode.sticker_set.value
     chat.current_sticker = sticker_set.stickers[0]
 
-    call_tg_func(tg_chat, "send_message", [i18n.t("text.tagging.send_tags")])
+    tg_chat.send_message(i18n.t("text.tagging.send_tags"))
     send_tag_messages(chat, tg_chat, user)
 
 
@@ -253,18 +245,14 @@ def tag_sticker(
     # Only use the first few tags. This should prevent abuse from tag spammers.
     if len(raw_tags) > 10:
         raw_tags = raw_tags[:10]
-        call_tg_func(
-            tg_chat,
-            "send_message",
-            [
-                "Please don't send that many tags. Try to describe everything as brief as possible."
-            ],
+        tg_chat.send_message(
+            "Please don't send that many tags. Try to describe everything as brief as possible."
         )
 
     # Inform us if the user managed to hit a special count of changes
     if tg_chat and len(user.changes) in [10, 25, 50, 100, 250, 500, 1000, 2000, 3000]:
         achievement_message = i18n.t(f"text.tagging.achievements.{len(user.changes)}")
-        call_tg_func(tg_chat, "send_message", [achievement_message])
+        tg_chat.send_message(achievement_message)
 
         sentry.captureMessage(
             f"User hit {len(user.changes)} changes!",
@@ -328,11 +316,8 @@ def tag_sticker(
     # Change the inline keyboard to allow fast fixing of the sticker's tags
     if tg_chat and chat and not single_sticker and chat.last_sticker_message_id:
         keyboard = get_fix_sticker_tags_keyboard(chat.current_sticker.file_unique_id)
-        call_tg_func(
-            tg_chat.bot,
-            "edit_message_reply_markup",
-            [tg_chat.id, chat.last_sticker_message_id],
-            {"reply_markup": keyboard},
+        tg_chat.bot.edit_message_reply_markup(
+            tg_chat.id, chat.last_sticker_message_id, reply_markup=keyboard
         )
 
 

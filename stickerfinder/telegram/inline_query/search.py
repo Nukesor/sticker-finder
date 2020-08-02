@@ -8,7 +8,6 @@ from telegram import (
 )
 
 from stickerfinder.sentry import sentry
-from stickerfinder.telegram.wrapper import call_tg_func
 from .context import Context
 from .offset import (
     get_next_offset,
@@ -62,11 +61,8 @@ def search_stickers(session, update, context, inline_query_request):
             )
         )
 
-    call_tg_func(
-        update.inline_query,
-        "answer",
-        args=[results],
-        kwargs={"next_offset": next_offset, "cache_time": 1, "is_personal": True,},
+    update.inline_query.answer(
+        results, next_offset=next_offset, cache_time=1, is_personal=True,
     )
 
 
@@ -121,11 +117,8 @@ def search_sticker_sets(session, update, context, inline_query_request):
                     )
                 )
 
-    call_tg_func(
-        update.inline_query,
-        "answer",
-        args=[results],
-        kwargs={"next_offset": next_offset, "cache_time": 1, "is_personal": True,},
+    update.inline_query.answer(
+        results, next_offset=next_offset, cache_time=1, is_personal=True
     )
 
 

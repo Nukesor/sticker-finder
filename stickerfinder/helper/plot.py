@@ -5,7 +5,6 @@ import matplotlib
 import matplotlib.dates as mdates
 from sqlalchemy import func, Date, cast, Integer
 
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.models import (
     InlineQuery,
     InlineQueryRequest,

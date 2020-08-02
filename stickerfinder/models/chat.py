@@ -19,7 +19,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from stickerfinder.db import base
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.enum import TagMode
 from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
 
@@ -124,11 +123,8 @@ class Chat(base):
         ):
             keyboard = get_continue_tagging_keyboard(self.current_sticker.id)
             try:
-                call_tg_func(
-                    bot,
-                    "edit_message_reply_markup",
-                    [self.id, self.last_sticker_message_id],
-                    {"reply_markup": keyboard},
+                bot.edit_message_reply_markup(
+                    self.id, self.last_sticker_message_id, reply_markup=keyboard
                 )
             except BadRequest as e:
                 # An update for a reply keyboard has failed (Probably due to button spam)

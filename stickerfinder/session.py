@@ -14,7 +14,6 @@ from stickerfinder.db import get_session
 from stickerfinder.sentry import sentry
 from stickerfinder.models import Chat, User
 from stickerfinder.i18n import i18n
-from stickerfinder.telegram.wrapper import call_tg_func
 
 
 def job_session_wrapper():
@@ -178,9 +177,7 @@ def session_wrapper(
                     if send_message and message:
                         session.close()
                         error_message = i18n.t("text.misc.error")
-                        call_tg_func(
-                            message.chat, "send_message", args=[error_message],
-                        )
+                        message.chat.send_message(error_message)
                     raise
             finally:
                 session.close()
@@ -206,7 +203,7 @@ def is_allowed(user, update, chat=None, admin_only=False, check_ban=True):
     """Check whether the user is allowed to access this endpoint."""
     # Check if the user has been banned.
     if check_ban and user and user.banned:
-        call_tg_func(update.message.chat, "send_message", ["You have been banned."])
+        update.message.chat.send_message("You have been banned.")
         return False
 
     # Check for admin permissions.
@@ -216,11 +213,7 @@ def is_allowed(user, update, chat=None, admin_only=False, check_ban=True):
         and user.admin is not True
         and user.username != config["telegram"]["admin"].lower()
     ):
-        call_tg_func(
-            update.message.chat,
-            "send_message",
-            ["You are not authorized for this command."],
-        )
+        update.message.chat.send_message("You are not authorized for this command.")
         return False
 
     return True

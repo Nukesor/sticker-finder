@@ -1,7 +1,6 @@
 from stickerfinder.models import Task
 from stickerfinder.logic.maintenance import check_maintenance_chat
 from stickerfinder.helper.callback import CallbackResult
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.telegram.keyboard import get_report_keyboard
 
 
@@ -10,17 +9,15 @@ def handle_report_ban(session, context):
     task = session.query(Task).get(context.payload)
     if CallbackResult(context.action).name == "ban":
         task.sticker_set.banned = True
-        call_tg_func(context.query, "answer", ["Set tagged as nsfw"])
+        context.query.answer("Set tagged as nsfw")
     else:
         task.sticker_set.banned = False
-        call_tg_func(context.query, "answer", ["Set no longer tagged as nsfw"])
+        context.query.answer("Set no longer tagged as nsfw")
 
     session.commit()
 
     keyboard = get_report_keyboard(task)
-    call_tg_func(
-        context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-    )
+    context.query.message.edit_reply_markup(reply_markup=keyboard)
 
 
 def handle_report_nsfw(session, context):
@@ -28,17 +25,15 @@ def handle_report_nsfw(session, context):
     task = session.query(Task).get(context.payload)
     if CallbackResult(context.action).name == "ban":
         task.sticker_set.nsfw = True
-        call_tg_func(context.query, "answer", ["Set banned"])
+        context.query.answer("Set banned")
     else:
         task.sticker_set.nsfw = False
-        call_tg_func(context.query, "answer", ["Set unbanned"])
+        context.query.answer("Set unbanned")
 
     session.commit()
 
     keyboard = get_report_keyboard(task)
-    call_tg_func(
-        context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-    )
+    context.query.message.edit_reply_markup(reply_markup=keyboard)
 
 
 def handle_report_furry(session, context):
@@ -46,17 +41,15 @@ def handle_report_furry(session, context):
     task = session.query(Task).get(context.payload)
     if CallbackResult(context.action).name == "ban":
         task.sticker_set.furry = True
-        call_tg_func(context.query, "answer", ["Set tagged as furry"])
+        context.query.answer("Set tagged as furry")
     else:
         task.sticker_set.furry = False
-        call_tg_func(context.query, "answer", ["Set tagged as furry"])
+        context.query.answer("Set tagged as furry")
 
     session.commit()
 
     keyboard = get_report_keyboard(task)
-    call_tg_func(
-        context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-    )
+    context.query.message.edit_reply_markup(reply_markup=keyboard)
 
 
 def handle_report_next(session, context):
@@ -69,8 +62,6 @@ def handle_report_next(session, context):
 
     try:
         keyboard = get_report_keyboard(task)
-        call_tg_func(
-            context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-        )
+        context.query.message.edit_reply_markup(reply_markup=keyboard)
     except:  # noqa
         return

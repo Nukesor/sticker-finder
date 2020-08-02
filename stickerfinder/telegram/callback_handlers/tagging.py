@@ -1,4 +1,3 @@
-from stickerfinder.telegram.wrapper import call_tg_func
 from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
     get_fix_sticker_tags_keyboard,
@@ -21,9 +20,7 @@ def handle_tag_next(session, context):
     handle_next(session, context.bot, chat, context.tg_chat, context.user)
     if chat.current_sticker is not None:
         keyboard = get_fix_sticker_tags_keyboard(current_sticker.id)
-        call_tg_func(
-            context.query.message, "edit_reply_markup", [], {"reply_markup": keyboard}
-        )
+        context.query.message.edit_reply_markup(reply_markup=keyboard)
 
 
 def handle_cancel_tagging(session, context):
