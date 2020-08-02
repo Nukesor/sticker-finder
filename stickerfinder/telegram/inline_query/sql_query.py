@@ -14,6 +14,8 @@ from stickerfinder.models import (
     Tag,
 )
 
+from .cache import get_cached_strict_matching_stickers
+
 
 def get_favorite_stickers(session, context):
     """Get the most used stickers of a user."""
@@ -353,11 +355,6 @@ def get_fuzzy_matching_query(session, context):
         score = score + condition
     score = score.label("score")
 
-    # Query all strict matching results to exclude them.
-    strict_subquery = get_strict_matching_query(session, context).subquery(
-        "strict_subquery"
-    )
-
     # Compute the score for all stickers and filter nsfw stuff
     # We do the score computation in a subquery, since it would otherwise be recomputed for statement.
     matching_stickers = (
@@ -368,9 +365,6 @@ def get_fuzzy_matching_query(session, context):
             tag_score_subq,
             Sticker.file_unique_id == tag_score_subq.c.sticker_file_unique_id,
         )
-        .outerjoin(
-            strict_subquery, Sticker.file_unique_id == strict_subquery.c.file_unique_id
-        )
         .join(Sticker.sticker_set)
     )
 
@@ -380,9 +374,13 @@ def get_fuzzy_matching_query(session, context):
             subq, Sticker.sticker_set_name == subq.c.name
         )
 
+    # Get all strictly matched stickers from the inline query cache.
+    # This way we avoid having to issue the strict query again.
+    strict_file_unique_ids = get_cached_strict_matching_stickers(context)
+
     matching_stickers = (
         matching_stickers.filter(Sticker.banned.is_(False))
-        .filter(strict_subquery.c.file_unique_id.is_(None))
+        .filter(Sticker.file_unique_id.notin_(strict_file_unique_ids))
         .filter(StickerSet.deleted.is_(False))
         .filter(StickerSet.banned.is_(False))
         .filter(StickerSet.reviewed.is_(True))

@@ -63,11 +63,8 @@ def get_cached_stickers(context, fuzzy=False):
     return results[offset : offset + 50]
 
 
-def get_strict_matching_stickers(context):
+def get_cached_strict_matching_stickers(context):
     """A simple helper function to get all unique file_id's of strict matching stickers."""
     query_id = context.inline_query_id
     cache = context.tg_context.bot_data[query_id]
-    if query_id in cache:
-        return cache["strict_unique"]
-    else:
-        raise Exception("This shouldn't happen. Race condition?")
+    return cache["strict_unique"]

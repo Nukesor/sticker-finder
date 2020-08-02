@@ -4,12 +4,7 @@ from telegram.ext import run_async
 from stickerfinder.db import get_session
 from stickerfinder.session import callback_session_wrapper
 from stickerfinder.helper.callback import CallbackType
-from stickerfinder.models import (
-    Chat,
-    InlineQuery,
-    Sticker,
-    StickerUsage,
-)
+from stickerfinder.models import Chat
 
 from .report import (
     handle_report_ban,
@@ -152,28 +147,3 @@ def handle_callback_query(bot, update, session, user):
         context.query.answer("")
 
     return
-
-
-@run_async
-def handle_chosen_inline_result(update, context):
-    session = get_session()
-    """Save the chosen inline result."""
-    result = update.chosen_inline_result
-    splitted = result.result_id.split(":")
-
-    # This is a result from a banned user
-    if len(splitted) < 2:
-        return
-
-    [search_id, sticker_id] = splitted
-    inline_query = session.query(InlineQuery).get(search_id)
-
-    # This happens, if the user clicks on a link in sticker set search.
-    sticker = session.query(Sticker).filter(Sticker.id == sticker_id).one_or_none()
-    if sticker is None:
-        return
-
-    inline_query.sticker_file_id = sticker.file_id
-
-    sticker_usage = StickerUsage.get_or_create(session, inline_query.user, sticker)
-    sticker_usage.usage_count += 1

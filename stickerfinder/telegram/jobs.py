@@ -33,6 +33,23 @@ def newsfeed_job(context, session):
 
 @run_async
 @job_session_wrapper()
+def free_cache(context, session):
+    """This job removes all inline query cache entries that are older than a specified threshold.
+
+    We do this to preserve memory, since there's virtually no limit to the PTB cache size.
+    """
+    for key in context.bot_data.keys():
+        creation_time = context.bot_data[key]["time"]
+        # A threshold of 10 minutes should be more than enough.
+        threshold = datetime.now() - timedelta(minutes=20)
+        if creation_time < threshold:
+            del context.bot_data[key]
+
+    return
+
+
+@run_async
+@job_session_wrapper()
 def maintenance_job(context, session):
     """Create new maintenance tasks.
 

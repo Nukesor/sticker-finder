@@ -39,6 +39,7 @@ from stickerfinder.telegram.commands import (
 )
 from stickerfinder.telegram.jobs import (
     cleanup_job,
+    free_cache,
     newsfeed_job,
     maintenance_job,
     scan_sticker_sets_job,
@@ -50,11 +51,9 @@ from stickerfinder.telegram.message_handlers import (
     handle_group_sticker,
     handle_edited_messages,
 )
-from stickerfinder.telegram.callback_handlers import (
-    handle_callback_query,
-    handle_chosen_inline_result,
-)
+from stickerfinder.telegram.callback_handlers import handle_callback_query
 from stickerfinder.telegram.inline_query import search
+from stickerfinder.telegram.inline_query.result import handle_chosen_inline_result
 from stickerfinder.telegram.error_handler import error_callback
 
 
@@ -153,6 +152,12 @@ if not config["mode"]["leecher"]:
     job_queue.run_repeating(
         cleanup_job,
         interval=2 * hour,
+        first=0,
+        name="Perform some database cleanup tasks",
+    )
+    job_queue.run_repeating(
+        free_cache,
+        interval=20 * minute,
         first=0,
         name="Perform some database cleanup tasks",
     )

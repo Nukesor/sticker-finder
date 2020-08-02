@@ -190,6 +190,7 @@ def get_matching_stickers(session, context):
     # If we take more than 10 seconds, the answer will be invalid.
     # We need to know about this, before it happens.
     duration = end - start
+    print(duration)
     if duration.seconds >= 8:
         sentry.captureMessage(
             f"Query took too long.",
