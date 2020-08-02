@@ -4,6 +4,8 @@
 
 - SIGNIFICANTLY improve query speed by utilizing PTB's integrated cache.
 - Migrate all long texts to a yaml and add a i18n library.
+- Remove legacy telegram call wrapper
+- Significantly improve error handling
 
 ### Fixed
 
