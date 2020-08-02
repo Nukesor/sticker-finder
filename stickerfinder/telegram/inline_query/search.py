@@ -171,8 +171,10 @@ def get_matching_stickers(session, context):
         if context.fuzzy_offset is not None or len(matching_stickers) < 50:
             # Set the switched_to_fuzzy flag in the context object.
             # This also sets a custom limit for fuzzy search (50-len(strict_matching))
+            fuzzy_limit = 50
             if len(matching_stickers) < 50 and context.fuzzy_offset is None:
-                context.switch_to_fuzzy(50 - len(matching_stickers))
+                fuzzy_limit = 50 - len(matching_stickers)
+                context.switch_to_fuzzy(fuzzy_limit)
 
             # Check if we can get some cached results from a previous request
             fuzzy_matching_stickers = get_cached_stickers(context, fuzzy=True)
@@ -183,14 +185,13 @@ def get_matching_stickers(session, context):
                 cache_stickers(context, fuzzy_matching_stickers, fuzzy=True)
 
                 # Only take the first 50 results, since this is the limit for inline query responses
-                fuzzy_matching_stickers = fuzzy_matching_stickers[0:50]
+                fuzzy_matching_stickers = fuzzy_matching_stickers[0:fuzzy_limit]
 
     end = datetime.now()
 
     # If we take more than 10 seconds, the answer will be invalid.
     # We need to know about this, before it happens.
     duration = end - start
-    print(duration)
     if duration.seconds >= 8:
         sentry.captureMessage(
             f"Query took too long.",
