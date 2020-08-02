@@ -17,7 +17,7 @@ from stickerfinder.models import (
 
 def get_favorite_stickers(session, context):
     """Get the most used stickers of a user."""
-    limit = context.limit if context.limit else 50
+    limit = 50
     favorite_stickers = (
         session.query(
             Sticker.id,
@@ -55,7 +55,7 @@ def get_strict_matching_stickers(session, context):
     """Query all strictly matching stickers for given tags."""
     matching_stickers = get_strict_matching_query(session, context)
 
-    limit = context.limit if context.limit else 50
+    limit = config["mode"]["inline_cache_size"]
     matching_stickers = matching_stickers.offset(context.offset).limit(limit)
 
     #    if config['logging']['debug']:
@@ -73,7 +73,16 @@ def get_strict_matching_stickers(session, context):
 
 def get_fuzzy_matching_stickers(session, context):
     """Get fuzzy matching stickers."""
-    limit = context.limit if context.limit else 50
+
+    limit = config["mode"]["inline_cache_size"]
+    # In case we have some slots left from the strict search, we simply
+    # add the amount of remaining slots to the cache size.
+    # Example: 37 strict results, 13 remaining slots, 250 cache size = 263 results
+    # -> Current request is filled up to 50
+    # -> Next 5 fuzzy queries are cached
+    if context.limit is not None:
+        limit += context.limit
+
     matching_stickers = (
         get_fuzzy_matching_query(session, context)
         .offset(context.fuzzy_offset)

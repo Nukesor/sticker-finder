@@ -9,8 +9,9 @@ class Context:
     STICKER_SET_MODE = "sticker_set"
     FAVORITE_MODE = "favorite"
 
-    def __init__(self, query, offset_payload, user):
+    def __init__(self, tg_context, query, offset_payload, user):
         """Create a new context instance."""
+        self.tg_context = tg_context
         self.query = query
         self.tags = get_tags_from_text(query, limit=10)
         self.user = user

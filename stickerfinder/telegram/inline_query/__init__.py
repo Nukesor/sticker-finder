@@ -18,8 +18,14 @@ from .search import (
 
 @run_async
 @inline_session_wrapper()
-def search(bot, update, session, user):
-    """Handle inline queries for sticker search."""
+def search(tg_context, update, session, user):
+    """Handle inline queries for sticker search.
+
+    This is the entry point for inline query search.
+    There's not much of the actual search functionality in this function.
+    It's purpose is to do some pre-processing and preparation for the actual
+    search logic.
+    """
 
     offset_payload = update.inline_query.offset
     # If the offset is 'done' there are no more stickers for this query.
@@ -27,10 +33,9 @@ def search(bot, update, session, user):
         update.inline_query.answer([], cache_time=0)
         return
 
-    context = Context(update.inline_query.query, offset_payload, user)
+    context = Context(tg_context, update.inline_query.query, offset_payload, user)
 
-    # Create a new inline query or get the respective existing one,
-    # if we are working with an offset.
+    # Create a new inline query or get an existing one, if we aren't on the first request
     inline_query = InlineQuery.get_or_create(
         session, context.inline_query_id, context.query, user
     )
@@ -42,8 +47,9 @@ def search(bot, update, session, user):
     # Save this specific InlineQueryRequest
     try:
         saved_offset = 0
-        if context.offset != 0:
+        if context.offset != 0 or context.fuzzy_offset is not None:
             saved_offset = offset_payload.split(":", 1)[1]
+
         inline_query_request = InlineQueryRequest(inline_query, saved_offset)
         session.add(inline_query_request)
         session.commit()

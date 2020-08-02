@@ -7,6 +7,7 @@ from telegram.error import (
     ChatMigrated,
     Unauthorized,
     TimedOut,
+    RetryAfter,
 )
 
 from stickerfinder.config import config
@@ -61,7 +62,7 @@ def inline_session_wrapper():
                 if config["mode"]["private_inline_query"] and not user.authorized:
                     return
 
-                func(context.bot, update, session, user)
+                func(context, update, session, user)
                 session.commit()
 
             # Handle all not telegram relatated exceptions
@@ -131,7 +132,8 @@ def session_wrapper(
                 elif hasattr(update, "edited_message") and update.edited_message:
                     message = update.edited_message
 
-                user = get_user(session, update)
+                user = User.get_or_create(session, message.from_user)
+
                 if config["mode"]["authorized_only"] and not user.authorized:
                     text = i18n.t(
                         "text.misc.private_access",
@@ -187,18 +189,6 @@ def session_wrapper(
     return real_decorator
 
 
-def get_user(session, update):
-    """Get the user from the update."""
-    user = None
-    # Check user permissions
-    if hasattr(update, "message") and update.message:
-        user = User.get_or_create(session, update.message.from_user)
-    if hasattr(update, "edited_message") and update.edited_message:
-        user = User.get_or_create(session, update.edited_message.from_user)
-
-    return user
-
-
 def is_allowed(user, update, chat=None, admin_only=False, check_ban=True):
     """Check whether the user is allowed to access this endpoint."""
     # Check if the user has been banned.
@@ -225,6 +215,11 @@ def ignore_exception(exception):
         if (
             exception.message.startswith("Query is too old")
             or exception.message.startswith("Have no rights to send a message")
+            or exception.message.startswith("Message_id_invalid")
+            or exception.message.startswith("Message identifier not specified")
+            or exception.message.startswith("Schedule_date_invalid")
+            or exception.message.startswith("Message to edit not found")
+            or exception.message.startswith("Chat_write_forbidden")
             or exception.message.startswith(
                 "Message is not modified: specified new message content"
             )
@@ -232,14 +227,31 @@ def ignore_exception(exception):
             return True
 
     if isinstance(exception, Unauthorized):
-        if exception.message == "Forbidden: bot was blocked by the user":
+        if exception.message.lower() == "forbidden: bot was blocked by the user":
             return True
-        if exception.message == "Forbidden: MESSAGE_AUTHOR_REQUIRED":
+        if exception.message.lower() == "forbidden: message_author_required":
             return True
-        if exception.message == "Forbidden: bot is not a member of the supergroup chat":
+        if (
+            exception.message.lower()
+            == "forbidden: bot is not a member of the supergroup chat"
+        ):
+            return True
+        if exception.message.lower() == "forbidden: user is deactivated":
+            return True
+        if exception.message.lower() == "forbidden: bot was kicked from the group chat":
+            return True
+        if (
+            exception.message.lower()
+            == "forbidden: bot was kicked from the supergroup chat"
+        ):
+            return True
+        if exception.message.lower() == "forbidden: chat_write_forbidden":
             return True
 
     if isinstance(exception, TimedOut):
+        return True
+
+    if isinstance(exception, RetryAfter):
         return True
 
     return False
