@@ -1,14 +1,14 @@
 """Tag related commands."""
 from telegram.ext import run_async
 
-from stickerfinder.session import session_wrapper
+from stickerfinder.session import message_wrapper
 from stickerfinder.enum import TagMode
 from stickerfinder.logic.tag import handle_next, tag_sticker
 from stickerfinder.models import Sticker
 
 
 @run_async
-@session_wrapper()
+@message_wrapper()
 def tag_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     # The tag command has been replied to another message
@@ -55,7 +55,7 @@ def tag_single(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper()
+@message_wrapper()
 def replace_single(bot, update, session, chat, user):
     """Tag the last sticker send to this chat."""
     # The replace command has been replied to another message

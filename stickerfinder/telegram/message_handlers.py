@@ -4,7 +4,7 @@ from stickerfinder.models import (
     Sticker,
     StickerSet,
 )
-from stickerfinder.session import session_wrapper
+from stickerfinder.session import message_wrapper
 from stickerfinder.enum import TagMode
 from stickerfinder.logic.tag import (
     handle_next,
@@ -18,7 +18,7 @@ from stickerfinder.telegram.keyboard import (
 )
 
 
-@session_wrapper()
+@message_wrapper()
 def handle_private_text(bot, update, session, chat, user):
     """Read all messages and handle the tagging of stickers."""
     # Handle the name of a sticker set to initialize full sticker set tagging
@@ -52,7 +52,7 @@ def handle_private_text(bot, update, session, chat, user):
         return "Sticker tags adjusted."
 
 
-@session_wrapper()
+@message_wrapper()
 def handle_private_sticker(bot, update, session, chat, user):
     """Read all stickers.
 
@@ -93,7 +93,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     )
 
 
-@session_wrapper(send_message=False)
+@message_wrapper(send_message=False)
 def handle_group_sticker(bot, update, session, chat, user):
     """Read all stickers.
 
@@ -146,7 +146,7 @@ def handle_group_sticker(bot, update, session, chat, user):
     return
 
 
-@session_wrapper()
+@message_wrapper()
 def handle_edited_messages(bot, update, session, chat, user):
     """Read edited messages and check whether the user corrected some tags."""
     message = update.edited_message

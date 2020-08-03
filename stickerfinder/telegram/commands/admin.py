@@ -7,11 +7,11 @@ from telegram import ReplyKeyboardRemove
 
 from stickerfinder.config import config
 from stickerfinder.models import User, StickerSet, Chat, Sticker
-from stickerfinder.session import session_wrapper
+from stickerfinder.session import message_wrapper
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def ban_user(bot, update, session, chat, user):
     """Send a help text."""
     name_to_ban = update.message.text.split(" ", 1)[1].lower()
@@ -29,7 +29,7 @@ def ban_user(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def unban_user(bot, update, session, chat, user):
     """Send a help text."""
     name_to_unban = update.message.text.split(" ", 1)[1].lower()
@@ -51,7 +51,7 @@ def unban_user(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def authorize_user(bot, update, session, chat, user):
     """Send a help text."""
     name_to_ban = update.message.text.split(" ", 1)[1].lower()
@@ -70,7 +70,7 @@ def authorize_user(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def make_admin(bot, update, session, chat, user):
     """Send a help text."""
     identifier = update.message.text.split(" ", 1)[1].lower()
@@ -93,7 +93,7 @@ def make_admin(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def add_sets(bot, update, session, chat, user):
     """Get random sticker_set."""
     text = update.message.text[9:]
@@ -119,7 +119,7 @@ def add_sets(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def delete_set(bot, update, session, chat, user):
     """Delete a specific set."""
     name = update.message.text[11:].strip().lower()
@@ -134,7 +134,7 @@ def delete_set(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def broadcast(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     message = update.message.text.split(" ", 1)[1].strip()
@@ -184,7 +184,7 @@ def broadcast(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def test_broadcast(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     message = update.message.text.split(" ", 1)[1].strip()
@@ -195,7 +195,7 @@ def test_broadcast(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def fix_stuff(bot, update, session, chat, user):
     """Entry point for quick fixes."""
     bot.send_message(chat.id, "starting to fix")
@@ -226,7 +226,7 @@ def fix_stuff(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper()
+@message_wrapper()
 def show_sticker(bot, update, session, chat, user):
     """Show the sticker for the given file id."""
     file_id = update.message.text.split(" ", 1)[1].strip()
@@ -237,7 +237,7 @@ def show_sticker(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper()
+@message_wrapper()
 def show_sticker_file_id(bot, update, session, chat, user):
     """Give the file id for a sticker."""
     if update.message.reply_to_message is None:
@@ -251,7 +251,7 @@ def show_sticker_file_id(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def ban_sticker(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     chat.current_sticker.banned = True
@@ -261,7 +261,7 @@ def ban_sticker(bot, update, session, chat, user):
 
 
 @run_async
-@session_wrapper(admin_only=True)
+@message_wrapper(admin_only=True)
 def unban_sticker(bot, update, session, chat, user):
     """Broadcast a message to all users."""
     chat.current_sticker.banned = True

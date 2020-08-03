@@ -254,9 +254,8 @@ def tag_sticker(
         achievement_message = i18n.t(f"text.tagging.achievements.{len(user.changes)}")
         tg_chat.send_message(achievement_message)
 
-        sentry.captureMessage(
+        sentry.capture_message(
             f"User hit {len(user.changes)} changes!",
-            level="info",
             extra={
                 "user": user.username,
                 "user_id": user.id,

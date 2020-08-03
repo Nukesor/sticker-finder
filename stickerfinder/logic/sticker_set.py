@@ -139,7 +139,7 @@ def extract_text(tg_sticker):
         logger.info(f"Failed to open image {tg_sticker.file_unique_id}")
         pass
     except:
-        sentry.captureException()
+        sentry.capture_exception(tags={"context": "text_extraction"})
         pass
 
     return text

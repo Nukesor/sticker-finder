@@ -17,7 +17,7 @@ from stickerfinder.models import Chat, User
 from stickerfinder.i18n import i18n
 
 
-def job_session_wrapper():
+def job_wrapper():
     """Create a session, handle permissions and exceptions for jobs."""
 
     def real_decorator(func):
@@ -34,7 +34,7 @@ def job_session_wrapper():
                 # Capture all exceptions from jobs.
                 # We need to handle those inside the jobs
                 traceback.print_exc()
-                sentry.captureException()
+                sentry.capture_exception(tags={"handler": "job"})
             finally:
                 context.job.enabled = True
                 session.close()
@@ -44,7 +44,7 @@ def job_session_wrapper():
     return real_decorator
 
 
-def inline_session_wrapper():
+def inline_query_wrapper():
     """Create a session, handle permissions and exceptions."""
 
     def real_decorator(func):
@@ -69,7 +69,7 @@ def inline_session_wrapper():
             except Exception as e:
                 if not ignore_exception(e):
                     traceback.print_exc()
-                    sentry.captureException()
+                    sentry.capture_exception(tags={"handler": "inline_query"})
 
             finally:
                 session.close()
@@ -79,7 +79,7 @@ def inline_session_wrapper():
     return real_decorator
 
 
-def callback_session_wrapper():
+def callback_query_wrapper():
     """Create a session, handle permissions and exceptions."""
 
     def real_decorator(func):
@@ -104,8 +104,11 @@ def callback_session_wrapper():
             except Exception as e:
                 if not ignore_exception(e):
                     traceback.print_exc()
-                    sentry.captureException()
 
+                    sentry.capture_exception(
+                        tags={"handler": "callback_query",},
+                        extra={"query": update.callback_query,},
+                    )
             finally:
                 session.close()
 
@@ -114,7 +117,7 @@ def callback_session_wrapper():
     return real_decorator
 
 
-def session_wrapper(
+def message_wrapper(
     send_message=True, allow_edit=False, admin_only=False,
 ):
     """Create a session, handle permissions, handle exceptions and prepare some entities."""
@@ -175,12 +178,13 @@ def session_wrapper(
             except Exception as e:
                 if not ignore_exception(e):
                     traceback.print_exc()
-                    sentry.captureException()
-                    if send_message and message:
-                        session.close()
-                        error_message = i18n.t("text.misc.error")
-                        message.chat.send_message(error_message)
-                    raise
+                    sentry.capture_exception(
+                        tags={"handler": "message",},
+                        extra={"update": update.to_dict(), "function": func.__name__},
+                    )
+
+                    error_message = i18n.t("text.misc.error")
+                    message.chat.send_message(error_message)
             finally:
                 session.close()
 

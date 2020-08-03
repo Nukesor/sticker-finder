@@ -1,7 +1,7 @@
 """Sticker set related commands."""
 from telegram.ext import run_async
 
-from stickerfinder.session import session_wrapper
+from stickerfinder.session import message_wrapper
 from stickerfinder.models import (
     Report,
     Sticker,
@@ -9,7 +9,7 @@ from stickerfinder.models import (
 
 
 @run_async
-@session_wrapper()
+@message_wrapper()
 def report_set(bot, update, session, chat, user):
     """Report the set of the last sticker send to this chat."""
     if (

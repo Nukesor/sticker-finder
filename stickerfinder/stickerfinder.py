@@ -54,7 +54,6 @@ from stickerfinder.telegram.message_handlers import (
 from stickerfinder.telegram.callback_handlers import handle_callback_query
 from stickerfinder.telegram.inline_query import search
 from stickerfinder.telegram.inline_query.result import handle_chosen_inline_result
-from stickerfinder.telegram.error_handler import error_callback
 
 
 logging.basicConfig(
@@ -182,6 +181,3 @@ if not config["mode"]["leecher"]:
     # Inline callback handler
     dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
     dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))
-
-    # Error handling
-    dispatcher.add_error_handler(error_callback)

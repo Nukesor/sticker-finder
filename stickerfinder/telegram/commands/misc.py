@@ -1,5 +1,5 @@
 """Misc telegram commands."""
-from stickerfinder.session import session_wrapper
+from stickerfinder.session import message_wrapper
 from stickerfinder.helper.display import (
     get_settings_text,
     get_help_text_and_keyboard,
@@ -11,7 +11,7 @@ from stickerfinder.telegram.keyboard import (
 )
 
 
-@session_wrapper()
+@message_wrapper()
 def start(bot, update, session, chat, user):
     """Send the start text."""
     if chat.is_maintenance or chat.is_newsfeed:
@@ -27,7 +27,7 @@ def start(bot, update, session, chat, user):
         )
 
 
-@session_wrapper()
+@message_wrapper()
 def send_help_text(bot, update, session, chat, user):
     """Send the help text."""
     text, keyboard = get_help_text_and_keyboard("Search")
@@ -36,7 +36,7 @@ def send_help_text(bot, update, session, chat, user):
     )
 
 
-@session_wrapper()
+@message_wrapper()
 def show_settings(bot, update, session, chat, user):
     """Update the settings message."""
     update.message.send_message(
