@@ -1,4 +1,4 @@
-## [2.1.0] - 
+## [2.1.0] - 2020-08-04
 
 ### Changed
 
@@ -6,6 +6,7 @@
 - Migrate all long texts to a yaml and add a i18n library.
 - Remove legacy telegram call wrapper
 - Significantly improve error handling
+- Switch to Sentry's new official sdk
 
 ### Fixed
 
