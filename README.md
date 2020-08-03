@@ -8,22 +8,18 @@
 
 This telegram bot allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
 
-The inline query filters by looking at custom tags, detected text, emojis, sticker set name and title.
-There already are about 4100 searchable sticker sets with over 230k stickers. And in case the bot is missing some, you can easily add your own precious sets.
+You can search through community tags, on-image text, emojis and the sticker-set's title.
+There are already more than 4100 searchable sticker sets with over 230k stickers.
+In case the bot is missing some, you can easily add your own precious sets.
 
-Sticker finder is quite fast (about 0.1 sec for each search), supports custom tagging and features fuzzy searching!
-
-There are several ways to conveniently tag stickers: You can tag either in a direct telegram conversation or on the fly in any other chat.
-I even perform basic text recognition on all stickers to allow a nice sticker search by text (even though this doesn't work perfectly all the time).
-
-And in case you get bored, you can go ahead and do some good by tagging a few random stickers with the `/tag_random` functionality.
+StickerFinder's search is super fast and features customized tagging as well as fuzzy searching!
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
     <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
 </p>
 
-Feel free to host your own bot. There is postgreSQL database dump in the repository.
+Feel free to host your own bot. There is an up-to-date postgreSQL database dump in the repository.
 
 ## Features
 
