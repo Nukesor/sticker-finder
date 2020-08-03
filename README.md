@@ -6,7 +6,7 @@
 [![Paypal](https://github.com/Nukesor/images/blob/master/paypal-donate-blue.svg)](https://www.paypal.me/arnebeer/)
 [![Patreon](https://github.com/Nukesor/images/blob/master/patreon-donate-blue.svg)](https://www.patreon.com/nukesor)
 
-This telegram bot allows you to search your favorite stickers and discover new ones via inline query (just like @gif).
+StickerFinder is a telegram bot for searching stickers (just like @gif).
 
 You can search through community tags, on-image text, emojis and the sticker-set's title.
 There are already more than 4100 searchable sticker sets with over 230k stickers.
