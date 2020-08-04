@@ -19,7 +19,7 @@ def handle_chosen_inline_result(update, context):
 
     # Clean all cache values as soon as the user selects a result
     if inline_query.id in context.bot_data:
-        del context.tg_context.bot_data[inline_query.id]
+        del context.bot_data[inline_query.id]
 
     # This happens, if the user clicks on a link in sticker set search.
     sticker = session.query(Sticker).filter(Sticker.id == sticker_id).one_or_none()
