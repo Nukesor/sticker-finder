@@ -15,6 +15,12 @@ def handle_chosen_inline_result(update, context):
         return
 
     [search_id, sticker_id] = splitted
+
+    # In sticker set search, the second parameter is the md5 of the set's name
+    # We're not interested in this data, thereby simply drop it
+    if len(sticker_id) == 32:
+        return
+
     inline_query = session.query(InlineQuery).get(search_id)
 
     # Clean all cache values as soon as the user selects a result
