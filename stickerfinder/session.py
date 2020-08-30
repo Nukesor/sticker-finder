@@ -215,7 +215,7 @@ def is_allowed(user, update, chat=None, admin_only=False, check_ban=True):
 
 def ignore_exception(exception):
     """Check whether we can safely ignore this exception."""
-    if isinstance(exception, BadRequest):
+    if type(exception) is BadRequest:
         if (
             exception.message.startswith("Query is too old")
             or exception.message.startswith("Have no rights to send a message")
@@ -230,7 +230,7 @@ def ignore_exception(exception):
         ):
             return True
 
-    if isinstance(exception, Unauthorized):
+    if type(exception) is Unauthorized:
         if exception.message.lower() == "forbidden: bot was blocked by the user":
             return True
         if exception.message.lower() == "forbidden: message_author_required":
@@ -252,10 +252,10 @@ def ignore_exception(exception):
         if exception.message.lower() == "forbidden: chat_write_forbidden":
             return True
 
-    if isinstance(exception, TimedOut):
+    if type(exception) is TimedOut:
         return True
 
-    if isinstance(exception, RetryAfter):
+    if type(exception) is RetryAfter:
         return True
 
     return False
