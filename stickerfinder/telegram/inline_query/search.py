@@ -46,6 +46,20 @@ def search_stickers(session, update, context, inline_query_request):
         next_offset.split(":", 1)[1] if next_offset != "done" else next_offset
     )
 
+    if (
+        len(matching_stickers) == 0
+        and len(fuzzy_matching_stickers) == 0
+        and update.inline_query.offset == ""
+    ):
+        update.inline_query.answer(
+            [],
+            next_offset=next_offset,
+            cache_time=1,
+            is_personal=True,
+            switch_pm_text="Sorry, I couldn't find anything",
+            switch_pm_parameter="idc",
+        )
+
     # Stuff for debugging, since I need that all the time
     if False:
         import pprint
@@ -69,7 +83,10 @@ def search_stickers(session, update, context, inline_query_request):
         )
 
     update.inline_query.answer(
-        results, next_offset=next_offset, cache_time=1, is_personal=True,
+        results,
+        next_offset=next_offset,
+        cache_time=1,
+        is_personal=True,
     )
 
 

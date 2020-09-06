@@ -27,12 +27,15 @@ def handle_chosen_inline_result(update, context):
     if inline_query.id in context.bot_data:
         del context.bot_data[inline_query.id]
 
-    # This happens, if the user clicks on a link in sticker set search.
     sticker = session.query(Sticker).filter(Sticker.id == sticker_id).one_or_none()
+    # This happens, if the user clicks on a link in sticker set search.
     if sticker is None:
         return
 
-    inline_query.sticker_file_id = sticker.file_id
+    inline_query.sticker_file_unique_id = sticker.file_unique_id
+    inline_query.sticker_file_unique_id = sticker.file_unique_id
 
     sticker_usage = StickerUsage.get_or_create(session, inline_query.user, sticker)
     sticker_usage.usage_count += 1
+
+    session.commit()
