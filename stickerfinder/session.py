@@ -146,7 +146,7 @@ def message_wrapper(
                 if config["mode"]["authorized_only"] and not user.authorized:
                     if config["mode"]["private_inline_query"]:
                         text = i18n.t(
-                            "text.misc.private_access_no_",
+                            "text.misc.private_access_no_inline",
                             username=config["telegram"]["bot_name"],
                         )
                     else:
