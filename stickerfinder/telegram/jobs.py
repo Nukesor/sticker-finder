@@ -65,7 +65,10 @@ def maintenance_job(context, session):
         .join(StickerSet.reports)
         .outerjoin(
             Task,
-            and_(StickerSet.name == Task.sticker_set_name, Task.type == Task.REPORT,),
+            and_(
+                StickerSet.name == Task.sticker_set_name,
+                Task.type == Task.REPORT,
+            ),
         )
         .filter(Task.id.is_(None))
         .filter(StickerSet.banned.is_(False))

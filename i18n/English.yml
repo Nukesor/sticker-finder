@@ -16,6 +16,13 @@ text:
       "3000": "3000 Stickers.... \n You should really stop."
 
   misc:
+    private_access_no_inline: |
+      Hi!
+
+      This instance of StickerFinder is private.
+
+      However, this project is open-source!
+      Check out the [Github repository](https://github.com/nukesor/sticker-finder) for the code and latest database dump in case you want to host your own bot.
     private_access: |
       *Hello there! 😊*
 

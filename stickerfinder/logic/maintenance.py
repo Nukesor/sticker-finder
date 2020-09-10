@@ -133,7 +133,14 @@ def check_maintenance_chat(session, tg_chat, chat, job=False):
     task = (
         session.query(Task)
         .filter(Task.reviewed.is_(False))
-        .filter(Task.type.in_([Task.CHECK_USER_TAGS, Task.REPORT,]))
+        .filter(
+            Task.type.in_(
+                [
+                    Task.CHECK_USER_TAGS,
+                    Task.REPORT,
+                ]
+            )
+        )
         .order_by(Task.created_at.asc())
         .limit(1)
         .one_or_none()

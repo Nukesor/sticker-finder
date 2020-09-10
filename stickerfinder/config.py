@@ -29,7 +29,10 @@ default_config = {
         "cert_path": "/path/to/cert.pem",
         "port": 7000,
     },
-    "job": {"user_check_count": 200, "report_count": 5,},
+    "job": {
+        "user_check_count": 200,
+        "report_count": 5,
+    },
     "mode": {
         "leecher": False,
         "authorized_only": False,

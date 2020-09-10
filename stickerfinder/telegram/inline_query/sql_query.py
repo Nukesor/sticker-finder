@@ -282,7 +282,10 @@ def get_fuzzy_matching_query(session, context):
         threshold_check.append(func.similarity(Tag.name, tag) >= threshold)
 
     tag_query = (
-        session.query(Tag.name, greatest(*similarities).label("tag_similarity"),)
+        session.query(
+            Tag.name,
+            greatest(*similarities).label("tag_similarity"),
+        )
         .filter(or_(*threshold_check))
         .filter(
             or_(Tag.international == user.international, Tag.international.is_(False))

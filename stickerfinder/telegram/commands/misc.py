@@ -32,7 +32,9 @@ def send_help_text(bot, update, session, chat, user):
     """Send the help text."""
     text, keyboard = get_help_text_and_keyboard("Search")
     update.message.chat.send_message(
-        text, reply_markup=keyboard, parse_mode="Markdown",
+        text,
+        reply_markup=keyboard,
+        parse_mode="Markdown",
     )
 
 

@@ -48,7 +48,9 @@ def get_nsfw_ban_keyboard(sticker_set):
             InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
             InlineKeyboardButton(text=language_text, callback_data=language_data),
         ],
-        [InlineKeyboardButton(text=deluxe_text, callback_data=deluxe_data),],
+        [
+            InlineKeyboardButton(text=deluxe_text, callback_data=deluxe_data),
+        ],
     ]
 
     if not sticker_set.reviewed:
@@ -134,7 +136,9 @@ def check_user_tags_keyboard(task):
             InlineKeyboardButton(text=ban_text, callback_data=ban_data),
             InlineKeyboardButton(text=revert_text, callback_data=revert_data),
         ],
-        [InlineKeyboardButton(text=change_text, callback_data=change_data),],
+        [
+            InlineKeyboardButton(text=change_text, callback_data=change_data),
+        ],
     ]
 
     # Remove next button, if the task is already finished

@@ -106,8 +106,12 @@ def callback_query_wrapper():
                     traceback.print_exc()
 
                     sentry.capture_exception(
-                        tags={"handler": "callback_query",},
-                        extra={"query": update.callback_query,},
+                        tags={
+                            "handler": "callback_query",
+                        },
+                        extra={
+                            "query": update.callback_query,
+                        },
                     )
             finally:
                 session.close()
@@ -118,7 +122,9 @@ def callback_query_wrapper():
 
 
 def message_wrapper(
-    send_message=True, allow_edit=False, admin_only=False,
+    send_message=True,
+    allow_edit=False,
+    admin_only=False,
 ):
     """Create a session, handle permissions, handle exceptions and prepare some entities."""
 
@@ -138,12 +144,20 @@ def message_wrapper(
                 user = User.get_or_create(session, message.from_user)
 
                 if config["mode"]["authorized_only"] and not user.authorized:
-                    text = i18n.t(
-                        "text.misc.private_access",
-                        username=config["telegram"]["bot_name"],
-                    )
+                    if config["mode"]["private_inline_query"]:
+                        text = i18n.t(
+                            "text.misc.private_access_no_",
+                            username=config["telegram"]["bot_name"],
+                        )
+                    else:
+                        text = i18n.t(
+                            "text.misc.private_access",
+                            username=config["telegram"]["bot_name"],
+                        )
                     message.chat.send_message(
-                        text, parse_mode="Markdown", disable_web_page_preview=True,
+                        text,
+                        parse_mode="Markdown",
+                        disable_web_page_preview=True,
                     )
                     session.commit()
                     return
@@ -179,7 +193,9 @@ def message_wrapper(
                 if not ignore_exception(e):
                     traceback.print_exc()
                     sentry.capture_exception(
-                        tags={"handler": "message",},
+                        tags={
+                            "handler": "message",
+                        },
                         extra={"update": update.to_dict(), "function": func.__name__},
                     )
 
