@@ -13,14 +13,22 @@ import os
 import sys
 from sqlalchemy import or_
 from sqlalchemy.orm.session import Session
+
 # Set system path, so alembic is capable of finding the stickerfinder module
 parent_dir = os.path.abspath(os.path.join(os.getcwd(), "..", "stickerfinder"))
 sys.path.append(parent_dir)
-from stickerfinder.models import Change, Task, Tag, User, StickerSet, InlineQueryRequest # noqa
+from stickerfinder.models import (
+    Change,
+    Task,
+    Tag,
+    User,
+    StickerSet,
+    InlineQueryRequest,
+)  # noqa
 
 # revision identifiers, used by Alembic.
-revision = 'b179e344cc02'
-down_revision = '7ddf4da81c22'
+revision = "b179e344cc02"
+down_revision = "7ddf4da81c22"
 branch_labels = None
 depends_on = None
 
@@ -29,79 +37,108 @@ def upgrade():
     """General cleanup and constraint stuff."""
     session = Session(bind=op.get_bind())
     # Set all changes to reviewed, where an task exists
-    session.query(InlineQueryRequest) \
-        .filter(or_(
+    session.query(InlineQueryRequest).filter(
+        or_(
             InlineQueryRequest.duration.is_(None),
             InlineQueryRequest.offset.is_(None),
             InlineQueryRequest.next_offset.is_(None),
-        )) \
-        .delete()
+        )
+    ).delete()
 
-    session.query(InlineQueryRequest) \
-        .filter(or_(
+    session.query(InlineQueryRequest).filter(
+        or_(
             InlineQueryRequest.duration.is_(None),
             InlineQueryRequest.offset.is_(None),
             InlineQueryRequest.next_offset.is_(None),
-        )) \
-        .delete()
+        )
+    ).delete()
 
-    op.alter_column('inline_query', 'query',
-                    existing_type=sa.VARCHAR(),
-                    nullable=False)
-    op.drop_column('inline_query', 'bot')
-    op.alter_column('inline_query_request', 'duration',
-                    existing_type=postgresql.INTERVAL(),
-                    nullable=False)
-    op.alter_column('inline_query_request', 'next_offset',
-                    existing_type=sa.VARCHAR(),
-                    nullable=False)
-    op.alter_column('inline_query_request', 'offset',
-                    existing_type=sa.VARCHAR(),
-                    nullable=False)
-    op.alter_column('sticker', 'original_emojis',
-                    existing_type=sa.VARCHAR(),
-                    nullable=False)
-    op.drop_column('vote_ban', 'old_tags')
+    op.alter_column("inline_query", "query", existing_type=sa.VARCHAR(), nullable=False)
+    op.drop_column("inline_query", "bot")
+    op.alter_column(
+        "inline_query_request",
+        "duration",
+        existing_type=postgresql.INTERVAL(),
+        nullable=False,
+    )
+    op.alter_column(
+        "inline_query_request",
+        "next_offset",
+        existing_type=sa.VARCHAR(),
+        nullable=False,
+    )
+    op.alter_column(
+        "inline_query_request", "offset", existing_type=sa.VARCHAR(), nullable=False
+    )
+    op.alter_column(
+        "sticker", "original_emojis", existing_type=sa.VARCHAR(), nullable=False
+    )
+    op.drop_column("vote_ban", "old_tags")
 
     # Chat check constraint
-    op.create_check_constraint("only_one_action_check", "chat", """
+    op.create_check_constraint(
+        "only_one_action_check",
+        "chat",
+        """
         (expecting_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
         (tagging_random_sticker IS TRUE AND expecting_sticker_set IS FALSE AND fix_single_sticker IS FALSE AND full_sticker_set IS FALSE) OR \
         (fix_single_sticker IS TRUE AND tagging_random_sticker IS FALSE AND expecting_sticker_set IS FALSE AND full_sticker_set IS FALSE) OR \
         (full_sticker_set IS TRUE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE) OR \
         (full_sticker_set IS FALSE AND tagging_random_sticker IS FALSE AND fix_single_sticker IS FALSE AND expecting_sticker_set IS FALSE)
-    """)
+    """,
+    )
 
     # Sticker set check constraints
-    op.create_check_constraint("reviewed_and_complete_check", "sticker_set", "NOT (reviewed AND NOT complete)")
+    op.create_check_constraint(
+        "reviewed_and_complete_check", "sticker_set", "NOT (reviewed AND NOT complete)"
+    )
 
     # Task check constraints
-    op.create_check_constraint("check_user_tags_check", "task", "(type = 'check_user_tags' AND is_default_language IS NOT NULL AND \
-                                user_id IS NOT NULL) OR type != 'check_user_tags'")
-    op.create_check_constraint("vote_ban_check", "task", "(type = 'vote_ban' AND user_id IS NOT NULL) OR type != 'vote_ban'")
-    op.create_check_constraint("scan_set_check", "task", "(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'vote_ban'")
+    op.create_check_constraint(
+        "check_user_tags_check",
+        "task",
+        "(type = 'check_user_tags' AND is_default_language IS NOT NULL AND \
+                                user_id IS NOT NULL) OR type != 'check_user_tags'",
+    )
+    op.create_check_constraint(
+        "vote_ban_check",
+        "task",
+        "(type = 'vote_ban' AND user_id IS NOT NULL) OR type != 'vote_ban'",
+    )
+    op.create_check_constraint(
+        "scan_set_check",
+        "task",
+        "(type = 'scan_set' AND sticker_set_name IS NOT NULL and chat_id IS NOT NULL) OR type != 'vote_ban'",
+    )
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
-    op.add_column('vote_ban', sa.Column('old_tags', sa.VARCHAR(), autoincrement=False, nullable=True))
-    op.alter_column('sticker', 'sticker_set_name',
-                    existing_type=sa.VARCHAR(),
-                    nullable=True)
-    op.alter_column('sticker', 'original_emojis',
-                    existing_type=sa.VARCHAR(),
-                    nullable=True)
-    op.alter_column('inline_query_request', 'offset',
-                    existing_type=sa.VARCHAR(),
-                    nullable=True)
-    op.alter_column('inline_query_request', 'next_offset',
-                    existing_type=sa.VARCHAR(),
-                    nullable=True)
-    op.alter_column('inline_query_request', 'duration',
-                    existing_type=postgresql.INTERVAL(),
-                    nullable=True)
-    op.add_column('inline_query', sa.Column('bot', sa.VARCHAR(), autoincrement=False, nullable=True))
-    op.alter_column('inline_query', 'query',
-                    existing_type=sa.VARCHAR(),
-                    nullable=True)
+    op.add_column(
+        "vote_ban",
+        sa.Column("old_tags", sa.VARCHAR(), autoincrement=False, nullable=True),
+    )
+    op.alter_column(
+        "sticker", "sticker_set_name", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "sticker", "original_emojis", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "inline_query_request", "offset", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "inline_query_request", "next_offset", existing_type=sa.VARCHAR(), nullable=True
+    )
+    op.alter_column(
+        "inline_query_request",
+        "duration",
+        existing_type=postgresql.INTERVAL(),
+        nullable=True,
+    )
+    op.add_column(
+        "inline_query",
+        sa.Column("bot", sa.VARCHAR(), autoincrement=False, nullable=True),
+    )
+    op.alter_column("inline_query", "query", existing_type=sa.VARCHAR(), nullable=True)
     # ### end Alembic commands ###

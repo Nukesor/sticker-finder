@@ -19,7 +19,9 @@ depends_on = None
 def upgrade():
     # Migrate 'sticker' file_id to file_unique_id
     op.alter_column(
-        "sticker", "file_id", new_column_name="file_unique_id",
+        "sticker",
+        "file_id",
+        new_column_name="file_unique_id",
     )
     op.add_column("sticker", sa.Column("file_id", sa.String()))
 

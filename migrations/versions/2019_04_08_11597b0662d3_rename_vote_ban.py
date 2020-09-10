@@ -9,15 +9,15 @@ from alembic import op
 
 
 # revision identifiers, used by Alembic.
-revision = '11597b0662d3'
-down_revision = '9b7bc182196a'
+revision = "11597b0662d3"
+down_revision = "9b7bc182196a"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.rename_table('vote_ban', 'report')
+    op.rename_table("vote_ban", "report")
 
 
 def downgrade():
-    op.rename_table('report', 'vote_ban')
+    op.rename_table("report", "vote_ban")
