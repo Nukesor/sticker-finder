@@ -200,7 +200,12 @@ def message_wrapper(
                     )
 
                     error_message = i18n.t("text.misc.error")
-                    message.chat.send_message(error_message)
+                    try:
+                        message.chat.send_message(error_message)
+                    except Exception as e:
+                        if not ignore_exception(e):
+                            raise e
+
             finally:
                 session.close()
 
