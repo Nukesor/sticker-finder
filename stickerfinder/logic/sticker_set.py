@@ -3,7 +3,6 @@ import io
 import re
 import logging
 from PIL import Image
-from pytesseract import image_to_string
 from telegram.error import BadRequest, TimedOut
 
 from stickerfinder.config import config
@@ -40,8 +39,6 @@ def refresh_stickers(session, sticker_set, bot, refresh_ocr=False, chat=None):
         # Ignore already existing stickers if we don't need to rescan images
         sticker = session.query(Sticker).get(tg_sticker.file_unique_id)
         text = None
-        if not tg_sticker.is_animated and (sticker is None or refresh_ocr):
-            text = extract_text(tg_sticker)
 
         # Create new Sticker.
         if sticker is None:
@@ -108,38 +105,3 @@ def merge_sticker(session, sticker, new_sticker):
 
     session.delete(new_sticker)
     session.commit()
-
-
-def extract_text(tg_sticker):
-    """Extract the text from a telegram sticker."""
-    text = None
-    logger = logging.getLogger()
-    try:
-        # Get Image and preprocess it
-        tg_file = tg_sticker.get_file()
-        image_bytes = tg_file.download_as_bytearray()
-        with Image.open(io.BytesIO(image_bytes)).convert("RGB") as image:
-            # Extract text
-            text = image_to_string(image).strip().lower()
-
-        # Only allow chars and remove multiple spaces to single spaces
-        text = re.sub("[^a-zA-Z\ ]+", "", text)
-        text = re.sub(" +", " ", text)
-        text = text.strip()
-        if text == "":
-            text = None
-
-    except TimedOut:
-        logger.info(f"Finally failed on file {tg_sticker.file_unique_id}")
-        pass
-    except BadRequest:
-        logger.info(f"Failed to get image of {tg_sticker.file_unique_id}")
-        pass
-    except OSError:
-        logger.info(f"Failed to open image {tg_sticker.file_unique_id}")
-        pass
-    except:
-        sentry.capture_exception(tags={"context": "text_extraction"})
-        pass
-
-    return text
