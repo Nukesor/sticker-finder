@@ -1,4 +1,5 @@
 """Telegram job tasks."""
+from telegram.ext import run_async
 from sqlalchemy import func, and_
 from datetime import datetime, timedelta
 
@@ -19,6 +20,7 @@ from stickerfinder.models import (
 )
 
 
+@run_async
 @job_wrapper
 def newsfeed_job(context, session):
     """Send all new sticker to the newsfeed chats."""
@@ -29,6 +31,7 @@ def newsfeed_job(context, session):
     return
 
 
+@run_async
 @job_wrapper
 def free_cache(context, session):
     """This job removes all inline query cache entries that are older than a specified threshold.
@@ -46,6 +49,7 @@ def free_cache(context, session):
     return
 
 
+@run_async
 @job_wrapper
 def maintenance_job(context, session):
     """Create new maintenance tasks.
@@ -112,12 +116,14 @@ def maintenance_job(context, session):
         session.commit()
 
 
+@run_async
 @job_wrapper
 def distribute_tasks_job(context, session):
     """Distribute open tasks to maintenance channels."""
     distribute_tasks(context.bot, session)
 
 
+@run_async
 @job_wrapper
 def scan_sticker_sets_job(context, session):
     """Scan stickers of all sticker sets."""
@@ -155,6 +161,7 @@ def scan_sticker_sets_job(context, session):
     return
 
 
+@run_async
 @job_wrapper
 def cleanup_job(context, session):
     """Send all new sticker to the newsfeed chats."""

@@ -71,13 +71,11 @@ updater = Updater(
 dispatcher = updater.dispatcher
 
 # Create inline query handler
-updater.dispatcher.add_handler(InlineQueryHandler(search, run_async=True))
+updater.dispatcher.add_handler(InlineQueryHandler(search))
 
 # Create group message handler
 dispatcher.add_handler(
-    MessageHandler(
-        Filters.sticker & Filters.group, handle_group_sticker, run_async=True
-    )
+    MessageHandler(Filters.sticker & Filters.group, handle_group_sticker)
 )
 
 private_command_filter = Filters.private
@@ -85,70 +83,52 @@ private_command_filter = Filters.private
 if not config["mode"]["leecher"]:
     # Input commands
     dispatcher.add_handler(
-        CommandHandler(
-            "tag", tag_single, filters=private_command_filter, run_async=True
-        )
+        CommandHandler("tag", tag_single, filters=private_command_filter)
     )
     dispatcher.add_handler(
-        CommandHandler(
-            "replace", replace_single, filters=private_command_filter, run_async=True
-        )
+        CommandHandler("replace", replace_single, filters=private_command_filter)
     )
     dispatcher.add_handler(
-        CommandHandler(
-            "report", report_set, filters=private_command_filter, run_async=True
-        )
+        CommandHandler("report", report_set, filters=private_command_filter)
     )
     dispatcher.add_handler(
-        CommandHandler(
-            "forget_set", forget_set, filters=private_command_filter, run_async=True
-        )
+        CommandHandler("forget_set", forget_set, filters=private_command_filter)
     )
 
     # Button commands
     dispatcher.add_handler(
-        CommandHandler("start", start, filters=private_command_filter, run_async=True)
+        CommandHandler("start", start, filters=private_command_filter)
     )
     dispatcher.add_handler(
-        CommandHandler(
-            "help", send_help_text, filters=private_command_filter, run_async=True
-        )
+        CommandHandler("help", send_help_text, filters=private_command_filter)
     )
     dispatcher.add_handler(
-        CommandHandler("cancel", cancel, filters=private_command_filter, run_async=True)
+        CommandHandler("cancel", cancel, filters=private_command_filter)
     )
 
     # Maintenance input commands
-    dispatcher.add_handler(CommandHandler("ban", ban_sticker, run_async=True))
-    dispatcher.add_handler(CommandHandler("unban", unban_sticker, run_async=True))
-    dispatcher.add_handler(CommandHandler("ban_user", ban_user, run_async=True))
-    dispatcher.add_handler(CommandHandler("unban_user", unban_user, run_async=True))
-    dispatcher.add_handler(CommandHandler("authorize", authorize_user, run_async=True))
-    dispatcher.add_handler(CommandHandler("toggle_flag", flag_chat, run_async=True))
-    dispatcher.add_handler(CommandHandler("add_sets", add_sets, run_async=True))
-    dispatcher.add_handler(CommandHandler("delete_set", delete_set, run_async=True))
-    dispatcher.add_handler(CommandHandler("broadcast", broadcast, run_async=True))
-    dispatcher.add_handler(
-        CommandHandler("test_broadcast", test_broadcast, run_async=True)
-    )
-    dispatcher.add_handler(CommandHandler("make_admin", make_admin, run_async=True))
-    dispatcher.add_handler(CommandHandler("show_sticker", show_sticker, run_async=True))
-    dispatcher.add_handler(
-        CommandHandler("show_id", show_sticker_file_id, run_async=True)
-    )
+    dispatcher.add_handler(CommandHandler("ban", ban_sticker))
+    dispatcher.add_handler(CommandHandler("unban", unban_sticker))
+    dispatcher.add_handler(CommandHandler("ban_user", ban_user))
+    dispatcher.add_handler(CommandHandler("unban_user", unban_user))
+    dispatcher.add_handler(CommandHandler("authorize", authorize_user))
+    dispatcher.add_handler(CommandHandler("toggle_flag", flag_chat))
+    dispatcher.add_handler(CommandHandler("add_sets", add_sets))
+    dispatcher.add_handler(CommandHandler("delete_set", delete_set))
+    dispatcher.add_handler(CommandHandler("broadcast", broadcast))
+    dispatcher.add_handler(CommandHandler("test_broadcast", test_broadcast))
+    dispatcher.add_handler(CommandHandler("make_admin", make_admin))
+    dispatcher.add_handler(CommandHandler("show_sticker", show_sticker))
+    dispatcher.add_handler(CommandHandler("show_id", show_sticker_file_id))
 
     # Maintenance commands
-    dispatcher.add_handler(CommandHandler("tasks", start_tasks, run_async=True))
-    dispatcher.add_handler(CommandHandler("fix", fix_stuff, run_async=True))
+    dispatcher.add_handler(CommandHandler("tasks", start_tasks))
+    dispatcher.add_handler(CommandHandler("fix", fix_stuff))
 
     # Regular tasks
     minute = 60
     hour = minute * 60
     job_queue = updater.job_queue
-
-    # Set the log level for apscheduler to WARNING
-    # There's a lot of log output spam otherwise
-    logging.getLogger("apscheduler").setLevel(logging.WARNING)
 
     # Disable the newsfeed/review task if auto accept is on
     if not config["mode"]["auto_accept_set"]:
@@ -182,7 +162,6 @@ if not config["mode"]["leecher"]:
     )
 
     # Create private message handler
-    # Those should run synchronously to prevent any weird race conditions
     dispatcher.add_handler(
         MessageHandler(Filters.sticker & Filters.private, handle_private_sticker)
     )
@@ -200,7 +179,5 @@ if not config["mode"]["leecher"]:
     )
 
     # Inline callback handler
-    dispatcher.add_handler(CallbackQueryHandler(handle_callback_query, run_async=True))
-    dispatcher.add_handler(
-        ChosenInlineResultHandler(handle_chosen_inline_result, run_async=True)
-    )
+    dispatcher.add_handler(CallbackQueryHandler(handle_callback_query))
+    dispatcher.add_handler(ChosenInlineResultHandler(handle_chosen_inline_result))

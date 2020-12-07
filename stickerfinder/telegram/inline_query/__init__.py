@@ -1,6 +1,7 @@
 """Inline query handler function."""
 from uuid import uuid4
 from sqlalchemy.exc import IntegrityError
+from telegram.ext import run_async
 from telegram import InlineQueryResultCachedSticker
 
 from stickerfinder.session import inline_query_wrapper
@@ -15,6 +16,7 @@ from .search import (
 )
 
 
+@run_async
 @inline_query_wrapper
 def search(tg_context, update, session, user):
     """Handle inline queries for sticker search.
