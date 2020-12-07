@@ -1,11 +1,9 @@
 """Sticker usage related commands."""
-from telegram.ext import run_async
 from stickerfinder.session import message_wrapper
 
 from stickerfinder.models import StickerUsage, Sticker
 
 
-@run_async
 @message_wrapper()
 def forget_set(bot, update, session, chat, user):
     """Forget every usage of the set of the previously posted sticker."""

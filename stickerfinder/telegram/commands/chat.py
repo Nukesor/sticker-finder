@@ -1,11 +1,9 @@
 """Chat related commands."""
-from telegram.ext import run_async
 from stickerfinder.session import message_wrapper
 from stickerfinder.telegram.keyboard import get_main_keyboard
 from stickerfinder.logic.tag import send_tagged_count_message
 
 
-@run_async
 @message_wrapper()
 def cancel(bot, update, session, chat, user):
     """Send a help text."""

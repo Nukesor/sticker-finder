@@ -17,108 +17,90 @@ from stickerfinder.models import Chat, User
 from stickerfinder.i18n import i18n
 
 
-def job_wrapper():
+def job_wrapper(func):
     """Create a session, handle permissions and exceptions for jobs."""
 
-    def real_decorator(func):
-        """Parametrized decorator closure."""
+    def wrapper(context):
+        session = get_session()
+        try:
+            func(context, session)
 
-        @wraps(func)
-        def wrapper(context):
-            session = get_session()
-            try:
-                func(context, session)
+            session.commit()
+        except:
+            # Capture all exceptions from jobs.
+            # We need to handle those inside the jobs
+            traceback.print_exc()
+            sentry.capture_exception(tags={"handler": "job"})
+        finally:
+            context.job.enabled = True
+            session.close()
 
-                session.commit()
-            except:
-                # Capture all exceptions from jobs.
-                # We need to handle those inside the jobs
+    return wrapper
+
+
+def inline_query_wrapper(func):
+    """Create a session, handle permissions and exceptions."""
+
+    def wrapper(update, context):
+        session = get_session()
+        try:
+            user = User.get_or_create(session, update.inline_query.from_user)
+
+            if user.banned:
+                return
+
+            if config["mode"]["private_inline_query"] and not user.authorized:
+                return
+
+            func(context, update, session, user)
+            session.commit()
+
+        # Handle all not telegram relatated exceptions
+        except Exception as e:
+            if not ignore_exception(e):
                 traceback.print_exc()
-                sentry.capture_exception(tags={"handler": "job"})
-            finally:
-                context.job.enabled = True
-                session.close()
+                sentry.capture_exception(tags={"handler": "inline_query"})
 
-        return wrapper
+        finally:
+            session.close()
 
-    return real_decorator
+    return wrapper
 
 
-def inline_query_wrapper():
+def callback_query_wrapper(func):
     """Create a session, handle permissions and exceptions."""
 
-    def real_decorator(func):
-        """Parametrized decorator closure."""
+    def wrapper(update, context):
+        session = get_session()
+        try:
+            user = User.get_or_create(session, update.callback_query.from_user)
 
-        @wraps(func)
-        def wrapper(update, context):
-            session = get_session()
-            try:
-                user = User.get_or_create(session, update.inline_query.from_user)
+            if user.banned:
+                return
 
-                if user.banned:
-                    return
+            if config["mode"]["authorized_only"] and not user.authorized:
+                return
 
-                if config["mode"]["private_inline_query"] and not user.authorized:
-                    return
+            func(context.bot, update, session, user)
 
-                func(context, update, session, user)
-                session.commit()
+            session.commit()
+        # Handle all not telegram relatated exceptions
+        except Exception as e:
+            if not ignore_exception(e):
+                traceback.print_exc()
 
-            # Handle all not telegram relatated exceptions
-            except Exception as e:
-                if not ignore_exception(e):
-                    traceback.print_exc()
-                    sentry.capture_exception(tags={"handler": "inline_query"})
+                sentry.capture_exception(
+                    tags={
+                        "handler": "callback_query",
+                    },
+                    extra={
+                        "query": update.callback_query,
+                    },
+                )
+        finally:
+            session.close()
 
-            finally:
-                session.close()
-
-        return wrapper
-
-    return real_decorator
-
-
-def callback_query_wrapper():
-    """Create a session, handle permissions and exceptions."""
-
-    def real_decorator(func):
-        """Parametrized decorator closure."""
-
-        @wraps(func)
-        def wrapper(update, context):
-            session = get_session()
-            try:
-                user = User.get_or_create(session, update.callback_query.from_user)
-
-                if user.banned:
-                    return
-
-                if config["mode"]["authorized_only"] and not user.authorized:
-                    return
-
-                func(context.bot, update, session, user)
-
-                session.commit()
-            # Handle all not telegram relatated exceptions
-            except Exception as e:
-                if not ignore_exception(e):
-                    traceback.print_exc()
-
-                    sentry.capture_exception(
-                        tags={
-                            "handler": "callback_query",
-                        },
-                        extra={
-                            "query": update.callback_query,
-                        },
-                    )
-            finally:
-                session.close()
-
-        return wrapper
-
-    return real_decorator
+    return wrapper
 
 
 def message_wrapper(

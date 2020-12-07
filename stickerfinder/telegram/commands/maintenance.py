@@ -1,11 +1,8 @@
 """Maintenance related commands."""
-from telegram.ext import run_async
-
 from stickerfinder.session import message_wrapper
 from stickerfinder.logic.maintenance import check_maintenance_chat, check_newsfeed_chat
 
 
-@run_async
 @message_wrapper(admin_only=True)
 def flag_chat(bot, update, session, chat, user):
     """Flag a chat as maintenance or ban chat."""
@@ -24,7 +21,6 @@ def flag_chat(bot, update, session, chat, user):
     return "Unknown flag."
 
 
-@run_async
 @message_wrapper(admin_only=True)
 def start_tasks(bot, update, session, chat, user):
     """Start the handling of tasks."""
