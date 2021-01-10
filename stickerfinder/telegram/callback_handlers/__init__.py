@@ -32,7 +32,6 @@ from .sticker_set import handle_deluxe_set_user_chat
 from .menu import (
     open_settings,
     open_admin_settings,
-    open_donations,
     tag_random,
     main_menu,
     open_help,
@@ -119,7 +118,6 @@ def handle_callback_query(bot, update, session, user):
         CallbackType.settings_open: open_settings,
         CallbackType.admin_settings_open: open_admin_settings,
         CallbackType.tag_random: tag_random,
-        CallbackType.donations_open: open_donations,
         CallbackType.main_menu: main_menu,
         CallbackType.help_open: open_help,
         CallbackType.switch_help: switch_help,

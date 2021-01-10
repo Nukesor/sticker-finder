@@ -36,7 +36,6 @@ Feel free to host your own bot. There is an up-to-date postgreSQL database dump 
 ## Available commands
 
     /help       Display help
-    /donations  Show information for donations
     /tag [tags] Tag the last sticker posted in this chat or the sticker you replied to
     /replace [tags] Replace the tags of the last sticker posted in this chat or the sticker you replied to
     /cancel     Cancel all current tag actions

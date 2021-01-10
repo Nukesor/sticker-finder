@@ -7,7 +7,6 @@ from stickerfinder.helper.display import (
 )
 from stickerfinder.telegram.keyboard import (
     get_main_keyboard,
-    get_donation_keyboard,
     get_settings_keyboard,
     get_admin_settings_keyboard,
 )
@@ -64,17 +63,6 @@ def tag_random(session, context):
     handle_next(session, context.bot, chat, context.query.message.chat, context.user)
 
     return
-
-
-def open_donations(session, context):
-    """Send the donation text."""
-    donation_keyboard = get_donation_keyboard()
-    context.query.message.edit_text(
-        i18n.t("text.misc.donations"),
-        reply_markup=donation_keyboard,
-        parse_mode="Markdown",
-        disable_web_page_preview=True,
-    )
 
 
 def main_menu(session, context):

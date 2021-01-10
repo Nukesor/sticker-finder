@@ -46,7 +46,6 @@ class CallbackType(Enum):
     # Menu
     settings_open = 90
     admin_settings_open = 91
-    donations_open = 92
     tag_random = 93
     main_menu = 94
     help_open = 95

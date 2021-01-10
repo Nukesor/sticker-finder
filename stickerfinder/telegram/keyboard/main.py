@@ -35,31 +35,8 @@ def get_main_keyboard(user):
         [InlineKeyboardButton(text="🤔 Help", callback_data=build_data("help_open"))]
     )
 
-    buttons.append(
-        [
-            InlineKeyboardButton(
-                text="❤️ Help me out ❤️", callback_data=build_data("donations_open")
-            )
-        ]
-    )
-
     keyboard = InlineKeyboardMarkup(buttons)
     return keyboard
-
-
-def get_donation_keyboard():
-    """Get the donation keyboard."""
-    patreon_url = f"https://patreon.com/nukesor"
-    paypal_url = f"https://paypal.me/arnebeer/1"
-    main_payload = build_data("main_menu")
-
-    buttons = [
-        [InlineKeyboardButton(text="Patreon", url=patreon_url)],
-        [InlineKeyboardButton(text="Paypal", url=paypal_url)],
-        [InlineKeyboardButton(text="Back", callback_data=main_payload)],
-    ]
-
-    return InlineKeyboardMarkup(buttons)
 
 
 def get_help_keyboard(categories, current_category):
