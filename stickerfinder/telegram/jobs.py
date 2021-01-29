@@ -38,13 +38,21 @@ def free_cache(context, session):
 
     We do this to preserve memory, since there's virtually no limit to the PTB cache size.
     """
-    keys = list(context.bot_data.keys())
+    if "query_cache" not in context.bot_data:
+        context.bot_data["query_cache"] = {}
+
+    query_cache = context.bot_data["query_cache"]
+
+    keys = list(query_cache.keys())
     for key in keys:
-        creation_time = context.bot_data[key]["time"]
+        if key == "exceptions":
+            continue
+
+        creation_time = query_cache[key]["time"]
         # A threshold of 10 minutes should be more than enough.
         threshold = datetime.now() - timedelta(minutes=20)
         if creation_time < threshold:
-            del context.bot_data[key]
+            del query_cache[key]
 
     return
 

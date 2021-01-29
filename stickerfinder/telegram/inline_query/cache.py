@@ -3,8 +3,11 @@ from datetime import datetime
 
 def initialize_cache(context):
     """Initialize the cache entry for the current inline query."""
-    cache = context.tg_context.bot_data
+    if "query_cache" not in context.bot_data:
+        context.bot_data["query_cache"] = {}
+
     query_id = context.inline_query_id
+    cache = context.tg_context.bot_data["query_cache"]
 
     if query_id not in cache:
         cache[query_id] = {
@@ -30,7 +33,7 @@ def cache_stickers(context, search_results, fuzzy=False):
     outer-joining the original strict matching query into the fuzzy query.
     """
     query_id = context.inline_query_id
-    cache = context.tg_context.bot_data[query_id]
+    cache = context.tg_context.bot_data["query_cache"][query_id]
 
     # Append all search results by inline_query_id and it's current mode (fuzzy/strict).
     if fuzzy:
@@ -51,7 +54,8 @@ def cache_stickers(context, search_results, fuzzy=False):
 def get_cached_stickers(context, fuzzy=False):
     """Return cached search results from a previous inline query request."""
     query_id = context.inline_query_id
-    cache = context.tg_context.bot_data[query_id]
+
+    cache = context.tg_context.bot_data["query_cache"][query_id]
 
     if fuzzy:
         results = cache["fuzzy"]
@@ -64,7 +68,7 @@ def get_cached_stickers(context, fuzzy=False):
 
 
 def get_cached_strict_matching_stickers(context):
-    """A simple helper function to get all unique file_id's of strict matching stickers."""
+    """Get all unique file_id's of strict matching stickers."""
     query_id = context.inline_query_id
-    cache = context.tg_context.bot_data[query_id]
+    cache = context.tg_context.bot_data["query_cache"][query_id]
     return cache["strict_unique"]

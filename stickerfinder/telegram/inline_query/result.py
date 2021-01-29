@@ -24,8 +24,9 @@ def handle_chosen_inline_result(update, context):
     inline_query = session.query(InlineQuery).get(search_id)
 
     # Clean all cache values as soon as the user selects a result
-    if inline_query.id in context.bot_data:
-        del context.bot_data[inline_query.id]
+    cache = context.bot_data["query_cache"]
+    if inline_query.id in cache:
+        del cache[inline_query.id]
 
     sticker = session.query(Sticker).filter(Sticker.id == sticker_id).one_or_none()
     # This happens, if the user clicks on a link in sticker set search.
