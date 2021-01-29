@@ -72,7 +72,7 @@ Dependencies:
     cancel - Cancel all current actions.
     forget_set - Forget all usages of a sticker pack.
 
-## Dev commands
+## Admin commands
 
 This is just for people hosting a bot and those with `admin` permissions:
 
@@ -90,3 +90,4 @@ This is just for people hosting a bot and those with `admin` permissions:
     /delete_set [name] Completely delete a set
     /show_sticker [file_id] Command sends the corresponding sticker for the given Id
     /show_id Show file id of sticker you replied to
+    /authorize [user_id] Allow this user to access a secured instance.

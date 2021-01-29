@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from functools import wraps
 from telegram.error import (
     BadRequest,
-    TelegramError,
     ChatMigrated,
     Unauthorized,
     TimedOut,
@@ -27,7 +26,7 @@ def job_wrapper(func):
             func(context, session)
 
             session.commit()
-        except:
+        except Exception as e:
             # Capture all exceptions from jobs.
             # We need to handle those inside the jobs
             traceback.print_exc()
@@ -121,11 +120,14 @@ def message_wrapper(
         def wrapper(update, context):
             session = get_session()
             chat = None
+            message = None
             try:
                 if hasattr(update, "message") and update.message:
                     message = update.message
                 elif hasattr(update, "edited_message") and update.edited_message:
                     message = update.edited_message
+                else:
+                    raise Exception("Update didn't have a message.")
 
                 user = User.get_or_create(session, message.from_user)
 
@@ -183,12 +185,16 @@ def message_wrapper(
                             tags={
                                 "handler": "message",
                             },
-                            extra={"update": update.to_dict(), "function": func.__name__},
+                            extra={
+                                "update": update.to_dict(),
+                                "function": func.__name__,
+                            },
                         )
 
                     error_message = i18n.t("text.misc.error")
                     try:
-                        message.chat.send_message(error_message)
+                        if "message" is not None:
+                            message.chat.send_message(error_message)
                     except Exception as e:
                         if not ignore_exception(e):
                             raise e
@@ -230,7 +236,7 @@ def should_report_exception(context, exception):
     """
     # Initialize on first exception
     if context.bot_data.get("exceptions") is None:
-        context.bot_data['exceptions'] = {}
+        context.bot_data["exceptions"] = {}
 
     exceptions = context.bot_data.get("exceptions")
 

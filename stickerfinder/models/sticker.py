@@ -2,7 +2,6 @@
 from sqlalchemy import (
     Column,
     ForeignKey,
-    ForeignKeyConstraint,
     func,
     Index,
     Sequence,

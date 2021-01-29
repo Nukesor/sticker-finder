@@ -4,7 +4,6 @@ from sqlalchemy import (
     Column,
     func,
     ForeignKey,
-    ForeignKeyConstraint,
     Table,
 )
 from sqlalchemy.types import (

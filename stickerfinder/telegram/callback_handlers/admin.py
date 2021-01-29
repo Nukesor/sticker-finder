@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 from stickerfinder.logic.sticker_set import refresh_stickers
 from stickerfinder.telegram.keyboard import get_main_keyboard
-from stickerfinder.sentry import sentry
 from stickerfinder.logic.cleanup import full_cleanup
 from stickerfinder.helper.plot import send_plots
 

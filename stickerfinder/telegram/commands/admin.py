@@ -6,7 +6,7 @@ from telegram.error import BadRequest, Unauthorized
 from telegram import ReplyKeyboardRemove
 
 from stickerfinder.config import config
-from stickerfinder.models import User, StickerSet, Chat, Sticker
+from stickerfinder.models import User, StickerSet
 from stickerfinder.session import message_wrapper
 
 
@@ -54,19 +54,19 @@ def unban_user(bot, update, session, chat, user):
 @message_wrapper(admin_only=True)
 def authorize_user(bot, update, session, chat, user):
     """Send a help text."""
-    name_to_ban = update.message.text.split(" ", 1)[1].lower()
+    identifier = update.message.text.split(" ", 1)[1].lower()
 
-    user = session.query(User).filter(User.username == name_to_ban).one_or_none()
+    user = session.query(User).filter(User.username == identifier).one_or_none()
 
     if user is None:
-        user = session.query(User).filter(User.id == name_to_ban).one_or_none()
+        user = session.query(User).filter(User.id == identifier).one_or_none()
         if user is None:
-            user = User(413573025, secrets.token_hex(20))
+            user = User(identifier, secrets.token_hex(20))
             session.add(user)
-            session.commit()
 
     user.authorized = True
-    return f"User {name_to_ban} authorized"
+    session.commit()
+    return f"User {identifier} authorized"
 
 
 @run_async
