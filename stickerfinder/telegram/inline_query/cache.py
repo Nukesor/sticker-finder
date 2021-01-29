@@ -3,8 +3,8 @@ from datetime import datetime
 
 def initialize_cache(context):
     """Initialize the cache entry for the current inline query."""
-    if "query_cache" not in context.bot_data:
-        context.bot_data["query_cache"] = {}
+    if "query_cache" not in context.tg_context.bot_data:
+        context.tg_context.bot_data["query_cache"] = {}
 
     query_id = context.inline_query_id
     cache = context.tg_context.bot_data["query_cache"]
