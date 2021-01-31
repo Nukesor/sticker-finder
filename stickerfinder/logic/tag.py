@@ -254,14 +254,15 @@ def tag_sticker(
         achievement_message = i18n.t(f"text.tagging.achievements.{len(user.changes)}")
         tg_chat.send_message(achievement_message)
 
-        sentry.capture_message(
-            f"User hit {len(user.changes)} changes!",
-            extra={
-                "user": user.username,
-                "user_id": user.id,
-                "changes": len(user.changes),
-            },
-        )
+        # Uncomment if you want to see if users hit milestones
+        # sentry.capture_message(
+        #    f"User hit {len(user.changes)} changes!",
+        #    extra={
+        #        "user": user.username,
+        #        "user_id": user.id,
+        #        "changes": len(user.changes),
+        #    },
+        # )
 
     # List of tags that are newly added to this sticker
     new_tags = []
