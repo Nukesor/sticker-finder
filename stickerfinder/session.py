@@ -1,4 +1,5 @@
 """Session helper functions."""
+import monkeytype
 import traceback
 from datetime import datetime, timedelta
 from functools import wraps
@@ -21,20 +22,21 @@ def job_wrapper(func):
     """Create a session, handle permissions and exceptions for jobs."""
 
     def wrapper(context):
-        session = get_session()
-        try:
-            func(context, session)
+        with monkeytype.trace():
+            session = get_session()
+            try:
+                func(context, session)
 
-            session.commit()
-        except Exception as e:
-            # Capture all exceptions from jobs.
-            # We need to handle those inside the jobs
-            traceback.print_exc()
-            if should_report_exception(context, e):
-                sentry.capture_exception(tags={"handler": "job"})
-        finally:
-            context.job.enabled = True
-            session.close()
+                session.commit()
+            except Exception as e:
+                # Capture all exceptions from jobs.
+                # We need to handle those inside the jobs
+                traceback.print_exc()
+                if should_report_exception(context, e):
+                    sentry.capture_exception(tags={"handler": "job"})
+            finally:
+                context.job.enabled = True
+                session.close()
 
     return wrapper
 
@@ -43,28 +45,29 @@ def inline_query_wrapper(func):
     """Create a session, handle permissions and exceptions."""
 
     def wrapper(update, context):
-        session = get_session()
-        try:
-            user = User.get_or_create(session, update.inline_query.from_user)
+        with monkeytype.trace():
+            session = get_session()
+            try:
+                user = User.get_or_create(session, update.inline_query.from_user)
 
-            if user.banned:
-                return
+                if user.banned:
+                    return
 
-            if config["mode"]["private_inline_query"] and not user.authorized:
-                return
+                if config["mode"]["private_inline_query"] and not user.authorized:
+                    return
 
-            func(context, update, session, user)
-            session.commit()
+                func(context, update, session, user)
+                session.commit()
 
-        # Handle all not telegram relatated exceptions
-        except Exception as e:
-            if not ignore_exception(e):
-                traceback.print_exc()
-                if should_report_exception(context, e):
-                    sentry.capture_exception(tags={"handler": "inline_query"})
+            # Handle all not telegram relatated exceptions
+            except Exception as e:
+                if not ignore_exception(e):
+                    traceback.print_exc()
+                    if should_report_exception(context, e):
+                        sentry.capture_exception(tags={"handler": "inline_query"})
 
-        finally:
-            session.close()
+            finally:
+                session.close()
 
     return wrapper
 
@@ -73,42 +76,41 @@ def callback_query_wrapper(func):
     """Create a session, handle permissions and exceptions."""
 
     def wrapper(update, context):
-        session = get_session()
-        try:
-            user = User.get_or_create(session, update.callback_query.from_user)
+        with monkeytype.trace():
+            session = get_session()
+            try:
+                user = User.get_or_create(session, update.callback_query.from_user)
 
-            if user.banned:
-                return
+                if user.banned:
+                    return
 
-            if config["mode"]["authorized_only"] and not user.authorized:
-                return
+                if config["mode"]["authorized_only"] and not user.authorized:
+                    return
 
-            func(context.bot, update, session, user)
+                func(context.bot, update, session, user)
 
-            session.commit()
-        # Handle all not telegram relatated exceptions
-        except Exception as e:
-            if not ignore_exception(e):
-                traceback.print_exc()
+                session.commit()
+            # Handle all not telegram relatated exceptions
+            except Exception as e:
+                if not ignore_exception(e):
+                    traceback.print_exc()
 
-                if should_report_exception(context, e):
-                    sentry.capture_exception(
-                        tags={
-                            "handler": "callback_query",
-                        },
-                        extra={
-                            "query": update.callback_query,
-                        },
-                    )
-        finally:
-            session.close()
+                    if should_report_exception(context, e):
+                        sentry.capture_exception(
+                            tags={
+                                "handler": "callback_query",
+                            },
+                            extra={
+                                "query": update.callback_query,
+                            },
+                        )
+            finally:
+                session.close()
 
     return wrapper
 
 
 def message_wrapper(
-    send_message=True,
-    allow_edit=False,
     admin_only=False,
 ):
     """Create a session, handle permissions, handle exceptions and prepare some entities."""
@@ -118,89 +120,90 @@ def message_wrapper(
 
         @wraps(func)
         def wrapper(update, context):
-            session = get_session()
-            chat = None
-            message = None
-            try:
-                if hasattr(update, "message") and update.message:
-                    message = update.message
-                elif hasattr(update, "edited_message") and update.edited_message:
-                    message = update.edited_message
-                else:
-                    raise Exception("Update didn't have a message.")
-
-                user = User.get_or_create(session, message.from_user)
-
-                if config["mode"]["authorized_only"] and not user.authorized:
-                    if config["mode"]["private_inline_query"]:
-                        text = i18n.t(
-                            "text.misc.private_access_no_inline",
-                            username=config["telegram"]["bot_name"],
-                        )
+            with monkeytype.trace():
+                session = get_session()
+                chat = None
+                message = None
+                try:
+                    if hasattr(update, "message") and update.message:
+                        message = update.message
+                    elif hasattr(update, "edited_message") and update.edited_message:
+                        message = update.edited_message
                     else:
-                        text = i18n.t(
-                            "text.misc.private_access",
-                            username=config["telegram"]["bot_name"],
+                        raise Exception("Update didn't have a message.")
+
+                    user = User.get_or_create(session, message.from_user)
+
+                    if config["mode"]["authorized_only"] and not user.authorized:
+                        if config["mode"]["private_inline_query"]:
+                            text = i18n.t(
+                                "text.misc.private_access_no_inline",
+                                username=config["telegram"]["bot_name"],
+                            )
+                        else:
+                            text = i18n.t(
+                                "text.misc.private_access",
+                                username=config["telegram"]["bot_name"],
+                            )
+                        message.chat.send_message(
+                            text,
+                            parse_mode="Markdown",
+                            disable_web_page_preview=True,
                         )
-                    message.chat.send_message(
-                        text,
-                        parse_mode="Markdown",
-                        disable_web_page_preview=True,
-                    )
+                        session.commit()
+                        return
+                    if not is_allowed(user, update, admin_only=admin_only):
+                        return
+
+                    chat_id = message.chat_id
+                    chat_type = message.chat.type
+                    chat = Chat.get_or_create(session, chat_id, chat_type)
+
+                    if not is_allowed(user, update, chat=chat):
+                        return
+
+                    response = func(context.bot, update, session, chat, user)
+
                     session.commit()
-                    return
-                if not is_allowed(user, update, admin_only=admin_only):
-                    return
+                    # Respond to user
+                    if hasattr(update, "message") and response is not None:
+                        message.chat.send_message(response)
 
-                chat_id = message.chat_id
-                chat_type = message.chat.type
-                chat = Chat.get_or_create(session, chat_id, chat_type)
+                # A user banned the bot
+                except Unauthorized:
+                    if chat is not None:
+                        session.delete(chat)
 
-                if not is_allowed(user, update, chat=chat):
-                    return
+                # A group chat has been converted to a super group.
+                except ChatMigrated:
+                    if chat is not None:
+                        session.delete(chat)
 
-                response = func(context.bot, update, session, chat, user)
+                # Handle all not telegram relatated exceptions
+                except Exception as e:
+                    if not ignore_exception(e):
+                        traceback.print_exc()
+                        if should_report_exception(context, e):
+                            sentry.capture_exception(
+                                tags={
+                                    "handler": "message",
+                                },
+                                extra={
+                                    "update": update.to_dict(),
+                                    "function": func.__name__,
+                                },
+                            )
 
-                session.commit()
-                # Respond to user
-                if hasattr(update, "message") and response is not None:
-                    message.chat.send_message(response)
+                        error_message = i18n.t("text.misc.error")
+                        try:
+                            if message is not None:
+                                message.chat.send_message(error_message)
+                        except Exception as e:
+                            if not ignore_exception(e):
+                                raise e
 
-            # A user banned the bot
-            except Unauthorized:
-                if chat is not None:
-                    session.delete(chat)
-
-            # A group chat has been converted to a super group.
-            except ChatMigrated:
-                if chat is not None:
-                    session.delete(chat)
-
-            # Handle all not telegram relatated exceptions
-            except Exception as e:
-                if not ignore_exception(e):
-                    traceback.print_exc()
-                    if should_report_exception(context, e):
-                        sentry.capture_exception(
-                            tags={
-                                "handler": "message",
-                            },
-                            extra={
-                                "update": update.to_dict(),
-                                "function": func.__name__,
-                            },
-                        )
-
-                    error_message = i18n.t("text.misc.error")
-                    try:
-                        if "message" is not None:
-                            message.chat.send_message(error_message)
-                    except Exception as e:
-                        if not ignore_exception(e):
-                            raise e
-
-            finally:
-                session.close()
+                finally:
+                    session.close()
 
         return wrapper
 
