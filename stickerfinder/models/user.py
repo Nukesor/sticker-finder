@@ -39,11 +39,13 @@ class User(base):
     authorized = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, server_default=func.now(), nullable=False)
 
-    changes = relationship("Change")
-    tasks = relationship("Task")
-    reports = relationship("Report")
-    inline_queries = relationship("InlineQuery", order_by="asc(InlineQuery.created_at)")
-    proposed_tags = relationship("ProposedTags")
+    changes = relationship("Change", back_populates="user")
+    tasks = relationship("Task", back_populates="user")
+    reports = relationship("Report", back_populates="user")
+    inline_queries = relationship(
+        "InlineQuery", order_by="asc(InlineQuery.created_at)", back_populates="user"
+    )
+    proposed_tags = relationship("ProposedTags", back_populates="user")
 
     def __init__(self, user_id, username):
         """Create a new user."""

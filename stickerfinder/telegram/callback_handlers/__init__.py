@@ -1,7 +1,5 @@
 """Callback query handling."""
-from telegram.ext import run_async
 
-from stickerfinder.db import get_session
 from stickerfinder.session import callback_query_wrapper
 from stickerfinder.helper.callback import CallbackType
 from stickerfinder.models import Chat
@@ -85,7 +83,6 @@ class CallbackContext:
         self.tg_chat = self.query.message.chat
 
 
-@run_async
 @callback_query_wrapper
 def handle_callback_query(bot, update, session, user):
     """Handle callback queries from inline keyboards."""

@@ -193,7 +193,7 @@ def message_wrapper(
 
                     error_message = i18n.t("text.misc.error")
                     try:
-                        if "message" is not None:
+                        if message is not None:
                             message.chat.send_message(error_message)
                     except Exception as e:
                         if not ignore_exception(e):

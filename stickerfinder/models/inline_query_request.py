@@ -33,7 +33,7 @@ class InlineQueryRequest(base):
     inline_query_id = Column(
         BigInteger, ForeignKey("inline_query.id", ondelete="CASCADE"), index=True
     )
-    inline_query = relationship("InlineQuery")
+    inline_query = relationship("InlineQuery", back_populates="requests")
 
     def __init__(self, inline_query, offset):
         """Create a new change."""

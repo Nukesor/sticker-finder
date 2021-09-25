@@ -1,9 +1,7 @@
-from telegram.ext import run_async
 from stickerfinder.db import get_session
 from stickerfinder.models import InlineQuery, Sticker, StickerUsage
 
 
-@run_async
 def handle_chosen_inline_result(update, context):
     session = get_session()
     """Save the chosen inline result."""

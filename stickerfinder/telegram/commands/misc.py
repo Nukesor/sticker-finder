@@ -36,13 +36,3 @@ def send_help_text(bot, update, session, chat, user):
         reply_markup=keyboard,
         parse_mode="Markdown",
     )
-
-
-@message_wrapper()
-def show_settings(bot, update, session, chat, user):
-    """Update the settings message."""
-    update.message.send_message(
-        get_settings_text(user),
-        parse_mode="Markdown",
-        reply_markup=get_settings_keyboard(user),
-    )

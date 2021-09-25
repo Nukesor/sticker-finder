@@ -48,7 +48,7 @@ class StickerUsage(base):
     )
 
     user = relationship("User")
-    sticker = relationship("Sticker")
+    sticker = relationship("Sticker", back_populates="usages")
 
     def __init__(self, user, sticker):
         """Create a new StickerUsage."""

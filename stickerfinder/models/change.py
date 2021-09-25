@@ -103,8 +103,8 @@ class Change(base):
     removed_tags = relationship("Tag", secondary=change_removed_tags)
     chat = relationship("Chat")
     user = relationship("User")
-    check_task = relationship("Task")
-    sticker = relationship("Sticker")
+    check_task = relationship("Task", back_populates="changes_to_check")
+    sticker = relationship("Sticker", back_populates="changes")
 
     def __init__(
         self,

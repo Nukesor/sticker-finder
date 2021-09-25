@@ -61,8 +61,12 @@ class StickerSet(base):
     reviewed = Column(Boolean, default=False, nullable=False)
 
     stickers = relationship("Sticker", order_by="desc(Sticker.file_unique_id)")
-    reports = relationship("Report", order_by="desc(Report.created_at)")
-    tasks = relationship("Task", order_by="asc(Task.created_at)")
+    reports = relationship(
+        "Report", order_by="desc(Report.created_at)", back_populates="sticker_set"
+    )
+    tasks = relationship(
+        "Task", order_by="asc(Task.created_at)", back_populates="sticker_set"
+    )
     chats = relationship(
         "Chat", secondary=chat_sticker_set, back_populates="sticker_sets"
     )
