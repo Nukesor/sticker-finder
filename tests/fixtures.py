@@ -29,6 +29,17 @@ def sticker_set(session, admin):
     return sticker_set_factory(session, "test_set", stickers)
 
 
+class TgContext:
+    def __init__(self):
+        self.bot_data = {}
+
+
+@pytest.fixture(scope="function")
+def tg_context():
+    """Create a stub telegram context"""
+    return TgContext()
+
+
 @pytest.fixture(scope="function")
 def tags(session, sticker_set, user):
     """Create tags for all stickers."""

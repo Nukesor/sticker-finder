@@ -3,10 +3,12 @@ from stickerfinder.telegram.inline_query.context import Context
 from stickerfinder.telegram.inline_query.search import get_matching_sticker_sets
 
 
-def test_strict_sticker_search_set_order(session, strict_inline_search, user):
+def test_strict_sticker_search_set_order(
+    session, tg_context, strict_inline_search, user
+):
     """Test correct sticker set sorting order."""
     # Simple search which should get nearly all stickers from both sets
-    context = Context("testtag set", "", user)
+    context = Context(tg_context, "testtag set", "", user)
     assert context.mode == Context.STICKER_SET_MODE
 
     matching_sets, duration = get_matching_sticker_sets(session, context)

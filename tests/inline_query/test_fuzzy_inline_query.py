@@ -5,9 +5,9 @@ from stickerfinder.telegram.inline_query.context import Context
 from stickerfinder.telegram.inline_query.search import get_matching_stickers
 
 
-def test_combined_sticker_search(session, strict_inline_search, user):
+def test_combined_sticker_search(session, tg_context, strict_inline_search, user):
     """Test whether combined search of fuzzy and strict search works."""
-    context = Context("roflcpter unique-other", "", user)
+    context = Context(tg_context, "roflcpter unique-other", "", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -35,9 +35,11 @@ def test_combined_sticker_search(session, strict_inline_search, user):
 
 
 @pytest.mark.parametrize("query,score", [("unique-oter", 0.67), ("mega-awesme", 0.59)])
-def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score):
+def test_fuzzy_sticker_search(
+    session, tg_context, strict_inline_search, user, query, score
+):
     """Test fuzzy search for stickers."""
-    context = Context(query, "123:60:0", user)
+    context = Context(tg_context, query, "123:60:0", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -51,7 +53,7 @@ def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score)
         assert round(result[4], 2) == score
 
     # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on the first run
-    context = Context(query, "", user)
+    context = Context(tg_context, query, "", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -59,7 +61,7 @@ def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score)
     assert len(fuzzy_matching_stickers) == 40
 
     # Make sure we instantly search for fuzzy stickers, if no normal stickers can be found on a normal offset
-    context = Context(query, "123:50", user)
+    context = Context(tg_context, query, "123:50", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -68,13 +70,15 @@ def test_fuzzy_sticker_search(session, strict_inline_search, user, query, score)
 
 
 @pytest.mark.parametrize("query, score", [("longstrin", 0.75), ("/longstrin", 0.75)])
-def test_similar_fuzzy_tags_search(session, fuzzy_inline_search, user, query, score):
+def test_similar_fuzzy_tags_search(
+    session, tg_context, fuzzy_inline_search, user, query, score
+):
     """Test fuzzy search for stickers with similar tags.
 
     This test is here to ensure that stickers won't show up multiple times in search,
     if there are multiple tags on the sticker that match to a single search word.
     """
-    context = Context(query, "123:0:0", user)
+    context = Context(tg_context, query, "123:0:0", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )

@@ -6,10 +6,12 @@ from stickerfinder.telegram.inline_query.context import Context
 from stickerfinder.telegram.inline_query.search import get_matching_stickers
 
 
-def test_normal_search_with_single_usage(session, strict_inline_search, user):
+def test_normal_search_with_single_usage(
+    session, tg_context, strict_inline_search, user
+):
     """Test correct score calculation for sticker set titles with a single sticker usage."""
     # Simple search which should get nearly all stickers from both sets
-    context = Context("awesome", "", user)
+    context = Context(tg_context, "awesome", "", user)
 
     used_sticker = session.query(Sticker).filter(Sticker.file_id == "sticker_00").one()
 
@@ -38,10 +40,12 @@ def test_normal_search_with_single_usage(session, strict_inline_search, user):
             assert result[4] == 0.75
 
 
-def test_search_with_usage_from_another_user(session, strict_inline_search, user):
+def test_search_with_usage_from_another_user(
+    session, tg_context, strict_inline_search, user
+):
     """Test correct score calculation for sticker set titles with a single sticker usage."""
     # Simple search which should get nearly all stickers from both sets
-    context = Context("awesome", "", user)
+    context = Context(tg_context, "awesome", "", user)
     other_user = user_factory(session, 100, "other_user")
 
     used_sticker = session.query(Sticker).filter(Sticker.file_id == "sticker_00").one()

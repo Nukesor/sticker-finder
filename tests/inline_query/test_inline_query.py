@@ -18,11 +18,11 @@ from stickerfinder.telegram.inline_query.search import get_matching_stickers
     ],
 )
 def test_strict_sticker_search_set_order(
-    session, strict_inline_search, user, query, first_score, second_score
+    session, tg_context, strict_inline_search, user, query, first_score, second_score
 ):
     """Test correct sticker set sorting order."""
     # Simple search which should get nearly all stickers from both sets
-    context = Context(query, "", user)
+    context = Context(tg_context, query, "", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -58,10 +58,12 @@ def test_strict_sticker_search_set_order(
     assert context.fuzzy_offset is None
 
 
-def test_strict_sticker_search_set_score(session, strict_inline_search, user):
+def test_strict_sticker_search_set_score(
+    session, tg_context, strict_inline_search, user
+):
     """Test correct score calculation for sticker set titles."""
     # Simple search which should get nearly all stickers from both sets
-    context = Context("awesome", "", user)
+    context = Context(tg_context, "awesome", "", user)
     matching_stickers, fuzzy_matching_stickers, duration = get_matching_stickers(
         session, context
     )
@@ -76,9 +78,9 @@ def test_strict_sticker_search_set_score(session, strict_inline_search, user):
         assert result[4] == 0.75
 
 
-def test_no_combined_on_full_strict(session, strict_inline_search, user):
+def test_no_combined_on_full_strict(session, tg_context, strict_inline_search, user):
     """Test fuzzy search for stickers."""
-    context = Context("roflcpter unique-other", "", user)
+    context = Context(tg_context, "roflcpter unique-other", "", user)
     # Add ten more stickers to the strict matching set
     sticker_set = strict_inline_search[0]
     for i in range(60, 70):
@@ -100,9 +102,9 @@ def test_no_combined_on_full_strict(session, strict_inline_search, user):
     assert len(fuzzy_matching_stickers) == 0
 
 
-def test_nsfw_search(session, strict_inline_search, user):
+def test_nsfw_search(session, tg_context, strict_inline_search, user):
     """Test nsfw search for stickers."""
-    context = Context("nsfw porn roflcopter", "", user)
+    context = Context(tg_context, "nsfw porn roflcopter", "", user)
 
     sticker_set = strict_inline_search[0]
     sticker_set.nsfw = True
