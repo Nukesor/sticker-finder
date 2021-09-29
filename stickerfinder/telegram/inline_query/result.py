@@ -22,7 +22,7 @@ def handle_chosen_inline_result(update, context):
     inline_query = session.query(InlineQuery).get(search_id)
 
     # Clean all cache values as soon as the user selects a result
-    if "query_cache" in context.tg_context.bot_data:
+    if "query_cache" in context.bot_data:
         cache = context.bot_data["query_cache"]
         if inline_query.id in cache:
             del cache[inline_query.id]
