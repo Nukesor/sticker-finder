@@ -1,8 +1,8 @@
 # Sticker Finder
 
 [![GitHub release](https://img.shields.io/github/tag/nukesor/sticker-finder.svg)](https://github.com/nukesor/sticker-finder/releases/latest)
-[![Test status](https://travis-ci.org/Nukesor/sticker-finder.svg?branch=master)](https://travis-ci.org/Nukesor/sticker-finder)
-[![MIT Licence](https://img.shields.io/badge/license-MIT-success.svg)](https://github.com/Nukesor/sticker-finder/blob/master/LICENSE.md)
+[![Test status](https://travis-ci.org/Nukesor/sticker-finder.svg?branch=main)](https://travis-ci.org/Nukesor/sticker-finder)
+[![MIT Licence](https://img.shields.io/badge/license-MIT-success.svg)](https://github.com/Nukesor/sticker-finder/blob/main/LICENSE.md)
 
 StickerFinder is a telegram bot for searching stickers (just like @gif).
 
@@ -13,8 +13,8 @@ In case the bot is missing some, you can easily add your own precious sets.
 StickerFinder's search is super fast and features customized tagging as well as fuzzy searching!
 
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder1.png">
-    <img src="https://raw.githubusercontent.com/Nukesor/images/master/sticker_finder2.png">
+    <img src="https://raw.githubusercontent.com/Nukesor/images/main/sticker_finder1.png">
+    <img src="https://raw.githubusercontent.com/Nukesor/images/main/sticker_finder2.png">
 </p>
 
 Feel free to host your own bot. There is an up-to-date postgreSQL database dump in the repository.
