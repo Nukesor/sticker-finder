@@ -20,7 +20,7 @@ python-i18n = { version="^0.3", extras=["yaml"] }
 
 matplotlib = "^3"
 pandas = "^1"
-pillow = "^8"
+pillow = "^9"
 
 [tool.poetry.dev-dependencies]
 pytest-mock = "^3"
