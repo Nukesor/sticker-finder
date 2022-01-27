@@ -12,7 +12,7 @@ default_config = {
         "bot_name": "your bot name",
     },
     "database": {
-        "sql_uri": "postgres://localhost/stickerfinder",
+        "sql_uri": "postgresql://localhost/stickerfinder",
         "connection_count": 20,
         "overflow_count": 10,
     },
