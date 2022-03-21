@@ -2,14 +2,15 @@ from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
-from stickerfinder.helper.callback import CallbackType, CallbackResult
+from stickerfinder.helper.callback import CallbackType, CallbackResult, build_set_data
 from stickerfinder.enum import TagMode
 
 
 def get_tag_this_set_keyboard(sticker_set, user):
     """Button for tagging a specific set."""
     tag_set_data = f'{CallbackType["tag_set"].value}:{sticker_set.name}:0'
-    buttons = []
+    first_row = []
+    second_row = []
 
     if user.admin is True:
         action = CallbackResult["ok"].value
@@ -20,13 +21,30 @@ def get_tag_this_set_keyboard(sticker_set, user):
         deluxe_data = (
             f'{CallbackType["deluxe_set_user_chat"].value}:{sticker_set.name}:{action}'
         )
-        buttons.append(InlineKeyboardButton(text=text, callback_data=deluxe_data))
+        first_row.append(InlineKeyboardButton(text=text, callback_data=deluxe_data))
 
-    buttons.append(
+        if sticker_set.nsfw:
+            nsfw_text = "Revert nsfw tag"
+        else:
+            nsfw_text = "Tag as nsfw"
+
+        if sticker_set.banned:
+            ban_text = "Revert ban tag"
+        else:
+            ban_text = "Ban this set"
+
+        ban_data = build_set_data("ban_set", sticker_set)
+        nsfw_data = build_set_data("nsfw_set", sticker_set)
+        second_row = [
+            InlineKeyboardButton(text=ban_text, callback_data=ban_data),
+            InlineKeyboardButton(text=nsfw_text, callback_data=nsfw_data),
+        ]
+
+    first_row.append(
         InlineKeyboardButton(text="Tag this set.", callback_data=tag_set_data)
     )
 
-    return InlineKeyboardMarkup([buttons])
+    return InlineKeyboardMarkup([first_row, second_row])
 
 
 def get_tagging_keyboard(chat):
