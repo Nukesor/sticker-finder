@@ -1,6 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.helper.callback import CallbackResult, CallbackType, build_set_data
 
 

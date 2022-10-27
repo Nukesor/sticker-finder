@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from sqlalchemy import func
 
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.i18n import i18n
 from stickerfinder.models import Change, ProposedTags, Sticker, StickerSet, Tag
 from stickerfinder.telegram.keyboard import (

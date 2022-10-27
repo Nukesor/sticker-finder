@@ -1,4 +1,4 @@
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.logic.tag import (
     handle_next,
     initialize_set_tagging,

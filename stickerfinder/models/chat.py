@@ -9,7 +9,7 @@ from sqlalchemy.types import BigInteger, Boolean, DateTime, String
 from telegram.error import BadRequest
 
 from stickerfinder.db import base
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
 
 chat_sticker_set = Table(

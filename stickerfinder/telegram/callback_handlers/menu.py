@@ -1,4 +1,4 @@
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.helper.display import get_help_text_and_keyboard, get_settings_text
 from stickerfinder.i18n import i18n
 from stickerfinder.logic.tag import handle_next
