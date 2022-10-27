@@ -210,7 +210,7 @@ def get_matching_stickers(session, context):
     duration = end - start
     if duration.seconds >= 8:
         sentry.capture_message(
-            f"Query took too long.",
+            "Query took too long.",
             extra={
                 "query": context.query,
                 "duration": duration,
@@ -236,7 +236,7 @@ def get_matching_sticker_sets(session, context):
     duration = end - start
     if duration.seconds >= 8:
         sentry.capture_message(
-            f"Query took too long.",
+            "Query took too long.",
             extra={
                 "query": context.query,
                 "duration": duration,

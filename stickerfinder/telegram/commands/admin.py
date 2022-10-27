@@ -2,8 +2,9 @@
 import secrets
 import time
 
+from sqlalchemy.exc import IntegrityError
 from telegram import ReplyKeyboardRemove
-from telegram.error import BadRequest, Unauthorized
+from telegram.error import BadRequest, TelegramError, Unauthorized
 
 from stickerfinder.config import config
 from stickerfinder.models import StickerSet, User
@@ -82,7 +83,7 @@ def make_admin(bot, update, session, chat, user):
         admin = session.query(User).filter(User.username == identifier).one_or_none()
 
     if admin is None:
-        return f"No known user with this name or id."
+        return "No known user with this name or id."
 
     admin.admin = True
     return "User is now admin"
@@ -99,7 +100,7 @@ def add_sets(bot, update, session, chat, user):
         set_name = name.strip()
         try:
             tg_sticker_set = bot.get_sticker_set(set_name)
-        except:
+        except TelegramError:
             return f"Couldn't find set {set_name}"
 
         sticker_set = session.query(StickerSet).get(tg_sticker_set.name)
@@ -107,7 +108,7 @@ def add_sets(bot, update, session, chat, user):
             try:
                 StickerSet.get_or_create(session, set_name, chat, user)
                 count += 1
-            except:
+            except IntegrityError:
                 pass
 
     return f"Added {count} new sticker sets."
@@ -222,7 +223,7 @@ def show_sticker(bot, update, session, chat, user):
     file_id = update.message.text.split(" ", 1)[1].strip()
     try:
         update.message.chat.send_sticker(file_id)
-    except:
+    except TelegramError:
         return "Wrong file id"
 
 

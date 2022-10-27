@@ -19,7 +19,7 @@ def handle_check_user(session, context):
     elif CallbackResult(context.action).name == "unban":
         task.user.banned = False
         context.query.answer("User ban reverted")
-        message = f"Your ban has been lifted."
+        message = "Your ban has been lifted."
         context.bot.send_message(
             task.user.id, message, reply_markup=get_main_keyboard(task.user)
         )

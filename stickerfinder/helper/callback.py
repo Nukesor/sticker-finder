@@ -7,7 +7,7 @@ def build_data(name, payload="", action=0):
     if action != 0:
         try:
             action = CallbackResult[action].value
-        except:
+        except KeyError:
             action = action
     return f"{callback_type}:{payload}:{action}"
 
@@ -18,7 +18,7 @@ def build_set_data(name, sticker_set, action=0):
     if action != 0:
         try:
             action = CallbackResult[action].value
-        except:
+        except KeyError:
             action = action
 
     return f"{callback_type}:{sticker_set.name}:{action}"

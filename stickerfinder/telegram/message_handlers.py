@@ -74,7 +74,7 @@ def handle_private_sticker(bot, update, session, chat, user):
     sticker = session.query(Sticker).get(incoming_sticker.file_unique_id)
     if sticker is None:
         sticker_set.scan_scheduled = True
-        return f"I don't know this specific sticker yet. Please wait a few minutes and try again ☺️"
+        return "I don't know this specific sticker yet. Please wait a few minutes and try again ☺️"
 
     chat.current_sticker = sticker
     chat.tag_mode = TagMode.single_sticker.value
