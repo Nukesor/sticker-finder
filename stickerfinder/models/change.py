@@ -1,22 +1,10 @@
 """The sqlite model for a change."""
-from sqlalchemy.orm import relationship
-from sqlalchemy import (
-    Column,
-    func,
-    ForeignKey,
-    Table,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    Integer,
-    String,
-)
+from sqlalchemy import Column, ForeignKey, Table, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.types import BigInteger, Boolean, DateTime, Integer, String
 
 from stickerfinder.db import base
-
 
 change_added_tags = Table(
     "change_added_tags",

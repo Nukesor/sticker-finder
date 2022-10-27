@@ -1,20 +1,10 @@
 """The sqlite model for a task."""
 from uuid import uuid4
-from sqlalchemy import (
-    Column,
-    func,
-    ForeignKey,
-    CheckConstraint,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    Integer,
-    String,
-)
-from sqlalchemy.orm import relationship
+
+from sqlalchemy import CheckConstraint, Column, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.types import BigInteger, Boolean, DateTime, Integer, String
 
 from stickerfinder.db import base
 

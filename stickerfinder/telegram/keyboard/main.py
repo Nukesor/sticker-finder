@@ -1,7 +1,5 @@
-from telegram import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from stickerfinder.helper.callback import build_data
 
 

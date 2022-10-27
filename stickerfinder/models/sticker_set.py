@@ -1,20 +1,11 @@
 """The sqlite model for a sticker set."""
-from sqlalchemy.orm import relationship
-from sqlalchemy import (
-    CheckConstraint,
-    Column,
-    func,
-    Index,
-)
-from sqlalchemy.types import (
-    Boolean,
-    DateTime,
-    String,
-)
+from sqlalchemy import CheckConstraint, Column, Index, func
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import relationship
+from sqlalchemy.types import Boolean, DateTime, String
 
 from stickerfinder.db import base
-from stickerfinder.models import chat_sticker_set, Task
+from stickerfinder.models import Task, chat_sticker_set
 
 
 class StickerSet(base):

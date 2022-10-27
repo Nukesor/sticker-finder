@@ -1,13 +1,13 @@
 """Helper class to get a database engine and to get a session."""
-from stickerfinder.config import config
 from sqlalchemy import create_engine
+from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import scoped_session
 from sqlalchemy.orm.session import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql import expression, case
-from sqlalchemy.ext.compiler import compiles
+from sqlalchemy.sql import case, expression
 from sqlalchemy.types import Numeric
 
+from stickerfinder.config import config
 
 engine = create_engine(
     config["database"]["sql_uri"],

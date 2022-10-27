@@ -1,23 +1,16 @@
 """Helper functions for tagging."""
-from sqlalchemy import func
 from collections import OrderedDict
 
-from stickerfinder.sentry import sentry
-from stickerfinder.enum import TagMode
+from sqlalchemy import func
+
+from stickerfinder.enums import TagMode
+from stickerfinder.i18n import i18n
+from stickerfinder.models import Change, ProposedTags, Sticker, StickerSet, Tag
 from stickerfinder.telegram.keyboard import (
+    get_fix_sticker_tags_keyboard,
     get_main_keyboard,
     get_tagging_keyboard,
-    get_fix_sticker_tags_keyboard,
 )
-from stickerfinder.i18n import i18n
-from stickerfinder.models import (
-    Change,
-    Tag,
-    Sticker,
-    StickerSet,
-    ProposedTags,
-)
-
 
 ignored_characters = set(["\n", ",", ".", "!", "?", "'", "@", "#", "*", "[", "_"])
 

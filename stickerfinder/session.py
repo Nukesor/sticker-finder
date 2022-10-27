@@ -2,19 +2,14 @@
 import traceback
 from datetime import datetime, timedelta
 from functools import wraps
-from telegram.error import (
-    BadRequest,
-    ChatMigrated,
-    Unauthorized,
-    TimedOut,
-    RetryAfter,
-)
+
+from telegram.error import BadRequest, ChatMigrated, RetryAfter, TimedOut, Unauthorized
 
 from stickerfinder.config import config
 from stickerfinder.db import get_session
-from stickerfinder.sentry import sentry
-from stickerfinder.models import Chat, User
 from stickerfinder.i18n import i18n
+from stickerfinder.models import Chat, User
+from stickerfinder.sentry import sentry
 
 
 def job_wrapper(func):

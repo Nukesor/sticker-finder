@@ -1,10 +1,9 @@
 from stickerfinder.logic.maintenance import distribute_newsfeed_tasks
+from stickerfinder.models import StickerSet, Task
 from stickerfinder.telegram.keyboard import (
     get_nsfw_ban_keyboard,
     get_tag_this_set_keyboard,
 )
-
-from stickerfinder.models import StickerSet, Task
 
 
 def handle_ban_set(session, context):

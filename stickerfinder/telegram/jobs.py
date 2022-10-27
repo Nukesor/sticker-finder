@@ -1,22 +1,14 @@
 """Telegram job tasks."""
-from sqlalchemy import func, and_
 from datetime import datetime, timedelta
 
+from sqlalchemy import and_, func
+
 from stickerfinder.config import config
-from stickerfinder.session import job_wrapper
-from stickerfinder.logic.sticker_set import refresh_stickers
-from stickerfinder.logic.maintenance import (
-    distribute_tasks,
-    distribute_newsfeed_tasks,
-)
 from stickerfinder.logic.cleanup import full_cleanup
-from stickerfinder.models import (
-    Change,
-    StickerSet,
-    Report,
-    User,
-    Task,
-)
+from stickerfinder.logic.maintenance import distribute_newsfeed_tasks, distribute_tasks
+from stickerfinder.logic.sticker_set import refresh_stickers
+from stickerfinder.models import Change, Report, StickerSet, Task, User
+from stickerfinder.session import job_wrapper
 
 
 @job_wrapper

@@ -1,27 +1,16 @@
 """The sqlite model for a chat."""
 import logging
-from sqlalchemy import (
-    Column,
-    func,
-    Table,
-    ForeignKey,
-    UniqueConstraint,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    String,
-)
-from telegram.error import BadRequest
+
+from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.types import BigInteger, Boolean, DateTime, String
+from telegram.error import BadRequest
 
 from stickerfinder.db import base
-from stickerfinder.enum import TagMode
+from stickerfinder.enums import TagMode
 from stickerfinder.telegram.keyboard import get_continue_tagging_keyboard
-
 
 chat_sticker_set = Table(
     "chat_sticker_set",
@@ -133,7 +122,6 @@ class Chat(base):
                     e
                 ) or "Message is not modified" in str(e):
                     logger.info("Message to edit has been deleted.")
-                    pass
                 else:
                     raise e
 

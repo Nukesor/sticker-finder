@@ -2,22 +2,16 @@
 from sqlalchemy import (
     Column,
     ForeignKey,
-    func,
     Index,
     Sequence,
     Table,
     UniqueConstraint,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    String,
+    func,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import BigInteger, Boolean, DateTime, String
 
 from stickerfinder.db import base
-
 
 sticker_tag = Table(
     "sticker_tag",

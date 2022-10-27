@@ -1,14 +1,8 @@
 """Misc telegram commands."""
-from stickerfinder.session import message_wrapper
-from stickerfinder.helper.display import (
-    get_settings_text,
-    get_help_text_and_keyboard,
-)
+from stickerfinder.helper.display import get_help_text_and_keyboard
 from stickerfinder.i18n import i18n
-from stickerfinder.telegram.keyboard import (
-    get_main_keyboard,
-    get_settings_keyboard,
-)
+from stickerfinder.session import message_wrapper
+from stickerfinder.telegram.keyboard import get_main_keyboard
 
 
 @message_wrapper()

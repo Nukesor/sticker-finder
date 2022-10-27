@@ -1,16 +1,7 @@
 """The sqlite model for a sticker."""
-from sqlalchemy import (
-    Column,
-    func,
-    ForeignKey,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    DateTime,
-    Integer,
-    String,
-)
+from sqlalchemy import Column, ForeignKey, func
 from sqlalchemy.orm import relationship
+from sqlalchemy.types import BigInteger, DateTime, Integer, String
 
 from stickerfinder.db import base
 
