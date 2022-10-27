@@ -1,6 +1,6 @@
-from stickerfinder.models import Task
-from stickerfinder.logic.maintenance import check_maintenance_chat
 from stickerfinder.helper.callback import CallbackResult
+from stickerfinder.logic.maintenance import check_maintenance_chat
+from stickerfinder.models import Task
 from stickerfinder.telegram.keyboard import get_report_keyboard
 
 

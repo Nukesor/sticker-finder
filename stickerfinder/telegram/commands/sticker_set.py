@@ -1,9 +1,6 @@
 """Sticker set related commands."""
+from stickerfinder.models import Report, Sticker
 from stickerfinder.session import message_wrapper
-from stickerfinder.models import (
-    Report,
-    Sticker,
-)
 
 
 @message_wrapper()

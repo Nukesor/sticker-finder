@@ -1,18 +1,10 @@
 """The sqlite model for a inline search."""
+from sqlalchemy import Column, ForeignKey, func
 from sqlalchemy.orm import relationship
-from sqlalchemy import (
-    Column,
-    func,
-    ForeignKey,
-)
-from sqlalchemy.types import (
-    BigInteger,
-    DateTime,
-    String,
-)
+from sqlalchemy.types import BigInteger, DateTime, String
 
-from stickerfinder.db import base
 from stickerfinder.config import config
+from stickerfinder.db import base
 
 
 class InlineQuery(base):

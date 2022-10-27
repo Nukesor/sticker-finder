@@ -1,20 +1,16 @@
 """Message handler functions."""
-from stickerfinder.models import (
-    Change,
-    Sticker,
-    StickerSet,
-)
-from stickerfinder.session import message_wrapper
 from stickerfinder.enum import TagMode
 from stickerfinder.logic.tag import (
-    handle_next,
-    tag_sticker,
     current_sticker_tags_message,
+    handle_next,
     handle_request_reply,
+    tag_sticker,
 )
+from stickerfinder.models import Change, Sticker, StickerSet
+from stickerfinder.session import message_wrapper
 from stickerfinder.telegram.keyboard import (
-    get_tag_this_set_keyboard,
     get_nsfw_ban_keyboard,
+    get_tag_this_set_keyboard,
 )
 
 
@@ -74,7 +70,6 @@ def handle_private_sticker(bot, update, session, chat, user):
     # Notify if they are still in a tagging process
     if chat.tag_mode in [TagMode.sticker_set.value, TagMode.random.value]:
         chat.cancel(bot)
-        pass
 
     sticker = session.query(Sticker).get(incoming_sticker.file_unique_id)
     if sticker is None:

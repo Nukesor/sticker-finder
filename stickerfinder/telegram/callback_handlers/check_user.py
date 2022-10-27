@@ -1,16 +1,12 @@
-from stickerfinder.logic.maintenance import check_maintenance_chat
 from stickerfinder.helper.callback import CallbackResult
 from stickerfinder.logic.maintenance import (
+    change_language_of_task_changes,
+    check_maintenance_chat,
     revert_user_changes,
     undo_user_changes_revert,
-    change_language_of_task_changes,
 )
-from stickerfinder.telegram.keyboard import (
-    get_main_keyboard,
-    check_user_tags_keyboard,
-)
-
 from stickerfinder.models import Task
+from stickerfinder.telegram.keyboard import check_user_tags_keyboard, get_main_keyboard
 
 
 def handle_check_user(session, context):

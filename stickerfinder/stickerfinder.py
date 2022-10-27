@@ -1,60 +1,58 @@
 """A bot for stickers."""
 import logging
+
 from telegram.ext import (
-    Filters,
-    CommandHandler,
     CallbackQueryHandler,
     ChosenInlineResultHandler,
+    CommandHandler,
+    Filters,
     InlineQueryHandler,
     MessageHandler,
     Updater,
 )
 
 from stickerfinder.config import config
+from stickerfinder.telegram.callback_handlers import handle_callback_query
 from stickerfinder.telegram.commands import (
-    broadcast,
-    test_broadcast,
-    ban_sticker,
-    unban_sticker,
-    ban_user,
-    unban_user,
-    authorize_user,
-    make_admin,
-    report_set,
-    flag_chat,
-    start_tasks,
-    tag_single,
-    replace_single,
-    cancel,
     add_sets,
+    authorize_user,
+    ban_sticker,
+    ban_user,
+    broadcast,
+    cancel,
     delete_set,
+    fix_stuff,
+    flag_chat,
     forget_set,
+    make_admin,
+    replace_single,
+    report_set,
+    send_help_text,
     show_sticker,
     show_sticker_file_id,
-    fix_stuff,
-)
-from stickerfinder.telegram.commands import (
     start,
-    send_help_text,
+    start_tasks,
+    tag_single,
+    test_broadcast,
+    unban_sticker,
+    unban_user,
 )
-from stickerfinder.telegram.jobs import (
-    cleanup_job,
-    free_cache,
-    newsfeed_job,
-    maintenance_job,
-    scan_sticker_sets_job,
-    distribute_tasks_job,
-)
-from stickerfinder.telegram.message_handlers import (
-    handle_private_text,
-    handle_private_sticker,
-    handle_group_sticker,
-    handle_edited_messages,
-)
-from stickerfinder.telegram.callback_handlers import handle_callback_query
 from stickerfinder.telegram.inline_query import search
 from stickerfinder.telegram.inline_query.result import handle_chosen_inline_result
-
+from stickerfinder.telegram.jobs import (
+    cleanup_job,
+    distribute_tasks_job,
+    free_cache,
+    maintenance_job,
+    newsfeed_job,
+    scan_sticker_sets_job,
+)
+from stickerfinder.telegram.message_handlers import (
+    handle_edited_messages,
+    handle_group_sticker,
+    handle_private_sticker,
+    handle_private_text,
+)
 
 logging.basicConfig(
     level=config["logging"]["log_level"],

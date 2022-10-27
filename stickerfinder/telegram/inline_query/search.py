@@ -1,24 +1,23 @@
 """Entry points for inline query search."""
 import hashlib
 from datetime import datetime
+
 from telegram import (
-    InlineQueryResultCachedSticker,
     InlineQueryResultArticle,
+    InlineQueryResultCachedSticker,
     InputTextMessageContent,
 )
 
 from stickerfinder.sentry import sentry
+
 from .cache import cache_stickers, get_cached_stickers, initialize_cache
 from .context import Context
-from .offset import (
-    get_next_offset,
-    get_next_set_offset,
-)
+from .offset import get_next_offset, get_next_set_offset
 from .sql_query import (
     get_favorite_stickers,
     get_fuzzy_matching_stickers,
-    get_strict_matching_stickers,
     get_strict_matching_sticker_sets,
+    get_strict_matching_stickers,
 )
 
 

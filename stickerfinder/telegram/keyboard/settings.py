@@ -1,9 +1,7 @@
 """Maintenance related keyboards."""
-from telegram import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
-from stickerfinder.helper.callback import build_user_data, build_data
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from stickerfinder.helper.callback import build_data, build_user_data
 
 
 def get_settings_keyboard(user):

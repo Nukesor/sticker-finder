@@ -3,16 +3,11 @@ from sqlalchemy import func
 from telegram.error import BadRequest, ChatMigrated, Unauthorized
 
 from stickerfinder.helper.text import split_text
+from stickerfinder.models import Change, Chat, StickerSet, Task
 from stickerfinder.telegram.keyboard import (
     check_user_tags_keyboard,
-    get_report_keyboard,
     get_nsfw_ban_keyboard,
-)
-from stickerfinder.models import (
-    Chat,
-    Change,
-    Task,
-    StickerSet,
+    get_report_keyboard,
 )
 
 

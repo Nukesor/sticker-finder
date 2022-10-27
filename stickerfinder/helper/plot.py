@@ -1,15 +1,12 @@
 """Module responsibel for plotting statistics."""
 import io
-import pandas
+
 import matplotlib
 import matplotlib.dates as mdates
-from sqlalchemy import func, Date, cast, Integer
+import pandas
+from sqlalchemy import Date, Integer, cast, func
 
-from stickerfinder.models import (
-    InlineQuery,
-    InlineQueryRequest,
-    User,
-)
+from stickerfinder.models import InlineQuery, InlineQueryRequest, User
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa

@@ -1,16 +1,11 @@
 """Inline query handler function."""
 from sqlalchemy.exc import IntegrityError
 
+from stickerfinder.models import InlineQuery, InlineQueryRequest
 from stickerfinder.session import inline_query_wrapper
-from stickerfinder.models import (
-    InlineQuery,
-    InlineQueryRequest,
-)
+
 from .context import Context
-from .search import (
-    search_stickers,
-    search_sticker_sets,
-)
+from .search import search_sticker_sets, search_stickers
 
 
 @inline_query_wrapper

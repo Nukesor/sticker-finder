@@ -1,14 +1,11 @@
+from stickerfinder.enum import TagMode
+from stickerfinder.helper.display import get_help_text_and_keyboard, get_settings_text
 from stickerfinder.i18n import i18n
 from stickerfinder.logic.tag import handle_next
-from stickerfinder.enum import TagMode
-from stickerfinder.helper.display import (
-    get_settings_text,
-    get_help_text_and_keyboard,
-)
 from stickerfinder.telegram.keyboard import (
+    get_admin_settings_keyboard,
     get_main_keyboard,
     get_settings_keyboard,
-    get_admin_settings_keyboard,
 )
 
 

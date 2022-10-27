@@ -1,9 +1,7 @@
 """Maintenance related keyboards."""
-from telegram import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
-from stickerfinder.helper.callback import CallbackType, CallbackResult, build_set_data
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from stickerfinder.helper.callback import CallbackResult, CallbackType, build_set_data
 
 
 def get_nsfw_ban_keyboard(sticker_set):

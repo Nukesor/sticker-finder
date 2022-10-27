@@ -1,14 +1,11 @@
 """Some functions to cleanup the database."""
-from sqlalchemy import or_
-from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
 
+from sqlalchemy import or_
+from sqlalchemy.orm import aliased
+
 from stickerfinder.logic.tag import get_tags_from_text
-from stickerfinder.models import (
-    Tag,
-    User,
-    InlineQuery,
-)
+from stickerfinder.models import InlineQuery, Tag, User
 
 
 def full_cleanup(session, inline_query_threshold, chat=None):

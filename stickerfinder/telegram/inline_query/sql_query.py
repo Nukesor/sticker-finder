@@ -1,18 +1,11 @@
 """Query composition for inline search."""
 from pprint import pprint
-from sqlalchemy import func, case, cast, Numeric, or_, and_
-from sqlalchemy.dialects import postgresql
-from sqlalchemy.sql.expression import literal
+
+from sqlalchemy import Numeric, and_, case, cast, func, or_
 
 from stickerfinder.config import config
 from stickerfinder.db import greatest
-from stickerfinder.models import (
-    Sticker,
-    StickerSet,
-    StickerUsage,
-    sticker_tag,
-    Tag,
-)
+from stickerfinder.models import Sticker, StickerSet, StickerUsage, Tag, sticker_tag
 
 from .cache import get_cached_strict_matching_stickers
 

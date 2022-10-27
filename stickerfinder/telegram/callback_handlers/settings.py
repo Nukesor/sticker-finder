@@ -1,5 +1,5 @@
-from stickerfinder.models import InlineQuery, StickerUsage
 from stickerfinder.helper.display import get_settings_text
+from stickerfinder.models import InlineQuery, StickerUsage
 from stickerfinder.telegram.keyboard import (
     get_settings_keyboard,
     get_user_delete_history_confirmation_keyboard,

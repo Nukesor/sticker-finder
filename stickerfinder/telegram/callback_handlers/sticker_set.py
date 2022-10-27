@@ -1,5 +1,5 @@
-from stickerfinder.models import StickerSet
 from stickerfinder.helper.callback import CallbackResult
+from stickerfinder.models import StickerSet
 from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
 
 

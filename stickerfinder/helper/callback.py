@@ -1,4 +1,4 @@
-from stickerfinder.enum import CallbackType, CallbackResult
+from stickerfinder.enum import CallbackResult, CallbackType
 
 
 def build_data(name, payload="", action=0):

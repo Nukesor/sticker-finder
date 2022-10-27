@@ -1,14 +1,9 @@
 """Helper functions for handling sticker sets."""
-import io
-import re
-import logging
-from PIL import Image
-from telegram.error import BadRequest, TimedOut
+from telegram.error import BadRequest
 
 from stickerfinder.config import config
 from stickerfinder.logic.tag import add_original_emojis
-from stickerfinder.models import Sticker, Chat
-from stickerfinder.sentry import sentry
+from stickerfinder.models import Chat, Sticker
 from stickerfinder.telegram.keyboard import get_tag_this_set_keyboard
 
 

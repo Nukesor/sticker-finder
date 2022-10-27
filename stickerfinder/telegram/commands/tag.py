@@ -1,9 +1,9 @@
 """Tag related commands."""
 
-from stickerfinder.session import message_wrapper
 from stickerfinder.enum import TagMode
 from stickerfinder.logic.tag import handle_next, tag_sticker
 from stickerfinder.models import Sticker
+from stickerfinder.session import message_wrapper
 
 
 @message_wrapper()

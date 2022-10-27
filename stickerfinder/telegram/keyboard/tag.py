@@ -1,9 +1,7 @@
-from telegram import (
-    InlineKeyboardMarkup,
-    InlineKeyboardButton,
-)
-from stickerfinder.helper.callback import CallbackType, CallbackResult, build_set_data
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
 from stickerfinder.enum import TagMode
+from stickerfinder.helper.callback import CallbackResult, CallbackType, build_set_data
 
 
 def get_tag_this_set_keyboard(sticker_set, user):

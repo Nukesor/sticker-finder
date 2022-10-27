@@ -1,16 +1,15 @@
-from stickerfinder.telegram.keyboard import (
-    get_main_keyboard,
-    get_fix_sticker_tags_keyboard,
-)
-from stickerfinder.logic.tag import (
-    send_tagged_count_message,
-    handle_next,
-    send_tag_messages,
-    initialize_set_tagging,
-)
-
-from stickerfinder.models import Sticker
 from stickerfinder.enum import TagMode
+from stickerfinder.logic.tag import (
+    handle_next,
+    initialize_set_tagging,
+    send_tag_messages,
+    send_tagged_count_message,
+)
+from stickerfinder.models import Sticker
+from stickerfinder.telegram.keyboard import (
+    get_fix_sticker_tags_keyboard,
+    get_main_keyboard,
+)
 
 
 def handle_tag_next(session, context):
