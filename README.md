@@ -4,6 +4,17 @@
 [![Test status](https://travis-ci.org/Nukesor/sticker-finder.svg?branch=main)](https://travis-ci.org/Nukesor/sticker-finder)
 [![MIT Licence](https://img.shields.io/badge/license-MIT-success.svg)](https://github.com/Nukesor/sticker-finder/blob/main/LICENSE.md)
 
+## :warning: :warning: :warning:  State of the project :warning: :warning: :warning: 
+
+The project is **now longer actively** maintained!
+I try to bump dependencies on a regular basis, but **I won't review or accept** any new pull requests!
+
+If you started a successful fork of this repository that has been maintained over a longer period of time, feel free to contact me. I'll then point to your fork :).
+
+:warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: :warning: 
+
+## Introduction
+
 StickerFinder is a telegram bot for searching stickers (just like @gif).
 
 You can search through community tags, on-image text, emojis and the sticker-set's title.
