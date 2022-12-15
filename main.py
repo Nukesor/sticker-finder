@@ -66,17 +66,15 @@ def run():
 
     if config["webhook"]["enabled"]:
         typer.echo("Starting the bot in webhook mode.")
+        domain = config["webhook"]["domain"]
+        token = config["webhook"]["token"]
+        print("Starting up")
         updater.start_webhook(
             listen="127.0.0.1",
             port=config["webhook"]["port"],
             url_path=config["webhook"]["token"],
-        )
-        domain = config["webhook"]["domain"]
-        token = config["webhook"]["token"]
-        print("Starting up")
-        updater.bot.set_webhook(
-            url=f"{domain}{token}",
-            certificate=open(config["webhook"]["cert_path"], "rb"),
+            webhook_url=f"{domain}{token}",
+            cert=config["webhook"]["cert_path"],
         )
     else:
         typer.echo("Starting the bot in polling mode.")
