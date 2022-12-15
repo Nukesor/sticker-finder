@@ -84,7 +84,7 @@ def init_app():
         MessageHandler(Filters.sticker & Filters.group, handle_group_sticker)
     )
 
-    private_command_filter = Filters.private
+    private_command_filter = Filters.chat_type.private
 
     if not config["mode"]["leecher"]:
         # Input commands
@@ -197,12 +197,14 @@ def init_app():
 
         # Create private message handler
         dispatcher.add_handler(
-            MessageHandler(Filters.sticker & Filters.private, handle_private_sticker)
+            MessageHandler(
+                Filters.sticker & Filters.chat_type.private, handle_private_sticker
+            )
         )
         dispatcher.add_handler(
             MessageHandler(
                 Filters.text
-                & Filters.private
+                & Filters.chat_type.private
                 & (~Filters.update.edited_message)
                 & (~Filters.reply),
                 handle_private_text,
