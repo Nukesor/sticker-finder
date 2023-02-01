@@ -20,12 +20,12 @@ sentry-sdk = "^1"
 SQLAlchemy = "^1"
 sqlalchemy-utils = "^0.38"
 toml = "^0.10"
-typer = "^0.6"
+typer = "^0.7"
 
 [tool.poetry.dev-dependencies]
-autoflake = "^1"
+autoflake = "^2"
 black = { version = "*", allow-prereleases = true }
-flake8 = "^5"
+flake8 = "^6"
 isort = "^5"
 pytest = "^7"
 pytest-mock = "^3"
