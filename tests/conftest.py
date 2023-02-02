@@ -1,6 +1,6 @@
 """Base fixtures for testing and import point for everything else."""
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import InternalError
 
@@ -20,7 +20,7 @@ def engine():
 def tables(engine):
     """Create the base schema."""
     with engine.connect() as con:
-        con.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+        con.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
     base.metadata.create_all(engine)
     yield
 

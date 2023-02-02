@@ -1,8 +1,7 @@
 """Helper class to get a database engine and to get a session."""
 from sqlalchemy import create_engine
 from sqlalchemy.ext.compiler import compiles
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import scoped_session
+from sqlalchemy.orm import scoped_session, registry
 from sqlalchemy.orm.session import sessionmaker
 from sqlalchemy.sql import case, expression
 from sqlalchemy.types import Numeric
@@ -15,7 +14,9 @@ engine = create_engine(
     max_overflow=config["database"]["overflow_count"],
     echo=False,
 )
-base = declarative_base(bind=engine)
+
+mapper_reg = registry()
+base = mapper_reg.generate_base()
 
 
 def get_session(connection=None):

@@ -3,6 +3,7 @@
 from contextlib import contextmanager
 
 import typer
+from sqlalchemy import text
 from sqlalchemy_utils.functions import database_exists, create_database, drop_database
 
 from stickerfinder.config import config
@@ -48,8 +49,8 @@ def initdb(exist_ok: bool = False, drop_existing: bool = False):
 
     with engine.connect() as con:
         with wrap_echo("Installing extensions"):
-            con.execute("CREATE EXTENSION IF NOT EXISTS pgcrypto;")
-            con.execute("CREATE EXTENSION IF NOT EXISTS pg_trgm;")
+            con.execute(text("CREATE EXTENSION IF NOT EXISTS pgcrypto;"))
+            con.execute(text("CREATE EXTENSION IF NOT EXISTS pg_trgm;"))
             pass
 
     with wrap_echo("Creating metadata"):
