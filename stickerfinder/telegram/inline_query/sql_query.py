@@ -124,7 +124,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     + 1 for each exactly matching tag
     + 0.75 if a tag is contained in StickerSet name or title
     + 0.4 if tag is contained in OCR text
-    + 0.25 for each usage of a specific sticker (Only applied to stickers that match at least one of the above criteria)
+    + 0.05 for each usage of a specific sticker (Only applied to stickers that match at least one of the above criteria)
     """
     user = context.user
     tags = context.tags
@@ -217,7 +217,7 @@ def get_strict_matching_query(session, context, sticker_set=False):
     # Afterwards we order by the newly calculated count.
     #
     # We also order by the name of the set and the file_unique_id to get a deterministic sorting in the search.
-    score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.25
+    score_with_usage = cast(func.coalesce(StickerUsage.usage_count, 0), Numeric) * 0.05
     score_with_usage = score_with_usage + matching_stickers.c.score
     score_with_usage = score_with_usage.label("score_with_usage")
     matching_stickers_with_usage = (
