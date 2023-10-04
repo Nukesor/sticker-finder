@@ -12,7 +12,7 @@ alembic = "^1"
 imutils = "^0.5"
 matplotlib = "^3"
 pandas = "^1"
-pillow = "^9"
+pillow = "^10"
 psycopg2-binary = "^2"
 python-i18n = { version = "^0.3", extras = ["yaml"] }
 python-telegram-bot = "^13"
