@@ -24,23 +24,12 @@ test:
     poetry run pytest
 
 lint:
-    poetry run black --check stickerfinder
-    poetry run isort \
-        --skip __init__.py \
-        --check-only stickerfinder
-    poetry run flake8 stickerfinder
+    poetry run ruff check ./stickerfinder --show-source
+    poetry run ruff format ./stickerfinder --diff
 
 format:
-    # remove unused imports
-    poetry run autoflake \
-        --remove-all-unused-imports \
-        --recursive \
-        --exclude=__init__.py,.venv \
-        --in-place stickerfinder
-    poetry run black stickerfinder
-    poetry run isort stickerfinder \
-        --skip __init__.py
-
+    poetry run ruff check --fix ./stickerfinder
+    poetry run ruff format ./stickerfinder
 
 # Watch for something
 # E.g. `just watch lint` or `just watch test`
