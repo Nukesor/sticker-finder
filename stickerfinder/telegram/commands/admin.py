@@ -158,7 +158,7 @@ def broadcast(bot, update, session, chat, user):
 
         # The chat doesn't exist any longer, delete it
         except BadRequest as e:
-            if e.message == "Chat not found":  # noqa
+            if e.message == "Chat not found":
                 deleted += 1
                 continue
 

@@ -9,7 +9,7 @@ from sqlalchemy import Date, Integer, cast, func
 from stickerfinder.models import InlineQuery, InlineQueryRequest, User
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa
+import matplotlib.pyplot as plt
 
 
 def send_plots(session, chat):

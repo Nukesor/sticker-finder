@@ -61,17 +61,9 @@ def user_cleanup(session, chat):
         User.admin.is_(False)
     ).filter(User.authorized.is_(False)).filter(User.banned.is_(False)).filter(
         ~User.changes.any()
-    ).filter(
-        ~User.tasks.any()
-    ).filter(
-        ~User.reports.any()
-    ).filter(
+    ).filter(~User.tasks.any()).filter(~User.reports.any()).filter(
         ~User.inline_queries.any()
-    ).filter(
-        ~User.proposed_tags.any()
-    ).delete(
-        synchronize_session=False
-    )
+    ).filter(~User.proposed_tags.any()).delete(synchronize_session=False)
 
     after = session.query(User).count()
     deleted = before - after

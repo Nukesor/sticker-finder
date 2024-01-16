@@ -5,7 +5,7 @@ from sentry_sdk import configure_scope
 from stickerfinder.config import config
 
 
-class Sentry(object):
+class Sentry:
     """Sentry wrapper class.
 
     This class offers some convenience classes and functions for adding

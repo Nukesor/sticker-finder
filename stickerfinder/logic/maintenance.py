@@ -89,7 +89,7 @@ def check_newsfeed_chat(bot, session, chat):
     except ChatMigrated:
         session.delete(chat)
     except BadRequest as e:
-        if e.message == "Chat not found":  # noqa
+        if e.message == "Chat not found":
             session.delete(chat)
         else:
             raise e
@@ -110,7 +110,7 @@ def distribute_tasks(bot, session):
         try:
             tg_chat = bot.get_chat(chat.id)
         except BadRequest as e:
-            if e.message == "Chat not found":  # noqa
+            if e.message == "Chat not found":
                 session.delete(chat)
                 continue
 

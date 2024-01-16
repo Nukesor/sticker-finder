@@ -73,7 +73,7 @@ def maintenance_job(context, session):
         .all()
     )
 
-    for (sticker_set, _) in report_candidates:
+    for sticker_set, _ in report_candidates:
         task = Task(Task.REPORT, sticker_set=sticker_set)
         tasks.append(task)
         session.add(task)
@@ -93,7 +93,7 @@ def maintenance_job(context, session):
             .all()
         )
 
-        for (user, _) in user_check_candidates:
+        for user, _ in user_check_candidates:
             task = Task(Task.CHECK_USER_TAGS, user=user)
             task.international = international
             session.add(task)
