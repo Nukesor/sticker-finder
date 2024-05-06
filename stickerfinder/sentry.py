@@ -1,4 +1,5 @@
 """Simple wrapper around sentry that allows for lazy initilization."""
+
 import sentry_sdk
 from sentry_sdk import configure_scope
 

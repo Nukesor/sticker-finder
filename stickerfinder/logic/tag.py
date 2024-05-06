@@ -1,4 +1,5 @@
 """Helper functions for tagging."""
+
 from collections import OrderedDict
 
 from sqlalchemy import func

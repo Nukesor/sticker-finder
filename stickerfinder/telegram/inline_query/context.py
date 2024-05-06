@@ -1,4 +1,5 @@
 """Object representing a inline query search for easier parameter handling."""
+
 from stickerfinder.logic.tag import get_tags_from_text
 
 

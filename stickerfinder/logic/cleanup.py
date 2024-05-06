@@ -1,4 +1,5 @@
 """Some functions to cleanup the database."""
+
 from datetime import datetime, timedelta
 
 from sqlalchemy import or_

@@ -1,4 +1,5 @@
 """Maintenance related commands."""
+
 from stickerfinder.logic.maintenance import check_maintenance_chat, check_newsfeed_chat
 from stickerfinder.session import message_wrapper
 

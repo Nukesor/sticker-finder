@@ -1,4 +1,5 @@
 """The sqlite model for a chat."""
+
 import logging
 
 from sqlalchemy import Column, ForeignKey, Table, UniqueConstraint, func

@@ -1,4 +1,5 @@
 """Translation module."""
+
 import i18n
 
 i18n.set("filename_format", "{locale}.{format}")

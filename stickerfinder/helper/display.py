@@ -1,4 +1,5 @@
 """Helper for compiling text."""
+
 from stickerfinder.i18n import i18n
 from stickerfinder.telegram.keyboard import get_help_keyboard
 

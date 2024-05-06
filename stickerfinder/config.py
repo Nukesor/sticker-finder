@@ -1,4 +1,5 @@
 """Config values for stickerfinder."""
+
 import logging
 import os
 import sys

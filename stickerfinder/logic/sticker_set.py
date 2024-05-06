@@ -1,4 +1,5 @@
 """Helper functions for handling sticker sets."""
+
 from telegram.error import BadRequest
 
 from stickerfinder.config import config

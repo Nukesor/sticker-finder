@@ -1,4 +1,5 @@
 """Query composition for inline search."""
+
 from pprint import pprint
 
 from sqlalchemy import Numeric, and_, case, cast, func, or_

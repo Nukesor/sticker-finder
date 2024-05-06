@@ -1,4 +1,5 @@
 """The sqlite model for a task."""
+
 from uuid import uuid4
 
 from sqlalchemy import CheckConstraint, Column, ForeignKey, func

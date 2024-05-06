@@ -1,4 +1,5 @@
 """The sqlite model for a inline query request."""
+
 from sqlalchemy import Boolean, Column, ForeignKey, UniqueConstraint, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import BigInteger, DateTime, Interval, String

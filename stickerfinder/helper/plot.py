@@ -1,4 +1,5 @@
 """Module responsibel for plotting statistics."""
+
 import io
 
 import matplotlib

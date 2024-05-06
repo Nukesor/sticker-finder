@@ -1,4 +1,5 @@
 """General admin commands."""
+
 import secrets
 import time
 

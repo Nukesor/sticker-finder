@@ -1,4 +1,5 @@
 """The sqlite model for a change."""
+
 from sqlalchemy import Column, ForeignKey, Table, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship

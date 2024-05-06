@@ -1,4 +1,5 @@
 """Misc telegram commands."""
+
 from stickerfinder.helper.display import get_help_text_and_keyboard
 from stickerfinder.i18n import i18n
 from stickerfinder.session import message_wrapper

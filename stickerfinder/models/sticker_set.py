@@ -1,4 +1,5 @@
 """The sqlite model for a sticker set."""
+
 from sqlalchemy import CheckConstraint, Column, Index, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship

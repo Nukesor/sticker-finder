@@ -1,4 +1,5 @@
 """Telegram job tasks."""
+
 from datetime import datetime, timedelta
 
 from sqlalchemy import and_, func

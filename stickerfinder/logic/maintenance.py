@@ -1,4 +1,5 @@
 """Helper functions for maintenance."""
+
 from sqlalchemy import func
 from telegram.error import BadRequest, ChatMigrated, Unauthorized
 

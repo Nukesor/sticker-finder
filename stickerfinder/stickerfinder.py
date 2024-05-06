@@ -1,4 +1,5 @@
 """A bot for stickers."""
+
 import logging
 
 from telegram.ext import (

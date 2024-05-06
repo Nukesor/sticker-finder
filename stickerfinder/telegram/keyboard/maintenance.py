@@ -1,4 +1,5 @@
 """Maintenance related keyboards."""
+
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from stickerfinder.helper.callback import CallbackResult, CallbackType, build_set_data

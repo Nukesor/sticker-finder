@@ -1,4 +1,5 @@
 """The sqlite model for a sticker."""
+
 from sqlalchemy import (
     Column,
     ForeignKey,

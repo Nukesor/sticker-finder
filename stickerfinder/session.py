@@ -1,4 +1,5 @@
 """Session helper functions."""
+
 import traceback
 from datetime import datetime, timedelta
 from functools import wraps

@@ -1,4 +1,5 @@
 """Entry points for inline query search."""
+
 import hashlib
 from datetime import datetime
 

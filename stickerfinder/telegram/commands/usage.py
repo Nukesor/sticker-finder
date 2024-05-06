@@ -1,4 +1,5 @@
 """Sticker usage related commands."""
+
 from stickerfinder.models import Sticker, StickerUsage
 from stickerfinder.session import message_wrapper
 

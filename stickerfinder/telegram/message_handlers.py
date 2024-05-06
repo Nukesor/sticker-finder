@@ -1,4 +1,5 @@
 """Message handler functions."""
+
 from stickerfinder.enums import TagMode
 from stickerfinder.logic.tag import (
     current_sticker_tags_message,

@@ -1,4 +1,5 @@
 """The sqlite model for a change."""
+
 from sqlalchemy import Column, ForeignKey, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import DateTime, Integer, String

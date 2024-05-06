@@ -1,4 +1,5 @@
 """The sqlite model for a tag."""
+
 from sqlalchemy import Column, Index, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.types import Boolean, DateTime, String

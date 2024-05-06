@@ -1,4 +1,5 @@
 """Chat related commands."""
+
 from stickerfinder.logic.tag import send_tagged_count_message
 from stickerfinder.session import message_wrapper
 from stickerfinder.telegram.keyboard import get_main_keyboard

@@ -1,4 +1,5 @@
 """The sqlite model for a user."""
+
 from sqlalchemy import Boolean, Column, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import relationship
