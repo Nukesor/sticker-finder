@@ -5,6 +5,7 @@ description = "A telegram bot for searching all the stickers (just like @gif)."
 authors = ["Arne Beer <contact@arne.beer>"]
 license = "MIT"
 repository = "https://github.com/nukesor/sticker-finder"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
